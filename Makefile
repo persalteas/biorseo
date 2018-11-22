@@ -1,21 +1,22 @@
-# ------------------------------------------------
-# Generic Makefile
-# ------------------------------------------------
+ICONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/include
+ICPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/include
+LCONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/lib/x86-64_linux/static_pic/
+LCPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/lib/x86-64_linux/static_pic/
 
 # project name (generate executable with this name)
-TARGET   = motifscan
+TARGET   = biominserter
 
 CC	   = g++
 # compiling flags here
-CFLAGS   = -I. -O3
-CXXFLAGS = -std=c++17 -Wall -Wpedantic -Wextra
+CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -O3
+CXXFLAGS = -std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes
 
 LINKER   = g++
 # linking flags here
-LDFLAGS   = -lboost_system -lboost_filesystem -lboost_program_options
+LDFLAGS   = -lconcert -lilocplex -lcplex -lm -lpthread -ldl -lboost_system -lboost_filesystem -lboost_program_options -L$(LCONCERT) -L$(LCPLEX)
 
 # change these to proper directories where each file should be
-SRCDIR   = src
+SRCDIR   = cppsrc
 OBJDIR   = obj
 BINDIR   = bin
 

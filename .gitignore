@@ -1,6 +1,11 @@
 # Prerequisites
 *.d
 
+# LaTeX temporary files
+doc/*.toc
+doc/*.bbl
+doc/*.gz
+
 # Compiled Object files
 *.slo
 *.lo
