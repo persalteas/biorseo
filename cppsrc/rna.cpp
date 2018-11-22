@@ -19,55 +19,56 @@ RNA::RNA(string name, string seq)
     n_ = seq_.size();
     cout << "\t>formatted sequence" << endl;
 
-    /*define type_*/
-    type_ = vector<vector<int>>(n_, vector<int>(n_));
-    for (int i = 0; i < n_; i++) {
-        for (int j = 0; j < n_; j++) {
-            if (i < j) {
-                std::stringstream ss;
-                ss << seq_[i] << seq_[j];
-                string str = ss.str();
-                if (str.compare("AU") == 0) {
-                    type_[i][j] = 1;
-                } else if (str.compare("CG") == 0) {
-                    type_[i][j] = 2;
-                } else if (str.compare("GC") == 0) {
-                    type_[i][j] = 3;
-                } else if (str.compare("GU") == 0) {
-                    type_[i][j] = 4;
-                } else if (str.compare("UG") == 0) {
-                    type_[i][j] = 5;
-                } else if (str.compare("UA") == 0) {
-                    type_[i][j] = 6;
-                } else {
-                    type_[i][j] = 0;
-                }
-            } else {
-                type_[i][j] = 0;
-            }
-        }
-    }
-    nBP_ = type_.size();
+    /*define basepair_type_*/
+    // basepair_type_ = vector<vector<int>>(n_, vector<int>(n_)); // whole matrix in memory !
 
-    /*define coord_*/
-    for (int i = 0; i < n_; i++) {
-        for (int j = 0; j < n_; j++) {
-            if (i < j and type_[i][j] > 0) {
-                if (i != 0 and i != n_ and j != 0 and j != n_) {
-                    if (type_[i - 1][j + 1] > 0 or type_[i + 1][j - 1] > 0) {
-                        coord_.push_back(std::make_pair(i, j));
-                    }
-                } else if (i == 0 or j == n_) {
-                    if (type_[i + 1][j - 1] > 0) {
-                        coord_.push_back(std::make_pair(i, j));
-                    }
-                }
-            }
-        }
-    }
+    // for (int i = 0; i < n_; i++) {
+    //     for (int j = 0; j < n_; j++) {
+    //         if (i < j) {
+    //             std::stringstream ss;
+    //             ss << seq_[i] << seq_[j];
+    //             string str = ss.str();
+    //             if (str.compare("AU") == 0) {
+    //                 basepair_type_[i][j] = 1;
+    //             } else if (str.compare("CG") == 0) {
+    //                 basepair_type_[i][j] = 2;
+    //             } else if (str.compare("GC") == 0) {
+    //                 basepair_type_[i][j] = 3;
+    //             } else if (str.compare("GU") == 0) {
+    //                 basepair_type_[i][j] = 4;
+    //             } else if (str.compare("UG") == 0) {
+    //                 basepair_type_[i][j] = 5;
+    //             } else if (str.compare("UA") == 0) {
+    //                 basepair_type_[i][j] = 6;
+    //             } else {
+    //                 basepair_type_[i][j] = 0;
+    //             }
+    //         } else {
+    //             basepair_type_[i][j] = 0;
+    //         }
+    //     }
+    // }
+    // nBP_ = basepair_type_.size();
+
+    // /*define coord_*/
+    // for (int i = 0; i < n_; i++) {
+    //     for (int j = 0; j < n_; j++) {
+    //         if (i < j and basepair_type_[i][j] > 0) {
+    //             if (i != 0 and i != n_ and j != 0 and j != n_) {
+    //                 if (basepair_type_[i - 1][j + 1] > 0 or basepair_type_[i + 1][j - 1] > 0) {
+    //                     coord_.push_back(std::make_pair(i, j));
+    //                 }
+    //             } else if (i == 0 or j == n_) {
+    //                 if (basepair_type_[i + 1][j - 1] > 0) {
+    //                     coord_.push_back(std::make_pair(i, j));
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     /*define pij_*/
-    vector<float> bp;
+    vector<float> bp_proba;
     vector<int>   offset;
     Nupack        nu;
     // nu.load_parameters("rna1999.dG");
@@ -82,24 +83,24 @@ RNA::RNA(string name, string seq)
         exit(EXIT_FAILURE);
     }
     nu.calculate_posterior();
-    nu.get_posterior(bp, offset);
+    nu.get_posterior(bp_proba, offset);
 
     pij_ = vector<vector<float>>(n_, vector<float>(n_));
     for (int i = 1; i <= n_; i++) {
         for (int j = 1; j <= n_; j++) {
-            pij_[i - 1][j - 1] = bp[offset[i] + j];
+            pij_[i - 1][j - 1] = bp_proba[offset[i] + j];
         }
     }
     cout << "\t>pairing probabilities defined" << endl;
 }
 
-int RNA::find_coord(pair<int, int> p)
-{
-    vector<pair<int, int>>::iterator it = find(coord_.begin(), coord_.end(), p);
-    int                              r  = -1;
-    if (it != coord_.end()) r = distance(coord_.begin(), it);
-    return r;
-}
+// int RNA::find_coord(pair<int, int> p)
+// {
+//     vector<pair<int, int>>::iterator it = find(coord_.begin(), coord_.end(), p);
+//     int                              r  = -1;
+//     if (it != coord_.end()) r = distance(coord_.begin(), it);
+//     return r;
+// }
 
 bool RNA::check_seq(string seq)    // Checks if the sequences only contains ACGUT.
 {

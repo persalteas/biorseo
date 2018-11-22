@@ -43,7 +43,6 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
     }
     // Add the Cx,i,p decision variables
     index_of_first_components.reserve(insertionSites.size());
-    index_of_Cxip_ = vector<vector<size_t>>(0);
     index_of_Cxip_.reserve(insertionSites.size());
     size_t i = 0;
     for (const Motif m : insertionSites) {
@@ -51,7 +50,7 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
         index_of_Cxip_.push_back(vector<size_t>(0));
         for (const Component cmp : m.comp) {
             index_of_Cxip_.back().push_back(i);
-            if (cmp.k > 0) i++;
+            i++;
             char name[20];
             sprintf(
             name, "C%d,%d-%d", static_cast<int>(index_of_Cxip_.size() - 1),
@@ -88,7 +87,7 @@ void MOIP::solve_objective(int o, double min, double max)
             IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
             obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
         }
-        model_.add(IloMinimize(env_, obj1));
+        model_.add(IloMaximize(env_, obj1));
     } break;
     case 2: {
         // Add the likelihood objective function
@@ -104,10 +103,24 @@ void MOIP::solve_objective(int o, double min, double max)
     env_.out() << endl << "Solution status = " << cplex_.getStatus() << endl;
     env_.out() << endl << "Objective value = " << cplex_.getObjValue() << endl;
     cplex_.getValues(basepair_values, basepair_dv_);
-    env_.out() << endl << "Basepair Values = " << basepair_values << endl;
-    cplex_.getValues(insertion_values, basepair_dv_);
-    env_.out() << endl << "Insertion Values = " << insertion_values << endl;
+    cplex_.getValues(insertion_values, insertion_dv_);
 
+    // Build a secondary Structure
+    SecondaryStructure best_ss = SecondaryStructure(rna_);
+    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+        // A constraint requires that all the components are inserted or none, so testing the first is enough:
+        if (insertion_values[index_of_first_components[i]]) best_ss.insert_motif(insertion_sites_[i]);
+    }
+    cout << "\t>retrieveing motifs inserted in the result secondary structure..." << endl;
+    for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
+        for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
+            if (allowed_basepair(u, v))
+                if (basepair_values[get_yuv_index(u, v)]) best_ss.set_basepair(u, v);
+        }
+    }
+    cout << "\t>retrieving basepairs of the result secondary structure..." << endl;
+
+    best_ss.print();
     // TODO : retrieve the secondary structure !!
 }
 

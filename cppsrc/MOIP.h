@@ -16,8 +16,7 @@ class MOIP
 {
   public:
     static uint ncores;
-    typedef enum { MIN, MAX } DirType;
-    typedef enum { FR, LO, UP, DB, FX } BoundType;
+
     MOIP(const RNA& rna, const vector<Motif>& motifSites);
     ~MOIP(void);
     void                      solve_objective(int o, double min, double max);
@@ -35,21 +34,25 @@ class MOIP
     IloNumExprArg& y(size_t u, size_t v);    // Direct reference to y^u_v in basepair_dv_
     IloNumExprArg& C(size_t x, size_t i);    // Direct reference to C_p^xi in insertion_dv_
 
-
+    // Elements of the problem
     RNA                        rna_;                // RNA object
     vector<Motif>              insertion_sites_;    // Potential Motif insertion sites
-    const float                beta_;               // beta parameter of the probability function
-    double                     lambdaMin_;          // minimum threshold value for the probability value
-    double                     lambdaMax_;          // maximum threshold value for the probability value
-    int                        vp_;                 // vp_ variable for penalization of the probability score
-    float                      theta_;              // theta parameter for the probability function
-    IloEnv                     env_;                // environment CPLEX object
-    IloNumVarArray             basepair_dv_;        // Decision variables
-    IloNumVarArray             insertion_dv_;       // Decision variables
     vector<SecondaryStructure> pareto_;             // Vector of results
-    vector<vector<size_t>>     index_of_Cxip_;      // Stores the indexes of the Cxip in insertion_dv_
-    vector<vector<size_t>>     index_of_yuv_;    // Stores the indexes of the y^u_v in basepair_dv_ in a complex way. Use get_yuv_index(u,v) to retrieve.
-    vector<size_t>             index_of_first_components;    // Stores the indexes of Cx1p in insertion_dv_
+
+    // Objectives related
+    float  beta_;         // beta parameter of the probability function
+    int    vp_;           // vp_ variable for penalization of the probability score
+    float  theta_;        // theta parameter for the probability function
+    double lambdaMin_;    // minimum threshold value for the probability value
+    double lambdaMax_;    // maximum threshold value for the probability value
+
+    // CPLEX objects
+    IloEnv                 env_;                         // environment CPLEX object
+    IloNumVarArray         basepair_dv_;                 // Decision variables
+    IloNumVarArray         insertion_dv_;                // Decision variables
+    vector<vector<size_t>> index_of_Cxip_;               // Stores the indexes of the Cxip in insertion_dv_
+    vector<size_t>         index_of_first_components;    // Stores the indexes of Cx1p in insertion_dv_
+    vector<vector<size_t>> index_of_yuv_;                // Stores the indexes of the y^u_v in basepair_dv_
 };
 
 inline void                      MOIP::add_solution(const SecondaryStructure& s) { pareto_.push_back(s); }

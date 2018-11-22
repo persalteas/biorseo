@@ -1,5 +1,5 @@
-# Prerequisites
-*.d
+.clang-format
+rna1999.dG
 
 # LaTeX temporary files
 doc/*.toc
@@ -7,33 +7,8 @@ doc/*.bbl
 doc/*.gz
 
 # Compiled Object files
-*.slo
-*.lo
 *.o
-*.obj
 obj/*
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
 # Executables
-*.exe
-*.out
-*.app
 bin/*

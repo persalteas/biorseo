@@ -1,21 +1,21 @@
 #include "SecondaryStructure.h"
 #include <boost/format.hpp>
 
+using std::cout, std::endl;
+
 static const double PRECISION(0.0001);
 
-SecondaryStructure::SecondaryStructure(const vector<double>& scores, const vector<bool>& decision_variables, VII coord, int RNAlength)
-: objective_scores_(scores), dv_(decision_variables), coord_(coord), n_(RNAlength)
+SecondaryStructure::SecondaryStructure(RNA& rna)
+: objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), rna_(rna)
 {
 }
 
 string SecondaryStructure::to_DBN(void) const
 {
-    string res(n_, '.');
-    for (size_t i = 0; i < n_; i++) {
-        if (dv_[i]) {
-            res[coord_[i].first]  = '(';
-            res[coord_[i].second] = ')';
-        }
+    string res = string(n_, '.');
+    for (size_t i = 0; i < nBP_; i++) {
+        res[basepairs_[i].first]  = '(';
+        res[basepairs_[i].second] = ')';
     }
     return res;
 }
@@ -24,6 +24,42 @@ string SecondaryStructure::to_string(void) const
 {
     return to_DBN() + "\t" + boost::str(boost::format("%.6f") % objective_scores_[0]) + "\t" +
            boost::str(boost::format("%.6f") % objective_scores_[1]);
+}
+
+void SecondaryStructure::set_basepair(uint i, uint j)
+{
+    nBP_++;
+    pair<uint, uint> bp;
+    bp.first  = i;
+    bp.second = j;
+    basepairs_.push_back(bp);
+}
+
+void SecondaryStructure::insert_motif(const Motif& m) { motif_info_.push_back(m); }
+
+void SecondaryStructure::print(void) const
+{
+    cout << endl;
+    cout << '\t' << to_DBN() << endl;
+    for (const Motif& m : motif_info_) {
+        uint i = 0;
+        cout << '\t';
+        for (auto c : m.comp) {
+            while (i != c.pos.second) {
+                if (i < c.pos.first)
+                    cout << " ";
+                else
+                    cout << '-';
+                i++;
+            }
+        }
+        while (i < rna_.get_RNA_length()) {
+            cout << " ";
+            i++;
+        }
+        cout << "\t" << m.atlas_id << endl;
+    }
+    cout << endl;
 }
 
 bool operator>(const SecondaryStructure& s1, const SecondaryStructure& s2)
