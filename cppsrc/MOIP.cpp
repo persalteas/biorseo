@@ -180,18 +180,36 @@ void MOIP::add_problem_constraints(const IloModel& model_)
         }
     }
     // Forbid component overlap
+    cout << "\t>forbidding component overlap..." << endl;
     for (u = 0; u < n; u++) {
         IloExpr c4(env_);
+        uint    nterms = 0;
         for (size_t i = 0; i < insertion_sites_.size(); i++) {
             Motif& x = insertion_sites_[i];
             for (size_t j = 0; j < x.comp.size(); j++) {
                 Component& c = x.comp[j];
-                if (u >= c.pos.first and u <= c.pos.second)    // Cxip contains u
+                if (u >= c.pos.first and u <= c.pos.second) {    // Cxip contains u
                     c4 += C(i, j);
+                    nterms++;
+                }
             }
         }
-        model_.add(c4 <= 1);
-        cout << "\t>It worked for base " << u << " : " << (c4 <= 1) << endl;
+        if (nterms) model_.add(c4 <= 1);
+        // cout << "\t>It worked for base " << u << " : " << (c4 <= 1) << endl;
+    }
+    // Component completeness
+    cout << "\t>ensuring that motives cannot be partially included..." << endl;
+    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+        Motif& x = insertion_sites_[i];
+        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
+            continue;
+        IloExpr c5(env_);
+        IloNum  jm1 = IloNum(x.comp.size() - 1);
+        for (size_t j = 1; j < x.comp.size(); j++) {
+            c5 += C(i, j);
+        }
+        model_.add(c5 == jm1 * C(i, 0));
+        // cout << "\t>It worked for motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
     }
 }
 
