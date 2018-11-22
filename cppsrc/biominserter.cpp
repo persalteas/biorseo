@@ -1,6 +1,7 @@
 /***
         Biominserter
         Louis Becquey, starting from Audrey Legendre's code
+        contains adapted pieces of code from IPknot and Nupack
         nov 2018
 ***/
 
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
     list<Fasta>::iterator fa = f.begin();
     cout << "loading " << fa->name() << "..." << endl;
     RNA myRNA = RNA(fa->name(), fa->seq());
-    cout << "\t>" << inputName << " successfuly loaded" << endl;
+    cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
     // load CSV file
     string   line;
@@ -76,7 +77,7 @@ int main(int argc, char* argv[])
     while (getline(motifs, line)) {
         posInsertionSites.push_back(parse_csv_line(line));
     }
-    cout << "\t>" << csvname << " successfuly loaded" << endl;
+    cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
 
     // creating the Multi-Objective problem:
     MOIP myMOIP = MOIP(myRNA, posInsertionSites);    // using the constructor with arguments automatically defines the decision variables.

@@ -31,7 +31,6 @@ RNA::RNA(string name, string seq)
                     type_[i][j] = 1;
                 } else if (str.compare("CG") == 0) {
                     type_[i][j] = 2;
-
                 } else if (str.compare("GC") == 0) {
                     type_[i][j] = 3;
                 } else if (str.compare("GU") == 0) {
@@ -67,7 +66,6 @@ RNA::RNA(string name, string seq)
         }
     }
 
-
     /*define pij_*/
     vector<float> bp;
     vector<int>   offset;
@@ -77,7 +75,7 @@ RNA::RNA(string name, string seq)
     cout << "\t>default parameters loaded (Serra and Turner, 1995)" << endl;
     nu.load_sequence(seq_);
     cout << "\t>computing pairing probabilities..." << endl;
-    try {
+    try {    // Depending on the input RNA size, the RAM amount might too large to handle for your poor laptop
         nu.calculate_partition_function();
     } catch (std::exception& e) {
         cerr << e.what() << endl;
@@ -124,4 +122,26 @@ void RNA::format()
             break;
         }
     }
+}
+
+void RNA::print_basepair_p_matrix(float theta) const
+{
+    cout << endl << endl;
+    cout << "\t=== -log10(p(i,j)) for each pair (i,j) of nucleotides: ===" << endl << endl;
+    cout << "\t " << seq_ << endl;
+    uint i = 0;
+    for (auto u : pij_) {
+        cout << "\t" << seq_[i];
+        for (auto v : u) {
+            if (v < 5e-10)
+                cout << " ";
+            else if (v > theta)
+                cout << "\033[0;32m" << int(-log10(v)) << "\033[0m";
+            else
+                cout << int(-log10(v));
+        }
+        cout << endl;
+        i++;
+    }
+    cout << endl << "\t\033[0;32mgreen\033[0m basepairs are kept as decision variables." << endl << endl;
 }

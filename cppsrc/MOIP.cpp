@@ -19,7 +19,7 @@ using std::vector;
 uint MOIP::ncores = 0;
 
 MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
-: rna_(rna), insertion_sites_(insertionSites), beta_(1.0), theta_{1.0 / (2.0 + 1.0)}
+: rna_(rna), insertion_sites_(insertionSites), beta_(1.0), theta_{0.01}
 {
     basepair_dv_  = IloNumVarArray(env_);
     insertion_dv_ = IloNumVarArray(env_);
@@ -30,11 +30,15 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
     for (u = 0; u < rna_.get_RNA_length() - 6; u++) {
         for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible iff v > u+3
         {
-            index_of_yuv_[u].push_back(c);
-            c++;
-            char name[15];
-            sprintf(name, "y%d,%d", u, v);
-            basepair_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether u and v are paired
+            if (rna_.get_pij(u, v) > theta_) {
+                index_of_yuv_[u].push_back(c);
+                c++;
+                char name[15];
+                sprintf(name, "y%d,%d", u, v);
+                basepair_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether u and v are paired
+            } else {
+                index_of_yuv_[u].push_back(rna_.get_RNA_length() + 1);
+            }
         }
     }
     // Add the Cx,i,p decision variables
@@ -45,25 +49,23 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
     for (const Motif m : insertionSites) {
         index_of_first_components.push_back(i);
         index_of_Cxip_.push_back(vector<size_t>(0));
-        for (const Component c : m.comp) {
+        for (const Component cmp : m.comp) {
             index_of_Cxip_.back().push_back(i);
-            if (c.k > 0) i++;
+            if (cmp.k > 0) i++;
             char name[20];
             sprintf(
-            name,
-            "C%d,%d-%d",
-            static_cast<int>(index_of_Cxip_.size() - 1),
-            static_cast<int>(index_of_Cxip_.back().size() - 1),
-            c.pos.first);
+            name, "C%d,%d-%d", static_cast<int>(index_of_Cxip_.size() - 1),
+            static_cast<int>(index_of_Cxip_.back().size() - 1), cmp.pos.first);
             insertion_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether component i of motif x is inserted at position p
         }
     }
-    cout << i + c << " decision variables are used !" << endl;
+
+    rna_.print_basepair_p_matrix(theta_);
+
+    cout << c << " + " << i << " (yuv + Cpxi) decision variables are used !" << endl;
 }
 
-
 MOIP::~MOIP() { env_.end(); }
-
 
 bool MOIP::is_undominated_yet(const SecondaryStructure& s)
 {
@@ -188,8 +190,9 @@ void MOIP::extend_pareto(double lambdaMin, double lambdaMax)
         }
         // mirror
         // if (
-        // (abs(pareto_[i].get_obj2M_() - lambdaMin) < PRECISION or pareto_[i].get_obj2M_() > lambdaMin) and
-        // (abs(pareto_[i].get_obj2M_() - lambdaMax) < PRECISION or pareto_[i].get_obj2M_() < lambdaMax)) {
+        // (abs(pareto_[i].get_obj2M_() - lambdaMin) < PRECISION or
+        // pareto_[i].get_obj2M_() > lambdaMin) and (abs(pareto_[i].get_obj2M_() -
+        // lambdaMax) < PRECISION or pareto_[i].get_obj2M_() < lambdaMax)) {
         //     ip.add_bj_ct_M(pareto_[i]);
         // }
     }
@@ -223,5 +226,6 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
     if (b - a < 4) return false;
     if (a >= rna_.get_RNA_length() - 6) return false;
     if (b >= rna_.get_RNA_length()) return false;
+    if (get_yuv_index(a, b) == rna_.get_RNA_length() + 1) return false;    // not allowed because proba < theta_
     return true;
 }

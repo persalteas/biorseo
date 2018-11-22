@@ -42,18 +42,19 @@ class RNA
     float                  get_pij(int i);
     int                    get_err_();
     uint                   get_RNA_length() const;
+    void                   print_basepair_p_matrix(float theta) const;
 
     bool check_seq(string seq);
     void format();
 
   private:
-    string                          name_;  /*name of the rna*/
-    string                          seq_;   /*sequence of the rna*/
-    int                             n_;     /*length of the rna*/
-    vector<vector<int>>             type_;  /*vector of base pair types*/
-    vector<pair<int, int>>          coord_; /*vector of base pair coordinates*/
-    vector<vector<float>>           pij_;   /*vector of probabilities*/
-    uint                            nBP_;   /*number of possible base pair*/
+    string                 name_;  /*name of the rna*/
+    string                 seq_;   /*sequence of the rna*/
+    int                    n_;     /*length of the rna*/
+    vector<vector<int>>    type_;  /*vector of base pair types*/
+    vector<pair<int, int>> coord_; /*vector of base pair coordinates*/
+    vector<vector<float>>  pij_;   /*vector of probabilities*/
+    uint                   nBP_;   /*number of possible base pair*/
 };
 
 inline int                    RNA::get_n_() { return n_; }
