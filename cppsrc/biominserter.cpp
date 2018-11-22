@@ -83,13 +83,9 @@ int main(int argc, char* argv[])
     MOIP myMOIP = MOIP(myRNA, posInsertionSites);    // using the constructor with arguments automatically defines the decision variables.
 
     // finding the best SecondaryStructures for each objective
-    double max = myRNA.get_RNA_length();
-    try {
-        myMOIP.solve_objective(1, -max, max);
-    } catch (IloCplex::Exception& e) {
-        cerr << e << endl;
-    }
-    // SecondaryStructure bestSSO1 = myMOIP.solve_objective(1, -max, max);
+    double             max      = myRNA.get_RNA_length();
+    SecondaryStructure bestSSO1 = myMOIP.solve_objective(1, -max, max);
+    bestSSO1.print();
     // SecondaryStructure bestSSO2 = myMOIP.solve_objective(2, -max, max);
     // double             bestObj2 = bestSSO2.get_objective_score(2);
 

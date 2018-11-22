@@ -74,7 +74,7 @@ bool MOIP::is_undominated_yet(const SecondaryStructure& s)
     return true;
 }
 
-void MOIP::solve_objective(int o, double min, double max)
+SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 {
     IloModel model_ = IloModel(env_);
     cout << "Solving objective function " << o << "..." << endl;
@@ -119,9 +119,7 @@ void MOIP::solve_objective(int o, double min, double max)
         }
     }
     cout << "\t>retrieving basepairs of the result secondary structure..." << endl;
-
-    best_ss.print();
-    // TODO : retrieve the secondary structure !!
+    return best_ss;
 }
 
 void MOIP::add_problem_constraints(const IloModel& model_)
@@ -181,7 +179,20 @@ void MOIP::add_problem_constraints(const IloModel& model_)
             model_.add(c3 <= kxi);
         }
     }
-    // To be continued ...
+    // Forbid component overlap
+    for (u = 0; u < n; u++) {
+        IloExpr c4(env_);
+        for (size_t i = 0; i < insertion_sites_.size(); i++) {
+            Motif& x = insertion_sites_[i];
+            for (size_t j = 0; j < x.comp.size(); j++) {
+                Component& c = x.comp[j];
+                if (u >= c.pos.first and u <= c.pos.second)    // Cxip contains u
+                    c4 += C(i, j);
+            }
+        }
+        model_.add(c4 <= 1);
+        cout << "\t>It worked for base " << u << " : " << (c4 <= 1) << endl;
+    }
 }
 
 void MOIP::extend_pareto(double lambdaMin, double lambdaMax)

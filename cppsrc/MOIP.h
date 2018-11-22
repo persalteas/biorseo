@@ -19,7 +19,7 @@ class MOIP
 
     MOIP(const RNA& rna, const vector<Motif>& motifSites);
     ~MOIP(void);
-    void                      solve_objective(int o, double min, double max);
+    SecondaryStructure        solve_objective(int o, double min, double max);
     uint                      get_n_solutions(void) const;
     const SecondaryStructure& solution(uint i) const;
     void                      extend_pareto(double lambdaMin, double lambdaMax);
