@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     while (getline(motifs, line)) {
         posInsertionSites.push_back(parse_csv_line(line));
     }
-    cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
+    cout << "\t>" << csvname << " successfuly loaded ("     << posInsertionSites.size() << " insertion sites)" << endl;
 
     // creating the Multi-Objective problem:
     MOIP myMOIP = MOIP(myRNA, posInsertionSites);    // using the constructor with arguments automatically defines the decision variables.

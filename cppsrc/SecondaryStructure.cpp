@@ -1,7 +1,8 @@
 #include "SecondaryStructure.h"
 #include <boost/format.hpp>
 
-using std::cout, std::endl;
+using std::cout;
+using std::endl;
 
 static const double PRECISION(0.0001);
 

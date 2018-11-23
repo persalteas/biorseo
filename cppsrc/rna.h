@@ -6,7 +6,10 @@
 #include <string>
 #include <vector>
 
-using std::pair, std::string, std::vector, std::map;
+using std::map;
+using std::pair;
+using std::string;
+using std::vector;
 
 typedef struct Comp_ {
     pair<uint, uint> pos;

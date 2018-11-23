@@ -7,7 +7,8 @@
 #include <vector>
 
 using std::string;
-using std::vector, std::pair;
+using std::vector;
+using std::pair;
 
 class SecondaryStructure
 {

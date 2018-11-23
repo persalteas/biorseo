@@ -1,15 +1,16 @@
-ICONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/include
-ICPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/include
-LCONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/lib/x86-64_linux/static_pic/
-LCPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/lib/x86-64_linux/static_pic/
+include EditMe
+ICONCERT=$(CPLEXDir)/concert/include
+ICPLEX=$(CPLEXDir)/cplex/include
+LCONCERT=$(CPLEXDir)/concert/lib/x86-64_linux/static_pic/
+LCPLEX=$(CPLEXDir)/cplex/lib/x86-64_linux/static_pic/
 
 # project name (generate executable with this name)
 TARGET   = biominserter
 
-CC	   = g++
+CC	   = clang++
 # compiling flags here
 CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -O3
-CXXFLAGS = -std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes
+CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes
 
 LINKER   = g++
 # linking flags here

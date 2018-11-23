@@ -12,7 +12,10 @@
 #include <utility>
 #include <vector>
 
-using std::cerr, std::cout, std::endl;
+using std::abs;
+using std::cerr;
+using std::cout;
+using std::endl;
 using std::make_pair;
 using std::vector;
 
@@ -53,9 +56,13 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
             i++;
             char name[20];
             sprintf(
-            name, "C%d,%d-%d", static_cast<int>(index_of_Cxip_.size() - 1),
-            static_cast<int>(index_of_Cxip_.back().size() - 1), cmp.pos.first);
-            insertion_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether component i of motif x is inserted at position p
+            name,
+            "C%d,%d-%d",
+            static_cast<int>(index_of_Cxip_.size() - 1),
+            static_cast<int>(index_of_Cxip_.back().size() - 1),
+            cmp.pos.first);
+            insertion_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether component i of
+                                                                                // motif x is inserted at position p
         }
     }
 
@@ -80,28 +87,25 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     cout << "Solving objective function " << o << "..." << endl;
     add_problem_constraints(model_);
     switch (o) {
-        case 1: {
-            // Add the motif objective function
-            IloExpr obj1 = IloExpr(env_);
-            for (uint i = 0; i < insertion_sites_.size(); i++) {
-                IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
-                obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
-            }
-            model_.add(IloMaximize(env_, obj1));
-        } break;
-        case 2: {
-            // Add the likelihood objective function
-            IloExpr obj2 = IloExpr(env_);
-            for (size_t u=0; u<rna_.get_RNA_length()-6; u++)
-            {
-                for (size_t v=u+4; v<rna_.get_RNA_length(); v++)
-                {
-                    if (allowed_basepair(u,v))
-                    obj2 += (IloNum(rna_.get_pij(u,v)) * y(u,v))
-                }
-            }
-            model_.add(IloMaximize(env_, obj2));
+    case 1: {
+        // Add the motif objective function
+        IloExpr obj1 = IloExpr(env_);
+        for (uint i = 0; i < insertion_sites_.size(); i++) {
+            IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
+            obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
         }
+        model_.add(IloMaximize(env_, obj1));
+    } break;
+    case 2: {
+        // Add the likelihood objective function
+        IloExpr obj2 = IloExpr(env_);
+        for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
+            for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
+                if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
+            }
+        }
+        model_.add(IloMaximize(env_, obj2));
+    }
     }
     IloCplex cplex_ = IloCplex(model_);
     if (!cplex_.solve()) {

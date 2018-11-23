@@ -5,7 +5,9 @@
 #include <utility>
 #include <vector>
 
-using std::cout, std::cerr, std::endl;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 RNA::RNA(string name, string seq)
 {
