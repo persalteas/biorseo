@@ -21,8 +21,8 @@ using std::vector;
 
 uint MOIP::ncores = 0;
 
-MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites)
-: rna_(rna), insertion_sites_(insertionSites), beta_(1.0), theta_{0.01}
+MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold)
+: rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
 {
     basepair_dv_  = IloNumVarArray(env_);
     insertion_dv_ = IloNumVarArray(env_);
@@ -225,12 +225,32 @@ void MOIP::add_problem_constraints(const IloModel& model_)
         model_.add(c5 == jm1 * C(i, 0));
         // cout << "\t>It worked for motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
     }
+    // Force basepairs between the end of a component and the beginning of the next
+    cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
+    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+        Motif&  x   = insertion_sites_[i];
+        IloExpr c6p = IloExpr(env_);
+        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
+            c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
+        cout << "\t\t" << (C(i, 0) <= c6p) << " (" << allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) << ")" << endl;
+        model_.add(C(i, 0) <= c6p);
+        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
+            continue;
+        for (size_t j = 1; j < x.comp.size(); j++) {
+            IloExpr c6 = IloExpr(env_);
+            if (allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first))
+                c6 += y(x.comp[j - 1].pos.second, x.comp[j].pos.first);
+            model_.add(C(i, j) <= c6);
+            cout << "\t\t" << (C(i, j) <= c6) << " (" << allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first)
+                 << ")" << endl;
+        }
+    }
 }
 
 void MOIP::extend_pareto(double lambdaMin, double lambdaMax)
 {
     if (lambdaMin >= lambdaMax) {
-        cerr << "lambdaMax < lambdaMin, something's wrong !" << endl;
+        cerr << "lambdaMax < lambdaMin, something went wrong !" << endl;
         exit(EXIT_FAILURE);
     }
 

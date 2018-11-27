@@ -1006,12 +1006,12 @@ float Nupack::calculate_partition_function()
                                                RT);
 
                         if (d >= i + 5) {
-                            Qm(i, j) += Qm(i, d - 1) * Qp(d, e) *
-                                        EXP(
-                                        -(
-                                        score_pk_multiloop() + score_multiloop_paired(2, false) +
-                                        score_multiloop_unpaired(j - e, false) + score_dangle(e + 1, j)) /
-                                        RT);
+                            Qm(i, j) +=
+                            Qm(i, d - 1) * Qp(d, e) * EXP(
+                                                      -(
+                                                      score_pk_multiloop() + score_multiloop_paired(2, false) +
+                                                      score_multiloop_unpaired(j - e, false) + score_dangle(e + 1, j)) /
+                                                      RT);
                         }
 
                         Qz(i, j) +=
@@ -1229,24 +1229,22 @@ void Nupack::calculate_posterior()
 
                     if (i != 0 && j != N - 1) {
                         if (Pm(i, j) > 0.0) {
-                            float p =
-                            Qp(d, e) *
-                            EXP(
-                            -(
-                            score_pk_multiloop() + score_multiloop_paired(2, false) +
-                            score_multiloop_unpaired(d - i + j - e, false) + score_dangle(e + 1, j) + score_dangle(i, d - 1)) /
-                            RT) /
-                            Qm(i, j) * Pm(i, j);
+                            float p = Qp(d, e) * EXP(
+                                                 -(
+                                                 score_pk_multiloop() + score_multiloop_paired(2, false) +
+                                                 score_multiloop_unpaired(d - i + j - e, false) +
+                                                 score_dangle(e + 1, j) + score_dangle(i, d - 1)) /
+                                                 RT) /
+                                      Qm(i, j) * Pm(i, j);
                             Pp(d, e) += p;
                             assert(!std::isnan(p));
 
                             if (d >= i + 5) {
-                                p = Qm(i, d - 1) * Qp(d, e) *
-                                    EXP(
-                                    -(
-                                    score_pk_multiloop() + score_multiloop_paired(2, false) +
-                                    score_multiloop_unpaired(j - e, false) + score_dangle(e + 1, j)) /
-                                    RT) /
+                                p = Qm(i, d - 1) * Qp(d, e) * EXP(
+                                                              -(
+                                                              score_pk_multiloop() + score_multiloop_paired(2, false) +
+                                                              score_multiloop_unpaired(j - e, false) + score_dangle(e + 1, j)) /
+                                                              RT) /
                                     Qm(i, j) * Pm(i, j);
                                 Pm(i, d - 1) += p;
                                 Pp(d, e) += p;
@@ -1438,14 +1436,13 @@ void Nupack::calculate_posterior()
                 for (int d = i + 6; d <= j - 5; ++d) {
                     for (int e = d + 4; e <= j - 1; ++e) {
                         if (allow_paired(d, e) && wc_pair(d, e) && Pg(i, d, e, j) > 0.0) {
-                            float p =
-                            Qm(i + 1, d - 1) *
-                            EXP(
-                            -(
-                            score_multiloop(true) + score_multiloop_paired(2, true) + score_multiloop_unpaired(j - e - 1, true) +
-                            score_at_penalty(i, j) + score_at_penalty(d, e) + score_dangle(e + 1, j - 1)) /
-                            RT) /
-                            Qg(i, d, e, j) * Pg(i, d, e, j);
+                            float p = Qm(i + 1, d - 1) * EXP(
+                                                         -(
+                                                         score_multiloop(true) + score_multiloop_paired(2, true) +
+                                                         score_multiloop_unpaired(j - e - 1, true) + score_at_penalty(i, j) +
+                                                         score_at_penalty(d, e) + score_dangle(e + 1, j - 1)) /
+                                                         RT) /
+                                      Qg(i, d, e, j) * Pg(i, d, e, j);
                             Pm(i + 1, d - 1) += p;
                             assert(!std::isnan(p));
                         }
@@ -1456,14 +1453,13 @@ void Nupack::calculate_posterior()
                 for (int d = i + 1; d <= j - 10; ++d) {
                     for (int e = d + 4; e <= j - 6; ++e) {
                         if (allow_paired(d, e) && wc_pair(d, e) && Pg(i, d, e, j) > 0.0) {
-                            float p =
-                            Qm(e + 1, j - 1) *
-                            EXP(
-                            -(
-                            score_multiloop(true) + score_multiloop_paired(2, true) + score_multiloop_unpaired(d - i - 1, true) +
-                            score_at_penalty(i, j) + score_at_penalty(d, e) + score_dangle(i + 1, d - 1)) /
-                            RT) /
-                            Qg(i, d, e, j) * Pg(i, d, e, j);
+                            float p = Qm(e + 1, j - 1) * EXP(
+                                                         -(
+                                                         score_multiloop(true) + score_multiloop_paired(2, true) +
+                                                         score_multiloop_unpaired(d - i - 1, true) + score_at_penalty(i, j) +
+                                                         score_at_penalty(d, e) + score_dangle(i + 1, d - 1)) /
+                                                         RT) /
+                                      Qg(i, d, e, j) * Pg(i, d, e, j);
                             Pm(e + 1, j - 1) += p;
                             assert(!std::isnan(p));
                         }
@@ -1491,13 +1487,12 @@ void Nupack::calculate_posterior()
                         if (allow_paired(d, e)) {
                             for (int f = e + 1; f <= j - 1; ++f) {
                                 if (Pg(i, d, e, j) > 0.0) {
-                                    float p = Qgls(i + 1, d, e, f) *
-                                              EXP(
-                                              -(
-                                              score_multiloop(true) + score_multiloop_paired(1, true) +
-                                              score_multiloop_unpaired(j - f - 1, true) + score_at_penalty(i, j) +
-                                              score_dangle(f + 1, j - 1)) /
-                                              RT) /
+                                    float p = Qgls(i + 1, d, e, f) * EXP(
+                                                                     -(
+                                                                     score_multiloop(true) + score_multiloop_paired(1, true) +
+                                                                     score_multiloop_unpaired(j - f - 1, true) +
+                                                                     score_at_penalty(i, j) + score_dangle(f + 1, j - 1)) /
+                                                                     RT) /
                                               Qg(i, d, e, j) * Pg(i, d, e, j);
                                     Pgls(i + 1, d, e, f) += p;
                                     assert(!std::isnan(p));
@@ -1513,13 +1508,12 @@ void Nupack::calculate_posterior()
                         if (allow_paired(d, e)) {
                             for (int c = i + 1; c <= d - 1; ++c) {
                                 if (Pg(i, d, e, j) > 0.0) {
-                                    float p = Qgrs(c, d, e, j - 1) *
-                                              EXP(
-                                              -(
-                                              score_multiloop(true) + score_multiloop_paired(1, true) +
-                                              score_multiloop_unpaired(c - i - 1, true) + score_at_penalty(i, j) +
-                                              score_dangle(i + 1, c - 1)) /
-                                              RT) /
+                                    float p = Qgrs(c, d, e, j - 1) * EXP(
+                                                                     -(
+                                                                     score_multiloop(true) + score_multiloop_paired(1, true) +
+                                                                     score_multiloop_unpaired(c - i - 1, true) +
+                                                                     score_at_penalty(i, j) + score_dangle(i + 1, c - 1)) /
+                                                                     RT) /
                                               Qg(i, d, e, j) * Pg(i, d, e, j);
                                     Pgrs(c, d, e, j - 1) += p;
                                     assert(!std::isnan(p));
@@ -1959,7 +1953,7 @@ energy_t Nupack::score_dangle(int i, int j) const
     }
     if ((j == -1 && i > 0) || (j == i - 1 && (i == 0 || j == N - 1))) return 0.0;
     if (j != N - 1) d3 = dangle3_37[3 - pair_type(j + 1)][seq[j] - 1];
-    if (i != 0) d5 = dangle5_37[pair_type(i - 1)][seq[i] - 1];
+    if (i != 0) d5     = dangle5_37[pair_type(i - 1)][seq[i] - 1];
     if (i == j && i != 0 && j != N - 1 /* && DANGLETYPE!=2 */)
         return std::min(d3, d5);
     else

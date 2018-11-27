@@ -41,16 +41,17 @@ int main(int argc, char* argv[])
 
     MOIP::ncores = thread::hardware_concurrency() - 1;
 
-    if (argc != 3) {
+    if (argc != 4) {
         cerr << argc << " arguments specified !" << endl;
         cerr << "Please specify the following input files:" << endl;
-        cerr << "biominserter sequence.fasta insertion.sites.csv" << endl;
+        cerr << "biominserter sequence.fasta insertion.sites.csv prob_threshold" << endl;
         return EXIT_FAILURE;
     }
 
 
-    const char* inputName = argv[1];
-    const char* csvname   = argv[2];
+    const char* inputName         = argv[1];
+    const char* csvname           = argv[2];
+    float       theta_p_threshold = atof(argv[3]);
     cout << "Reading input files..." << endl;
     if (access(inputName, F_OK) == -1) {
         cerr << inputName << " not found" << endl;
@@ -77,16 +78,22 @@ int main(int argc, char* argv[])
     while (getline(motifs, line)) {
         posInsertionSites.push_back(parse_csv_line(line));
     }
-    cout << "\t>" << csvname << " successfuly loaded ("     << posInsertionSites.size() << " insertion sites)" << endl;
+    cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
 
     // creating the Multi-Objective problem:
-    MOIP myMOIP = MOIP(myRNA, posInsertionSites);    // using the constructor with arguments automatically defines the decision variables.
-
+    MOIP myMOIP = MOIP(myRNA, posInsertionSites, theta_p_threshold);
     // finding the best SecondaryStructures for each objective
-    double             max      = myRNA.get_RNA_length();
-    SecondaryStructure bestSSO1 = myMOIP.solve_objective(1, -max, max);
-    bestSSO1.print();
-    // SecondaryStructure bestSSO2 = myMOIP.solve_objective(2, -max, max);
+    try {
+        SecondaryStructure bestSSO1 = myMOIP.solve_objective(1);
+        bestSSO1.print();
+    } catch (IloAlgorithm::NotExtractedException& e) {
+        cerr << e << endl;
+        exit(EXIT_FAILURE);
+    } catch (IloCplex::Exception& e) {
+        cerr << e << endl;
+        exit(EXIT_FAILURE);
+    }
+    // SecondaryStructure bestSSO2 = myMOIP.solve_objective(2);
     // double             bestObj2 = bestSSO2.get_objective_score(2);
 
     // extend to the whole pareto set

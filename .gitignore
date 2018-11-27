@@ -1,5 +1,6 @@
 .clang-format
 rna1999.dG
+.vscode/*
 
 # LaTeX temporary files
 doc/*.toc

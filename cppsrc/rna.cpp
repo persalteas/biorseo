@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
-using std::cout;
 using std::cerr;
+using std::cout;
 using std::endl;
 
 RNA::RNA(string name, string seq)
@@ -95,14 +95,6 @@ RNA::RNA(string name, string seq)
     }
     cout << "\t>pairing probabilities defined" << endl;
 }
-
-// int RNA::find_coord(pair<int, int> p)
-// {
-//     vector<pair<int, int>>::iterator it = find(coord_.begin(), coord_.end(), p);
-//     int                              r  = -1;
-//     if (it != coord_.end()) r = distance(coord_.begin(), it);
-//     return r;
-// }
 
 bool RNA::check_seq(string seq)    // Checks if the sequences only contains ACGUT.
 {

@@ -1,6 +1,7 @@
 #include "SecondaryStructure.h"
 #include <boost/format.hpp>
 
+using std::abs;
 using std::cout;
 using std::endl;
 
@@ -41,24 +42,25 @@ void SecondaryStructure::insert_motif(const Motif& m) { motif_info_.push_back(m)
 void SecondaryStructure::print(void) const
 {
     cout << endl;
+    cout << '\t' << rna_.get_seq() << endl;
     cout << '\t' << to_DBN() << endl;
     for (const Motif& m : motif_info_) {
         uint i = 0;
         cout << '\t';
         for (auto c : m.comp) {
             while (i != c.pos.second) {
+                i++;
                 if (i < c.pos.first)
                     cout << " ";
                 else
                     cout << '-';
-                i++;
             }
         }
         while (i < rna_.get_RNA_length()) {
             cout << " ";
             i++;
         }
-        cout << "\t" << m.atlas_id << endl;
+        cout << "\t" << m.atlas_id << "\t( " << m.pos_string() << ')' << endl;
     }
     cout << endl;
 }

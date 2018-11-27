@@ -14,19 +14,20 @@ const double PRECISION = 0.0001;
 
 class MOIP
 {
-  public:
+    public:
     static uint ncores;
 
-    MOIP(const RNA& rna, const vector<Motif>& motifSites);
+    MOIP(const RNA& rna, const vector<Motif>& motifSites, float pthreshold);
     ~MOIP(void);
     SecondaryStructure        solve_objective(int o, double min, double max);
+    SecondaryStructure        solve_objective(int o);
     uint                      get_n_solutions(void) const;
     const SecondaryStructure& solution(uint i) const;
     void                      extend_pareto(double lambdaMin, double lambdaMax);
     bool                      allowed_basepair(size_t u, size_t v) const;
     void                      add_solution(const SecondaryStructure& s);
 
-  private:
+    private:
     bool           is_undominated_yet(const SecondaryStructure& s);
     void           add_problem_constraints(const IloModel& model_);
     size_t         get_yuv_index(size_t u, size_t v) const;
@@ -40,8 +41,8 @@ class MOIP
     vector<SecondaryStructure> pareto_;             // Vector of results
 
     // Objectives related
-    float  beta_;         // beta parameter of the probability function
-    int    vp_;           // vp_ variable for penalization of the probability score
+    // float  beta_;         // beta parameter of the probability function
+    // int    vp_;           // vp_ variable for penalization of the probability score
     float  theta_;        // theta parameter for the probability function
     double lambdaMin_;    // minimum threshold value for the probability value
     double lambdaMax_;    // maximum threshold value for the probability value
@@ -60,5 +61,5 @@ inline uint                      MOIP::get_n_solutions(void) const { return pare
 inline const SecondaryStructure& MOIP::solution(uint i) const { return pareto_[i]; }
 inline IloNumExprArg&            MOIP::y(size_t u, size_t v) { return basepair_dv_[get_yuv_index(u, v)]; }
 inline IloNumExprArg&            MOIP::C(size_t x, size_t i) { return insertion_dv_[get_Cpxi_index(x, i)]; }
-
+inline SecondaryStructure MOIP::solve_objective(int o) { return solve_objective(o, 0, rna_.get_RNA_length()); }
 #endif    // MOIP_H_
