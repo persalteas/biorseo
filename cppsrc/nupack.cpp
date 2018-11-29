@@ -68,56 +68,6 @@ void Nupack::load_sequence(const string& s)
     for (int i = 0; i != N; ++i) seq[i] = base(s[i]);
 }
 
-int check_stability_and_size(int k, int l, int o, int p)
-// helper function, to detect which delta we need for the int22 parameters
-{
-    // having at least one AC mismatch is the simplest, test first
-    if ((k == A && l == C) || (k == C && l == A) || (o == A && p == C) || (o == C && p == A)) return 4;
-
-    // combination of all mismatches of equal size (purine-purine,
-    // purine-pyrimidine, and pyrimidine-pyrimidine are different sizes) purine =
-    // A, G pyrimidine = C, U if all purine-purines
-    if ((k == A || k == G) && (l == A || l == G) && (o == A || o == G) && (p == A || p == G)) return 1;
-    // if all pyrimidine-pyrimidine
-    if ((k == C || k == U) && (l == C || l == U) && (o == C || o == U) && (p == C || p == U)) return 1;
-    // if both  purine-pyrimidine
-    // assume the A-C pairs have been found above
-    if (
-    (((k == A || k == G) && (l == C || l == U)) || ((k == C || k == U) && (l == A || l == G))) &&
-    (((o == A || o == G) && (p == C || p == U)) || ((o == C || o == U) && (p == A || p == G))))
-        return 1;
-    // or any combination of 2 unstable mismatches except AC: AA, CC, CU, GG
-    if (
-    ((k == A && l == A) || (k == C && l == C) || (k == C && l == U) || (k == U && l == C) || (k == G && l == G)) &&
-    ((o == A && p == A) || (o == C && p == C) || (o == C && p == U) || (o == U && p == C) || (o == G && p == G)))
-        return 1;
-
-    // two stabilizing mismatches (GU, GA, UU) of different sizes  (purine-purine,
-    // purine-pyrimidine, and pyrimidine-pyrimidine are different sizes)
-    if (
-    (((k == G && l == U) || (k == U && l == G)) && ((o == G && p == A) || (o == A && p == G) || (o == U && p == U))) ||
-    (((k == G && l == A) || (k == A && l == G)) && ((o == G && p == U) || (o == U && p == G) || (o == U && p == U))) ||
-    ((k == U && l == U) && ((o == G && p == A) || (o == A && p == G) || (o == G && p == U) || (o == U && p == G))))
-        return 2;
-
-    // one stable (GU, GA, UU) and one unstable mismatch (excluding AC) (AA, CC,
-    // CU, GG) of different sizes GU
-    if (((k == G && l == U) || (k == U && l == G)) && ((o == A && p == A) || (o == C && p == C) || (o == C && p == U) || (o == U && p == C) || (o == G && p == G)))
-        return 3;
-    if (((o == G && p == U) || (o == U && p == G)) && ((k == A && l == A) || (k == C && l == C) || (k == C && l == U) || (k == U && l == C) || (k == G && l == G)))
-        return 3;
-    // GA
-    if (((k == G && l == A) || (k == A && l == G)) && ((o == C && p == C) || (o == C && p == U) || (o == U && p == C)))
-        return 3;
-    if (((o == G && p == A) || (o == A && p == G)) && ((k == C && l == C) || (k == C && l == U) || (k == U && l == C)))
-        return 3;
-    // UU
-    if ((k == U && l == U) && ((o == A && p == A) || (o == G && p == G))) return 3;
-    if ((o == U && p == U) && ((k == A && l == A) || (k == G && l == G))) return 3;
-
-    return -1;
-}
-
 bool Nupack::load_parameters(const char* file)
 {
     int p[] = {PAIR_AU, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG};
@@ -669,7 +619,10 @@ float Nupack::calculate_partition_function()
     Qgls.fill(0.0);
     Qgrs.resize(N);
     Qgrs.fill(0.0);
-    for (int i = 0; i != N; ++i) Q(i, i - 1) = Qz(i, i - 1) = 1.0;
+    for (int i = 0; i != N; ++i) {
+        Q(i, i - 1)  = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
+        Qz(i, i - 1) = 1.0;
+    }
     DPtableX Qx, Qx1, Qx2;
 
     for (int l = 1; l <= N; ++l) {
@@ -1020,7 +973,7 @@ float Nupack::calculate_partition_function()
                     }
                 }
             }
-            // printf("%d,%d: %Lf\n", i, j, Q(i,j));
+            printf("%d,%d: %Lf\n", i, j, Q(i, j));
         }
     }
 
@@ -1068,7 +1021,7 @@ void Nupack::fastiloops(int i, int j, DPtable4& Qg, DPtableX& Qx, DPtableX& Qx2)
     for (int d = i + 1; d <= j - 5; ++d) {
         for (int e = d + 4; e <= j - 1; ++e) {
             if (allow_paired(d, e)) {
-                // convert Qx into interior loop energies
+                // conveRT Qx into interior loop energies
                 if (l >= 17 && allow_paired(i, j)) {
                     for (int s = 8; s <= l - 9; ++s) {
                         Qg(i, d, e, j) += Qx(i, d, e, s) * EXP(-score_interior_mismatch(i, j, i + 1, j - 1) / RT);
@@ -1771,7 +1724,7 @@ void Nupack::fastiloops_pr(int i, int j, DPtable4& Qg, DPtableX& Qx, DPtableX& Q
                     }
                 }
 
-                // Store partial values for Qx2 and Px2
+                // Store paRTial values for Qx2 and Px2
                 for (int s = 10; s <= l - 9; ++s) {
                     Qx2(i + 1, d, e, s - 2) = Qx(i, d, e, s) * EXP(-(score_loop(s + 2) - score_loop(s)) / RT);
                     Px2(i + 1, d, e, s - 2) = Px(i, d, e, s);

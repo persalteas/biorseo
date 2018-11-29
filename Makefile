@@ -9,7 +9,7 @@ TARGET   = biominserter
 
 CC	   = clang++
 # compiling flags here
-CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -O3
+CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -I$(IEIGEN) -O3
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes
 
 LINKER   = g++

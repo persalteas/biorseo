@@ -25,18 +25,18 @@ enum { PAIR_AU = 0, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG };
 
 class DPtable2
 {
-  public:
+    public:
     DPtable2() : V_(), N_(0) {}
     void resize(int n)
     {
         N_ = n;
         V_.resize(N_ * (N_ + 1) / 2 + (N_ + 1));
     }
-    void         fill(const float& v) { std::fill(V_.begin(), V_.end(), v); }
-    float&       operator()(int i, int j) { return V_[index(i, j)]; }
+    void fill(const float& v) { std::fill(V_.begin(), V_.end(), v); }
+    float& operator()(int i, int j) { return V_[index(i, j)]; }
     const float& operator()(int i, int j) const { return V_[index(i, j)]; }
 
-  private:
+    private:
     int index(int i, int j) const
     {
         assert(j <= N_);
@@ -48,18 +48,19 @@ class DPtable2
 
 class DPtable4
 {
-  public:
+    public:
     DPtable4() : V_(), N_(0) {}
     void resize(int n)
     {
         N_ = n;
-        V_.resize(static_cast<unsigned long>(N_) * (N_ - 1) * (N_ - 2) * (N_ - 3) / 2 / 3 / 4);    // This number can be HUGE
+        V_.resize(
+        static_cast<unsigned long>(N_) * (N_ - 1) * (N_ - 2) * (N_ - 3) / 2 / 3 / 4);    // This number can be HUGE
     }
-    void         fill(const float& v) { std::fill(V_.begin(), V_.end(), v); }
-    float&       operator()(int i, int d, int e, int j) { return V_[index(i, d, e, j)]; }
+    void fill(const float& v) { std::fill(V_.begin(), V_.end(), v); }
+    float& operator()(int i, int d, int e, int j) { return V_[index(i, d, e, j)]; }
     const float& operator()(int i, int d, int e, int j) const { return V_[index(i, d, e, j)]; }
 
-  private:
+    private:
     int index(int h, int r, int m, int s) const
     {
         int n  = N_;
@@ -88,7 +89,7 @@ class DPtable4
 
 class DPtableX
 {
-  public:
+    public:
     DPtableX() : V_(), N_(0), D_(0) {}
     void resize(int d, int n)
     {
@@ -98,17 +99,17 @@ class DPtableX
         for (int i = d; i < d + 3; ++i) max_sz = std::max(max_sz, (N_ - i) * (i - 5) * (i - 1) * (i - 2) / 2);
         V_.resize(max_sz);
     }
-    void         fill(const float& v) { std::fill(V_.begin(), V_.end(), v); }
-    float&       operator()(int i, int d, int e, int s) { return V_[index(i, d, e, s)]; }
+    void fill(const float& v) { std::fill(V_.begin(), V_.end(), v); }
+    float& operator()(int i, int d, int e, int s) { return V_[index(i, d, e, s)]; }
     const float& operator()(int i, int d, int e, int s) const { return V_[index(i, d, e, s)]; }
-    void         swap(DPtableX& x)
+    void swap(DPtableX& x)
     {
         std::swap(V_, x.V_);
         std::swap(N_, x.N_);
         std::swap(D_, x.D_);
     }
 
-  private:
+    private:
     int index(int i, int h1, int m1, int s) const
     {
         int d      = D_;
@@ -128,19 +129,19 @@ class DPtableX
 
 class Nupack
 {
-  public:
+    public:
     Nupack();
-    void  load_sequence(const string& s);
-    void  load_parameters_fm363(const vector<float>& v);
-    void  load_default_parameters(/*int which*/);
-    bool  load_parameters(const char* filename);
-    void  dump_parameters(std::ostream& os) const;
+    void load_sequence(const string& s);
+    void load_parameters_fm363(const vector<float>& v);
+    void load_default_parameters(/*int which*/);
+    bool load_parameters(const char* filename);
+    void dump_parameters(std::ostream& os) const;
     float calculate_partition_function();
     void  calculate_posterior();
-    void  get_posterior(vector<float>& bp, vector<int>& offset) const;
-    void  get_posterior(vector<float>& bp1, vector<float>& bp2, vector<int>& offset) const;
+    void get_posterior(vector<float>& bp, vector<int>& offset) const;
+    void get_posterior(vector<float>& bp1, vector<float>& bp2, vector<int>& offset) const;
 
-  private:
+    private:
     void fastiloops(int i, int j, DPtable4& Qg, DPtableX& Qx, DPtableX& Qx2);
     void fastiloops_pr(int i, int j, DPtable4& Qg, DPtableX& Qx, DPtableX& Qx2, DPtable4& Pg, DPtableX& Px, DPtableX& Px2);
     energy_t score_hairpin(int i, int j) const;
@@ -160,38 +161,38 @@ class Nupack
     energy_t score_pk_paired(int n) const;
     energy_t score_pk_unpaired(int n) const;
     energy_t score_pk_band(int n) const;
-    int      base(char x) const;
-    bool     allow_paired(int i, int j) const;
-    bool     wc_pair(int i, int j) const;
-    int      pair_type(int i, int j) const;
-    int      pair_type(int i) const;
+    int base(char x) const;
+    bool allow_paired(int i, int j) const;
+    bool wc_pair(int i, int j) const;
+    int pair_type(int i, int j) const;
+    int pair_type(int i) const;
 
-    vector<int>                base_map;
+    vector<int> base_map;
     boost::multi_array<int, 2> pair_map;
-    vector<int>                seq;
-    int                        N;
-    float                      RT;
-    DPtable2                   Q;
-    DPtable2                   Qb;
-    DPtable2                   Qm;
-    DPtable2                   Qp;
-    DPtable2                   Qz;
-    DPtable4                   Qg;
-    DPtable4                   Qgl;
-    DPtable4                   Qgr;
-    DPtable4                   Qgls;
-    DPtable4                   Qgrs;
-    DPtable2                   P;
-    DPtable2                   Pb;
-    DPtable2                   Pm;
-    DPtable2                   Pp;
-    DPtable2                   Pz;
-    DPtable2                   Pbg;
-    DPtable4                   Pg;
-    DPtable4                   Pgl;
-    DPtable4                   Pgr;
-    DPtable4                   Pgls;
-    DPtable4                   Pgrs;
+    vector<int> seq;
+    int         N;
+    float       RT;
+    DPtable2    Q;
+    DPtable2    Qb;
+    DPtable2    Qm;
+    DPtable2    Qp;
+    DPtable2    Qz;
+    DPtable4    Qg;
+    DPtable4    Qgl;
+    DPtable4    Qgr;
+    DPtable4    Qgls;
+    DPtable4    Qgrs;
+    DPtable2    P;
+    DPtable2    Pb;
+    DPtable2    Pm;
+    DPtable2    Pp;
+    DPtable2    Pz;
+    DPtable2    Pbg;
+    DPtable4    Pg;
+    DPtable4    Pgl;
+    DPtable4    Pgr;
+    DPtable4    Pgls;
+    DPtable4    Pgrs;
 
     // energy parameters
     energy_t hairpin37[30];
