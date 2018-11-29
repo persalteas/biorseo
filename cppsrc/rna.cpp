@@ -15,10 +15,8 @@ using std::cout;
 using std::endl;
 
 RNA::RNA(string name, string seq)
+: pair_map(boost::extents[5][5]), name_(name), seq_(seq), n_(seq.size()), pij_(n_, vector<float>(n_))
 {
-    name_ = name;
-    seq_  = seq;
-    n_    = seq_.size();
     bseq_.reserve(n_);
     vector<char> unknown_chars;
     bool         contains_T = false;
@@ -38,27 +36,29 @@ RNA::RNA(string name, string seq)
         for (char c : unknown_chars) cout << c << " ";
         cout << endl;
     }
-    cout << "\t>Sequence formatted" << endl;
+    std::fill(pair_map.data(), pair_map.data() + pair_map.num_elements(), PAIR_OTHER);
+    pair_map[BASE_A][BASE_U] = PAIR_AU;
+    pair_map[BASE_U][BASE_A] = PAIR_UA;
+    pair_map[BASE_C][BASE_G] = PAIR_CG;
+    pair_map[BASE_G][BASE_C] = PAIR_GC;
+    pair_map[BASE_G][BASE_U] = PAIR_GU;
+    pair_map[BASE_U][BASE_G] = PAIR_UG;
+    cout << "\t>sequence formatted" << endl;
 
-    /*define pij_*/
+    // define pij_
     vector<float> bp_proba;
     vector<int>   offset;
+    nrjp_.salt_correction = 0.0;
+    nrjp_.loop_greater30  = 1.079;    // 1.75 * RT
+    nrjp_.hairpin_GGG     = 0.0;
     // load_parameters("rna1999.dG"); // to load custom parameters
     load_default_parameters();
-    cout << "\t>default parameters loaded (Serra and Turner, 1995)" << endl;
     cout << "\t>computing pairing probabilities..." << endl;
-    try {    // Depending on the input RNA size, the RAM amount might too large to handle for your poor laptop
-        compute_partition_function();
-    } catch (std::exception& e) {
-        cerr << e.what() << endl;
-        exit(EXIT_FAILURE);
-    }
+    compute_partition_function();
     compute_posterior();
     get_posterior(bp_proba, offset);
-
-    pij_ = vector<vector<float>>(n_, vector<float>(n_));
-    for (int i = 1; i <= n_; i++) {
-        for (int j = 1; j <= n_; j++) {
+    for (uint i = 1; i <= n_; i++) {
+        for (uint j = 1; j <= n_; j++) {
             pij_[i - 1][j - 1] = bp_proba[offset[i] + j];
         }
     }
@@ -203,6 +203,7 @@ void RNA::load_default_parameters()
         // nrjp_.tloop37(idx) = v/100.0;
         nrjp_.tloop37[idx[0]][idx[1]][idx[2]][idx[3]][idx[4]][idx[5]] = v / 100.0;
     }
+    cout << "\t>default parameters loaded (Serra and Turner, 1995)" << endl;
 }
 
 float RNA::score_interior_mismatch(int i, int j, int k, int l) const
@@ -215,12 +216,10 @@ float RNA::score_interior_mismatch(int i, int j) const
     return nrjp_.mismatch_interior37[BASE_N][BASE_N][pair_type(i, j)];
 }
 
-
 float RNA::score_at_penalty(int i, int j) const
 {
     return pair_type(i, j) == PAIR_AU || pair_type(i, j) == PAIR_UA ? nrjp_.at_penalty : 0;
 }
-
 
 float_t RNA::score_interior_asymmetry(int l1, int l2) const
 {
@@ -251,15 +250,17 @@ pair_t RNA::pair_type(int i) const
     case BASE_A: return PAIR_AU; break;
     case BASE_C: return PAIR_CG; break;
     case BASE_G: return PAIR_GC; break;
-    case BASE_U: return PAIR_UA;
+    case BASE_U: return PAIR_UA; break;
+    case BASE_N: return PAIR_OTHER;
     }
+    return PAIR_OTHER;
 }
 
 float RNA::Ghairpin(uint i, uint j) const
 {
     float e     = 0.0;
     bool  polyC = true;
-    for (int k = i + 1; k < j; ++k) {
+    for (uint k = i + 1; k < j; ++k) {
         if (seq_[k] != BASE_C) {
             polyC = false;
             break;
@@ -289,7 +290,6 @@ float RNA::Ghairpin(uint i, uint j) const
     }
     return e;
 }
-
 
 float RNA::Ginterior(uint i, uint h, uint m, uint j, bool pk) const
 {
@@ -399,3 +399,7 @@ float RNA::compute_partition_function(void)
     }
     return Q(0, n_ - 1);    // Partition function is Q(1,N)
 }
+
+void RNA::compute_posterior(void) {}
+
+void RNA::get_posterior(vector<float> a, vector<int> b) {}

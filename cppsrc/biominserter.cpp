@@ -16,7 +16,6 @@
 
 #include "MOIP.h"
 #include "fa.h"
-#include "nupack.h"
 
 using namespace std;
 

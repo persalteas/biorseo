@@ -12,6 +12,7 @@
 #define ZERO_C_IN_KELVIN 273.15    // Zero degrees C in Kelvin
 #define AVOGADRO 6.022e23          // Avogadro's number
 
+using boost::multi_array;
 using std::map;
 using std::pair;
 using std::string;
@@ -19,8 +20,8 @@ using std::vector;
 
 typedef struct Comp_ {
     pair<uint, uint> pos;
-    int    score;
-    size_t k;
+    int              score;
+    size_t           k;
     Comp_(pair<int, int> p, int s) : pos(p), score(s) { k = 1 + pos.second - pos.first; }
 } Component;
 
@@ -77,41 +78,45 @@ typedef struct {
 } EnergyParms;
 
 enum base_t { BASE_N = 0, BASE_A, BASE_C, BASE_G, BASE_U };
-enum pair_t { PAIR_AU = 0, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG };
+enum pair_t { PAIR_AU = 0, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG, PAIR_OTHER = -1 };
 
 class RNA
 {
     public:
     RNA(string name, string seq);
 
-    float get_pij(int i, int j);
-    uint get_RNA_length(void) const;
-    void print_basepair_p_matrix(float theta) const;
+    float  get_pij(int i, int j);
+    string get_seq(void) const;
+    uint   get_RNA_length(void) const;
+    void   print_basepair_p_matrix(float theta) const;
 
     private:
     base_t base_type(char x) const;
     pair_t pair_type(int i, int j) const;
     pair_t pair_type(int i) const;    // assuming Watson-Crick pair
-    void  load_default_parameters(void);
-    float score_interior_asymmetry(int l1, int l2) const;
-    float score_at_penalty(int i, int j) const;
-    float Ginterior(uint i, uint d, uint e, uint j, bool pk) const;
-    float Ghairpin(uint i, uint j) const;
-    float score_interior_mismatch(int i, int j, int k, int l) const;
-    float score_interior_mismatch(int i, int j) const;
-    float compute_partition_function(void);
+    void   load_default_parameters(void);
+    float  score_interior_asymmetry(int l1, int l2) const;
+    float  score_at_penalty(int i, int j) const;
+    float  Ginterior(uint i, uint d, uint e, uint j, bool pk) const;
+    float  Ghairpin(uint i, uint j) const;
+    float  score_interior_mismatch(int i, int j, int k, int l) const;
+    float  score_interior_mismatch(int i, int j) const;
+    float  compute_partition_function(void);
+    void   compute_posterior(void);
+    void   get_posterior(vector<float> bp_proba, vector<int> offset);
 
-    boost::multi_array<pair_t, 2> pair_map;
-    EnergyParms           nrjp_;    // energy parameters loaded from file or rna1995.h
-    string                name_;    // name of the rna
-    string                seq_;     // sequence of the rna with chars
-    vector<base_t>        bseq_;    // sequence of the rna with base_ts
-    int                   n_;       // length of the rna
-    vector<vector<float>> pij_;     // vector of probabilities
+    multi_array<pair_t, 2> pair_map;
+    EnergyParms            nrjp_;    // energy parameters loaded from file or rna1995.h
+    string                 name_;    // name of the rna
+    string                 seq_;     // sequence of the rna with chars
+    vector<base_t>         bseq_;    // sequence of the rna with base_ts
+    uint                    n_;       // length of the rna
+    vector<vector<float>>  pij_;     // vector of probabilities
 };
 
-inline float RNA::get_pij(int i, int j) { return pij_[i][j]; }
+inline float  RNA::get_pij(int i, int j) { return pij_[i][j]; }
 inline uint   RNA::get_RNA_length() const { return n_; }
 inline pair_t RNA::pair_type(int i, int j) const { return pair_map[bseq_[i]][bseq_[j]]; }
+inline string RNA::get_seq(void) const { return seq_; }
 
 #endif
