@@ -2,6 +2,8 @@
 #ifndef DEF_RNA
 #define DEF_RNA
 
+#include <Eigen/CXX11/Tensor>
+#include <Eigen/Core>
 #include <boost/multi_array.hpp>
 #include <map>
 #include <sstream>
@@ -13,6 +15,7 @@
 #define AVOGADRO 6.022e23          // Avogadro's number
 
 using boost::multi_array;
+using Eigen::MatrixXf;
 using std::map;
 using std::pair;
 using std::string;
@@ -77,6 +80,8 @@ typedef struct {
     float intermolecular_initiation;
 } EnergyParms;
 
+typedef Eigen::TensorFixedSize<float, Sizes<4>> tensor44;
+
 enum base_t { BASE_N = 0, BASE_A, BASE_C, BASE_G, BASE_U };
 enum pair_t { PAIR_AU = 0, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG, PAIR_OTHER = -1 };
 
@@ -91,26 +96,28 @@ class RNA
     void   print_basepair_p_matrix(float theta) const;
 
     private:
-    base_t base_type(char x) const;
-    pair_t pair_type(int i, int j) const;
-    pair_t pair_type(int i) const;    // assuming Watson-Crick pair
-    void   load_default_parameters(void);
-    float  score_interior_asymmetry(int l1, int l2) const;
-    float  score_at_penalty(int i, int j) const;
-    float  Ginterior(uint i, uint d, uint e, uint j, bool pk) const;
-    float  Ghairpin(uint i, uint j) const;
-    float  score_interior_mismatch(int i, int j, int k, int l) const;
-    float  score_interior_mismatch(int i, int j) const;
-    float  compute_partition_function(void);
-    void   compute_posterior(void);
-    void   get_posterior(vector<float> bp_proba, vector<int> offset);
+    base_t                                   base_type(char x) const;
+    pair_t                                   pair_type(int i, int j) const;
+    pair_t                                   pair_type(int i) const;    // assuming Watson-Crick pair
+    void                                     load_default_parameters(void);
+    float                                    score_interior_asymmetry(int l1, int l2) const;
+    float                                    score_at_penalty(int i, int j) const;
+    float                                    Ginterior(uint i, uint d, uint e, uint j, bool pk) const;
+    float                                    Ghairpin(uint i, uint j) const;
+    float                                    score_interior_mismatch(int i, int j, int k, int l) const;
+    float                                    score_interior_mismatch(int i, int j) const;
+    vector<MatrixXf>                         compute_ON4_noPK_partition_function(void);
+    vector<MatrixXf>                         compute_ON8_PK_partition_function(void);
+    pair<vector<MatrixXf>, vector<tensor44>> compute_ON5_PK_partition_function(void);
+    void                                     compute_ON6_PK_posterior(void);
+    void                                     get_posterior(vector<float> bp_proba, vector<int> offset);
 
     multi_array<pair_t, 2> pair_map;
     EnergyParms            nrjp_;    // energy parameters loaded from file or rna1995.h
     string                 name_;    // name of the rna
     string                 seq_;     // sequence of the rna with chars
     vector<base_t>         bseq_;    // sequence of the rna with base_ts
-    uint                    n_;       // length of the rna
+    uint                   n_;       // length of the rna
     vector<vector<float>>  pij_;     // vector of probabilities
 };
 
