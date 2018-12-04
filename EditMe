@@ -1,6 +1,0 @@
-# Please set the following variables to the correct paths for JAR3D:
-jar3dexec="/home/persalteas/Software/jar3dbin/jar3d_2014-12-11.jar"
-ILmotifDir="/home/persalteas/Data/RNA/motifs/Matlab_results/IL/3.2/lib"
-HLmotifDir="/home/persalteas/Data/RNA/motifs/Matlab_results/HL/3.2/lib"
-CPLEXDir="/opt/ibm/ILOG/CPLEX_Studio_Community128"
-IEIGEN="/usr/local/include/eigen3"
