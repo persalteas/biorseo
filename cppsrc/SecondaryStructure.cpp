@@ -39,6 +39,8 @@ void SecondaryStructure::set_basepair(uint i, uint j)
 
 void SecondaryStructure::insert_motif(const Motif& m) { motif_info_.push_back(m); }
 
+
+
 void SecondaryStructure::print(void) const
 {
     cout << endl;

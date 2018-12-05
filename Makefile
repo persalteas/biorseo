@@ -7,12 +7,12 @@ LCPLEX=$(CPLEXDir)/cplex/lib/x86-64_linux/static_pic/
 # project name (generate executable with this name)
 TARGET   = biominserter
 
-CC	   = g++
+CC	   = clang++
 # compiling flags here
 CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -I$(IEIGEN) -I$(IEIGEN)/unsupported -O3
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes
 
-LINKER   = g++
+LINKER   = clang++
 # linking flags here
 LDFLAGS   = -lconcert -lilocplex -lcplex -lm -lpthread -ldl -lboost_system -lboost_filesystem -lboost_program_options -L$(LCONCERT) -L$(LCPLEX)
 

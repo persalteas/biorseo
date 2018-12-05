@@ -368,7 +368,7 @@ bool RNA::allowed_basepair(size_t u, size_t v) const
     return true;
 }
 
-void RNA::fastILloops(uint i, uint j, tensor44& Qg, tensor44& Qx, tensor44& Qx2)
+void RNA::fastILloops(uint i, uint j, tensorN4& Qg, tensorN4& Qx, tensorN4& Qx2)
 {
     float RT = kB * AVOGADRO * (ZERO_C_IN_KELVIN + 37.0);
     uint  l  = j - i + 1;
@@ -376,14 +376,14 @@ void RNA::fastILloops(uint i, uint j, tensor44& Qg, tensor44& Qx, tensor44& Qx2)
     // Qx recursion for O(N³)
     if (l >= 17)    // smallest subsequence not added to Qg as special case
     {
-        for (int d = i + 6; d <= j - 10; ++d) {
-            for (int e = d + 4; e <= j - 6; ++e) {
+        for (uint d = i + 6; d <= j - 10; ++d) {
+            for (uint e = d + 4; e <= j - 6; ++e) {
                 if (allowed_basepair(d, e)) {
-                    int l1 = 4;    // explicitly add in terms for l1=4, l2>=4
-                    int c  = i + l1 + 1;
-                    for (int l2 = 4; l2 <= j - e - 2; ++l2) {
-                        int s = l1 + l2;
-                        int f = j - l2 - 1;
+                    uint l1 = 4;    // explicitly add in terms for l1=4, l2>=4
+                    uint c  = i + l1 + 1;
+                    for (uint l2 = 4; l2 <= j - e - 2; ++l2) {
+                        uint s = l1 + l2;
+                        uint f = j - l2 - 1;
                         if (allowed_basepair(c, f)) {
                             Qx(i, d, e, s) +=
                             Qg(c, d, e, f) * exp(-(Ginterior_asymmetry(l1, l2) + Ginterior_mismatch(f, c, f + 1, c - 1)) / RT);
@@ -391,11 +391,11 @@ void RNA::fastILloops(uint i, uint j, tensor44& Qg, tensor44& Qx, tensor44& Qx2)
                     }
 
                     if (d >= i + 7) {
-                        int l2 = 4;    // explicitly add in terms of l1>=5, l2=4
-                        int f  = j - l2 - 1;
-                        for (int l1 = 5; l1 <= d - i - 2; ++l1) {
-                            int s = l1 + l2;
-                            int c = i + l1 + 1;
+                        uint l2 = 4;    // explicitly add in terms of l1>=5, l2=4
+                        uint f  = j - l2 - 1;
+                        for (uint l1 = 5; l1 <= d - i - 2; ++l1) {
+                            uint s = l1 + l2;
+                            uint c = i + l1 + 1;
                             if (allowed_basepair(c, f)) {
                                 Qx(i, d, e, s) +=
                                 Qg(c, d, e, f) * exp(-(Ginterior_asymmetry(l1, l2) + Ginterior_mismatch(f, c, f + 1, c - 1)) / RT);
@@ -407,49 +407,49 @@ void RNA::fastILloops(uint i, uint j, tensor44& Qg, tensor44& Qx, tensor44& Qx2)
         }
     }
 
-    for (int d = i + 1; d <= j - 5; ++d) {
-        for (int e = d + 4; e <= j - 1; ++e) {
+    for (uint d = i + 1; d <= j - 5; ++d) {
+        for (uint e = d + 4; e <= j - 1; ++e) {
             if (allowed_basepair(d, e)) {
                 // conveRT Qx into interior loop energies
                 if (l >= 17 && allowed_basepair(i, j)) {
-                    for (int s = 8; s <= l - 9; ++s) {
+                    for (uint s = 8; s <= l - 9; ++s) {
                         Qg(i, d, e, j) += Qx(i, d, e, s) * exp(-Ginterior_mismatch(i, j, i + 1, j - 1) / RT);
                     }
                 }
 
                 // extend loops for future use
                 if (i != 0 && j != n_ - 1) {
-                    for (int s = 8; s <= l - 9; ++s) {
+                    for (uint s = 8; s <= l - 9; ++s) {
                         Qx2(i - 1, d, e, s + 2) = Qx(i, d, e, s) * exp(-(Gloop(s + 2) - Gloop(s)) / RT);
                     }
                 }
 
                 if (allowed_basepair(i, j)) {
                     // Add small inextensible interior loops to Qg as special cases
-                    for (int l1 = 0; l1 <= std::min((uint)3, d - i - 2); ++l1) {
-                        int c = i + l1 + 1;
-                        for (int l2 = 0; l2 <= std::min((uint)3, j - e - 2); ++l2) {
-                            int f = j - l2 - 1;
+                    for (uint l1 = 0; l1 <= std::min((uint)3, d - i - 2); ++l1) {
+                        uint c = i + l1 + 1;
+                        for (uint l2 = 0; l2 <= std::min((uint)3, j - e - 2); ++l2) {
+                            uint f = j - l2 - 1;
                             if (allowed_basepair(c, f)) {
                                 Qg(i, d, e, j) += Qg(c, d, e, f) * exp(-Ginterior(i, c, f, j, true) / RT);
                             }
                         }
                     }
                     // Add bulge loops and large asymmetric loops as special cases
-                    for (int l1 = 0; l1 <= std::min((uint)3, d - i - 2); ++l1)    // cases l1=0,1,2,3, l2>=4
+                    for (uint l1 = 0; l1 <= std::min((uint)3, d - i - 2); ++l1)    // cases l1=0,1,2,3, l2>=4
                     {
-                        int c = i + l1 + 1;
-                        for (int l2 = 4; l2 <= j - e - 2; ++l2) {
-                            int f = j - l2 - 1;
+                        uint c = i + l1 + 1;
+                        for (uint l2 = 4; l2 <= j - e - 2; ++l2) {
+                            uint f = j - l2 - 1;
                             if (allowed_basepair(c, f)) {
                                 Qg(i, d, e, j) += Qg(c, d, e, f) * exp(-Ginterior(i, c, f, j, true) / RT);
                             }
                         }
                     }
-                    for (int l2 = 0; l2 <= std::min((uint)3, j - e - 2); ++l2) {
-                        int f = j - l2 - 1;
-                        for (int l1 = 4; l1 <= d - i - 2; ++l1) {
-                            int c = i + l1 + 1;
+                    for (uint l2 = 0; l2 <= std::min((uint)3, j - e - 2); ++l2) {
+                        uint f = j - l2 - 1;
+                        for (uint l1 = 4; l1 <= d - i - 2; ++l1) {
+                            uint c = i + l1 + 1;
                             if (allowed_basepair(c, f)) {
                                 Qg(i, d, e, j) += Qg(c, d, e, f) * exp(-Ginterior(i, c, f, j, true) / RT);
                             }
@@ -514,7 +514,7 @@ vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
     return partition_functions;
 }
 
-pair<vector<MatrixXf>, vector<tensor44>> RNA::compute_ON5_PK_partition_function(void)
+pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(void)
 {
     // This is the o(N⁵) algorithm from Dirks & Pierce, 2003
     // Only computes Q, Qb, Qm, Qp and Qz
@@ -532,19 +532,19 @@ pair<vector<MatrixXf>, vector<tensor44>> RNA::compute_ON5_PK_partition_function(
     float b3  = nrjp_.pk_unpaired_penalty;
 
     // O(8N⁴ + 5N²) space
-    MatrixXf                         Q  = MatrixXf::Zero(n_, n_);
-    MatrixXf                         Qb = MatrixXf::Zero(n_, n_);
-    MatrixXf                         Qm = MatrixXf::Zero(n_, n_);
-    MatrixXf                         Qp = MatrixXf::Zero(n_, n_);
-    MatrixXf                         Qz = MatrixXf::Zero(n_, n_);
-    TensorFixedSize<float, Sizes<4>> Qg;     // tensor of compile time known fixed size
-    TensorFixedSize<float, Sizes<4>> Qgl;    // allows much faster computations
-    TensorFixedSize<float, Sizes<4>> Qgr;
-    TensorFixedSize<float, Sizes<4>> Qgls;
-    TensorFixedSize<float, Sizes<4>> Qgrs;
-    TensorFixedSize<float, Sizes<4>> Qx;
-    TensorFixedSize<float, Sizes<4>> Qx1;
-    TensorFixedSize<float, Sizes<4>> Qx2;
+    MatrixXf Q  = MatrixXf::Zero(n_, n_);
+    MatrixXf Qb = MatrixXf::Zero(n_, n_);
+    MatrixXf Qm = MatrixXf::Zero(n_, n_);
+    MatrixXf Qp = MatrixXf::Zero(n_, n_);
+    MatrixXf Qz = MatrixXf::Zero(n_, n_);
+    tensorN4 Qg(n_,n_,n_,n_);
+    tensorN4 Qgl(n_,n_,n_,n_);
+    tensorN4 Qgr(n_,n_,n_,n_);
+    tensorN4 Qgls(n_,n_,n_,n_);
+    tensorN4 Qgrs(n_,n_,n_,n_);
+    tensorN4 Qx(n_,n_,n_,n_);
+    tensorN4 Qx1(n_,n_,n_,n_);
+    tensorN4 Qx2(n_,n_,n_,n_);
     Qg.setZero();
     Qgl.setZero();
     Qgr.setZero();
@@ -588,6 +588,9 @@ pair<vector<MatrixXf>, vector<tensor44>> RNA::compute_ON5_PK_partition_function(
             for (d = i + 1; d <= j - 5; d++) {
                 for (e = d + 4; e <= j - 1; e++) Qg(i, d, e, j) += exp(-Ginterior(i, d, e, j, true) / RT);
             }
+
+            // Qx recursion for O(N³)
+            Qx.coeff(0, 0, 0, 0);
             fastILloops(i, j, Qg, Qx, Qx2);
             for (d = i + 6; d <= j - 5; d++)
                 for (e = d + 4; e <= j - 1; e++)
@@ -655,26 +658,28 @@ pair<vector<MatrixXf>, vector<tensor44>> RNA::compute_ON5_PK_partition_function(
             }
         }
     }
-    vector<MatrixXf> partition_functions                              = vector<MatrixXf>(5);
-    partition_functions[0]                                            = Q;
-    partition_functions[1]                                            = Qb;
-    partition_functions[2]                                            = Qm;
-    partition_functions[3]                                            = Qp;
-    partition_functions[4]                                            = Qz;
-    vector<TensorFixedSize<float, Sizes<4>>> partition_functions_next = vector<TensorFixedSize<float, Sizes<4>>>(5);
-    partition_functions_next[0]                                       = Qg;
-    partition_functions_next[1]                                       = Qgl;
-    partition_functions_next[2]                                       = Qgr;
-    partition_functions_next[3]                                       = Qgls;
-    partition_functions_next[4]                                       = Qgrs;
-    pair<vector<MatrixXf>, vector<tensor44>> results;
+    vector<MatrixXf> partition_functions      = vector<MatrixXf>(5);
+    partition_functions[0]                    = Q;
+    partition_functions[1]                    = Qb;
+    partition_functions[2]                    = Qm;
+    partition_functions[3]                    = Qp;
+    partition_functions[4]                    = Qz;
+    vector<tensorN4> partition_functions_next = vector<tensorN4>(5);
+    partition_functions_next[0]               = Qg;
+    partition_functions_next[1]               = Qgl;
+    partition_functions_next[2]               = Qgr;
+    partition_functions_next[3]               = Qgls;
+    partition_functions_next[4]               = Qgrs;
+    pair<vector<MatrixXf>, vector<tensorN4>> results;
     results = make_pair(partition_functions, partition_functions_next);
     return results;
 }
 
 void RNA::compute_ON6_PK_posterior(void)
 {
-    pair<vector<MatrixXf>, vector<tensor44>> partition_functions = compute_ON5_PK_partition_function();
+    pair<vector<MatrixXf>, vector<tensorN4>> partition_functions = compute_ON5_PK_partition_function();
 }
 
-void RNA::get_posterior(vector<float> a, vector<int> b) {}
+void RNA::get_posterior(vector<float> a, vector<int> b)
+{
+}

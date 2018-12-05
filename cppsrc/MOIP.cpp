@@ -73,6 +73,8 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold
 
 MOIP::~MOIP() { env_.end(); }
 
+
+
 bool MOIP::is_undominated_yet(const SecondaryStructure& s)
 {
     for (uint i = 0; i < pareto_.size(); i++) {
@@ -292,6 +294,7 @@ size_t MOIP::get_yuv_index(size_t u, size_t v) const
 }
 
 size_t MOIP::get_Cpxi_index(size_t x_i, size_t i_on_j) const { return index_of_Cxip_[x_i][i_on_j]; }
+
 
 
 bool MOIP::allowed_basepair(size_t u, size_t v) const
