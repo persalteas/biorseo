@@ -9,12 +9,12 @@ TARGET   = biominserter
 
 CC	   = clang++
 # compiling flags here
-CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -I$(IEIGEN) -I$(IEIGEN)/unsupported -O3
+CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -I$(IEIGEN) -I$(IEIGEN)/unsupported -O3 -fopenmp=libomp
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes
 
 LINKER   = clang++
 # linking flags here
-LDFLAGS   = -lconcert -lilocplex -lcplex -lm -lpthread -ldl -lboost_system -lboost_filesystem -lboost_program_options -L$(LCONCERT) -L$(LCPLEX)
+LDFLAGS   = -lconcert -lilocplex -lcplex -lm -lomp -lpthread -ldl -lboost_system -lboost_filesystem -lboost_program_options -L$(LCONCERT) -L$(LCPLEX)
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc

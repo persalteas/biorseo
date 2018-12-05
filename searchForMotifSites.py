@@ -186,7 +186,7 @@ def launchJar3d(loop):
     chdir(newpath)
     filename = loop.header[1:]+".fasta"
     fasta = open(filename, 'w')
-    fasta.write(loop.get_header()+'\n'+loop.subsequence()+'\n')
+    fasta.write('>'+loop.get_header()+'\n'+loop.subsequence()+'\n')
     fasta.close()
 
     # Launch Jar3D on it
@@ -272,7 +272,7 @@ for i, l in enumerate(ILs):
     loops.append(
         Loop(">IL%d" % (i+1), s[l[0][0]-1:l[0][1]]+'*'+s[l[1][0]-1:l[1][1]], "i", l))
     print()
-    print(">IL", i+1, "\t\t", l)
+    print(loops[-1].get_header(), "\t\t", l)
     print(loops[-1].subsequence())
 print()
 

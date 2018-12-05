@@ -86,7 +86,7 @@ enum pair_t { PAIR_AU = 0, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG, PAIR_OTH
 
 typedef Eigen::Tensor<float, 4> tensorN4;
 
-class RNA  
+class RNA
 {
     public:
     RNA(string name, string seq);
@@ -96,6 +96,7 @@ class RNA
     uint   get_RNA_length(void) const;
     void   print_basepair_p_matrix(float theta) const;
     bool   allowed_basepair(size_t u, size_t v) const;
+    bool   is_wc_basepair(size_t u, size_t v) const;
 
     private:
     base_t                                   base_type(char x) const;
@@ -125,9 +126,10 @@ class RNA
     vector<vector<float>>  pij_;     // vector of probabilities
 };
 
-inline float RNA::get_pij(int i, int j){    return pij_[i][j];}
-inline uint  RNA::get_RNA_length() const{    return n_;}
-inline pair_t RNA::pair_type(int i, int j) const{    return pair_map[bseq_[i]][bseq_[j]];}
-inline string RNA::get_seq(void) const {    return seq_;}
+inline float  RNA::get_pij(int i, int j) { return pij_[i][j]; }
+inline uint   RNA::get_RNA_length() const { return n_; }
+inline pair_t RNA::pair_type(int i, int j) const { return pair_map[bseq_[i]][bseq_[j]]; }
+inline string RNA::get_seq(void) const { return seq_; }
+inline bool   RNA::is_wc_basepair(size_t u, size_t v) const { return pair_type(u, v) != PAIR_OTHER; }
 
 #endif

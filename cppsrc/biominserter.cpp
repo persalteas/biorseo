@@ -1,8 +1,6 @@
 /***
-        Biominserter
-        Louis Becquey, starting from Audrey Legendre's code
-        contains adapted pieces of code from IPknot and Nupack
-        nov 2018
+        Biominserter, Louis Becquey, nov 2018
+        inspired but not copied from Biokop, IPKnot and Nupack
 ***/
 
 #include <algorithm>
