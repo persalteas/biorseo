@@ -103,19 +103,21 @@ class RNA
     pair_t                                   pair_type(int i, int j) const;
     pair_t                                   pair_type(int i) const;    // assuming Watson-Crick pair
     void                                     load_default_parameters(void);
-    float                                    Ginterior_asymmetry(uint l1, uint l2) const;
+    float                                    GIL_asymmetry(uint l1, uint l2) const;
     float                                    Gpenalty(uint i, uint j) const;
-    float                                    Ginterior(uint i, uint d, uint e, uint j, bool pk) const;
-    float                                    Ghairpin(uint i, uint j) const;
-    float                                    Ginterior_mismatch(uint i, uint j, uint k, uint l) const;
-    float                                    Ginterior_mismatch(uint i, uint j) const;
+    float                                    GIL(uint i, uint d, uint e, uint j, bool pk) const;
+    float                                    GHL(uint i, uint j) const;
+    float                                    GIL_mismatch(uint i, uint j, uint k, uint l) const;
+    float                                    GIL_mismatch(uint i, uint j) const;
     float                                    Gloop(uint l) const;
-    vector<MatrixXf>                         compute_ON4_noPK_partition_function(void);
-    vector<MatrixXf>                         compute_ON8_PK_partition_function(void);
-    pair<vector<MatrixXf>, vector<tensorN4>> compute_ON5_PK_partition_function(void);
-    void                                     compute_ON6_PK_posterior(void);
+    vector<MatrixXf>                         compute_ON4_noPK_partition_function(void);    // McCaskill
+    vector<MatrixXf>                         compute_ON3_noPK_partition_function(void);    // McCaskill + fastILloops
+    vector<MatrixXf>                         compute_ON8_PK_partition_function(void);      // McCaskill + PK
+    pair<vector<MatrixXf>, vector<tensorN4>> compute_ON5_PK_partition_function(void);    // mcCaskill + PK + fastILloops
+    void                                     compute_ON4_noPK_posterior(void);           // probas
+    void                                     compute_ON6_PK_posterior(void);             // probas + PK
     void                                     get_posterior(vector<float> bp_proba, vector<int> offset);
-    void                                     fastILloops(uint i, uint j, tensorN4& Qg, tensorN4& Qx, tensorN4& Qx2);
+    void                                     fastGIL(uint i, uint j, tensorN4& Qg, tensorN4& Qx, tensorN4& Qx2);
 
     multi_array<pair_t, 2> pair_map;
     EnergyParms            nrjp_;    // energy parameters loaded from file or rna1995.h

@@ -45,6 +45,8 @@ int Nupack::base(char x) const
 
 int Nupack::pair_type(int i, int j) const { return pair_map[seq[i]][seq[j]]; }
 
+
+
 int Nupack::pair_type(int i) const
 {
     // assume Watson-Crick pairs
@@ -59,7 +61,11 @@ int Nupack::pair_type(int i) const
 
 bool Nupack::wc_pair(int i, int j) const { return pair_type(i, j) != PAIR_GU && pair_type(i, j) != PAIR_UG; }
 
+
+
 bool Nupack::allow_paired(int i, int j) const { return j - i - 1 >= 3 && pair_type(i, j) >= 0; }
+
+
 
 void Nupack::load_sequence(const string& s)
 {
@@ -1886,6 +1892,7 @@ energy_t Nupack::score_interior_asymmetry(int l1, int l2) const
 }
 
 energy_t Nupack::score_multiloop(bool pk) const { return pk ? multiloop_penalty_pk : multiloop_penalty; }
+
 
 energy_t Nupack::score_multiloop_paired(int n, bool pk) const
 {
