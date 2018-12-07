@@ -486,7 +486,7 @@ vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
 
     for (l = 1; l <= n_; l++)    // Consider subsequences of growing sizes until n_
     {
-        cout << "\t\t\tComputing subsequences of size " << l << endl;
+        // cout << "\t\t\tComputing subsequences of size " << l << endl;
 #pragma omp parallel for private(j, d, e)
         for (i = 0; i < n_ - l + 1; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
@@ -518,15 +518,6 @@ vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
             // cout << " = " << Q(i, j) << endl;
         }
     }
-
-    // // Print Q
-    // cout << endl << "Q" << endl << endl;
-    // for (i = 0; i < n_; i++) {
-    //     for (j = 0; j < n_; j++) cout << Q(i, j) << " ";
-    //     cout << endl;
-    // }
-    // cout << endl;
-
 
     vector<MatrixXf> partition_functions = vector<MatrixXf>(3);
     partition_functions[0]               = Q;
@@ -560,11 +551,11 @@ vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
     MatrixXf Qx2 = MatrixXf::Zero(n_, n_);
     int      i, j, l, d, e, s, L1, L2;
     float    Gpartial;
-    for (i = 1; i < n_; i++) Q(i, i - 1) = 1.0;
+    for (i = 1; i < n_; i++) Q(i, i - 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
 
     for (l = 1; l <= n_; l++)    // Consider subsequences of growing sizes until n_
     {
-        cout << "\t\t\tComputing subsequences of size " << l << endl;
+        cout << "\t\tComputing subsequences of size " << l << endl;
         Qx  = Qx1;
         Qx1 = Qx2;
         Qx2.setZero();
@@ -572,6 +563,7 @@ vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
         // pragma omp parallel for private(j, d, e, L1, L2, s)
         for (i = 0; i < n_ - l + 1; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
+            // cout << "\t\t\tchecking " << i << ',' << j << endl;
 
             // Qb recursion
             if (allowed_basepair(i, j)) Qb(i, j) = exp(-GHL(i, j) / RT);
@@ -623,7 +615,7 @@ vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
                     if (allowed_basepair(d, e)) Qb(i, j) += exp(-GIL(i, d, e, j, false) / RT) * Qb(d, e);
                 }
             }
-            for (L2 = 0; L2 <= 3; L1++) {    // cases where L2 = 0,1,2,3 and L1>=4
+            for (L2 = 0; L2 <= 3; L2++) {    // cases where L2 = 0,1,2,3 and L1>=4
                 e = j - L2 - 1;
                 for (L1 = 4; L1 <= e - i - 5; L1++) {
                     d = i + L1 + 1;
@@ -644,14 +636,25 @@ vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
             // Q and Qm recursion
             Q(i, j) = 1.0;                    // if empty (no basepairs between i and j)
             for (d = i; d <= j - 4; d++) {    // loop over all possible rightmost basepairs (d,e)
-                if (i > 0) {
-                    Q(i, j) += Q(i, d - 1) * Qs(d, j);
-                    Qm(i, j) += exp(-a3 * (d - i) / RT) * Qms(d, j);
-                    Qm(i, j) += Qm(i, d - 1) * Qms(d, j);
+                if (allowed_basepair(d, j) and is_wc_basepair(d, j)) {
+                    if (i > 0) {
+                        Q(i, j) += Q(i, d - 1) * Qs(d, j);
+                        Qm(i, j) += exp(-a3 * (d - i) / RT) * Qms(d, j);
+                        Qm(i, j) += Qm(i, d - 1) * Qms(d, j);
+                    }
                 }
             }
         }
     }
+
+    // Print Q
+    cout << endl << "Q" << endl << endl;
+    for (i = 0; i < n_; i++) {
+        for (j = 0; j < n_; j++) cout << Q(i, j) << " ";
+        cout << endl;
+    }
+    cout << endl;
+
     vector<MatrixXf> partition_functions = vector<MatrixXf>(3);
     partition_functions[0]               = Q;
     partition_functions[1]               = Qb;
