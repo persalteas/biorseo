@@ -482,39 +482,40 @@ vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
     MatrixXf Qb = MatrixXf::Zero(n_, n_);
     MatrixXf Qm = MatrixXf::Zero(n_, n_);
     int      i, j, d, e, l;
-    for (i = 1; i < n_; i++) Q(i, i - 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
-
-    for (l = 1; l <= n_; l++)    // Consider subsequences of growing sizes until n_
-    {
-        // cout << "\t\t\tComputing subsequences of size " << l << endl;
+    // case where l=2
+    for (i = 0; i < n_ - 1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
+    // cases where l=3, l=4, no hairpins possible
+    for (l = 3; l < 5; l++)
+        for (i = 0; i <= n_ - l; i++) Q(i, i + l - 1) = 1.0;    // exp(-Gempty/RT) (no basepairs between i and j)
+    // Cases considering subsequences of growing sizes from 5 until n_
+    for (l = 5; l <= n_; l++) {
 #pragma omp parallel for private(j, d, e)
-        for (i = 0; i < n_ - l + 1; i++) {
+        for (i = 0; i <= n_ - l; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
-            // cout << "\t\t\tQ(" << i << ',' << j << ")";
 
             // Qb recursion
-            if (allowed_basepair(i, j)) {
-                // cout << " allowed ";
-                Qb(i, j) = exp(-GHL(i, j) / RT);
+            Qb(i, j) = exp(-GHL(i, j) / RT);
+            if (l >= 7) {                           // if there is enough space for an hairpin inside
                 for (d = i + 1; d <= j - 5; d++)    // loop over all possible rightmost basepairs (d,e)
                     for (e = d + 4; e <= j - 1; e++) {
-                        Qb(i, j) += exp(-GIL(i, d, e, j, false) / RT) * Qb(d, e);
-                        Qb(i, j) += Qm(i + 1, d - 1) * Qb(d, e) * exp(-(a1 + 2 * a2 + (j - e - 1) * a3) / RT);
+                        Qb(i, j) += Qb(d, e) * exp(-GIL(i, d, e, j, false) / RT);
+                        if (d - i >= 2)
+                            Qb(i, j) += Qb(d, e) * Qm(i + 1, d - 1) * exp(-(a1 + 2 * a2 + (j - e - 1) * a3) / RT);
                     }
             }
+
+            // Qm recursion
+            for (d = i; d <= j - 4; d++)    // loop over all possible rightmost basepairs (d,e)
+                for (e = d + 4; e <= j; ++e) {
+                    Qm(i, j) += Qb(d, e) * exp(-(a2 + a3 * (d - i + j - e)) / RT);
+                    if (d - i > 0) Qm(i, j) += Qb(d, e) * Qm(i, d - 1) * exp(-(a2 + a3 * (j - e)) / RT);
+                }
 
             // Q and Qm recursion
             Q(i, j) = 1.0;                  // exp(-Gempty/RT) (no basepairs between i and j)
             for (d = i; d <= j - 4; d++)    // loop over all possible rightmost basepairs (d,e)
-                for (e = d + 4; e <= j; ++e) {
-                    if (allowed_basepair(d, e) and is_wc_basepair(d, e)) {
-                        if (i > 0) {
-                            Q(i, j) += Q(i, d - 1) * Qb(d, e);
-                            Qm(i, j) += exp(-(a2 + a3 * (d - i) + a3 * (j - e)) / RT) * Qb(d, e);
-                            if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT);
-                        }
-                    }
-                }
+                for (e = d + 4; e <= j; ++e)
+                    if (d - i > 0) Q(i, j) += Q(i, d - 1) * Qb(d, e);
             // cout << " = " << Q(i, j) << endl;
         }
     }
