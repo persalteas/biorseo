@@ -59,7 +59,7 @@ RNA::RNA(string name, string seq)
     // load_parameters("rna1999.dG"); // to load custom parameters
     load_default_parameters();
     cout << "\t>computing pairing probabilities..." << endl;
-    compute_basepair_probabilities(bp_proba, offset, false, false);
+    compute_basepair_probabilities(bp_proba, offset, false, true);
 
     for (uint i = 1; i <= n_; i++) {
         for (uint j = 1; j <= n_; j++) {
@@ -227,7 +227,8 @@ float RNA::Gpenalty(uint i, uint j) const
 
 float_t RNA::GIL_asymmetry(uint l1, uint l2) const
 {
-    return Gloop(l1 + l2) + std::min(nrjp_.max_asymmetry, std::abs((int)l1 - (int)l2) * nrjp_.asymmetry_penalty[std::min((uint)4, std::min(l1, l2)) - 1]);
+    return Gloop(l1 + l2) +
+           std::min(nrjp_.max_asymmetry, std::abs((int)l1 - (int)l2) * nrjp_.asymmetry_penalty[std::min((uint)4, std::min(l1, l2)) - 1]);
 }
 
 base_t RNA::base_type(char x) const
@@ -359,8 +360,8 @@ bool RNA::allowed_basepair(size_t u, size_t v) const
     a = (v > u) ? u : v;
     b = (v > u) ? v : u;
     if (b - a < 4) return false;
-    if (a >= get_RNA_length() - 6) return false;
-    if (b >= get_RNA_length()) return false;
+    if (a >= n_ - 4) return false;
+    if (b >= n_) return false;
     return true;
 }
 
@@ -383,14 +384,14 @@ vector<MatrixXf> RNA::compute_partition_function_noPK_ON4(void)
     MatrixXf Qm = MatrixXf::Zero(n_, n_);
     int      i, j, d, e, l;
     // case where l=2
-    for (i = 0; i < int(n_) -  1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
+    for (i = 0; i < int(n_) - 1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
     // cases where l=3, l=4, no hairpins possible
     for (l = 3; l < 5; l++)
-        for (i = 0; i <= int(n_) -  l; i++) Q(i, i + l - 1) = 1.0;    // exp(-Gempty/RT) (no basepairs between i and j)
+        for (i = 0; i <= int(n_) - l; i++) Q(i, i + l - 1) = 1.0;    // exp(-Gempty/RT) (no basepairs between i and j)
     // Cases considering subsequences of growing sizes from 5 until n_
     for (l = 5; l <= int(n_); l++) {
 #pragma omp parallel for private(j, d, e)
-        for (i = 0; i <= int(n_) -  l; i++) {
+        for (i = 0; i <= int(n_) - l; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
 
             // Qb recursion
@@ -411,11 +412,14 @@ vector<MatrixXf> RNA::compute_partition_function_noPK_ON4(void)
                     if (d - i > 0) Qm(i, j) += Qb(d, e) * Qm(i, d - 1) * exp(-(a2 + a3 * (j - e)) / RT);
                 }
 
-            // Q and Qm recursion
+            // Q recursion
             Q(i, j) = 1.0;                  // exp(-Gempty/RT) (no basepairs between i and j)
             for (d = i; d <= j - 4; d++)    // loop over all possible rightmost basepairs (d,e)
                 for (e = d + 4; e <= j; ++e)
-                    if (d - i > 0) Q(i, j) += Q(i, d - 1) * Qb(d, e);
+                    if (d - i > 0)
+                        Q(i, j) += Q(i, d - 1) * Qb(d, e);
+                    else
+                        Q(i, j) += Qb(d, e);
             // cout << " = " << Q(i, j) << endl;
         }
     }
@@ -450,18 +454,20 @@ vector<MatrixXf> RNA::compute_partition_function_noPK_ON3(void)
     MatrixXf Qx  = MatrixXf::Zero(n_, n_);
     MatrixXf Qx1 = MatrixXf::Zero(n_, n_);
     MatrixXf Qx2 = MatrixXf::Zero(n_, n_);
-    int      i, j, l, d, e, s, L1, L2;
-    for (i = 0; i < int(n_) -  1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
-
-    for (l = 1; l <= int(n_); l++)    // Consider subsequences of growing sizes until n_
-    {
-        cout << "\t\tComputing subsequences of size " << l << endl;
+    int      i, j, d, e, l, s, L1, L2;
+    // case where l=2
+    for (i = 0; i < int(n_) - 1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
+    // cases where l=3, l=4, no hairpins possible
+    for (l = 3; l < 5; l++)
+        for (i = 0; i <= int(n_) - l; i++) Q(i, i + l - 1) = 1.0;    // exp(-Gempty/RT) (no basepairs between i and j)
+    // Cases considering subsequences of growing sizes from 5 until n_
+    for (l = 5; l <= int(n_); l++) {
+        // cout << "\t\tComputing subsequences of size " << l << endl;
         Qx  = Qx1;
         Qx1 = Qx2;
         Qx2.setZero();
-
 #pragma omp parallel for private(j, d, e, L1, L2, s)
-        for (i = 0; i < int(n_) -  l + 1; i++) {
+        for (i = 0; i < int(n_) - l + 1; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
 
             // Qx definition
@@ -498,12 +504,18 @@ vector<MatrixXf> RNA::compute_partition_function_noPK_ON3(void)
             for (d = i + 4; d <= j; d++) Qms(i, j) += Qb(i, d) * exp(-(a2 + a3 * (j - d)) / RT);
 
             // Qm recursion
-            for (d = i; d <= j - 4; d++)    // loop over all possible rightmost basepairs (d,e)
-                Qm(i, j) += Qms(d, j) * (exp(-a3 * (d - i) / RT) + Qm(i, d - 1));
+            for (d = i; d <= j - 4; d++) {    // loop over all possible rightmost basepairs (d,e)
+                Qm(i, j) += Qms(d, j) * exp(-a3 * (d - i) / RT);
+                if (d - i > 0) Qm(i, j) += Qms(d, j) * Qm(i, d - 1);
+            }
 
             // Q recursion
             Q(i, j) = 1.0;    // exp(-Gempty/RT), if empty (no basepairs between i and j)
-            for (d = i; d <= j - 4; d++) Q(i, j) += Q(i, d - 1) * Qs(d, j);
+            for (d = i; d <= j - 4; d++)
+                if (d - i > 0)
+                    Q(i, j) += Q(i, d - 1) * Qs(d, j);
+                else
+                    Q(i, j) += Qs(d, j);
         }
     }
 
@@ -581,7 +593,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON5(
         Qx2.setZero();
 
         // parallel for private(d, e, f, c, Grecursion)
-        for (i = 0; i < int(n_) -  l + 1; i++)    // define a subsequence [i,j] of length l
+        for (i = 0; i < int(n_) - l + 1; i++)    // define a subsequence [i,j] of length l
         {
             cout << "\t\t\tscanning (" << i << ',' << j << "), length = " << l << ":\t";
             j = i + l - 1;
@@ -671,12 +683,12 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON5(
 
             // Q, Qm, Qz recursions
             Q(i, j) = 1.0;    // if empty, no basepairs between (i,j)
-            if (i and j != int(n_) -  1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
+            if (i and j != int(n_) - 1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
             for (d = i; d <= j - 4; d++)    // all possible rightmost pairs (d,e)
                 for (e = d + 4; e <= j; e++)
                     if (allowed_basepair(d, e) and is_wc_basepair(d, e)) {
                         Q(i, j) += Q(i, d - 1) * Qb(d, e);
-                        if (i and j != int(n_) -  1) {
+                        if (i and j != int(n_) - 1) {
                             Qm(i, j) += exp(-(a2 + (d - i + j - e) * a3) / RT) * Qb(d, e);
                             if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + (j - e) * a3) / RT);
                             Qz(i, j) += Qz(i, d - 1) * Qb(d, e) * exp(-(b2 + (j - e) * b3) / RT);
@@ -685,7 +697,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON5(
             for (d = i; d <= j - 8; d++)    // for all possible rightmost pseudoknots filling (d,e)
                 for (e = d + 8; e <= j; e++) {
                     Q(i, j) += Q(i, d - 1) * Qp(d, e) * exp(-b1 / RT);
-                    if (i and j != int(n_) -  1) {
+                    if (i and j != int(n_) - 1) {
                         Qm(i, j) += exp(-(b1m + 2 * a2 + (d - i + j - e) * a3) / RT) * Qp(d, e);
                         if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qp(d, e) * exp(-(b1m + 2 * a2 + (j - e) * a3) / RT);
                         Qz(i, j) += Qz(i, d - 1) * Qp(d, e) * exp(-(b1p + 2 * b2 + (j - e) * b3) / RT);
@@ -769,7 +781,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON8(
         Qx2.setZero();
 
         // parallel for private(d, e, f, c, Grecursion)
-        for (i = 0; i < int(n_) -  l + 1; i++)    // define a subsequence [i,j] of length l
+        for (i = 0; i < int(n_) - l + 1; i++)    // define a subsequence [i,j] of length l
         {
             cout << "\t\t\tscanning (" << i << ',' << j << "), length = " << l << ":\t";
             j = i + l - 1;
@@ -859,12 +871,12 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON8(
 
             // Q, Qm, Qz recursions
             Q(i, j) = 1.0;    // if empty, no basepairs between (i,j)
-            if (i and j != int(n_) -  1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
+            if (i and j != int(n_) - 1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
             for (d = i; d <= j - 4; d++)    // all possible rightmost pairs (d,e)
                 for (e = d + 4; e <= j; e++)
                     if (allowed_basepair(d, e) and is_wc_basepair(d, e)) {
                         Q(i, j) += Q(i, d - 1) * Qb(d, e);
-                        if (i and j != int(n_) -  1) {
+                        if (i and j != int(n_) - 1) {
                             Qm(i, j) += exp(-(a2 + (d - i + j - e) * a3) / RT) * Qb(d, e);
                             if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + (j - e) * a3) / RT);
                             Qz(i, j) += Qz(i, d - 1) * Qb(d, e) * exp(-(b2 + (j - e) * b3) / RT);
@@ -873,7 +885,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON8(
             for (d = i; d <= j - 8; d++)    // for all possible rightmost pseudoknots filling (d,e)
                 for (e = d + 8; e <= j; e++) {
                     Q(i, j) += Q(i, d - 1) * Qp(d, e) * exp(-b1 / RT);
-                    if (i and j != int(n_) -  1) {
+                    if (i and j != int(n_) - 1) {
                         Qm(i, j) += exp(-(b1m + 2 * a2 + (d - i + j - e) * a3) / RT) * Qp(d, e);
                         if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qp(d, e) * exp(-(b1m + 2 * a2 + (j - e) * a3) / RT);
                         Qz(i, j) += Qz(i, d - 1) * Qp(d, e) * exp(-(b1p + 2 * b2 + (j - e) * b3) / RT);
