@@ -110,14 +110,13 @@ class RNA
     float                                    GIL_mismatch(uint i, uint j, uint k, uint l) const;
     float                                    GIL_mismatch(uint i, uint j) const;
     float                                    Gloop(uint l) const;
-    vector<MatrixXf>                         compute_ON4_noPK_partition_function(void);    // McCaskill
-    vector<MatrixXf>                         compute_ON3_noPK_partition_function(void);    // McCaskill + fastILloops
-    vector<MatrixXf>                         compute_ON8_PK_partition_function(void);      // McCaskill + PK
-    pair<vector<MatrixXf>, vector<tensorN4>> compute_ON5_PK_partition_function(void);    // mcCaskill + PK + fastILloops
-    void                                     compute_ON4_noPK_posterior(void);           // probas
-    void                                     compute_ON6_PK_posterior(void);             // probas + PK
-    void                                     get_posterior(vector<float> bp_proba, vector<int> offset);
-    void                                     fastGIL(uint i, uint j, tensorN4& Qg, tensorN4& Qx, tensorN4& Qx2);
+    vector<MatrixXf>                         compute_partition_function_noPK_ON4(void);    // McCaskill
+    vector<MatrixXf>                         compute_partition_function_noPK_ON3(void);    // McCaskill + fastILloops
+    pair<vector<MatrixXf>, vector<tensorN4>> compute_partition_function_PK_ON8(void);      // McCaskill + PK
+    pair<vector<MatrixXf>, vector<tensorN4>> compute_partition_function_PK_ON5(void);    // McCaskill + PK + fastILloops
+    void                                     compute_posterior_noPK_ON4(bool fast);      // probas
+    void                                     compute_posterior_PK_ON6(bool fast);        // probas + PK
+    void compute_basepair_probabilities(vector<float> bp_proba, vector<int> offset, bool pk, bool fast);
 
     multi_array<pair_t, 2> pair_map;
     EnergyParms            nrjp_;    // energy parameters loaded from file or rna1995.h

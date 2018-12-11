@@ -59,9 +59,8 @@ RNA::RNA(string name, string seq)
     // load_parameters("rna1999.dG"); // to load custom parameters
     load_default_parameters();
     cout << "\t>computing pairing probabilities..." << endl;
-    compute_ON4_noPK_posterior();    // probabilities won't imagine pseudoknots in the sequence.
+    compute_basepair_probabilities(bp_proba, offset, false, false);
 
-    get_posterior(bp_proba, offset);
     for (uint i = 1; i <= n_; i++) {
         for (uint j = 1; j <= n_; j++) {
             pij_[i - 1][j - 1] = bp_proba[offset[i] + j];
@@ -219,6 +218,8 @@ float RNA::GIL_mismatch(uint i, uint j, uint k, uint l) const
 
 float RNA::GIL_mismatch(uint i, uint j) const { return nrjp_.mismatch_interior37[BASE_N][BASE_N][pair_type(i, j)]; }
 
+
+
 float RNA::Gpenalty(uint i, uint j) const
 {
     return pair_type(i, j) == PAIR_AU || pair_type(i, j) == PAIR_UA ? nrjp_.at_penalty : 0;
@@ -226,15 +227,7 @@ float RNA::Gpenalty(uint i, uint j) const
 
 float_t RNA::GIL_asymmetry(uint l1, uint l2) const
 {
-    float e         = 0.0;
-    uint  size      = l1 + l2;
-    uint  asymmetry = std::abs((int)l1 - (int)l2);
-    e += size <= 30 ? nrjp_.interior37[size - 1] : nrjp_.interior37[30 - 1] + nrjp_.loop_greater30 * log(size / 30.0);
-
-    // asymmetry penalty
-    e += std::min(nrjp_.max_asymmetry, asymmetry * nrjp_.asymmetry_penalty[std::min((uint)4, std::min(l1, l2)) - 1]);
-
-    return e;
+    return Gloop(l1 + l2) + std::min(nrjp_.max_asymmetry, std::abs((int)l1 - (int)l2) * nrjp_.asymmetry_penalty[std::min((uint)4, std::min(l1, l2)) - 1]);
 }
 
 base_t RNA::base_type(char x) const
@@ -371,100 +364,7 @@ bool RNA::allowed_basepair(size_t u, size_t v) const
     return true;
 }
 
-void RNA::fastGIL(uint i, uint j, tensorN4& Qg, tensorN4& Qx, tensorN4& Qx2)
-{
-    float RT = kB * AVOGADRO * (ZERO_C_IN_KELVIN + 37.0);
-    uint  l  = j - i + 1;
-
-    // Qx recursion for O(N³)
-    if (l >= 17)    // smallest subsequence not added to Qg as special case
-    {
-        for (uint d = i + 6; d <= j - 10; ++d) {
-            for (uint e = d + 4; e <= j - 6; ++e) {
-                if (allowed_basepair(d, e)) {
-                    uint l1 = 4;    // explicitly add in terms for l1=4, l2>=4
-                    uint c  = i + l1 + 1;
-                    for (uint l2 = 4; l2 <= j - e - 2; ++l2) {
-                        uint s = l1 + l2;
-                        uint f = j - l2 - 1;
-                        if (allowed_basepair(c, f)) {
-                            Qx(i, d, e, s) +=
-                            Qg(c, d, e, f) * exp(-(GIL_asymmetry(l1, l2) + GIL_mismatch(f, c, f + 1, c - 1)) / RT);
-                        }
-                    }
-
-                    if (d >= i + 7) {
-                        uint l2 = 4;    // explicitly add in terms of l1>=5, l2=4
-                        uint f  = j - l2 - 1;
-                        for (uint l1 = 5; l1 <= d - i - 2; ++l1) {
-                            uint s = l1 + l2;
-                            uint c = i + l1 + 1;
-                            if (allowed_basepair(c, f)) {
-                                Qx(i, d, e, s) +=
-                                Qg(c, d, e, f) * exp(-(GIL_asymmetry(l1, l2) + GIL_mismatch(f, c, f + 1, c - 1)) / RT);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    for (uint d = i + 1; d <= j - 5; ++d) {
-        for (uint e = d + 4; e <= j - 1; ++e) {
-            if (allowed_basepair(d, e)) {
-                // conveRT Qx into interior loop energies
-                if (l >= 17 and allowed_basepair(i, j)) {
-                    for (uint s = 8; s <= l - 9; ++s) {
-                        Qg(i, d, e, j) += Qx(i, d, e, s) * exp(-GIL_mismatch(i, j, i + 1, j - 1) / RT);
-                    }
-                }
-
-                // extend loops for future use
-                if (i != 0 and j != n_ - 1) {
-                    for (uint s = 8; s <= l - 9; ++s) {
-                        Qx2(i - 1, d, e, s + 2) = Qx(i, d, e, s) * exp(-(Gloop(s + 2) - Gloop(s)) / RT);
-                    }
-                }
-
-                if (allowed_basepair(i, j)) {
-                    // Add small inextensible interior loops to Qg as special cases
-                    for (uint l1 = 0; l1 <= std::min((uint)3, d - i - 2); ++l1) {
-                        uint c = i + l1 + 1;
-                        for (uint l2 = 0; l2 <= std::min((uint)3, j - e - 2); ++l2) {
-                            uint f = j - l2 - 1;
-                            if (allowed_basepair(c, f)) {
-                                Qg(i, d, e, j) += Qg(c, d, e, f) * exp(-GIL(i, c, f, j, true) / RT);
-                            }
-                        }
-                    }
-                    // Add bulge loops and large asymmetric loops as special cases
-                    for (uint l1 = 0; l1 <= std::min((uint)3, d - i - 2); ++l1)    // cases l1=0,1,2,3, l2>=4
-                    {
-                        uint c = i + l1 + 1;
-                        for (uint l2 = 4; l2 <= j - e - 2; ++l2) {
-                            uint f = j - l2 - 1;
-                            if (allowed_basepair(c, f)) {
-                                Qg(i, d, e, j) += Qg(c, d, e, f) * exp(-GIL(i, c, f, j, true) / RT);
-                            }
-                        }
-                    }
-                    for (uint l2 = 0; l2 <= std::min((uint)3, j - e - 2); ++l2) {
-                        uint f = j - l2 - 1;
-                        for (uint l1 = 4; l1 <= d - i - 2; ++l1) {
-                            uint c = i + l1 + 1;
-                            if (allowed_basepair(c, f)) {
-                                Qg(i, d, e, j) += Qg(c, d, e, f) * exp(-GIL(i, c, f, j, true) / RT);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
+vector<MatrixXf> RNA::compute_partition_function_noPK_ON4(void)
 {
     // This is the o(N⁴) algorithm from Dirks & Pierce, 2003
     // Basically is the same than McCaskill, 1990
@@ -483,14 +383,14 @@ vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
     MatrixXf Qm = MatrixXf::Zero(n_, n_);
     int      i, j, d, e, l;
     // case where l=2
-    for (i = 0; i < n_ - 1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
+    for (i = 0; i < int(n_) -  1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
     // cases where l=3, l=4, no hairpins possible
     for (l = 3; l < 5; l++)
-        for (i = 0; i <= n_ - l; i++) Q(i, i + l - 1) = 1.0;    // exp(-Gempty/RT) (no basepairs between i and j)
+        for (i = 0; i <= int(n_) -  l; i++) Q(i, i + l - 1) = 1.0;    // exp(-Gempty/RT) (no basepairs between i and j)
     // Cases considering subsequences of growing sizes from 5 until n_
-    for (l = 5; l <= n_; l++) {
+    for (l = 5; l <= int(n_); l++) {
 #pragma omp parallel for private(j, d, e)
-        for (i = 0; i <= n_ - l; i++) {
+        for (i = 0; i <= int(n_) -  l; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
 
             // Qb recursion
@@ -528,7 +428,7 @@ vector<MatrixXf> RNA::compute_ON4_noPK_partition_function(void)
 }
 
 
-vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
+vector<MatrixXf> RNA::compute_partition_function_noPK_ON3(void)
 {
     // This is the o(N³) algorithm from Dirks & Pierce, 2003
     // Only computes Q, Qb, Qm, Qs, Qms, Qx, Qx1 and Qx2
@@ -551,107 +451,66 @@ vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
     MatrixXf Qx1 = MatrixXf::Zero(n_, n_);
     MatrixXf Qx2 = MatrixXf::Zero(n_, n_);
     int      i, j, l, d, e, s, L1, L2;
-    float    Gpartial;
-    for (i = 1; i < n_; i++) Q(i, i - 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
+    for (i = 0; i < int(n_) -  1; i++) Q(i, i + 1) = 1.0;    // exp(- Gempty / RT) = exp(0) = 1.0
 
-    for (l = 1; l <= n_; l++)    // Consider subsequences of growing sizes until n_
+    for (l = 1; l <= int(n_); l++)    // Consider subsequences of growing sizes until n_
     {
         cout << "\t\tComputing subsequences of size " << l << endl;
         Qx  = Qx1;
         Qx1 = Qx2;
         Qx2.setZero();
 
-        // pragma omp parallel for private(j, d, e, L1, L2, s)
-        for (i = 0; i < n_ - l + 1; i++) {
+#pragma omp parallel for private(j, d, e, L1, L2, s)
+        for (i = 0; i < int(n_) -  l + 1; i++) {
             j = i + l - 1;    // Consider the subsequence [i,j] of length l
-            // cout << "\t\t\tchecking " << i << ',' << j << endl;
 
-            // Qb recursion
-            if (allowed_basepair(i, j)) Qb(i, j) = exp(-GHL(i, j) / RT);
-
-            // Compute IL contributions to Qb in O(N³):
-            // Qx recursion for O(N³) IL contributions to Qb:
-            if (l >= 15)    // subsequences not added to Qb as a special cases
+            // Qx definition
+            if (l >= 15)    // subsequences not added to Qb as a special cases. 4(L1) + 4(L2) + 1(i) + 1(j) + 1(d) + 1(e) + 3 = 15
             {
-                L1 = 4;    // explicitly add in terms for L1=4, L2>=4, L1 and L2 are the sizes of the IL loop
-                d  = i + L1 + 1;
-                for (L2 = 4; L2 <= j - d - 5; L2++) {
-                    s = L1 + L2;
-                    e = j - L2 - 1;
-                    if (allowed_basepair(d, e)) {
-                        Gpartial = Gloop(s) + GIL_asymmetry(L1, L2) + GIL_mismatch(e, d, e + 1, d - 1);
-                        Qx(i, s) += exp(-Gpartial / RT) * Qb(d, e);
-                    }
-                }
-                L2 = 4;    // explicitly add in terms for L2=4, L1>=5
-                e  = j - L2 - 1;
-                for (L1 = 5; L1 <= e - i - 5; L1++) {
-                    s = L1 + L2;
-                    d = i + L1 + 1;
-                    if (allowed_basepair(d, e)) {
-                        Gpartial = Gloop(s) + GIL_asymmetry(L1, L2) + GIL_mismatch(e, d, e + 1, d - 1);
-                        Qx(i, s) += exp(-Gpartial / RT) * Qb(d, e);
-                    }
-                }
+                d  = i + 5;    // fixed L1=4, L2>=4
+                L1 = d - i - 1;
+                for (e = d + 4, L2 = j - e - 1; e <= j - 5; e++, L2 = j - e - 1)
+                    Qx(i, L1 + L2) += Qb(d, e) * exp(-(GIL_asymmetry(L1, L2) + GIL_mismatch(d, e, d + 1, e - 1)) / RT);
+                e  = j - 5;    // fixed L2=4, L1>=4
+                L2 = j - e - 1;
+                for (d = i + 6, L1 = d - i - 1; d <= e - 4; d++, L1 = d - i - 1)
+                    Qx(i, L1 + L2) += Qb(d, e) * exp(-(GIL_asymmetry(L1, L2) + GIL_mismatch(d, e, d + 1, e - 1)) / RT);
+                if (i > 0 and j != int(n_))    // compute Qx2 for later use
+                    for (s = 8; s <= l - 7; s++) Qx2(i - 1, s + 2) = Qx(i, s) * exp(-(Gloop(s + 2) - Gloop(s)) / RT);
             }
-            // Next convert Qx into IL energies
+            // Qb recursion
+            Qb(i, j) = exp(-GHL(i, j) / RT);    // Hairpin loop case
             for (s = 8; s <= l - 7; s++)
-                if (allowed_basepair(i, j)) Qb(i, j) += Qx(i, j) * exp(-GIL_mismatch(i, j, i + 1, j - 1) / RT);
-            // Extend loops from s to s+2 for future calculation of Qb(i-1,j+1) when l would be l+2
-            if (i > 0 and j < n_ - 1)
-                for (s = 8; s <= l - 7; s++) Qx2(i - 1, s + 2) = Qx(i, s) * exp(-(Gloop(s + 2) - Gloop(s)) / RT);
-            // Add small inextensible IL terms to Qb as special cases
-            for (L1 = 0; L1 <= 3; L1++) {
-                d = i + L1 + 1;
-                for (L2 = 0; L2 <= min(3, j - d - 5); L2++) {
-                    e = j - L2 - 1;
-                    if (allowed_basepair(d, e)) Qb(i, j) += exp(-GIL(i, d, e, j, false) / RT) * Qb(d, e);
-                }
-            }
-            // Add bulges and large asymmetric loops as special cases
-            for (L1 = 0; L1 <= 3; L1++) {    // cases where L1 = 0,1,2,3 and L2>=4
-                d = i + L1 + 1;
-                for (L2 = 4; L2 <= j - d - 5; L2++) {
-                    e = j - L2 - 1;
-                    if (allowed_basepair(d, e)) Qb(i, j) += exp(-GIL(i, d, e, j, false) / RT) * Qb(d, e);
-                }
-            }
-            for (L2 = 0; L2 <= 3; L2++) {    // cases where L2 = 0,1,2,3 and L1>=4
-                e = j - L2 - 1;
-                for (L1 = 4; L1 <= e - i - 5; L1++) {
-                    d = i + L1 + 1;
-                    if (allowed_basepair(d, e)) Qb(i, j) += exp(-GIL(i, d, e, j, false) / RT) * Qb(d, e);
-                }
-            }
+                Qb(i, j) += Qx(i, s) * exp(-GIL_mismatch(i, j, i + 1, j - 1) / RT);    // Convert Qx to Qb (L1 and L2 > 4)
+            for (d = i + 1; d <= i + 4; d++)    // Add small inextensible IL terms to Qb as special cases
+                for (e = max(d + 4, j - 4); e <= j - 1; e++) Qb(i, j) += Qb(d, e) * exp(-GIL(i, d, e, j, false) / RT);
+            for (d = i + 1; d <= i + 4; d++)    // Add bulges and large asymmetric loops as special cases where L1 = 0,1,2,3 and L2>=4
+                for (e = d + 4; e <= j - 5; e++) Qb(i, j) += Qb(d, e) * exp(-GIL(i, d, e, j, false) / RT);
+            for (e = j - 4; e <= j - 1; e++)    // Add bulges and large asymmetric loops as special cases where L2 = 0,1,2,3 and L1>=4
+                for (d = i + 5; d <= e - 4; d++) Qb(i, j) += exp(-GIL(i, d, e, j, false) / RT) * Qb(d, e);
+            for (d = i + 6; d <= j - 5; d++)    // Multiloop case
+                Qb(i, j) += Qm(i + 1, d - 1) * Qms(d, j - 1) * exp(-(a1 + a2) / RT);
 
-            if (allowed_basepair(i, j))
-                for (d = i + 6; d <= j - 5; d++) Qb(i, j) += Qm(i + 1, d - 1) * Qms(d, j - 1) * exp(-(a1 + a2) / RT);
+            // Qs recursion : all possible rightmost basepairs involving i
+            for (d = i + 4; d <= j; d++) Qs(i, j) += Qb(i, d);
 
-            // Qs and Qms recursion
-            for (d = i + 4; d <= j; d++)    // loop over all possible rightmost pairs (i,d)
-                if (allowed_basepair(i, d)) {
-                    Qs(i, j) += Qb(i, d);
-                    Qms(i, j) += Qb(i, d) * exp(-(a2 + a3 * (j - d)) / RT);
-                }
+            // Qms recursion : all possible rightmost basepairs involving i, but inside a multiloop
+            for (d = i + 4; d <= j; d++) Qms(i, j) += Qb(i, d) * exp(-(a2 + a3 * (j - d)) / RT);
 
-            // Q and Qm recursion
-            Q(i, j) = 1.0;                    // if empty (no basepairs between i and j)
-            for (d = i; d <= j - 4; d++) {    // loop over all possible rightmost basepairs (d,e)
-                if (allowed_basepair(d, j) and is_wc_basepair(d, j)) {
-                    if (i > 0) {
-                        Q(i, j) += Q(i, d - 1) * Qs(d, j);
-                        Qm(i, j) += exp(-a3 * (d - i) / RT) * Qms(d, j);
-                        Qm(i, j) += Qm(i, d - 1) * Qms(d, j);
-                    }
-                }
-            }
+            // Qm recursion
+            for (d = i; d <= j - 4; d++)    // loop over all possible rightmost basepairs (d,e)
+                Qm(i, j) += Qms(d, j) * (exp(-a3 * (d - i) / RT) + Qm(i, d - 1));
+
+            // Q recursion
+            Q(i, j) = 1.0;    // exp(-Gempty/RT), if empty (no basepairs between i and j)
+            for (d = i; d <= j - 4; d++) Q(i, j) += Q(i, d - 1) * Qs(d, j);
         }
     }
 
     // Print Q
     cout << endl << "Q" << endl << endl;
-    for (i = 0; i < n_; i++) {
-        for (j = 0; j < n_; j++) cout << Q(i, j) << " ";
+    for (i = 0; i < int(n_); i++) {
+        for (j = 0; j < int(n_); j++) cout << Q(i, j) << " ";
         cout << endl;
     }
     cout << endl;
@@ -663,12 +522,21 @@ vector<MatrixXf> RNA::compute_ON3_noPK_partition_function(void)
     return partition_functions;
 }
 
-pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(void)
+pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON5(void)
 {
     // This is the o(N⁵) algorithm from Dirks & Pierce, 2003
     // Only computes Q, Qb, Qm, Qp and Qz
     // Gmultiloop is approximated by a1 + k*a2 + u*a3 (a,b,c in McCaskill)
     // Uses "fastGIL" to compute certain contributions to Qg in O(N⁵).
+
+    cerr << endl
+         << endl
+         << "/!\\You are using the fast O(n⁵) computation of the partition function, which is an unfinished method. "
+            "Your "
+            "results will be wrong !! /!\\"
+         << endl
+         << endl
+         << endl;
 
     float RT  = kB * AVOGADRO * (ZERO_C_IN_KELVIN + 37.0);
     float a1  = nrjp_.a1;
@@ -704,8 +572,8 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(
     Qx2.setZero();
     int   l, i, j, d, e, f, c;
     float Grecursion;
-    for (i = 1; i < n_; i++) Q(i, i - 1) = Qz(i, i - 1) = 1.0;
-    for (l = 1; l <= n_; l++)    // subsequences of increasing length
+    for (i = 1; i < int(n_); i++) Q(i, i - 1) = Qz(i, i - 1) = 1.0;
+    for (l = 1; l <= int(n_); l++)    // subsequences of increasing length
     {
         cout << "\t\t\tmeasuring sub-loops of length " << l << ".\n";
         Qx  = Qx1;
@@ -713,7 +581,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(
         Qx2.setZero();
 
         // parallel for private(d, e, f, c, Grecursion)
-        for (i = 0; i < n_ - l + 1; i++)    // define a subsequence [i,j] of length l
+        for (i = 0; i < int(n_) -  l + 1; i++)    // define a subsequence [i,j] of length l
         {
             cout << "\t\t\tscanning (" << i << ',' << j << "), length = " << l << ":\t";
             j = i + l - 1;
@@ -743,7 +611,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(
                     for (e = d + 4; e <= j - 1; e++)
                         if (allowed_basepair(d, e)) Qg(i, d, e, j) += exp(-GIL(i, d, e, j, true) / RT);
             }
-            fastGIL(i, j, Qg, Qx, Qx2);
+            // fastGIL(i, j, Qg, Qx, Qx2);
             if (allowed_basepair(i, j) and is_wc_basepair(i, j)) {
                 for (d = i + 6; d <= j - 5; d++)    // multiloop left
                     for (e = d + 4; e <= j - 1; e++)
@@ -803,12 +671,12 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(
 
             // Q, Qm, Qz recursions
             Q(i, j) = 1.0;    // if empty, no basepairs between (i,j)
-            if (i and j != n_ - 1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
+            if (i and j != int(n_) -  1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
             for (d = i; d <= j - 4; d++)    // all possible rightmost pairs (d,e)
                 for (e = d + 4; e <= j; e++)
                     if (allowed_basepair(d, e) and is_wc_basepair(d, e)) {
                         Q(i, j) += Q(i, d - 1) * Qb(d, e);
-                        if (i and j != n_ - 1) {
+                        if (i and j != int(n_) -  1) {
                             Qm(i, j) += exp(-(a2 + (d - i + j - e) * a3) / RT) * Qb(d, e);
                             if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + (j - e) * a3) / RT);
                             Qz(i, j) += Qz(i, d - 1) * Qb(d, e) * exp(-(b2 + (j - e) * b3) / RT);
@@ -817,7 +685,7 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(
             for (d = i; d <= j - 8; d++)    // for all possible rightmost pseudoknots filling (d,e)
                 for (e = d + 8; e <= j; e++) {
                     Q(i, j) += Q(i, d - 1) * Qp(d, e) * exp(-b1 / RT);
-                    if (i and j != n_ - 1) {
+                    if (i and j != int(n_) -  1) {
                         Qm(i, j) += exp(-(b1m + 2 * a2 + (d - i + j - e) * a3) / RT) * Qp(d, e);
                         if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qp(d, e) * exp(-(b1m + 2 * a2 + (j - e) * a3) / RT);
                         Qz(i, j) += Qz(i, d - 1) * Qp(d, e) * exp(-(b1p + 2 * b2 + (j - e) * b3) / RT);
@@ -843,32 +711,250 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_ON5_PK_partition_function(
     return results;
 }
 
-void RNA::compute_ON4_noPK_posterior(void)
+pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON8(void)
 {
-    vector<MatrixXf> partition_functions = compute_ON3_noPK_partition_function();
-    MatrixXf&        Q                   = partition_functions[0];
-    MatrixXf&        Qb                  = partition_functions[1];
-    MatrixXf&        Qm                  = partition_functions[2];
+    // This is the o(N⁸) algorithm from Dirks & Pierce, 2003
+    // Computes Q, Qb, Qm, Qp and Qz
+    // Gmultiloop is approximated by a1 + k*a2 + u*a3 (a,b,c in McCaskill)
+
+    cerr << endl
+         << endl
+         << "/!\\You are using the slow O(n⁸) computation of the partition function, which is an unfinished method. "
+            "Your "
+            "results will be wrong !! /!\\"
+         << endl
+         << endl
+         << endl;
+
+    float RT  = kB * AVOGADRO * (ZERO_C_IN_KELVIN + 37.0);
+    float a1  = nrjp_.a1;
+    float a2  = nrjp_.a2;
+    float a3  = nrjp_.a3;
+    float b1  = nrjp_.pk_penalty;
+    float b1m = nrjp_.pk_multiloop_penalty;
+    float b1p = nrjp_.pk_pk_penalty;
+    float b2  = nrjp_.pk_paired_penalty;
+    float b3  = nrjp_.pk_unpaired_penalty;
+
+    // O(8N⁴ + 5N²) space
+    MatrixXf Q  = MatrixXf::Zero(n_, n_);
+    MatrixXf Qb = MatrixXf::Zero(n_, n_);
+    MatrixXf Qm = MatrixXf::Zero(n_, n_);
+    MatrixXf Qp = MatrixXf::Zero(n_, n_);
+    MatrixXf Qz = MatrixXf::Zero(n_, n_);
+    tensorN4 Qg(n_, n_, n_, n_);
+    tensorN4 Qgl(n_, n_, n_, n_);
+    tensorN4 Qgr(n_, n_, n_, n_);
+    tensorN4 Qgls(n_, n_, n_, n_);
+    tensorN4 Qgrs(n_, n_, n_, n_);
+    tensorN4 Qx(n_, n_, n_, n_);
+    tensorN4 Qx1(n_, n_, n_, n_);
+    tensorN4 Qx2(n_, n_, n_, n_);
+    Qg.setZero();
+    Qgl.setZero();
+    Qgr.setZero();
+    Qgls.setZero();
+    Qgrs.setZero();
+    Qx.setZero();
+    Qx1.setZero();
+    Qx2.setZero();
+    int   l, i, j, d, e, f, c;
+    float Grecursion;
+    for (i = 1; i < int(n_); i++) Q(i, i - 1) = Qz(i, i - 1) = 1.0;
+    for (l = 1; l <= int(n_); l++)    // subsequences of increasing length
+    {
+        cout << "\t\t\tmeasuring sub-loops of length " << l << ".\n";
+        Qx  = Qx1;
+        Qx1 = Qx2;
+        Qx2.setZero();
+
+        // parallel for private(d, e, f, c, Grecursion)
+        for (i = 0; i < int(n_) -  l + 1; i++)    // define a subsequence [i,j] of length l
+        {
+            cout << "\t\t\tscanning (" << i << ',' << j << "), length = " << l << ":\t";
+            j = i + l - 1;
+
+            // Qb recursion
+            if (allowed_basepair(i, j)) {
+                Qb(i, j) = exp(-GHL(i, j) / RT);
+                for (d = i + 1; d <= j - 5; d++)    // loop over all possible rightmost basepairs (d,e)
+                    for (e = d + 4; e <= j - 1; e++) {
+                        if (allowed_basepair(d, e)) {
+                            Qb(i, j) += exp(-GIL(i, d, e, j, true) / RT) * Qb(d, e);
+                            if (d >= i + 6 and is_wc_basepair(d, e) and is_wc_basepair(i, j))
+                                Qb(i, j) += Qm(i + 1, d - 1) * Qb(d, e) * exp(-(a1 + 2 * a2 + (j - e - 1) * a3) / RT);
+                        }
+                    }
+                if (is_wc_basepair(i, j))
+                    for (d = i + 1; d <= j - 9; d++)    // loop over all possible rightmost pseudoknots filling [d,e]
+                        for (e = d + 8; e <= j - 1; e++) {
+                            Grecursion = a1 + b1m + 3 * a2 + (j - e - 1) * a3;
+                            Qb(i, j) += exp(-(Grecursion + a3 * (d - i - 1)) / RT) * Qp(d, e);
+                            Qb(i, j) += Qm(i + 1, d - 1) * Qp(d, e) * exp(-Grecursion / RT);
+                        }
+
+                // Qg recursion
+                Qg(i, i, j, j) = 1.0;
+                for (d = i + 1; d <= j - 5; d++)
+                    for (e = d + 4; e <= j - 1; e++)
+                        if (allowed_basepair(d, e)) Qg(i, d, e, j) += exp(-GIL(i, d, e, j, true) / RT);
+            }
+            // fastGIL(i, j, Qg, Qx, Qx2);
+            if (allowed_basepair(i, j) and is_wc_basepair(i, j)) {
+                for (d = i + 6; d <= j - 5; d++)    // multiloop left
+                    for (e = d + 4; e <= j - 1; e++)
+                        if (allowed_basepair(d, e) and is_wc_basepair(d, e))
+                            Qg(i, d, e, j) += Qm(i + 1, d - 1) * exp(-(a1 + 2 * a2 + (j - e - 1) * a3) / RT);
+                for (d = i + 1; d <= j - 10; d++)    // multiloop right
+                    for (e = d + 4; e <= j - 6; e++)
+                        if (allowed_basepair(d, e) and is_wc_basepair(d, e))
+                            Qg(i, d, e, j) += exp(-(a1 = 2 * a2 + (d - i - 1) * a3) / RT) * Qm(e + 1, j - 1);
+                for (d = i + 6; d <= j - 10; d++)    // multiloop both sides
+                    for (e = d + 4; e <= j - 6; e++)
+                        if (allowed_basepair(d, e) and is_wc_basepair(d, e))
+                            Qg(i, d, e, j) += Qm(i + 1, d - 1) * exp(-(a1 + 2 * a2) / RT) * Qm(e + 1, j - 1);
+                for (d = i + 7; d <= j - 6; d++)    // IL + multiloop left
+                    for (e = d + 4; e <= j - 2; e++)
+                        if (allowed_basepair(d, e))
+                            for (f = e + 1; f <= j - 1; f++)
+                                Qg(i, d, e, j) += Qgls(i + 1, d, e, f) * exp(-(a1 + a2 + (j - f - 1) * a3) / RT);
+                for (d = i + 2; d <= j - 11; d++)    // IL + multiloop right
+                    for (e = d + 4; e <= j - 7; e++)
+                        if (allowed_basepair(d, e))
+                            for (c = i + 1; c <= d - 1; c++)
+                                Qg(i, d, e, j) += exp(-(a1 + a2 + (c - i - 1) * a3) / RT) * Qgrs(c, d, e, j - 1);
+                for (d = i + 7; d <= j - 11; d++)    // IL + multiloop both sides
+                    for (e = d + 4; e <= j - 7; e++)
+                        if (allowed_basepair(d, e))
+                            for (c = i + 6; c <= d - 1; c++)
+                                Qg(i, d, e, j) += Qm(i + 1, c - 1) * Qgrs(c, d, e, j - 1) * exp(-(a1 + a2) / RT);
+            }
+            // Qgls & Qgrs recursions
+            for (c = i + 5; c <= j - 6; c++)
+                if (allowed_basepair(c, j) and is_wc_basepair(c, j))
+                    for (d = c + 1; d <= j - 5; d++)
+                        for (e = d + 4; e <= j - 1; e++)
+                            if (allowed_basepair(d, e))
+                                Qgls(i, d, e, j) += exp(-a2 / RT) * Qm(i, c - 1) * Qg(c, d, e, j);
+            for (d = i + 1; d <= j - 10; d++)
+                for (e = d + 4; e <= j - 6; e++)
+                    if (allowed_basepair(d, e))
+                        for (f = e + 1; f <= j - 5; f++)
+                            if (allowed_basepair(i, f) and is_wc_basepair(i, f))
+                                Qgrs(i, d, e, j) += Qg(i, d, e, f) * Qm(f + 1, j) * exp(-a2 / RT);
+
+            // Qgl, Qgr recursions
+            for (d = i + 1; d <= j - 5; d++)
+                for (f = d + 4; f <= j - 1; f++)
+                    if (allowed_basepair(d, f) and is_wc_basepair(d, f))
+                        for (e = d; e <= f - 3; e++) Qgl(i, e, f, j) += Qg(i, d, f, j) * Qz(d + 1, e) * exp(-b2 / RT);
+            for (d = i + 1; d <= j - 4; d++)
+                for (e = d + 3; e <= j - 1; e++)
+                    for (f = e; f <= j - 1; f++) Qgr(i, d, e, j) += Qgl(i, d, f, j) * Qz(e, f - 1);
+
+            // Qp recursion
+            for (d = i + 2; d <= j - 4; d++)
+                for (e = max(d + 2, i + 5); e <= j - 3; e++)
+                    for (f = e + 1; f <= j - 2; f++) Qp(i, j) += Qgl(i, d - 1, e, f) * Qgr(d, e - 1, f + 1, j);
+
+            // Q, Qm, Qz recursions
+            Q(i, j) = 1.0;    // if empty, no basepairs between (i,j)
+            if (i and j != int(n_) -  1) Qz(i, j) = exp(-(b3 * (j - i + 1)) / RT);
+            for (d = i; d <= j - 4; d++)    // all possible rightmost pairs (d,e)
+                for (e = d + 4; e <= j; e++)
+                    if (allowed_basepair(d, e) and is_wc_basepair(d, e)) {
+                        Q(i, j) += Q(i, d - 1) * Qb(d, e);
+                        if (i and j != int(n_) -  1) {
+                            Qm(i, j) += exp(-(a2 + (d - i + j - e) * a3) / RT) * Qb(d, e);
+                            if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + (j - e) * a3) / RT);
+                            Qz(i, j) += Qz(i, d - 1) * Qb(d, e) * exp(-(b2 + (j - e) * b3) / RT);
+                        }
+                    }
+            for (d = i; d <= j - 8; d++)    // for all possible rightmost pseudoknots filling (d,e)
+                for (e = d + 8; e <= j; e++) {
+                    Q(i, j) += Q(i, d - 1) * Qp(d, e) * exp(-b1 / RT);
+                    if (i and j != int(n_) -  1) {
+                        Qm(i, j) += exp(-(b1m + 2 * a2 + (d - i + j - e) * a3) / RT) * Qp(d, e);
+                        if (d >= i + 5) Qm(i, j) += Qm(i, d - 1) * Qp(d, e) * exp(-(b1m + 2 * a2 + (j - e) * a3) / RT);
+                        Qz(i, j) += Qz(i, d - 1) * Qp(d, e) * exp(-(b1p + 2 * b2 + (j - e) * b3) / RT);
+                    }
+                }
+            cout << Q(i, j) << endl;
+        }
+    }
+    vector<MatrixXf> partition_functions      = vector<MatrixXf>(5);
+    partition_functions[0]                    = Q;
+    partition_functions[1]                    = Qb;
+    partition_functions[2]                    = Qm;
+    partition_functions[3]                    = Qp;
+    partition_functions[4]                    = Qz;
+    vector<tensorN4> partition_functions_next = vector<tensorN4>(5);
+    partition_functions_next[0]               = Qg;
+    partition_functions_next[1]               = Qgl;
+    partition_functions_next[2]               = Qgr;
+    partition_functions_next[3]               = Qgls;
+    partition_functions_next[4]               = Qgrs;
+    pair<vector<MatrixXf>, vector<tensorN4>> results;
+    results = make_pair(partition_functions, partition_functions_next);
+    return results;
+}
+
+void RNA::compute_posterior_noPK_ON4(bool fast)
+{
+    if (fast) {
+        vector<MatrixXf> partition_functions = compute_partition_function_noPK_ON3();
+        MatrixXf&        Q                   = partition_functions[0];
+        MatrixXf&        Qb                  = partition_functions[1];
+        MatrixXf&        Qm                  = partition_functions[2];
+    } else {
+        vector<MatrixXf> partition_functions = compute_partition_function_noPK_ON4();
+        MatrixXf&        Q                   = partition_functions[0];
+        MatrixXf&        Qb                  = partition_functions[1];
+        MatrixXf&        Qm                  = partition_functions[2];
+    }
 
     cout << "Tout marche, mon pote." << endl;
 }
 
-void RNA::compute_ON6_PK_posterior(void)
+void RNA::compute_posterior_PK_ON6(bool fast)
 {
-    pair<vector<MatrixXf>, vector<tensorN4>> results                  = compute_ON5_PK_partition_function();
-    vector<MatrixXf>                         partition_functions      = results.first;
-    vector<tensorN4>                         partition_functions_next = results.second;
+    if (fast) {
+        pair<vector<MatrixXf>, vector<tensorN4>> results                  = compute_partition_function_PK_ON5();
+        vector<MatrixXf>                         partition_functions      = results.first;
+        vector<tensorN4>                         partition_functions_next = results.second;
 
-    MatrixXf& Q    = partition_functions[0];
-    MatrixXf& Qb   = partition_functions[1];
-    MatrixXf& Qm   = partition_functions[2];
-    MatrixXf& Qp   = partition_functions[3];
-    MatrixXf& Qz   = partition_functions[4];
-    tensorN4& Qg   = partition_functions_next[0];
-    tensorN4& Qgl  = partition_functions_next[1];
-    tensorN4& Qgr  = partition_functions_next[2];
-    tensorN4& Qgls = partition_functions_next[3];
-    tensorN4& Qgrs = partition_functions_next[4];
+        MatrixXf& Q    = partition_functions[0];
+        MatrixXf& Qb   = partition_functions[1];
+        MatrixXf& Qm   = partition_functions[2];
+        MatrixXf& Qp   = partition_functions[3];
+        MatrixXf& Qz   = partition_functions[4];
+        tensorN4& Qg   = partition_functions_next[0];
+        tensorN4& Qgl  = partition_functions_next[1];
+        tensorN4& Qgr  = partition_functions_next[2];
+        tensorN4& Qgls = partition_functions_next[3];
+        tensorN4& Qgrs = partition_functions_next[4];
+    } else {
+        pair<vector<MatrixXf>, vector<tensorN4>> results                  = compute_partition_function_PK_ON8();
+        vector<MatrixXf>                         partition_functions      = results.first;
+        vector<tensorN4>                         partition_functions_next = results.second;
+
+        MatrixXf& Q    = partition_functions[0];
+        MatrixXf& Qb   = partition_functions[1];
+        MatrixXf& Qm   = partition_functions[2];
+        MatrixXf& Qp   = partition_functions[3];
+        MatrixXf& Qz   = partition_functions[4];
+        tensorN4& Qg   = partition_functions_next[0];
+        tensorN4& Qgl  = partition_functions_next[1];
+        tensorN4& Qgr  = partition_functions_next[2];
+        tensorN4& Qgls = partition_functions_next[3];
+        tensorN4& Qgrs = partition_functions_next[4];
+    }
 }
 
-void RNA::get_posterior(vector<float> a, vector<int> b) {}
+void RNA::compute_basepair_probabilities(vector<float> a, vector<int> b, bool pk, bool fast)
+{
+    if (pk)
+        compute_posterior_PK_ON6(fast);
+    else
+        compute_posterior_noPK_ON4(fast);
+}
