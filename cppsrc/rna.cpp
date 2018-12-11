@@ -424,6 +424,9 @@ vector<MatrixXf> RNA::compute_partition_function_noPK_ON4(void)
         }
     }
 
+    // Print Q(1,n_)
+    cout << "\t\t>Partition function is " << Q(0, n_ - 1) << endl;
+
     vector<MatrixXf> partition_functions = vector<MatrixXf>(3);
     partition_functions[0]               = Q;
     partition_functions[1]               = Qb;
@@ -519,13 +522,8 @@ vector<MatrixXf> RNA::compute_partition_function_noPK_ON3(void)
         }
     }
 
-    // Print Q
-    cout << endl << "Q" << endl << endl;
-    for (i = 0; i < int(n_); i++) {
-        for (j = 0; j < int(n_); j++) cout << Q(i, j) << " ";
-        cout << endl;
-    }
-    cout << endl;
+    // Print Q(1,n_)
+    cout << "\t\t>Partition function (fast computed) is " << Q(0, n_ - 1) << endl;
 
     vector<MatrixXf> partition_functions = vector<MatrixXf>(3);
     partition_functions[0]               = Q;
