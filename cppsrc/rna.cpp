@@ -909,24 +909,77 @@ pair<vector<MatrixXf>, vector<tensorN4>> RNA::compute_partition_function_PK_ON8(
     return results;
 }
 
-void RNA::compute_posterior_noPK_ON4(bool fast)
+MatrixXf RNA::compute_posterior_noPK_ON4(bool fast)
 {
-    if (fast) {
-        vector<MatrixXf> partition_functions = compute_partition_function_noPK_ON3();
-        MatrixXf&        Q                   = partition_functions[0];
-        MatrixXf&        Qb                  = partition_functions[1];
-        MatrixXf&        Qm                  = partition_functions[2];
-    } else {
-        vector<MatrixXf> partition_functions = compute_partition_function_noPK_ON4();
-        MatrixXf&        Q                   = partition_functions[0];
-        MatrixXf&        Qb                  = partition_functions[1];
-        MatrixXf&        Qm                  = partition_functions[2];
-    }
+    vector<MatrixXf> partition_functions(0);
+    if (fast)
+        partition_functions = compute_partition_function_noPK_ON3();
+    else
+        partition_functions = compute_partition_function_noPK_ON4();
+    MatrixXf& Q  = partition_functions[0];
+    MatrixXf& Qb = partition_functions[1];
+    MatrixXf& Qm = partition_functions[2];
+    float     RT = kB * AVOGADRO * (ZERO_C_IN_KELVIN + 37.0);
+    float     a1 = nrjp_.a1;
+    float     a2 = nrjp_.a2;
+    float     a3 = nrjp_.a3;
 
-    cout << "Tout marche, mon pote." << endl;
+    // O(3N²) space
+    MatrixXf P  = MatrixXf::Zero(n_, n_);
+    MatrixXf Pb = MatrixXf::Zero(n_, n_);
+    MatrixXf Pm = MatrixXf::Zero(n_, n_);
+    int      l, i, j, d, e;
+    float    dP;
+    P(0, n_ - 1) = 1.0;    // probability of recursing to the entire strand is 1
+    for (l = n_; l > 0; l--) {
+        cout << "\t\t\tupdating l = " << l << endl;
+        // pragma omp parallel for private(j, d, e, dP)
+        for (i = 0; i <= int(n_) - l; i++) {
+            j = i + l - 1;
+
+            // P, Pm recursion
+            for (d = i; d <= j - 4; d++)    // should be d = i ?
+                for (e = d + 4; e <= j; e++) {
+                    if (Q(i, j) > 0) {
+                        if (d > i) {
+                            dP = P(i, j) * Q(i, d - 1) * Qb(d, e) / Q(i, j);
+                            P(i, d - 1) += dP;
+                        } else {
+                            dP = P(i, j) * Qb(d, e) / Q(i, j);
+                        }
+                        Pb(d, e) += dP;
+                        assert(!std::isnan(dP));
+                    }
+                    if (Qm(i, j) > 0) {
+                        Pb(d, e) += Pm(i, j) * exp(-(a2 + a3 * (d - i + j - e) / RT)) * Qb(d, e) / Qm(i, j);
+                        if (d > i) {
+                            dP = Pm(i, j) * Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT) / Qm(i, j);
+                            Pm(i, d - 1) += dP;
+                        } else {
+                            dP = Pm(i, j) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT) / Qm(i, j);
+                        }
+                        Pb(d, e) += dP;
+                        assert(!std::isnan(dP));
+                    }
+                }
+
+            // Pb recursion
+            for (d = i + 1; d <= j - 5; d++)
+                for (e = d + 4; e <= j - 1; e++) {
+                    if (Qb(i, j) > 0) {
+                        Pb(d, e) += Pb(i, j) * Qb(d, e) * exp(-GIL(i, d, e, j, false) / RT) / Qb(i, j);
+                        dP = Pb(i, j) * Qm(i + 1, d - 1) * Qb(d, e) * exp(-(a1 + 2 * a2 + (j - e - 1) * a3) / RT) / Qb(i, j);
+                        Pm(i + 1, d - 1) += dP;
+                        Pb(d, e) += dP;
+                        assert(!std::isnan(dP));
+                    }
+                }
+        }
+    }
+    return P;
 }
 
-void RNA::compute_posterior_PK_ON6(bool fast)
+MatrixXf RNA::compute_posterior_PK_ON6(bool fast)
 {
     if (fast) {
         pair<vector<MatrixXf>, vector<tensorN4>> results                  = compute_partition_function_PK_ON5();
@@ -963,8 +1016,15 @@ void RNA::compute_posterior_PK_ON6(bool fast)
 
 void RNA::compute_basepair_probabilities(vector<float> a, vector<int> b, bool pk, bool fast)
 {
+    MatrixXf p_;
     if (pk)
-        compute_posterior_PK_ON6(fast);
+        p_ = compute_posterior_PK_ON6(fast);
     else
-        compute_posterior_noPK_ON4(fast);
+        p_ = compute_posterior_noPK_ON4(fast);
+
+    for (uint i = 0; i < n_; i++) {
+        for (uint j = 0; j < n_; j++) cout << p_(i, j) << " ";
+        cout << endl;
+    }
+    cout << endl;
 }

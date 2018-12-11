@@ -114,8 +114,8 @@ class RNA
     vector<MatrixXf>                         compute_partition_function_noPK_ON3(void);    // McCaskill + fastILloops
     pair<vector<MatrixXf>, vector<tensorN4>> compute_partition_function_PK_ON8(void);      // McCaskill + PK
     pair<vector<MatrixXf>, vector<tensorN4>> compute_partition_function_PK_ON5(void);    // McCaskill + PK + fastILloops
-    void                                     compute_posterior_noPK_ON4(bool fast);      // probas
-    void                                     compute_posterior_PK_ON6(bool fast);        // probas + PK
+    MatrixXf                                 compute_posterior_noPK_ON4(bool fast);      // probas
+    MatrixXf                                 compute_posterior_PK_ON6(bool fast);        // probas + PK
     void compute_basepair_probabilities(vector<float> bp_proba, vector<int> offset, bool pk, bool fast);
 
     multi_array<pair_t, 2> pair_map;
