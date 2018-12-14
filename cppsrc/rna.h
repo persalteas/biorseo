@@ -4,7 +4,6 @@
 
 #include <Eigen/CXX11/Tensor>
 #include <Eigen/Core>
-#include <boost/multi_array.hpp>
 #include <map>
 #include <sstream>
 #include <string>
@@ -14,8 +13,7 @@
 #define ZERO_C_IN_KELVIN 273.15    // Zero degrees C in Kelvin
 #define AVOGADRO 6.022e23          // Avogadro's number
 
-using boost::multi_array;
-using Eigen::MatrixXf;
+using Eigen::MatrixXf, Eigen::Matrix;
 
 using std::map;
 using std::pair;
@@ -116,20 +114,20 @@ class RNA
     pair<vector<MatrixXf>, vector<tensorN4>> compute_partition_function_PK_ON5(void);    // McCaskill + PK + fastILloops
     MatrixXf                                 compute_posterior_noPK_ON4(bool fast);      // probas
     MatrixXf                                 compute_posterior_PK_ON6(bool fast);        // probas + PK
-    void compute_basepair_probabilities(vector<float> bp_proba, vector<int> offset, bool pk, bool fast);
+    void                                     compute_basepair_probabilities(bool pk, bool fast);
 
-    multi_array<pair_t, 2> pair_map;
-    EnergyParms            nrjp_;    // energy parameters loaded from file or rna1995.h
-    string                 name_;    // name of the rna
-    string                 seq_;     // sequence of the rna with chars
-    vector<base_t>         bseq_;    // sequence of the rna with base_ts
-    uint                   n_;       // length of the rna
-    vector<vector<float>>  pij_;     // vector of probabilities
+    Matrix<pair_t, 5, 5> pair_map;
+    EnergyParms          nrjp_;    // energy parameters loaded from file or rna1995.h
+    string               name_;    // name of the rna
+    string               seq_;     // sequence of the rna with chars
+    vector<base_t>       bseq_;    // sequence of the rna with base_ts
+    uint                 n_;       // length of the rna
+    MatrixXf             pij_;     // matrix of basepair probabilities
 };
 
-inline float  RNA::get_pij(int i, int j) { return pij_[i][j]; }
+inline float  RNA::get_pij(int i, int j) { return pij_(i, j); }
 inline uint   RNA::get_RNA_length() const { return n_; }
-inline pair_t RNA::pair_type(int i, int j) const { return pair_map[bseq_[i]][bseq_[j]]; }
+inline pair_t RNA::pair_type(int i, int j) const { return pair_map(bseq_[i], bseq_[j]); }
 inline string RNA::get_seq(void) const { return seq_; }
 inline bool   RNA::is_wc_basepair(size_t u, size_t v) const { return pair_type(u, v) != PAIR_OTHER; }
 

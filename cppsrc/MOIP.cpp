@@ -116,10 +116,11 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     }
     IloNumArray basepair_values(env_);
     IloNumArray insertion_values(env_);
-    env_.out() << endl << "Solution status = " << cplex_.getStatus() << endl;
-    env_.out() << endl << "Objective value = " << cplex_.getObjValue() << endl;
+    cout << "Solution status: " << cplex_.getStatus() << ", with objective value " << cplex_.getObjValue() << endl;
     cplex_.getValues(basepair_values, basepair_dv_);
     cplex_.getValues(insertion_values, insertion_dv_);
+
+    cout << "\tBuilding secondary structure..." << endl;
 
     // Build a secondary Structure
     SecondaryStructure best_ss = SecondaryStructure(rna_);
@@ -234,7 +235,7 @@ void MOIP::add_problem_constraints(const IloModel& model_)
         IloExpr c6p = IloExpr(env_);
         if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
             c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
-        cout << "\t\t" << (C(i, 0) <= c6p) << " (" << allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) << ")" << endl;
+        cout << "\t\t" << (C(i, 0) <= c6p) << "\t(" << x.comp[0].pos.first << ',' << x.comp.back().pos.second << (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)>0 ? ") is allowed" : ") is not allowed") << endl;
         model_.add(C(i, 0) <= c6p);
         if (x.comp.size() == 1)    // This constraint is for multi-component motives.
             continue;
@@ -243,8 +244,7 @@ void MOIP::add_problem_constraints(const IloModel& model_)
             if (allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first))
                 c6 += y(x.comp[j - 1].pos.second, x.comp[j].pos.first);
             model_.add(C(i, j) <= c6);
-            cout << "\t\t" << (C(i, j) <= c6) << " (" << allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first)
-                 << ")" << endl;
+            cout << "\t\t" << (C(i, j) <= c6) << "\t(" << x.comp[j - 1].pos.second << ',' << x.comp[j].pos.first << (allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first)>0 ? ") is allowed" : ") is not allowed") << endl;
         }
     }
 }

@@ -4,7 +4,6 @@
 #include <iostream>
 #include <omp.h>
 #include <string>
-#include <utility>
 #include <vector>
 
 using namespace Eigen;
@@ -17,7 +16,7 @@ uint min(uint a, uint b) { return a < b ? a : b; }
 uint max(uint a, uint b) { return a > b ? a : b; }
 
 RNA::RNA(string name, string seq)
-: pair_map(boost::extents[5][5]), name_(name), seq_(seq), n_(seq.size()), pij_(n_, vector<float>(n_))
+: pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)), name_(name), seq_(seq), n_(seq.size())
 {
     bseq_.reserve(n_);
     vector<char> unknown_chars;
@@ -38,54 +37,42 @@ RNA::RNA(string name, string seq)
         for (char c : unknown_chars) cout << c << " ";
         cout << endl;
     }
-    std::fill(pair_map.data(), pair_map.data() + pair_map.num_elements(), PAIR_OTHER);
-    pair_map[BASE_A][BASE_U] = PAIR_AU;
-    pair_map[BASE_U][BASE_A] = PAIR_UA;
-    pair_map[BASE_C][BASE_G] = PAIR_CG;
-    pair_map[BASE_G][BASE_C] = PAIR_GC;
-    pair_map[BASE_G][BASE_U] = PAIR_GU;
-    pair_map[BASE_U][BASE_G] = PAIR_UG;
-
-
-
+    pair_map(BASE_A, BASE_U) = PAIR_AU;
+    pair_map(BASE_U, BASE_A) = PAIR_UA;
+    pair_map(BASE_C, BASE_G) = PAIR_CG;
+    pair_map(BASE_G, BASE_C) = PAIR_GC;
+    pair_map(BASE_G, BASE_U) = PAIR_GU;
+    pair_map(BASE_U, BASE_G) = PAIR_UG;
     cout << "\t>sequence formatted" << endl;
 
     // define pij_
-    vector<float> bp_proba;
-    vector<int>   offset;
     nrjp_.salt_correction = 0.0;
     nrjp_.loop_greater30  = 1.079;    // 1.75 * RT
     nrjp_.hairpin_GGG     = 0.0;
     // load_parameters("rna1999.dG"); // to load custom parameters
     load_default_parameters();
     cout << "\t>computing pairing probabilities..." << endl;
-    compute_basepair_probabilities(bp_proba, offset, false, true);
-
-    for (uint i = 1; i <= n_; i++) {
-        for (uint j = 1; j <= n_; j++) {
-            pij_[i - 1][j - 1] = bp_proba[offset[i] + j];
-        }
-    }
-    cout << "\t>pairing probabilities defined" << endl;
+    compute_basepair_probabilities(false, true);
+    cout << "\t\t>pairing probabilities defined" << endl;
 }
 
 void RNA::print_basepair_p_matrix(float theta) const
 {
     cout << endl << endl;
     cout << "\t=== -log10(p(i,j)) for each pair (i,j) of nucleotides: ===" << endl << endl;
-    cout << "\t " << seq_ << endl;
+    cout << "\t" << seq_ << endl;
     uint i = 0;
-    for (auto u : pij_) {
-        cout << "\t" << seq_[i];
-        for (auto v : u) {
-            if (v < 5e-10)
+    for (uint u = 0; u < pij_.rows(); u++) {
+        cout << "\t";
+        for (uint v = 0; v < pij_.cols(); v++) {
+            if (pij_(u, v) < 5e-10)
                 cout << " ";
-            else if (v > theta)
-                cout << "\033[0;32m" << int(-log10(v)) << "\033[0m";
+            else if (pij_(u, v) > theta)
+                cout << "\033[0;32m" << int(-log10(pij_(u, v))) << "\033[0m";
             else
-                cout << int(-log10(v));
+                cout << int(-log10(pij_(u, v)));
         }
-        cout << endl;
+        cout << seq_[i] << endl;
         i++;
     }
     cout << endl << "\t\033[0;32mgreen\033[0m basepairs are kept as decision variables." << endl << endl;
@@ -930,38 +917,37 @@ MatrixXf RNA::compute_posterior_noPK_ON4(bool fast)
     MatrixXf Pm = MatrixXf::Zero(n_, n_);
     int      l, i, j, d, e;
     float    dP;
+
     P(0, n_ - 1) = 1.0;    // probability of recursing to the entire strand is 1
     for (l = n_; l > 0; l--) {
-        cout << "\t\t\tupdating l = " << l << endl;
-        // pragma omp parallel for private(j, d, e, dP)
+        #pragma omp parallel for private(j, d, e, dP)
         for (i = 0; i <= int(n_) - l; i++) {
             j = i + l - 1;
 
+            // printMatrix(Pb);
+
             // P, Pm recursion
-            for (d = i; d <= j - 4; d++)    // should be d = i ?
+            for (d = i; d <= j - 4; d++) {
                 for (e = d + 4; e <= j; e++) {
-                    if (Q(i, j) > 0) {
-                        if (d > i) {
-                            dP = P(i, j) * Q(i, d - 1) * Qb(d, e) / Q(i, j);
-                            P(i, d - 1) += dP;
-                        } else {
-                            dP = P(i, j) * Qb(d, e) / Q(i, j);
-                        }
-                        Pb(d, e) += dP;
-                        assert(!std::isnan(dP));
+                    if (d > i) {
+                        dP = P(i, j) * Q(i, d - 1) * Qb(d, e) / Q(i, j);
+                        P(i, d - 1) += dP;
+                    } else {
+                        dP = P(i, j) * Qb(d, e) / Q(i, j);
                     }
-                    if (Qm(i, j) > 0) {
-                        Pb(d, e) += Pm(i, j) * exp(-(a2 + a3 * (d - i + j - e) / RT)) * Qb(d, e) / Qm(i, j);
-                        if (d > i) {
-                            dP = Pm(i, j) * Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT) / Qm(i, j);
-                            Pm(i, d - 1) += dP;
-                        } else {
-                            dP = Pm(i, j) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT) / Qm(i, j);
-                        }
-                        Pb(d, e) += dP;
-                        assert(!std::isnan(dP));
+                    Pb(d, e) += dP;
+
+                    Pb(d, e) += Pm(i, j) * exp(-(a2 + a3 * (d - i + j - e) / RT)) * Qb(d, e) / Qm(i, j);
+                    if (d > i) {
+                        dP = Pm(i, j) * Qm(i, d - 1) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT) / Qm(i, j);
+                        Pm(i, d - 1) += dP;
+                    } else {
+                        dP = Pm(i, j) * Qb(d, e) * exp(-(a2 + a3 * (j - e)) / RT) / Qm(i, j);
                     }
+                    Pb(d, e) += dP;
+                    assert(!std::isnan(dP));
                 }
+            }
 
             // Pb recursion
             for (d = i + 1; d <= j - 5; d++)
@@ -976,7 +962,7 @@ MatrixXf RNA::compute_posterior_noPK_ON4(bool fast)
                 }
         }
     }
-    return P;
+    return Pb;
 }
 
 MatrixXf RNA::compute_posterior_PK_ON6(bool fast)
@@ -1012,19 +998,14 @@ MatrixXf RNA::compute_posterior_PK_ON6(bool fast)
         tensorN4& Qgls = partition_functions_next[3];
         tensorN4& Qgrs = partition_functions_next[4];
     }
+    MatrixXf Pb = MatrixXf::Zero(n_, n_);
+    return Pb;
 }
 
-void RNA::compute_basepair_probabilities(vector<float> a, vector<int> b, bool pk, bool fast)
+void RNA::compute_basepair_probabilities(bool pk, bool fast)
 {
-    MatrixXf p_;
     if (pk)
-        p_ = compute_posterior_PK_ON6(fast);
+        pij_ = compute_posterior_PK_ON6(fast);
     else
-        p_ = compute_posterior_noPK_ON4(fast);
-
-    for (uint i = 0; i < n_; i++) {
-        for (uint j = 0; j < n_; j++) cout << p_(i, j) << " ";
-        cout << endl;
-    }
-    cout << endl;
+        pij_ = compute_posterior_noPK_ON4(fast);
 }
