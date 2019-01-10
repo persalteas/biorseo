@@ -50,9 +50,9 @@ void SecondaryStructure::print(void) const
         uint i = 0;
         cout << '\t';
         for (auto c : m.comp) {
-            while (i != c.pos.second) {
+            while (i != c.pos.second+1) {
                 i++;
-                if (i < c.pos.first)
+                if (i < c.pos.first+1)
                     cout << " ";
                 else
                     cout << '-';

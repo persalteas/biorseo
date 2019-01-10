@@ -1,6 +1,7 @@
 include EditMe
 ICONCERT=$(CPLEXDir)/concert/include
 ICPLEX=$(CPLEXDir)/cplex/include
+INUPACK=/usr/local/include/nupack
 LCONCERT=$(CPLEXDir)/concert/lib/x86-64_linux/static_pic/
 LCPLEX=$(CPLEXDir)/cplex/lib/x86-64_linux/static_pic/
 
@@ -9,12 +10,12 @@ TARGET   = biominserter
 
 CC	   = clang++
 # compiling flags here
-CFLAGS   = -Icppsrc/ -I$(ICONCERT) -I$(ICPLEX) -I$(IEIGEN) -I$(IEIGEN)/unsupported -g -fopenmp=libomp
+CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -I$(INUPACK) -I$(IEIGEN) -I$(IEIGEN)/unsupported -g -fopenmp=libomp
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable
 
 LINKER   = clang++
 # linking flags here
-LDFLAGS   = -lconcert -lilocplex -lcplex -lm -lomp -lpthread -ldl -lboost_system -lboost_filesystem -lboost_program_options -L$(LCONCERT) -L$(LCPLEX)
+LDFLAGS   = -lRNA -lconcert -lilocplex -lcplex -lm -lomp -lpthread -ldl -lboost_system -lboost_filesystem -lboost_program_options -L$(LCONCERT) -L$(LCPLEX) -lnupackpfunc -lnupackutils -lnupackconc
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc

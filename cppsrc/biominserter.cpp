@@ -82,7 +82,19 @@ int main(int argc, char* argv[])
     // finding the best SecondaryStructures for each objective
     try {
         SecondaryStructure bestSSO1 = myMOIP.solve_objective(1);
-        bestSSO1.print();
+        SecondaryStructure bestSSO2 = myMOIP.solve_objective(2);
+        double             bestObj2 = bestSSO2.get_objective_score(2);
+
+        // extend to the whole pareto set
+        myMOIP.add_solution(bestSSO1);
+        myMOIP.extend_pareto(bestObj2, 1000.0);
+
+        // print the pareto set
+        cout << "Structure \t Free energy score \t Expected accuracy score" << endl;
+        for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
+            cout << myMOIP.solution(i).to_string() << endl;
+        }
+        cout << endl;
     } catch (IloAlgorithm::NotExtractedException& e) {
         cerr << e << endl;
         exit(EXIT_FAILURE);
@@ -90,19 +102,7 @@ int main(int argc, char* argv[])
         cerr << e << endl;
         exit(EXIT_FAILURE);
     }
-    // SecondaryStructure bestSSO2 = myMOIP.solve_objective(2);
-    // double             bestObj2 = bestSSO2.get_objective_score(2);
-
-    // extend to the whole pareto set
-    // myMOIP.add_solution(bestSSO1);
-    // myMOIP.extend_pareto(bestObj2, max);
-
-    // print the pareto set
-    // cout << "Structure \t Free energy score \t Expected accuracy score" << endl;
-    // for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
-    //     cout << myMOIP.solution(i).to_string() << endl;
-    // }
-    // cout << endl;
+    
 
     return EXIT_SUCCESS;
 }

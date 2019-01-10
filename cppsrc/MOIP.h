@@ -46,6 +46,7 @@ class MOIP
     float  theta_;        // theta parameter for the probability function
     double lambdaMin_;    // minimum threshold value for the probability value
     double lambdaMax_;    // maximum threshold value for the probability value
+    bool verbose_;
 
     // CPLEX objects
     IloEnv                 env_;                         // environment CPLEX object

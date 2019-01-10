@@ -10,6 +10,29 @@ using std::pair;
 using std::string;
 using std::vector;
 
+typedef struct Comp_ {
+    pair<uint, uint> pos;
+    int              score;
+    size_t           k;
+    Comp_(pair<int, int> p, int s) : pos(p), score(s) { k = 1 + pos.second - pos.first; }
+} Component;
+
+typedef struct {
+    string            atlas_id;
+    vector<Component> comp;
+    bool              reversed;
+    string            pos_string(void) const
+    {
+        std::stringstream s;
+        s << atlas_id << " ( ";
+        for (auto c : comp) {
+            s << c.pos.first << '-' << c.pos.second << ' ';
+        }
+        s << ')';
+        return s.str();
+    }
+} Motif;
+
 class SecondaryStructure
 {
     public:
