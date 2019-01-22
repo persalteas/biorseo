@@ -29,8 +29,7 @@ class MOIP
 
     private:
     bool           is_undominated_yet(const SecondaryStructure& s);
-    void           add_problem_constraints(const IloModel& model_);
-    void           forbid_solution(const IloModel& model_);
+    void           define_problem_constraints(void);
     size_t         get_yuv_index(size_t u, size_t v) const;
     size_t         get_Cpxi_index(size_t x_i, size_t i_on_j) const;
     IloNumExprArg& y(size_t u, size_t v);    // Direct reference to y^u_v in basepair_dv_
@@ -42,18 +41,18 @@ class MOIP
     vector<SecondaryStructure> pareto_;             // Vector of results
 
     // Objectives related
-    // float  beta_;         // beta parameter of the probability function
-    // int    vp_;           // vp_ variable for penalization of the probability score
     float theta_;    // theta parameter for the probability function
-    bool  verbose_;
 
     // CPLEX objects
-    IloEnv                 env_;                         // environment CPLEX object
-    IloNumVarArray         basepair_dv_;                 // Decision variables
-    IloNumVarArray         insertion_dv_;                // Decision variables
-    vector<vector<size_t>> index_of_Cxip_;               // Stores the indexes of the Cxip in insertion_dv_
-    vector<size_t>         index_of_first_components;    // Stores the indexes of Cx1p in insertion_dv_
-    vector<vector<size_t>> index_of_yuv_;                // Stores the indexes of the y^u_v in basepair_dv_
+    IloEnv                 env_;                            // environment CPLEX object
+    IloNumVarArray         basepair_dv_;                    // Decision variables
+    IloNumVarArray         insertion_dv_;                   // Decision variables
+    IloModel               model_;                      // Solver for objective 1
+    IloExpr                obj1;                            // Objective function that counts inserted motifs
+    IloExpr                obj2;                            // Objective function of expected accuracy
+    vector<vector<size_t>> index_of_Cxip_;                  // Stores the indexes of the Cxip in insertion_dv_
+    vector<size_t>         index_of_first_components;       // Stores the indexes of Cx1p in insertion_dv_
+    vector<vector<size_t>> index_of_yuv_;                   // Stores the indexes of the y^u_v in basepair_dv_
 };
 
 inline uint                      MOIP::get_n_solutions(void) const { return pareto_.size(); }

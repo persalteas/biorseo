@@ -24,8 +24,12 @@ string SecondaryStructure::to_DBN(void) const
 
 string SecondaryStructure::to_string(void) const
 {
-    return to_DBN() + "\t" + boost::str(boost::format("%.6f") % objective_scores_[0]) + "\t" +
-           boost::str(boost::format("%.6f") % objective_scores_[1]);
+    string s;
+    s += to_DBN();
+    for (const Motif& m : motif_info_) s += " + " + m.atlas_id;
+    s += "\t" + boost::str(boost::format("%.6f") % objective_scores_[0]) + "\t" +
+         boost::str(boost::format("%.6f") % objective_scores_[1]);
+    return s;
 }
 
 void SecondaryStructure::set_basepair(uint i, uint j)
@@ -58,7 +62,7 @@ void SecondaryStructure::print(void) const
                     cout << '-';
             }
         }
-        while (i < nBP_) {
+        while (i < n_) {
             cout << " ";
             i++;
         }
@@ -165,7 +169,7 @@ bool operator>=(const SecondaryStructure& s1, const SecondaryStructure& s2)
         obj2 = true;
     }
 
-    if (obj1 && obj2 && (strict1 || strict2) || (s11 == s21 && s12 == s22)) {
+    if ((obj1 && obj2 && (strict1 || strict2)) || ((s11 == s21 && s12 == s22))) {
         return true;
     }
 
@@ -194,7 +198,7 @@ bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2)
         obj2 = true;
     }
 
-    if (obj1 && obj2 && (strict1 || strict2) || (s11 == s21 && s12 == s22)) {
+    if ((obj1 && obj2 && (strict1 || strict2)) || ((s11 == s21 && s12 == s22))) {
         return true;
     }
     return false;

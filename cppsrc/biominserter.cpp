@@ -97,6 +97,9 @@ int main(int argc, char* argv[])
             myMOIP.solution(i).print();
         }
         cout << endl;
+        cout << posInsertionSites.size() << " candidate insertion sites, " << myMOIP.get_n_solutions() << " solutions kept." << endl;
+        cout << "Best value for Motif insertion objective: " << bestSSO1.get_objective_score(1) << endl;
+        cout << "Best value for structure expected accuracy: " << bestSSO2.get_objective_score(2) << endl;
     } catch (IloAlgorithm::NotExtractedException& e) {
         cerr << e << endl;
         exit(EXIT_FAILURE);
