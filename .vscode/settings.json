@@ -50,8 +50,11 @@
         "condition_variable": "cpp",
         "mutex": "cpp",
         "optional": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "cstdarg": "cpp",
+        "iomanip": "cpp"
     },
     "python.pythonPath": "/usr/bin/python3",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "C_Cpp.intelliSenseEngineFallback": "Disabled"
 }

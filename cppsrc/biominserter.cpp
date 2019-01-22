@@ -81,18 +81,20 @@ int main(int argc, char* argv[])
     MOIP myMOIP = MOIP(myRNA, posInsertionSites, theta_p_threshold);
     // finding the best SecondaryStructures for each objective
     try {
-        SecondaryStructure bestSSO1 = myMOIP.solve_objective(1);
-        SecondaryStructure bestSSO2 = myMOIP.solve_objective(2);
-        double             bestObj2 = bestSSO2.get_objective_score(2);
+        SecondaryStructure bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
+        SecondaryStructure bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
+        cout << "Best solution according to objective 1 :" << bestSSO1.to_string() << endl;
+        cout << "Best solution according to objective 2 :" << bestSSO2.to_string() << endl;
 
         // extend to the whole pareto set
         myMOIP.add_solution(bestSSO1);
-        myMOIP.extend_pareto(bestObj2, 1000.0);
+        myMOIP.extend_pareto(bestSSO1.get_objective_score(2), bestSSO2.get_objective_score(2));
 
         // print the pareto set
-        cout << "Structure \t Free energy score \t Expected accuracy score" << endl;
+        cout << endl << endl << "---------------------------------------------------------------" << endl;
+        cout << "Whole Pareto Set:" << endl;
         for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
-            cout << myMOIP.solution(i).to_string() << endl;
+            myMOIP.solution(i).print();
         }
         cout << endl;
     } catch (IloAlgorithm::NotExtractedException& e) {
@@ -102,7 +104,7 @@ int main(int argc, char* argv[])
         cerr << e << endl;
         exit(EXIT_FAILURE);
     }
-    
+
 
     return EXIT_SUCCESS;
 }
