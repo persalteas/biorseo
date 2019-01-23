@@ -1,7 +1,4 @@
 #include <iostream>
-#include <string>
-#include <vector>
-#include <iostream>
 // extern "C" {
 // #include <ViennaRNA/fold.h>
 // #include <ViennaRNA/part_func.h>
@@ -16,7 +13,7 @@ extern "C" {
 
 extern DBL_TYPE* pairPrPbg;    // for pseudoknots
 extern DBL_TYPE* pairPrPb;     // for pseudoknots
-extern double CUTOFF;
+extern double    CUTOFF;
 
 using namespace Eigen;
 using std::cerr;
@@ -27,9 +24,8 @@ using std::string;
 using std::vector;
 
 RNA::RNA(string name, string seq)
-: pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)), name_(name), seq_(seq), n_(seq.size()), pij_(MatrixXf::Zero(n_, n_))
+: name_(name), seq_(seq), n_(seq.size()), pij_(MatrixXf::Zero(n_, n_))    // pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)),
 {
-    bseq_.reserve(n_);
     vector<char> unknown_chars;
     bool         contains_T = false;
     for (char c : seq) {
@@ -40,7 +36,6 @@ RNA::RNA(string name, string seq)
         if (base_type(c) == BASE_N) {
             unknown_chars.push_back(c);
         }
-        bseq_.push_back(base_type(c));
     }
     if (contains_T) cout << "\tWARNING: Thymines automatically replaced by uraciles.";
     if (unknown_chars.size() > 0) {
@@ -48,12 +43,6 @@ RNA::RNA(string name, string seq)
         for (char c : unknown_chars) cout << c << " ";
         cout << endl;
     }
-    pair_map(BASE_A, BASE_U) = PAIR_AU;
-    pair_map(BASE_U, BASE_A) = PAIR_UA;
-    pair_map(BASE_C, BASE_G) = PAIR_CG;
-    pair_map(BASE_G, BASE_C) = PAIR_GC;
-    pair_map(BASE_G, BASE_U) = PAIR_GU;
-    pair_map(BASE_U, BASE_G) = PAIR_UG;
     cout << "\t>sequence formatted" << endl;
 
     // // Compute using ViennaRNA
@@ -75,11 +64,11 @@ RNA::RNA(string name, string seq)
 
     // Compute using Nupack
     cout << "\t>computing pairing probabilities..." << endl;
-    DBL_TYPE                 pf;
-    int                    length, tmpLength;
-    int                    i, j, q, r;
-    char                   seqChar[MAXSEQLENGTH];    // Complete sequence
-    int                    seqNum[MAXSEQLENGTH + 1];
+    DBL_TYPE pf;
+    int      length, tmpLength;
+    int      i, j, q, r;
+    char     seqChar[MAXSEQLENGTH];    // Complete sequence
+    int      seqNum[MAXSEQLENGTH + 1];
 
     // Init parameters
     DANGLETYPE                         = 1;
@@ -105,18 +94,19 @@ RNA::RNA(string name, string seq)
 
     // cout << "\t\t>Base pair probabilities:" << endl;
     for (i = 0; i < length; i++) {
-        for (j = i + 1; j < length; j++) { // upper diagonal
-            pij_(i,j) = pairPr[(length + 1) * i + j];
-            // printf("\t\t%d %d\t%.4Le + %.4Le = %.4Le\t%s\n",i + 1,j + 1, pairPrPb[(length + 1) * i + j], pairPrPbg[(length + 1) * i + j], pairPr[(length + 1) * i + j], pairPrPb[(length + 1) * i + j]+ pairPrPbg[(length + 1) * i + j] == pairPr[(length + 1) * i + j] ? "CHECK" : "ERROR");
+        for (j = i + 1; j < length; j++) {    // upper diagonal
+            pij_(i, j) = pairPr[(length + 1) * i + j];
+            // printf("\t\t%d %d\t%.4Le + %.4Le = %.4Le\t%s\n",i + 1,j + 1, pairPrPb[(length + 1) * i + j], pairPrPbg[(length
+            // + 1) * i + j], pairPr[(length + 1) * i + j], pairPrPb[(length + 1) * i + j]+ pairPrPbg[(length + 1) * i + j] == pairPr[(length + 1) * i + j] ? "CHECK" : "ERROR");
         }
     }
     cout << endl << "\t\t>Fast checking..." << endl;
     vector<double> p_unpaired = vector<double>(n_, 0.0);
     for (i = 0; i < length; i++) {
-        p_unpaired [i] = pairPr[(length + 1) * i + j];
-        double sum = 0.0;
-        for (j = 0; j<length; j++) sum += pij_(i,j);
-        printf("\t\t%d\tunpaired: %.4e\tpaired(pK+noPK): %.4e\tTotal: %f\n", i + 1, p_unpaired[i], sum, p_unpaired[i]+sum);
+        p_unpaired[i] = pairPr[(length + 1) * i + j];
+        double sum    = 0.0;
+        for (j = 0; j < length; j++) sum += pij_(i, j);
+        printf("\t\t%d\tunpaired: %.4e\tpaired(pK+noPK): %.4e\tTotal: %f\n", i + 1, p_unpaired[i], sum, p_unpaired[i] + sum);
     }
     free(pairPr);
     free(pairPrPbg);

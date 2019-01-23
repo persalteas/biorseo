@@ -3,6 +3,7 @@
 from sys import argv
 import subprocess
 import inspect
+import RNA
 from multiprocessing import Pool, TimeoutError, cpu_count
 from os import path, makedirs, getcwd, chdir, devnull
 

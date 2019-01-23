@@ -1,6 +1,4 @@
 #include "MOIP.h"
-#include "SecondaryStructure.h"
-#include "rna.h"
 #include <algorithm>
 #include <boost/format.hpp>
 #include <cfloat>
@@ -18,8 +16,6 @@ using std::cout;
 using std::endl;
 using std::make_pair;
 using std::vector;
-
-uint MOIP::ncores = 0;
 
 MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold)
 : rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
@@ -186,7 +182,7 @@ void MOIP::define_problem_constraints(void)
     cout << "\t>ensuring there are at most 1 pairing by nucleotide..." << endl;
     uint u, v, count;
     uint n = rna_.get_RNA_length();
-    for (u = 0; u < n - 6; u++) {
+    for (u = 0; u < n; u++) {
         count = 0;
         IloExpr c1(env_);
         for (v = 0; v < u; v++)
@@ -206,7 +202,7 @@ void MOIP::define_problem_constraints(void)
     }
     // forbid lonely basepairs
     cout << "\t>forbidding lonely basepairs..." << endl;
-    for (u = 0; u < n - 6; u++) {
+    for (u = 0; u < n; u++) {
         IloExpr c2(env_);    // for the case where s[u] is paired to s[v], v>u
         count = 0;
         for (v = u; v < n; v++)
@@ -223,7 +219,7 @@ void MOIP::define_problem_constraints(void)
             cout << "\t\t" << (c2 >= 0) << endl;
         }
     }
-    for (v = 5; v < n; v++) {
+    for (v = 0; v < n; v++) {
         IloExpr c2p(env_);    // for the case where s[u] is paired to s[v], v<u
         count = 0;
         for (u = 0; u <= v - 2; u++)

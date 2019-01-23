@@ -1,6 +1,6 @@
 This is a bi-objective integer programming algorithm.
 It predicts the secondary structure of a RNA sequence with pieces of 3D information (non-canonical contacts) at some places, 
-by identifying zones that can fold like known motifs.
+by identifying zones that can fold like known motifs from the RNA 3D Motif Atlas.
 
 1/ How it works
 ===================================
@@ -9,7 +9,7 @@ INPUT:
 
 THEN
 - Identifies possible 2D folds with RNAsubopt.
-- Knowing possible 2D folds, locate every possibly unpaired loop (hairpin loop, internal loop, multiple junction...)
+- Knowing possible 2D folds, locate every possibly unpaired loop (hairpin loop, internal loop, multiple loop...)
 - align each unpaired loop to the catalogue of models of known RNA motifs (The 3D Motif Atlas of the BGSU RNA group)
 - retrieve a list of potential motif-insertion-sites in the RNA sequence. Use them to define the constraints for the IP problem.
 - Solve a bi-objective IP problem: 
@@ -19,7 +19,7 @@ THEN
 OUTPUT:
 - A set of secondary structures from the pareto front,
 - The list of known motif inserted in the corresponding structures (and the non-canonical contacts)
-- (Optionally, lower score structures from k-Pareto sets.)
+- (lower score structures from k-Pareto sets, not implemented yet.)
 
 2/ Installation
 ==================================

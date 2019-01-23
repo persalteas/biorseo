@@ -1,6 +1,5 @@
 /***
         Biominserter, Louis Becquey, nov 2018
-        inspired but not copied from Biokop, IPKnot and Nupack
 ***/
 
 #include <algorithm>
@@ -32,12 +31,6 @@ Motif parse_csv_line(string line)
 
 int main(int argc, char* argv[])
 {
-    // float   time;
-    // clock_t t1, t2;
-    // t1 = clock();
-
-    MOIP::ncores = thread::hardware_concurrency() - 1;
-
     if (argc != 4) {
         cerr << argc << " arguments specified !" << endl;
         cerr << "Please specify the following input files:" << endl;

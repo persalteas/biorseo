@@ -15,8 +15,6 @@ const double PRECISION = 0.0001;
 class MOIP
 {
     public:
-    static uint ncores;
-
     MOIP(const RNA& rna, const vector<Motif>& motifSites, float pthreshold);
     ~MOIP(void);
     SecondaryStructure        solve_objective(int o, double min, double max);

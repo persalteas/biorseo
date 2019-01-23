@@ -51,7 +51,7 @@
 		\textsc{Intermediate Work Report:}\\
 		{\Large Louis Becquey, \today}\\
 		\vspace{2cm}
-		\textit{An IP framework that uses detected possible RNA motifs\\ to predict RNA secondary structures}\\
+		\textit{A biobjective IP framework that uses detected possible RNA modules\\ to predict RNA secondary structures}\\
 	\end{center}
 	\normalsize
 	\vspace{5cm}
@@ -68,44 +68,70 @@
 	}
 	\flushleft
 	\hrulefill
-	\tableofcontents
 \end{titlepage}
-				
+
+\section*{Graphical Abstract}
+\begin{figure}[h]
+	\hspace{-1.8cm}
+	\includegraphics[width=1.2\linewidth]{graph_abstract.png}
+\end{figure}
+\tableofcontents
+
 \newpage
+
 \section{Motivation}
-We now have quite consistent RNA motif databases (RNA3Dmotif \cite{djelloul_automated_2008}, the RNA Motif Atlas \cite{petrov_automated_2013}).\\
-We call a RNA motif the combined description of these points:
+We now have quite consistent RNA module databases (RNA3Dmodule \cite{djelloul_automated_2008}, the RNA Motif Atlas \cite{petrov_automated_2013}, or CaRNAval \cite{reinharz2018mining}). 
+We call a RNA module the combined description of these points:
 \begin{itemize}
-	\item A sequence or consensus sequence that we know to adopt a particular base-pairing organisation (sequence information),
-	\item A particular base-pairing pattern in this sequence (or consensus sequence) considering canonical \& wobble pairing (bi-dimensional information),
+	\item A particular base-pairing pattern of canonical \& wobble pairing (bi-dimensional information),
 	\item A particular organisation of non-canonical contacts in space (tri-dimensional information).
+	\item A sequence or consensus sequence that we know to adopt that particular base-pairing organisation (sequence information), or at least a probabilistic model to predict if a given sequence will fold according to the module.
 \end{itemize}
-Then, a RNA motif is direct data about how a sequence can fold in space. Here, we are interested in using them to predict the bi or tri dimensional structure of an RNA sequence from scratch. 
+Then, a RNA module is direct data about how a sequence can fold in space. Here, we are interested in using them to predict the bi or tri dimensional structure of an RNA sequence from scratch. 
 Then, the algorithm we plan to use is the following:
 	
 \begin{itemize}
-	\item Find all possible occurences of known RNA motifs in the query sequence by pattern matching of the motifs consensus sequences against the query bases,
-	\item Define constraints on the secondary structure imposed by motives if included
-	\item Find a secondary structure that satisfies both the most the expected accuracy (MEA model) and criterion of motif inclusion, by solving a bi-objective IP problem, using the previous constraints.
+	\item Find all possible occurences of known RNA modules in the query sequence by using the sequence probabilistic models of the modules against the query bases,
+	\item Define constraints on the secondary structure imposed by motives if they would be included
+	\item Find a secondary structure that satisfies as much as possible both the expected accuracy of the structure and a criterion of module inclusion, by solving a bi-objective IP problem, using the previous constraints.
 \end{itemize}
 
-\newpage
-\section{Pattern matching to detect motif sites}
-A very complete model has been developped by the BGSU team \cite{zirbel_identifying_2015}, 
-which perfectly suits this need: JAR3D finds, given a RNA sequence with no additional information, 
-the sites that are likely to fold in known 3D motives of the RNA Motif Atlas \cite{petrov_automated_2013}.
+\section{Computation of basepair probabilities}
+To compute the probability of a structure to exist in the equilibrium thermodynamical ensemble, we need to estimate the basepair probabilities.
+This is usually done by a dynamic programming algorithm using an energy parameter model for base stackings in stems and energies of loops.
+As we are supposed to allow the existence of pseudoknots, we chose the Dirks \& Pierce algorithm \cite{dirksAlgorithmComputingNucleic2004} and its C++ implementation called Nupack.
 
-The RNA 3D Motif Atlas is an updated database of substructures exracted from a non-redundant set of 3D RNA structures. They are grouped into "motifs", which are a given pattern of 3D non-canonical interactions.
-Each motif contains one or several instances observed in real RNA structures. 
+\paragraph{Discussion of that choice} ~ \\
+The Dirks and Pierce algorithm has a complexity of \(O(N^5)\) instead of the usual \(O(N^3)\) algorithm, and its implementation in libNupack is even not parallel.
+We may want to use a faster one (like ViennaRNA's one), even if it does not officialy supports pseudoknots.
+Actually, to form a simple class of pseudoknots, an RNA needs to have a high likelihood to form each of the two independant loops in a non-pseudoknotted form. 
+Then, using a probability matrix computed with an algorithm that does not model pseudoknot may result in similar structures. 
+Our biobjective program would etablish the pseudoknot after all as forming more stems stabilizes the structure and as we do not forbid the pseudoknot.
+
+\section{Detection of potential modules in the sequence input}
+\paragraph{\textbf{Choice of a module model, choice of a sequence probabilistic model}} ~ \\
+Depending on the authors and databases, different approaches have been published. 
+A very complete model has been developped by the BGSU team \cite{zirbel_identifying_2015} : For each recurrent module of their "3D Motif Atlas", they build a probabilistic model for sequence variability based on a hybrid Stochastic Context-Free Grammar/Markov Random Field (SCFG/MRF) method.
+Concerning the other databases, a probabilistic model using a bayesian Network can be designed for an RNA module \cite{cruz2011sequence} to estimate the probability that the sequence would fold into the module. 
+
+As BGSU's model is already implemented in a software called JAR3D that perfectly suits our need, we decided to use BGSU's model of modules and their database.
+JAR3D finds, given the sequence of an RNA loop with no additional information, the likelihood that it folds in every known 3D module of the RNA Motif Atlas \cite{petrov_automated_2013}.
+
+For each module group of the database, JAR3D estimates the probability that a sequence folds into the 3D pattern, given instances of the module in real RNA 3D structures. 
 The instances might differ in sequence, length of bulged insertions, and other details, but share a common graph of 3D non-canonical interactions.
+It takes into account crossed contacts, base-ribose and base-phosphate interactions, and triple base-pairs.
+This is the most complete approach to use to my knowledge.
 
-For each motif group of the database, JAR3D estimates the probability that a sequence folds into the 3D pattern, given the known members of the motif group. It takes into account crossed contacts, base-ribose and base-phosphate interactions, and triple base-pairs.
+\paragraph{\textbf{Detection of the loops in an RNA sequence}} ~ \\
+As JAR3D scores the sequence of RNA loops, we first need to predict the 2D loops positions in the RNA sequence.
 
-This is the most scientifically correct approach to use to my knowledge. Unfortunately, the code is in MatLab and seems hard to use on a single computer (JAR3D is basically a webserver).
+For now, we have been using RNAsubopt from the ViennaRNA package \cite{lorenz_viennarna_2011} to compute the 10 most probable 2D structures of the RNA and extract the loops that occur in those structures.
+This computation should be avoided in the future : It requires the computation of the RNA's partition function and basepair probabilities again, which is something we already computed with Nupack.
+Unfortunately, to avoid computing it twice, we should reimplement ourselves the algorithms instead of using the actual implementations. We have programs that output the basepair matrix but no structures, and programs that output structures but not the basepair matrix, and we don't have a program that can do both.
 
 \section{Formulation of the IP problem}
 	
-This formulation is an improved merge between the IPknot \cite{sato_ipknot:_2011} formulation (without "levels") and RNAMoIP's one \cite{reinharz_towards_2012}.
+This formulation is an improved merge between the IPknot \cite{sato_ipknot:_2011} formulation to fold RNAs with pseudoknots (but without "levels") and RNAMoIP's one \cite{reinharz_towards_2012} to include modules. The bi-objective algorithm is inspired from BiokoP \cite{legendre_bi-objective_2018}.
 % This problem has been inspired by IPknot's model \cite{sato_ipknot:_2011}, but without the use of what they call \textit{levels}, which are pseudoknot-free
 % structures that should be superposed to give the true pseudoknotted secondary structure graph.\\
 % Levels are mutually exclusive (a base cannot be paired in two different levels). The more levels you use, the more decision variables you have, 
@@ -117,94 +143,102 @@ This formulation is an improved merge between the IPknot \cite{sato_ipknot:_2011
 	
 % Let $m$ be the number of levels that our program uses.\\
 Let $n$ be the number of nucleotides in the query RNA sequence $s$.\\
-Let $M$ be the set of motifs that could be inserted in $s$ (a match exist between $s$ and the sequence of the motifs' components).\\
-Let $x$ be a motif of $M$, $x$ having $j^x$ distinct components.\\
-Let $P_{x,i}$ be the set of positions in $s$ where we can insert the $i$th component of motif $x$.\\
+Let $M$ be the set of modules that could be inserted in $s$ (a loop from $s$ has a good JAR3D score against one of the modules).\\
+Let $x$ be a module of $M$, $\|x\|$ be the number of distinct components of $x$, and $p(x)$ the associated score of insertion given by JAR3D for that motif inserted at a particular position.\\
+Let $P_{x,i}$ be the position in $s$ where we can insert the $i$th component of module $x$.\\
+As the same module model can be inserted several times in $s$, several different $x$ modules in $M$ may refer to the same theoretical module, but inserted at different positions.\\
 Let $k_{x,i}$ be the size in nucleotides of that $i$th component of $x$.\\
-Let $y^u_v$ be the \textbf{decision boolean variable} indicating that $s[u]$ and $s[v]$ form a canonical base pairing. Then, we always have $u \neq v$.\\
-Let $C^{x,i}_p$ be the \textbf{decision boolean variable} indicating that we do insert the $i$th component of motif $x$ at position $p$.
+Let $y^u_v$ be the \textbf{decision boolean variable} indicating that $s[u]$ and $s[v]$ form a canonical base pairing. According to the standard loop model, we always have $v > u + 3$.\\
+Let $C^x_i$ be the \textbf{decision boolean variable} indicating that we do insert the $i$th component of module $x$ at position $P_{x,i}$.
 	
 	
 Note that a base pair $y^u_v$ is possible if and only if $v>u+3$, and that we do not need to use two variables $y^u_v$ and $y_{vu}$ for the same pair. 
 Then, we have $\sum_{i=4}^n (n-i)$ decision variables ($\approx \frac{1}{2}n^2$ decision variables) of the form $y^u_v$.
-Regarding the $C^{x,i}_p$, if we have an average insertion of $\nu$ motives by RNA sequence, the motives having in average $\mu$ components, components that can be inserted in average at $\pi$ different positions in $s$,
-then we need to add, in average, $\nu \times \mu \times \pi$ decision variables $C^{x,i}_p$.
+Regarding the $C^x_i$, if we have an average insertion of $\nu$ motives by RNA sequence, the motives having in average $\mu$ components, components that can be inserted in average at $\pi$ different positions in $s$,
+then we need to add, in average, $\nu \times \mu \times \pi$ decision variables $C^x_i$.
 
 Then, we expect having around $\frac{1}{2}n^2+\nu \mu \pi$ decision variables.
 
 \newpage
 \subsection{Objectives}
-We have two objectives : Find a structure with correct expected accuracy, and find a structure which includes (large) known motifs.
-Let $X$ be the vector of all our decision variables, we define the following loss functions to maximize:
-$$ f_1(X) = \sum_{x \in M} \left[ (j^x)^2 \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]$$
+We have two objectives : Find a structure with correct expected accuracy, and find a structure which includes (large) known modules.
+Let $X$ be the vector of all our decision variables, we define the following objective functions to maximize:
+\[ f_{1A}(X) = \sum_{x \in M} \left[ (\|x\|)^2 \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
+\[ f_{1B}(X) = \sum_{x \in M} \left[ p(x) \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
+\[ f_{1C}(X) = \sum_{x \in M} \left[ \frac{\|x\|}{\log_2(\sum_{i=1}^{\|x\|}k_{x,i})} \times p(x) \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
 $$ f_2(X) = \sum_{u<v} p_{uv}\times y^u_v \times I[p_{uv}>\theta], \qquad \qquad
 p_{uv} = \sum_{\sigma \in S(s)} y^u_v.p(\sigma | s)$$
-$f_1$ is supposed to maximize the number of inserted motives in $s$, weighted by their number of components.
-$f_2$ is supposed to maximise the expected accuracy of the secondary structure (MEA model). 
-$p_{uv}$ are the base pairing probabilities that can be estimated from a set $S(s)$ of secondary structures of $s$.
+The different $f_1$ objectives are supposed to maximize the number of inserted motives in $s$, 
+weighted by their number of components (squared for 1A), or the JAR3D score (B and C). 
+In $1C$, a penalty is added on the number of nucleotides involved in the looped zone (sum of $k_{x,i}$) to avoid long unpaired zones. 
+We don't know yet which one will give the better results.
+$f_2$ is supposed to maximise the expected accuracy of the secondary structure. 
+$p_{uv}$ are the base pairing probabilities.
+
+Note that \(f_{1A}\) is taken from RNA MoIP \cite{reinharz_towards_2012}, to compare performance.
 
 \subsection{10 Constraints to bind them all}
 \paragraph{Constraint to ensure there only is 0 or 1 canonical pairing by nucleotide} ~ 
 \begin{equation} \label{constraint:1}
-	\sum_{v>u} y^u_v + \sum_{v<u} y^v_u \leq 1 \qquad\qquad \forall u \in \llbracket 1,n \rrbracket
+	\sum_{v<u} y^v_u + \sum_{v>u} y^u_v \leq 1 \qquad\qquad \forall u \in \llbracket 1,n \rrbracket
 \end{equation}
 	
 \paragraph{Constraints to forbid lonely base pairs} ~
 \begin{equation} \label{constraint:2}
-	1 + \sum_{v=u}^n y^{u-1}_v - \sum_{v=u+1}^n y^u_v + \sum_{v=u+2}^n y^{u+1}_v \geq 1 \qquad \qquad \forall u \in \llbracket 1,n\rrbracket
+	\sum_{v=u}^n y^{u-1}_v - \sum_{v=u+1}^n y^u_v + \sum_{v=u+2}^n y^{u+1}_v \geq 0 \qquad \qquad \forall u \in \llbracket 1,n\rrbracket
 \end{equation}
 \begin{equation} \label{constraint:3}
-	1 + \sum_{u=1}^{v-2} y^u_{v-1} - \sum_{u=1}^{v-1} y^u_v + \sum_{u=1}^{v} y^u_{v+1} \geq 1 \qquad \qquad \forall v \in \llbracket 1,n\rrbracket
+	\sum_{u=1}^{v-2} y^u_{v-1} - \sum_{u=1}^{v-1} y^u_v + \sum_{u=1}^{v} y^u_{v+1} \geq 0 \qquad \qquad \forall v \in \llbracket 1,n\rrbracket
 \end{equation}
 These conditions ensure that if a base pair exists with $s[i]$, 
 one of the adjacent bases is paired too. 
 Equation \ref{constraint:2} is useful if $s[u]$ is paired with $s[v>u]$ (a nucleotide later in the sequence), 
 and equation \ref{constraint:3} if $s[v]$ is paired with $s[u<v]$ (a nucleotide earlier in the sequence).
 	
-\paragraph{Constraint to forbid pairings inside a motif component} ~ 
+\paragraph{Constraint to forbid pairings inside a module component} ~ 
 \begin{equation} \label{constraint:4}
-	k_{x,i} \; C^{x,i}_p + \sum_{u=p}^{p+k_{x,i}-1}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq k_{x,i} 
-	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in M, i \in \llbracket 1,j^x \rrbracket
+	k_{x,i} \; C^x_i + \sum_{u=P_{x,i}+1}^{P_{x,i}+k_{x,i}-2}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq k_{x,i} 
+	\qquad \qquad \forall x \in M, i \in \llbracket 1,\|x\| \rrbracket
 \end{equation}
 	
 \paragraph{Constraint to forbid component to overlap} ~
 \begin{equation} \label{constraint:5}
-	\sum_{x \in M} \sum_{i=1}^{j^x}\sum_{\substack{p \in P_{x,i}\\u-k_{x,i}+1 \leq p \leq u}}^u C^{x,i}_p \leq 1 \qquad \qquad \forall u \in \llbracket 1,n \rrbracket
+	\sum_{x \in M} \sum_{i=1}^{\|x\|}\sum_{u=P_{x,i}}^{P_{x,i}+k_{x,i}-1} C^x_i \leq 1 \qquad \qquad \forall u \in \llbracket 1,n \rrbracket
 \end{equation}
-Then, whatever the nucleotide $u$, it can be part of a motif component only once. 
+Then, whatever the nucleotide $u$, it can be part of a module component only once. 
 $u$ belongs to a component $x,i$ if and only if $u-k_{x,i}+1 \leq p_{x,i} \leq u$.\\
 \begin{center}\includegraphics[height=3cm]{component.png}\end{center}
 	
-\paragraph{Constraints to respect the structure of large motives ($\forall x \in \{ x\in M | j^x \geq 2\}$)} ~ 
+\paragraph{Constraints to respect the structure of large motives ($\forall x \in \{ x\in M | \|x\| \geq 2\}$)} ~ 
 
 The first two constraints ensure that a component is inserted if and only if the next and the previous one are also inserted somewhere.
-They also force a minimal distance of 3 nucleotides between any two consecutive components of the same motif.
+They also force a minimal distance of 3 nucleotides between any two consecutive components of the same module.
 \begin{equation}\label{constraint:6}
-	C^{x,i}_p \leq \sum_{\substack{p' \in P_{x,i+1}\\ p'>p+k_{x,i}+2}} C^{x,i+1}_{p'}	
-	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in \{ x\in M | j^x \geq 2\}, i \in \llbracket 1,j^x \llbracket
+	C^x_i \leq \sum_{\substack{p' \in P_{x,i+1}\\ p'>p+k_{x,i}+2}} C^{x,i+1}_{p'}	
+	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \llbracket 1,\|x\| \llbracket
 \end{equation}
 \begin{equation}\label{constraint:7}
-	C^{x,i}_p \leq \sum_{\substack{p' \in P_{x,i-1}\\ p'<p-k_{x,i-1}-2}} C^{x,i-1}_{p'}	
-	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in \{ x\in M | j^x \geq 2\}, i \in \rrbracket 1,j^x \rrbracket
+	C^x_i \leq \sum_{\substack{p' \in P_{x,i-1}\\ p'<p-k_{x,i-1}-2}} C^{x,i-1}_{p'}	
+	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \rrbracket 1,\|x\| \rrbracket
 \end{equation}
-We add another one to ensure that all components of any motif are inserted the same number of times in $s$:
+We add another one to ensure that all components of any module are inserted the same number of times in $s$:
 \begin{equation}\label{constraint:8}
-	\sum_{p\in P_{x,1}} C^{x,1}_p - \frac{1}{j^x} \sum_{i=1}^{j^x} \sum_{p\in P_{x,i}} C^{x,i}_p = 0  \qquad \qquad x\in M
+	\sum_{p\in P_{x,1}} C^{x,1}_p - \frac{1}{\|x\|} \sum_{i=1}^{\|x\|} \sum_{p\in P_{x,i}} C^x_i = 0  \qquad \qquad x\in M
 \end{equation}
 And finally, we force base pairs between the end of a component and the beginning of the next one:
 \begin{equation}\label{constraint:9}
-	C^{x,i}_p \leq \sum_{p' \in P_{x,i-1}} y^{p'+k_{x,i}-1}_p \qquad \qquad \forall x \in \{ x\in M | j^x \geq 2\}, i \in \rrbracket 1,j^x \rrbracket
+	C^x_i \leq \sum_{p' \in P_{x,i-1}} y^{p'+k_{x,i}-1}_p \qquad \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \rrbracket 1,\|x\| \rrbracket
 \end{equation}
 \begin{equation}\label{constraint:10}
-	C^{x,i}_p \leq \sum_{p' \in P_{x,i+1}} y^{p+k_{x,i}-1}_{p'} \qquad \qquad \forall x \in \{ x\in M | j^x \geq 2\}, i \in \llbracket 1,j^x \llbracket
+	C^x_i \leq \sum_{p' \in P_{x,i+1}} y^{p+k_{x,i}-1}_{p'} \qquad \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \llbracket 1,\|x\| \llbracket
 \end{equation}
 
 \section{Remaning questions}
 	\begin{itemize}
 		\item I am not sure how to compute the base-pair probabilities for the MEA model (objective $f_2$). 
 		If you already have a set of secondary structures $S(s)$, why do you need this program ?
-		\item In objective $f_1$, weighting the motif by the number of components (squared) shows no reason to be the best idea. 
-		Some exploration is needed. An additional weight given by the pattern-matching step might be an idea, reflecting the probability to see the motif here in $s$.
+		\item In objective $f_1$, weighting the module by the number of components (squared) shows no reason to be the best idea. 
+		Some exploration is needed. An additional weight given by the pattern-matching step might be an idea, reflecting the probability to see the module here in $s$.
 		
 	\end{itemize}
 	
