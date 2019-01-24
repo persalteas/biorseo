@@ -308,13 +308,13 @@ void MOIP::define_problem_constraints(void)
         model_.add(C(i, 0) <= c6p);
         if (x.comp.size() == 1)    // This constraint is for multi-component motives.
             continue;
-        for (size_t j = 1; j < x.comp.size(); j++) {
+        for (size_t j = 0; j < x.comp.size()-1; j++) {
             IloExpr c6 = IloExpr(env_);
-            if (allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first))
-                c6 += y(x.comp[j - 1].pos.second, x.comp[j].pos.first);
+            if (allowed_basepair(x.comp[j].pos.second, x.comp[j+1].pos.first))
+                c6 += y(x.comp[j].pos.second, x.comp[j+1].pos.first);
             model_.add(C(i, j) <= c6);
-            cout << "\t\t" << (C(i, j) <= c6) << "\t(" << x.comp[j - 1].pos.second << ',' << x.comp[j].pos.first
-                 << (allowed_basepair(x.comp[j - 1].pos.second, x.comp[j].pos.first) > 0 ? ") is allowed" : ") is not allowed")
+            cout << "\t\t" << (C(i, j) <= c6) << "\t(" << x.comp[j].pos.second << ',' << x.comp[j+1].pos.first
+                 << (allowed_basepair(x.comp[j].pos.second, x.comp[j+1].pos.first) > 0 ? ") is allowed" : ") is not allowed")
                  << endl;
         }
     }

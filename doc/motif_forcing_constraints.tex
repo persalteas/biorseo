@@ -131,7 +131,8 @@ Unfortunately, to avoid computing it twice, we should reimplement ourselves the 
 
 \section{Formulation of the IP problem}
 	
-This formulation is an improved merge between the IPknot \cite{sato_ipknot:_2011} formulation to fold RNAs with pseudoknots (but without "levels") and RNAMoIP's one \cite{reinharz_towards_2012} to include modules. The bi-objective algorithm is inspired from BiokoP \cite{legendre_bi-objective_2018}.
+This formulation is an improved merge between the IPknot \cite{sato_ipknot:_2011} formulation to fold RNAs with pseudoknots (but without "levels") and RNAMoIP's one \cite{reinharz_towards_2012} to include modules.
+The bi-objective algorithm is inspired from BiokoP \cite{legendre_bi-objective_2018} and detailed later in section \ref{methods}.
 % This problem has been inspired by IPknot's model \cite{sato_ipknot:_2011}, but without the use of what they call \textit{levels}, which are pseudoknot-free
 % structures that should be superposed to give the true pseudoknotted secondary structure graph.\\
 % Levels are mutually exclusive (a base cannot be paired in two different levels). The more levels you use, the more decision variables you have, 
@@ -160,7 +161,7 @@ then we need to add, in average, $\nu \times \mu \times \pi$ decision variables 
 Then, we expect having around $\frac{1}{2}n^2+\nu \mu \pi$ decision variables.
 
 \newpage
-\subsection{Objectives}
+\subsection{Objectives \label{objectives}}
 We have two objectives : Find a structure with correct expected accuracy, and find a structure which includes (large) known modules.
 Let $X$ be the vector of all our decision variables, we define the following objective functions to maximize:
 \[ f_{1A}(X) = \sum_{x \in M} \left[ (\|x\|)^2 \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
@@ -177,7 +178,7 @@ $p_{uv}$ are the base pairing probabilities.
 
 Note that \(f_{1A}\) is taken from RNA MoIP \cite{reinharz_towards_2012}, to compare performance.
 
-\subsection{10 Constraints to bind them all}
+\subsection{9 Constraints to bind them all}
 \paragraph{Constraint to ensure there only is 0 or 1 canonical pairing by nucleotide} ~ 
 \begin{equation} \label{constraint:1}
 	\sum_{v<u} y^v_u + \sum_{v>u} y^u_v \leq 1 \qquad\qquad \forall u \in \llbracket 1,n \rrbracket
@@ -203,45 +204,74 @@ and equation \ref{constraint:3} if $s[v]$ is paired with $s[u<v]$ (a nucleotide 
 	
 \paragraph{Constraint to forbid component to overlap} ~
 \begin{equation} \label{constraint:5}
-	\sum_{x \in M} \sum_{i=1}^{\|x\|}\sum_{u=P_{x,i}}^{P_{x,i}+k_{x,i}-1} C^x_i \leq 1 \qquad \qquad \forall u \in \llbracket 1,n \rrbracket
+	\sum_{x \in M} \sum_{i=1}^{\|x\|} C^x_i \times I( u \in [ P_{x,i} ; P_{x,i}+k_{x,i}-1]) \leq 1 \qquad \qquad \forall u \in \llbracket 1,n \rrbracket
 \end{equation}
-Then, whatever the nucleotide $u$, it can be part of a module component only once. 
-$u$ belongs to a component $x,i$ if and only if $u-k_{x,i}+1 \leq p_{x,i} \leq u$.\\
-\begin{center}\includegraphics[height=3cm]{component.png}\end{center}
+$I( u \in [ P_{x,i} ; P_{x,i}+k_{x,i}-1])$ is a booleean value depending on the condition's truth. Then, whatever the nucleotide $u$, it can be part of a module component only once.
+% \begin{center}\includegraphics[height=3cm]{component.png}\end{center}
 	
-\paragraph{Constraints to respect the structure of large motives ($\forall x \in \{ x\in M | \|x\| \geq 2\}$)} ~ 
+\paragraph{Constraints to respect the structure of large motives ($\{ x\in M \; | \; \|x\| \geq 2\}$)} ~ 
 
-The first two constraints ensure that a component is inserted if and only if the next and the previous one are also inserted somewhere.
-They also force a minimal distance of 3 nucleotides between any two consecutive components of the same module.
+This constraint ensures that none or all the components of a motif are inserted.
 \begin{equation}\label{constraint:6}
-	C^x_i \leq \sum_{\substack{p' \in P_{x,i+1}\\ p'>p+k_{x,i}+2}} C^{x,i+1}_{p'}	
-	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \llbracket 1,\|x\| \llbracket
-\end{equation}
-\begin{equation}\label{constraint:7}
-	C^x_i \leq \sum_{\substack{p' \in P_{x,i-1}\\ p'<p-k_{x,i-1}-2}} C^{x,i-1}_{p'}	
-	\qquad \qquad \forall p \in P_{x,i} \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \rrbracket 1,\|x\| \rrbracket
-\end{equation}
-We add another one to ensure that all components of any module are inserted the same number of times in $s$:
-\begin{equation}\label{constraint:8}
-	\sum_{p\in P_{x,1}} C^{x,1}_p - \frac{1}{\|x\|} \sum_{i=1}^{\|x\|} \sum_{p\in P_{x,i}} C^x_i = 0  \qquad \qquad x\in M
-\end{equation}
-And finally, we force base pairs between the end of a component and the beginning of the next one:
-\begin{equation}\label{constraint:9}
-	C^x_i \leq \sum_{p' \in P_{x,i-1}} y^{p'+k_{x,i}-1}_p \qquad \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \rrbracket 1,\|x\| \rrbracket
-\end{equation}
-\begin{equation}\label{constraint:10}
-	C^x_i \leq \sum_{p' \in P_{x,i+1}} y^{p+k_{x,i}-1}_{p'} \qquad \qquad \forall x \in \{ x\in M | \|x\| \geq 2\}, i \in \llbracket 1,\|x\| \llbracket
+	\sum_{i=2}^{\|x\|} C^x_i = (\|x\| - 1) \times C^{x}_{1}	 \qquad \qquad \forall x \in \{ x\in M \; | \; \|x\| \geq 2\}
 \end{equation}
 
-\section{Remaning questions}
-	\begin{itemize}
-		\item I am not sure how to compute the base-pair probabilities for the MEA model (objective $f_2$). 
-		If you already have a set of secondary structures $S(s)$, why do you need this program ?
-		\item In objective $f_1$, weighting the module by the number of components (squared) shows no reason to be the best idea. 
-		Some exploration is needed. An additional weight given by the pattern-matching step might be an idea, reflecting the probability to see the module here in $s$.
-		
-	\end{itemize}
-	
+And then, we force base pairs between the end of a component and the beginning of the next one:
+\begin{equation}\label{constraint:7}
+	C^x_1 \leq y^{P_{x,1}}_{P_{x,\|x\|}+k_{x,\|x\|}-1} \qquad \qquad \forall x \in \{ x\in M \; | \; \|x\| \geq 2\}
+\end{equation}
+\begin{equation}\label{constraint:8}
+	C^x_j \leq y^{P_{x,j}+k_{x,j}-1}_{P_{x,j+1}} \qquad \qquad \forall x \in \{ x\in M \; | \; \|x\| \geq 2\}, \forall j \in \llbracket 1,\|x\| \llbracket
+\end{equation}
+
+Constraint \ref{constraint:7} binds the first nucleotide of first component to the last one of the last component. 
+Constraint \ref{constraint:8} binds the last nucleotide of component $j$ to the first of component $j+1$.
+
+\paragraph{Constraint to forbid a previously found solution} ~ 
+
+As several solutions may result in the same values of the two objectives, we can't forbid the algorithm to search twice the same region of the objective landscape.
+We have to explicitly forbid to find again every found solution.\\
+We do it by adding iteratively, for every structure $s^*$ found, the following condition :
+\begin{equation}\label{constraint:9}
+	\sum_{y^u_v \in \{ y^u_v  | y^u_v = 1 \text{ in } s^* \}} (1 - y^u_v) + \sum_{y^u_v \in \{ y^u_v  | y^u_v = 0 \text{ in } s^* \}} y^u_v +
+	\sum_{C^x_i \in \{ C^x_i  | C^x_i = 1 \text{ in } s^* \}} (1 - C^x_i) + \sum_{C^x_i \in \{ C^x_i  |C^x_i = 0 \text{ in } s^* \}} C^x_i \geq 1
+\end{equation}
+
+It ensures that at least one of the decision variables differs from $s^*$.
+
+\section{Methods \label{methods}}
+\subsection{Bi-objective algorithm}
+This is an adaptation of BiokoP's algorithm \cite{legendre_bi-objective_2018} to gather all the points of the pareto set, removing the $k$-pareto set part.
+
+We start by solving each objective independantly to have a lower and higher bound on each objective. 
+The two solutions found are considered optimal (higher bound) on one objective, and the worse point of the Pareto set concerning the other objective.
+
+Then, we will iteratively solve the mono-objective problem, but adding as a constraint that the second one has to be included between the bounds.
+Suppose we decide to iteratively solve objective 1. 
+The found solutions are getting worse and worse concerning objective 1, but better and better concerning objective 2. 
+Every time a solution is found with a better objective 2 value, we update our lower bound to search for solutions with objective 2 above this new value.
+Note that we use weak inequality constraints, as several solutions may have the same values concerning the two objectives and that we want to include them in the Pareto set.
+
+When no more solutions are discovered, the Pareto has been entirely found.
+
+\subsection{Solving the IP problem}
+We use ILOG CPLEX's \cite{cplex} concert technology to solve the integer linear programming problem. All our decision variables are booleans, and all our constraints are linear.
+
+\subsection{Benchmarking of the module inclusion objective functions}
+To assess the performance of the objective functions proposed in section \ref{objectives}, we need to chose some performance metrics.
+We will focus on:
+\begin{itemize}
+	\item wether the native secondary structure of the proposed RNA sequence exists in the returned solutions (the pareto set),
+	\item the number of solutions returned (size of the Pareto set).
+\end{itemize}
+
+The performance is assessed on the structures taken from the RNA STRAND database \cite{andronescu2008rna}, after a simple preprocessing to remove pseudobases.
+
+\section{Results \label{results}}
+
+\section{Discussion \label{discussion}}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \newpage
 \bibliographystyle{unsrt}
