@@ -3,7 +3,6 @@
 from sys import argv
 import subprocess
 import inspect
-import RNA
 from multiprocessing import Pool, TimeoutError, cpu_count
 from os import path, makedirs, getcwd, chdir, devnull
 
@@ -224,13 +223,14 @@ def launchJar3d(loop):
 
 filename = argv[1]
 basename = filename[0:filename.index('.')]
+print(basename)
 
 # Retrieving possible 2D structrures from RNAsubopt
 print("Retrieving possible 2D structures from RNAsubopt...")
-dbn = open(basename+".dbn", "w")
+dbn = open(basename+"_temp.dbn", "w")
 subprocess.call(["RNAsubopt", "-i", filename], stdout=dbn)
 dbn.close()
-dbn = open(basename+".dbn", "r")
+dbn = open(basename+"_temp.dbn", "r")
 dbn.readline()
 s = dbn.readline().split(' ')[0]
 structures = []
@@ -239,7 +239,7 @@ while l:
     structures.append(l.split(' ')[0])
     l = dbn.readline()
 dbn.close()
-subprocess.call(["rm", basename+".dbn"])
+subprocess.call(["rm", basename+"_temp.dbn"])
 for ss in structures:
     print(ss)
 print()
@@ -309,5 +309,7 @@ if c < len(insertion_sites):
 resultsfile.close()
 
 # Lauching biominserter to get 2D predictions
+print([bminDir+"/bin/biominserter",
+       filename, basename+".sites.csv", argv[2]])
 subprocess.call([bminDir+"/bin/biominserter",
                  filename, basename+".sites.csv", argv[2]])
