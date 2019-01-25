@@ -10,7 +10,11 @@ static const double PRECISION(0.0001);
 SecondaryStructure::SecondaryStructure(const RNA& rna)
 : objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), rna_(rna)
 {
+    is_empty_structure = false;
 }
+
+SecondaryStructure::SecondaryStructure(bool empty) : rna_(RNA()) { is_empty_structure = empty; }
+
 
 string SecondaryStructure::to_DBN(void) const
 {
@@ -208,7 +212,6 @@ bool operator==(const Component& c1, const Component& c2)
 {
     if (c1.pos.first != c2.pos.first) return false;
     if (c1.pos.second != c2.pos.second) return false;
-    if (c1.score != c2.score) return false;
     return true;
 }
 
@@ -217,6 +220,7 @@ bool operator!=(const Component& c1, const Component& c2) { return not(c1 == c2)
 bool operator==(const Motif& m1, const Motif& m2)
 {
     if (m1.atlas_id != m2.atlas_id) return false;
+    if (m1.score != m2.score) return false;
     if (m1.reversed != m2.reversed) return false;
     for (uint i = 0; i < m1.comp.size(); i++)
         if (m1.comp[i] != m2.comp[i]) return false;

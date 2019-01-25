@@ -164,9 +164,9 @@ Then, we expect having around $\frac{1}{2}n^2+\nu \mu \pi$ decision variables.
 \subsection{Objectives \label{objectives}}
 We have two objectives : Find a structure with correct expected accuracy, and find a structure which includes (large) known modules.
 Let $X$ be the vector of all our decision variables, we define the following objective functions to maximize:
-\[ f_{1A}(X) = \sum_{x \in M} \left[ (\|x\|)^2 \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
-\[ f_{1B}(X) = \sum_{x \in M} \left[ p(x) \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
-\[ f_{1C}(X) = \sum_{x \in M} \left[ \frac{\|x\|}{\log_2(\sum_{i=1}^{\|x\|}k_{x,i})} \times p(x) \times \sum_{p \in P_{x,1}} C^{x,1}_p \right]\]
+\[ f_{1A}(X) = \sum_{x \in M} (\|x\|)^2 \times C^x_1  \]
+\[ f_{1B}(X) = \sum_{x \in M} p(x) \times C^x_1 \]
+\[ f_{1C}(X) = \sum_{x \in M} \left[ \frac{\|x\|}{\log_2(\sum_{i=1}^{\|x\|}k_{x,i})} \times p(x) \times C^x_1 \right]\]
 $$ f_2(X) = \sum_{u<v} p_{uv}\times y^u_v \times I[p_{uv}>\theta], \qquad \qquad
 p_{uv} = \sum_{\sigma \in S(s)} y^u_v.p(\sigma | s)$$
 The different $f_1$ objectives are supposed to maximize the number of inserted motives in $s$, 
@@ -198,7 +198,7 @@ and equation \ref{constraint:3} if $s[v]$ is paired with $s[u<v]$ (a nucleotide 
 	
 \paragraph{Constraint to forbid pairings inside a module component} ~ 
 \begin{equation} \label{constraint:4}
-	k_{x,i} \; C^x_i + \sum_{u=P_{x,i}+1}^{P_{x,i}+k_{x,i}-2}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq k_{x,i} 
+	(k_{x,i}-2) \; C^x_i + \sum_{u=P_{x,i}+1}^{P_{x,i}+k_{x,i}-2}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq (k_{x,i} - 2)
 	\qquad \qquad \forall x \in M, i \in \llbracket 1,\|x\| \rrbracket
 \end{equation}
 	
@@ -268,6 +268,11 @@ We will focus on:
 The performance is assessed on the structures taken from the RNA STRAND database \cite{andronescu2008rna}, after a simple preprocessing to remove pseudobases.
 
 \section{Results \label{results}}
+\subsection{Comparison of the 3 objective functions for motif insertion}
+It appears that function $f_{1A}$ introduced in section \ref{objectives} is not usable in practice.
+Actually, on a short RNA sequence (67 nucleotides) but with 4 loop sites that may fold into $~30$ different known loops, 
+we obtain a combinatorial superposition of near $30^4 = 810 000$ structures which have the same $f_{1A}$ and $f_2$ objectives values, and 
+all belong to the Pareto front. This results is not desired, as the size of the Pareto set is wanted to be small, and as the program fills the machine's memory very quick in practice.
 
 \section{Discussion \label{discussion}}
 

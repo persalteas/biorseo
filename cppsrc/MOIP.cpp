@@ -17,41 +17,41 @@ using std::endl;
 using std::make_pair;
 using std::vector;
 
-MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold)
-: rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
+MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold, bool verbose)
+: verbose_{verbose}, rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
 {
 
-    rna_.print_basepair_p_matrix(theta_);
+    if (verbose_) rna_.print_basepair_p_matrix(theta_);
 
-    cout << "defining problem decision variables..." << endl;
+    if (verbose_) cout << "defining problem decision variables..." << endl;
     basepair_dv_  = IloNumVarArray(env_);
     insertion_dv_ = IloNumVarArray(env_);
 
     // Add the y^u_v decision variables
-    cout << "\t>Legal basepairs : ";
+    if (verbose_) cout << "\t>Legal basepairs : ";
     uint u, v, c = 0;
     index_of_yuv_ = vector<vector<size_t>>(rna_.get_RNA_length() - 6, vector<size_t>(0));
     for (u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible iff v > u+3
             if (rna_.get_pij(u, v) > theta_) {
-                cout << u << '-' << v << " ";
+                if (verbose_) cout << u << '-' << v << " ";
                 index_of_yuv_[u].push_back(c);
                 c++;
                 char name[15];
                 sprintf(name, "y%d,%d", u, v);
                 basepair_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether u and v are paired
             } else {
-                index_of_yuv_[u].push_back(rna_.get_RNA_length() + 1);
+                index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
-    cout << endl;
+    if (verbose_) cout << endl;
 
     // Add the Cx,i,p decision variables
-    cout << "\t>Candidate motif insertion sites : " << endl;
+    if (verbose_) cout << "\t>Candidate motif insertion sites : " << endl;
     index_of_first_components.reserve(insertionSites.size());
     index_of_Cxip_.reserve(insertionSites.size());
     size_t i = 0;
     for (const Motif m : insertionSites) {
-        cout << "\t\t" << m.pos_string() << endl;
+        if (verbose_) cout << "\t\t" << m.pos_string() << endl;
         index_of_first_components.push_back(i);
         index_of_Cxip_.push_back(vector<size_t>(0));
         for (const Component cmp : m.comp) {
@@ -68,7 +68,7 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold
         }
     }
 
-    cout << c << " + " << i << " (yuv + Cpxi) decision variables are used." << endl;
+    if (verbose_) cout << c << " + " << i << " (yuv + Cpxi) decision variables are used." << endl;
 
     // Adding the problem's constraints
     model_ = IloModel(env_);
@@ -77,8 +77,12 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold
     // Define the motif objective function:
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
-        IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
-        obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
+        // RNA MoIP style : objective f_1A
+        // IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
+        // obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
+
+        // Weighted by the JAR3D score:
+        obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
     }
 
     // Define the expected accuracy objective function:
@@ -88,8 +92,6 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold
             if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
         }
     }
-
-    // Add its objective function to each solver
 }
 
 MOIP::~MOIP() { env_.end(); }
@@ -107,7 +109,8 @@ bool MOIP::is_undominated_yet(const SecondaryStructure& s)
 SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 {
     // Solves one of the objectives, under constraint that the other should be in [min, max]
-    cout << "Solving objective function " << o << ", " << min << " <= Obj" << 3 - o << " <= " << max << "..." << endl;
+    if (verbose_)
+        cout << "Solving objective function " << o << ", " << min << " <= Obj" << 3 - o << " <= " << max << "..." << endl;
 
     IloObjective obj;
     IloRange     bounds;
@@ -125,32 +128,33 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     cplex_.setOut(env_.getNullStream());
 
     if (!cplex_.solve()) {
-        env_.error() << "\t>Failed to optimize LP." << endl;
-        throw(-1);
+        if (verbose_) env_.error() << "\t>Failed to optimize LP: no more solutions to find." << endl;
+        return SecondaryStructure(true);
     }
 
-    cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective " << o << " value " << cplex_.getObjValue() << endl;
+    if (verbose_)
+        cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective " << o << " value "
+             << cplex_.getObjValue() << endl;
     IloNumArray basepair_values(env_);
     IloNumArray insertion_values(env_);
     cplex_.getValues(basepair_values, basepair_dv_);
     cplex_.getValues(insertion_values, insertion_dv_);
 
-    cout << "\t>Building secondary structure..." << endl;
+    if (verbose_) cout << "\t>Building secondary structure..." << endl;
 
     // Build a secondary Structure
     SecondaryStructure best_ss = SecondaryStructure(rna_);
-    // cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+    // if (verbose_) cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
+    for (size_t i = 0; i < insertion_sites_.size(); i++)
         // A constraint requires that all the components are inserted or none, so testing the first is enough:
         if (insertion_values[index_of_first_components[i]]) best_ss.insert_motif(insertion_sites_[i]);
-    }
-    // cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
-    for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
-        for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
+
+    // if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
+    for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++)
+        for (size_t v = u + 4; v < rna_.get_RNA_length(); v++)
             if (allowed_basepair(u, v))
                 if (basepair_values[get_yuv_index(u, v)]) best_ss.set_basepair(u, v);
-        }
-    }
+
     best_ss.sort();    // order the basepairs in the vector
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
     best_ss.set_objective_score(1, cplex_.getValue(obj1));
@@ -167,6 +171,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
             c += IloNum(1) - basepair_dv_[d];
         else
             c += basepair_dv_[d];
+    if (verbose_) cout << "\t>adding constraint " << (c >= IloNum(1)) << endl;
     model_.add(c >= IloNum(1));
 
     // Removing the objective from the model_
@@ -179,7 +184,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 void MOIP::define_problem_constraints(void)
 {
     // ensure there only is 0 or 1 pairing by nucleotide:
-    cout << "\t>ensuring there are at most 1 pairing by nucleotide..." << endl;
+    if (verbose_) cout << "\t>ensuring there are at most 1 pairing by nucleotide..." << endl;
     uint u, v, count;
     uint n = rna_.get_RNA_length();
     for (u = 0; u < n; u++) {
@@ -197,11 +202,11 @@ void MOIP::define_problem_constraints(void)
             }
         if (count > 1) {
             model_.add(c1 <= 1);
-            cout << "\t\t" << (c1 <= 1) << endl;
+            if (verbose_) cout << "\t\t" << (c1 <= 1) << endl;
         }
     }
     // forbid lonely basepairs
-    cout << "\t>forbidding lonely basepairs..." << endl;
+    if (verbose_) cout << "\t>forbidding lonely basepairs..." << endl;
     for (u = 0; u < n; u++) {
         IloExpr c2(env_);    // for the case where s[u] is paired to s[v], v>u
         count = 0;
@@ -216,7 +221,7 @@ void MOIP::define_problem_constraints(void)
             if (allowed_basepair(u + 1, v)) c2 += y(u + 1, v);
         if (count) {
             model_.add(c2 >= 0);
-            cout << "\t\t" << (c2 >= 0) << endl;
+            if (verbose_) cout << "\t\t" << (c2 >= 0) << endl;
         }
     }
     for (v = 2; v < n; v++) {
@@ -233,18 +238,18 @@ void MOIP::define_problem_constraints(void)
             if (allowed_basepair(u, v + 1)) c2p += y(u, v + 1);
         if (count) {
             model_.add(c2p >= 0);
-            cout << "\t\t" << (c2p >= 0) << endl;
+            if (verbose_) cout << "\t\t" << (c2p >= 0) << endl;
         }
     }
     // Forbid pairings inside every motif component if included
-    cout << "\t>forbidding basepairs inside included motif's components..." << endl;
+    if (verbose_) cout << "\t>forbidding basepairs inside included motif's components..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++) {
         Motif& x = insertion_sites_[i];
         for (size_t j = 0; j < x.comp.size(); j++) {
             Component& c = x.comp[j];
             IloExpr    c3(env_);
             IloNum     kxi = IloNum(c.k);
-            c3 += kxi * C(i, j);
+            c3 += (kxi - IloNum(2)) * C(i, j);
             uint count = 0;
             for (u = c.pos.first + 1; u < c.pos.second - 1; u++) {
                 for (v = 0; v < n; v++)
@@ -253,16 +258,16 @@ void MOIP::define_problem_constraints(void)
                         count++;
                     }
             }
-            if (count) {
-                model_.add(c3 <= kxi);
-                cout << "\t\t";
-                // cout << x.atlas_id << '-' << j << ": ";
-                cout << (c3 <= kxi) << endl;
+            if (count > 1) {
+                model_.add(c3 <= (kxi - IloNum(2)));
+                if (verbose_) cout << "\t\t";
+                // if (verbose_) cout << x.atlas_id << '-' << j << ": ";
+                if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
             }
         }
     }
     // Forbid component overlap
-    cout << "\t>forbidding component overlap..." << endl;
+    if (verbose_) cout << "\t>forbidding component overlap..." << endl;
     for (u = 0; u < n; u++) {
         IloExpr c4(env_);
         uint    nterms = 0;
@@ -276,13 +281,13 @@ void MOIP::define_problem_constraints(void)
                 }
             }
         }
-        if (nterms) {
+        if (nterms > 1) {
             model_.add(c4 <= 1);
-            cout << "\t\t" << (c4 <= 1) << endl;
+            if (verbose_) cout << "\t\t" << (c4 <= 1) << endl;
         }
     }
     // Component completeness
-    cout << "\t>ensuring that motives cannot be partially included..." << endl;
+    if (verbose_) cout << "\t>ensuring that motives cannot be partially included..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++) {
         Motif& x = insertion_sites_[i];
         if (x.comp.size() == 1)    // This constraint is for multi-component motives.
@@ -293,18 +298,19 @@ void MOIP::define_problem_constraints(void)
             c5 += C(i, j);
         }
         model_.add(c5 == jm1 * C(i, 0));
-        cout << "\t\t>motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
+        if (verbose_) cout << "\t\t>motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
     }
     // Force basepairs between the end of a component and the beginning of the next
-    cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
+    if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++) {
         Motif&  x   = insertion_sites_[i];
         IloExpr c6p = IloExpr(env_);
         if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
             c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
-        cout << "\t\t" << (C(i, 0) <= c6p) << "\t(" << x.comp[0].pos.first << ',' << x.comp.back().pos.second
-             << (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) > 0 ? ") is allowed" : ") is not allowed")
-             << endl;
+        if (verbose_)
+            cout << "\t\t" << (C(i, 0) <= c6p) << "\t(" << x.comp[0].pos.first << ',' << x.comp.back().pos.second
+                 << (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) > 0 ? ") is allowed" : ") is not allowed")
+                 << endl;
         model_.add(C(i, 0) <= c6p);
         if (x.comp.size() == 1)    // This constraint is for multi-component motives.
             continue;
@@ -313,9 +319,10 @@ void MOIP::define_problem_constraints(void)
             if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first))
                 c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
             model_.add(C(i, j) <= c6);
-            cout << "\t\t" << (C(i, j) <= c6) << "\t(" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first
-                 << (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first) > 0 ? ") is allowed" : ") is not allowed")
-                 << endl;
+            if (verbose_)
+                cout << "\t\t" << (C(i, j) <= c6) << "\t(" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first
+                     << (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first) > 0 ? ") is allowed" : ") is not allowed")
+                     << endl;
         }
     }
 }
@@ -323,26 +330,34 @@ void MOIP::define_problem_constraints(void)
 void MOIP::extend_pareto(double lambdaMin, double lambdaMax)
 {
     SecondaryStructure s = solve_objective(1, lambdaMin, lambdaMax);
-    cout << "\t>Done" << endl;
-    if (is_undominated_yet(s)) {
-        // adding the SecondaryStructure s to the set pareto_
-        add_solution(s);
-        // std::cin.ignore();
-        // run localPareto above the SecondaryStructure s
-        extend_pareto(s.get_objective_score(2), lambdaMax);
+    if (!s.is_empty_structure) {    // A solution has been found
+        if (verbose_) cout << "\t>Done, ";
+        if (is_undominated_yet(s)) {
+            add_solution(s);    // adding the SecondaryStructure s to the set pareto_
+            // std::cin.ignore();
+            extend_pareto(s.get_objective_score(2), lambdaMax);    // run localPareto above the SecondaryStructure s
+        } else {
+            if (verbose_) cout << "but solution is dominated." << endl;
+        }
     }
 }
 
 void MOIP::add_solution(const SecondaryStructure& s)
 {
-    pareto_.push_back(s);
-    for (uint i = 0; i < pareto_.size() - 1; i++)
-        if (pareto_[i] < pareto_.back()) {
+    if (verbose_) cout << '\n';
+    vector<size_t> to_remove;
+    for (uint i = 0; i < pareto_.size(); i++)
+        if (s > pareto_[i]) {    // A solution from the set is now dominated
             // This should only happen in the case some structures have the same optimal Obj1 value.
-            cout << "Removing structure from Pareto set : " << pareto_[i].to_string() << endl;
-            pareto_.erase(pareto_.begin() + i);
+            if (verbose_) cout << "\t>removing structure from Pareto set : " << pareto_[i].to_string() << endl;
+            to_remove.push_back(i);
         }
-    cout << "Adding structure to Pareto set :     " << s.to_string() << endl;
+    if (to_remove.size()) {
+        for (size_t i = to_remove.size() - 1; i != 0; i--) pareto_.erase(pareto_.begin() + to_remove[i]);
+        pareto_.erase(pareto_.begin() + to_remove[0]);
+    }
+    if (verbose_) cout << "\t>adding structure to Pareto set :     " << s.to_string() << endl;
+    pareto_.push_back(s);
 }
 
 size_t MOIP::get_yuv_index(size_t u, size_t v) const
@@ -365,6 +380,7 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
     if (b - a < 4) return false;
     if (a >= rna_.get_RNA_length() - 6) return false;
     if (b >= rna_.get_RNA_length()) return false;
-    if (get_yuv_index(a, b) == rna_.get_RNA_length() + 1) return false;    // not allowed because proba < theta_
+    if (get_yuv_index(a, b) == rna_.get_RNA_length() * rna_.get_RNA_length() + 1)
+        return false;    // not allowed because proba < theta_
     return true;
 }

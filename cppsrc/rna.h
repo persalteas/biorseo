@@ -24,12 +24,15 @@ enum pair_t { PAIR_AU = 0, PAIR_CG, PAIR_GC, PAIR_UA, PAIR_GU, PAIR_UG, PAIR_OTH
 class RNA
 {
     public:
-    RNA(string name, string seq);
+    RNA(void);
+    RNA(string name, string seq, bool verbose);
 
     float  get_pij(int i, int j);
     string get_seq(void) const;
     uint   get_RNA_length(void) const;
     void   print_basepair_p_matrix(float theta) const;
+
+    bool verbose_;    // Should we print things ?
 
     private:
     base_t base_type(char x) const;

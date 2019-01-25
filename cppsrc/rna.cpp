@@ -23,8 +23,11 @@ using std::ofstream;
 using std::string;
 using std::vector;
 
-RNA::RNA(string name, string seq)
-: name_(name), seq_(seq), n_(seq.size()), pij_(MatrixXf::Zero(n_, n_))    // pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)),
+RNA::RNA(void) {}
+
+RNA::RNA(string name, string seq, bool verbose)
+: verbose_{verbose}, name_(name), seq_(seq), n_(seq.size()),
+  pij_(MatrixXf::Zero(n_, n_))    // pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)),
 {
     vector<char> unknown_chars;
     bool         contains_T = false;
@@ -37,16 +40,18 @@ RNA::RNA(string name, string seq)
             unknown_chars.push_back(c);
         }
     }
-    if (contains_T) cout << "\tWARNING: Thymines automatically replaced by uraciles.";
+    if (contains_T)
+        if (verbose_) cout << "\tWARNING: Thymines automatically replaced by uraciles.";
     if (unknown_chars.size() > 0) {
-        cout << "\tWARNING: Unknown chars in input sequence ignored : ";
-        for (char c : unknown_chars) cout << c << " ";
-        cout << endl;
+        if (verbose_) cout << "\tWARNING: Unknown chars in input sequence ignored : ";
+        for (char c : unknown_chars)
+            if (verbose_) cout << c << " ";
+        if (verbose_) cout << endl;
     }
-    cout << "\t>sequence formatted" << endl;
+    if (verbose_) cout << "\t>sequence formatted" << endl;
 
     // // Compute using ViennaRNA
-    // cout << "\t>computing pairing probabilities (ViennaRNA's algorithm)..." << endl;
+    // if (verbose_) cout << "\t>computing pairing probabilities (ViennaRNA's algorithm)..." << endl;
     // const char      *cseq = seq.c_str();
     // vrna_fold_compound_t  *vc = vrna_fold_compound(cseq, NULL, VRNA_OPTION_PF);
     // char      *propensity = (char *)vrna_alloc(sizeof(char) * (strlen(cseq) + 1));
@@ -55,7 +60,7 @@ RNA::RNA(string name, string seq)
     // printf("%s\n%s [ %6.2f ]\n", cseq, propensity, en);
     // for (ptr = pair_probabilities; ptr->i != 0; ptr++)
     // {
-    //     cout << ptr->i << '\t' << ptr->j << '\t' << ptr->p << endl;
+    //     if (verbose_) cout << ptr->i << '\t' << ptr->j << '\t' << ptr->p << endl;
     //     if (ptr->j <= int(n_)) pij_(ptr->i,ptr->j) = ptr->p;
     // }
     // free(pair_probabilities);
@@ -63,7 +68,7 @@ RNA::RNA(string name, string seq)
     // vrna_fold_compound_free(vc);
 
     // Compute using Nupack
-    cout << "\t>computing pairing probabilities..." << endl;
+    if (verbose_) cout << "\t>computing pairing probabilities..." << endl;
     DBL_TYPE pf;
     int      length, tmpLength;
     int      i, j, q, r;
@@ -90,9 +95,9 @@ RNA::RNA(string name, string seq)
     pairPrPb  = (DBL_TYPE*)calloc((length + 1) * (length + 1), sizeof(DBL_TYPE));
 
     pf = pfuncFullWithSym(seqNum, 5, RNA37, DANGLETYPE, TEMP_K - ZERO_C_IN_KELVIN, 1, 1, SODIUM_CONC, MAGNESIUM_CONC, USE_LONG_HELIX_FOR_SALT_CORRECTION);
-    printf("\t\t>Free energy: %.14Lf kcal/mol\n", -kB * TEMP_K * logl(pf));
+    if (verbose_) printf("\t\t>Free energy: %.14Lf kcal/mol\n", -kB * TEMP_K * logl(pf));
 
-    // cout << "\t\t>Base pair probabilities:" << endl;
+    // if (verbose_) cout << "\t\t>Base pair probabilities:" << endl;
     for (i = 0; i < length; i++) {
         for (j = i + 1; j < length; j++) {    // upper diagonal
             pij_(i, j) = pairPr[(length + 1) * i + j];
@@ -100,19 +105,20 @@ RNA::RNA(string name, string seq)
             // + 1) * i + j], pairPr[(length + 1) * i + j], pairPrPb[(length + 1) * i + j]+ pairPrPbg[(length + 1) * i + j] == pairPr[(length + 1) * i + j] ? "CHECK" : "ERROR");
         }
     }
-    cout << endl << "\t\t>Fast checking..." << endl;
-    vector<double> p_unpaired = vector<double>(n_, 0.0);
-    for (i = 0; i < length; i++) {
-        p_unpaired[i] = pairPr[(length + 1) * i + j];
-        double sum    = 0.0;
-        for (j = 0; j < length; j++) sum += pij_(i, j);
-        printf("\t\t%d\tunpaired: %.4e\tpaired(pK+noPK): %.4e\tTotal: %f\n", i + 1, p_unpaired[i], sum, p_unpaired[i] + sum);
+    if (verbose_) {
+        cout << endl << "\t\t>Fast checking..." << endl;
+        vector<double> p_unpaired = vector<double>(n_, 0.0);
+        for (i = 0; i < length; i++) {
+            p_unpaired[i] = pairPr[(length + 1) * i + j];
+            double sum    = 0.0;
+            for (j = 0; j < length; j++) sum += pij_(i, j);
+            printf("\t\t%d\tunpaired: %.4e\tpaired(pK+noPK): %.4e\tTotal: %f\n", i + 1, p_unpaired[i], sum, p_unpaired[i] + sum);
+        }
+        cout << "\t\t>pairing probabilities defined" << endl;
     }
     free(pairPr);
     free(pairPrPbg);
     free(pairPrPb);
-
-    cout << "\t\t>pairing probabilities defined" << endl;
 }
 
 void RNA::print_basepair_p_matrix(float theta) const

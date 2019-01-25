@@ -174,7 +174,8 @@ def enumerate_loops(s):
         previous = s[i]
         # print(i,"=",s[i],"\t", "consec. Op=", consecutiveOpenings,"Cl=",consecutiveClosings)
 
-    printLoops(s, loops)
+    if (verbose):
+        printLoops(s, loops)
     return(loops)
 
 
@@ -196,7 +197,8 @@ def launchJar3d(loop):
     else:
         cmd = ["java", "-jar", jar3dexec, filename, ILmotifDir+"/all.txt",
                loop.header[1:]+".ILloop.csv", loop.header[1:]+".ILseq.csv"]
-    print(' '.join(cmd))
+    if (verbose):
+        print(' '.join(cmd))
     nowhere = open(devnull, 'w')
     subprocess.call(cmd, stdout=nowhere)
     nowhere.close()
@@ -222,11 +224,12 @@ def launchJar3d(loop):
 
 
 filename = argv[1]
+verbose = int(argv[3])
 basename = filename[0:filename.index('.')]
-print(basename)
 
 # Retrieving possible 2D structrures from RNAsubopt
-print("Retrieving possible 2D structures from RNAsubopt...")
+if (verbose):
+    print("Retrieving possible 2D structures from RNAsubopt...")
 dbn = open(basename+"_temp.dbn", "w")
 subprocess.call(["RNAsubopt", "-i", filename], stdout=dbn)
 dbn.close()
@@ -241,12 +244,15 @@ while l:
 dbn.close()
 subprocess.call(["rm", basename+"_temp.dbn"])
 for ss in structures:
-    print(ss)
-print()
+    if (verbose):
+        print(ss)
+if (verbose):
+    print()
 
 
 # Extracting probable loops from these structures
-print("Extracting probable loops from these structures...")
+if (verbose):
+    print("Extracting probable loops from these structures...")
 HLs = []
 ILs = []
 for ss in structures:
@@ -256,34 +262,48 @@ for ss in structures:
             HLs.append(loop_candidate)
         if len(loop_candidate) == 2 and loop_candidate not in ILs:
             ILs.append(loop_candidate)
-print("TOTAL:")
-print(len(HLs), "probable hairpin loops found")
-print(len(ILs), "probable internal loops")
-print()
+if (verbose):
+    print("TOTAL:")
+if (verbose):
+    print(len(HLs), "probable hairpin loops found")
+if (verbose):
+    print(len(ILs), "probable internal loops")
+if (verbose):
+    print()
 
 # Retrieve subsequences corresponding to the possible loops
-print("Retrieving subsequences corresponding to the possible loops...")
+if (verbose):
+    print("Retrieving subsequences corresponding to the possible loops...")
 loops = []
 for i, l in enumerate(HLs):
     loops.append(Loop(">HL%d" % (i+1), s[l[0][0]-1:l[0][1]], "h", l))
-    print()
-    print(loops[-1].get_header(), "\t\t", l)
-    print(loops[-1].subsequence())
+    if (verbose):
+        print()
+    if (verbose):
+        print(loops[-1].get_header(), "\t\t", l)
+    if (verbose):
+        print(loops[-1].subsequence())
 for i, l in enumerate(ILs):
     loops.append(
         Loop(">IL%d" % (i+1), s[l[0][0]-1:l[0][1]]+'*'+s[l[1][0]-1:l[1][1]], "i", l))
+    if (verbose):
+        print()
+    if (verbose):
+        print(loops[-1].get_header(), "\t\t", l)
+    if (verbose):
+        print(loops[-1].subsequence())
+if (verbose):
     print()
-    print(loops[-1].get_header(), "\t\t", l)
-    print(loops[-1].subsequence())
-print()
 
 # Scanning loop subsequences against motif database
-print("Scanning loop subsequences against motif database (using %d threads)..." %
-      (cpu_count()-1))
+if (verbose):
+    print("Scanning loop subsequences against motif database (using %d threads)..." %
+          (cpu_count()-1))
 pool = Pool(processes=cpu_count()-1)
 insertion_sites = [x for y in pool.map(launchJar3d, loops) for x in y]
 insertion_sites.sort(reverse=True)
-print(len(insertion_sites), "insertions found:")
+if (verbose):
+    print(len(insertion_sites), "insertions found:")
 
 # Writing results to file
 c = 0
@@ -296,8 +316,9 @@ for site in insertion_sites:
         if site.rotation:
             string += " (reversed)"
         string += (" on " + site.loop.get_header() + " at positions")
-        print(string, site.loop.subsequence(),
-              '*'.join([str(x) for x in site.position]))
+        if (verbose):
+            print(string, site.loop.subsequence(),
+                  '*'.join([str(x) for x in site.position]))
     resultsfile.write(site.atlas_id+',' +
                       str(bool(site.rotation))+",%d" % site.score+',')
     positions = [','.join([str(y) for y in x]) for x in site.position]
@@ -305,11 +326,11 @@ for site in insertion_sites:
         positions.append("-,-")
     resultsfile.write(','.join(positions)+'\n')
 if c < len(insertion_sites):
-    print("... and %d more with score(s) below 10." % (len(insertion_sites)-c))
+    if (verbose):
+        print("... and %d more with score(s) below 10." %
+              (len(insertion_sites)-c))
 resultsfile.close()
 
 # Lauching biominserter to get 2D predictions
-print([bminDir+"/bin/biominserter",
-       filename, basename+".sites.csv", argv[2]])
 subprocess.call([bminDir+"/bin/biominserter",
-                 filename, basename+".sites.csv", argv[2]])
+                 filename, basename+".sites.csv", argv[2], str(verbose)])

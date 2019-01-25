@@ -12,15 +12,15 @@ using std::vector;
 
 typedef struct Comp_ {
     pair<uint, uint> pos;
-    int              score;
     size_t           k;
-    Comp_(pair<int, int> p, int s) : pos(p), score(s) { k = 1 + pos.second - pos.first; }
+    Comp_(pair<int, int> p) : pos(p) { k = 1 + pos.second - pos.first; }
 } Component;
 
 typedef struct {
     string            atlas_id;
     vector<Component> comp;
     bool              reversed;
+    int               score;
     string            pos_string(void) const
     {
         std::stringstream s;
@@ -38,6 +38,7 @@ class SecondaryStructure
     public:
     SecondaryStructure(void);
     SecondaryStructure(const RNA& rna);
+    SecondaryStructure(bool empty);
 
     void   set_basepair(uint i, uint j);
     void   sort(void);
@@ -50,12 +51,14 @@ class SecondaryStructure
     string to_DBN() const;
     string to_string() const;
 
+
     vector<double> objective_scores_;       // values of the different objective functions for that SecondaryStructure
     vector<pair<uint, uint>> basepairs_;    // values of the decision variable of the integer program
     vector<Motif> motif_info_;    // information about known motives in this secondary structure and their positions
     size_t        n_;             // length of the RNA
     size_t        nBP_;
-    RNA           rna_;    // RNA object which is folded
+    RNA           rna_;                  // RNA object which is folded
+    bool          is_empty_structure;    // Empty structure, returned when the solver does not find solutions anymore
 };
 
 // return if this SecondaryStructure s1 dominates s2
