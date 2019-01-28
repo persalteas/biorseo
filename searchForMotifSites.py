@@ -264,11 +264,8 @@ for ss in structures:
             ILs.append(loop_candidate)
 if (verbose):
     print("TOTAL:")
-if (verbose):
     print(len(HLs), "probable hairpin loops found")
-if (verbose):
     print(len(ILs), "probable internal loops")
-if (verbose):
     print()
 
 # Retrieve subsequences corresponding to the possible loops

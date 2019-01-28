@@ -329,13 +329,13 @@ void MOIP::define_problem_constraints(void)
 
 void MOIP::extend_pareto(double lambdaMin, double lambdaMax)
 {
-    SecondaryStructure s = solve_objective(1, lambdaMin, lambdaMax);
+    SecondaryStructure s = solve_objective(2, lambdaMin, lambdaMax);
     if (!s.is_empty_structure) {    // A solution has been found
         if (verbose_) cout << "\t>Done, ";
         if (is_undominated_yet(s)) {
             add_solution(s);    // adding the SecondaryStructure s to the set pareto_
             // std::cin.ignore();
-            extend_pareto(s.get_objective_score(2), lambdaMax);    // run localPareto above the SecondaryStructure s
+            extend_pareto(s.get_objective_score(1), lambdaMax);    // run localPareto above the SecondaryStructure s
         } else {
             if (verbose_) cout << "but solution is dominated." << endl;
         }

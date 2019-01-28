@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
         // extend to the whole pareto set
         myMOIP.add_solution(bestSSO1);
         myMOIP.add_solution(bestSSO2);
-        myMOIP.extend_pareto(bestSSO1.get_objective_score(2), bestSSO2.get_objective_score(2));
+        myMOIP.extend_pareto(bestSSO2.get_objective_score(1), bestSSO1.get_objective_score(1));
 
         // print the pareto set
         if (verbose) {
