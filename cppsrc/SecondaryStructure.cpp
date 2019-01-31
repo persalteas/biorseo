@@ -19,11 +19,11 @@ SecondaryStructure::SecondaryStructure(bool empty) : rna_(RNA()) { is_empty_stru
 string SecondaryStructure::to_DBN(void) const
 {
     string res = string(n_, '.');
+    int  pklevel = 0;
+    char start, end;
     for (size_t i = 0; i < nBP_; i++) {
-        char start, end;
         uint start_  = basepairs_[i].first;
         uint end_    = basepairs_[i].second;
-        int  pklevel = 0;
 
         switch (pklevel) {
         case 0: start = '(', end = ')'; break;
@@ -31,7 +31,7 @@ string SecondaryStructure::to_DBN(void) const
         case 2: start = '{', end = '}'; break;
         case 3: start = '<', end = '>'; break;
         }
-        if (basepairs_[i + 1].first < basepairs_[i].second) {
+        if (basepairs_[i + 1].second > basepairs_[i].second) {
             pklevel += 1;
             closing = basepairs_[i].second;
         }
