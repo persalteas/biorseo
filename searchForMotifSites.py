@@ -276,18 +276,14 @@ for i, l in enumerate(HLs):
     loops.append(Loop(">HL%d" % (i+1), s[l[0][0]-1:l[0][1]], "h", l))
     if (verbose):
         print()
-    if (verbose):
         print(loops[-1].get_header(), "\t\t", l)
-    if (verbose):
         print(loops[-1].subsequence())
 for i, l in enumerate(ILs):
     loops.append(
         Loop(">IL%d" % (i+1), s[l[0][0]-1:l[0][1]]+'*'+s[l[1][0]-1:l[1][1]], "i", l))
     if (verbose):
         print()
-    if (verbose):
         print(loops[-1].get_header(), "\t\t", l)
-    if (verbose):
         print(loops[-1].subsequence())
 if (verbose):
     print()

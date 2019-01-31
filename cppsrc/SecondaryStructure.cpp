@@ -20,8 +20,24 @@ string SecondaryStructure::to_DBN(void) const
 {
     string res = string(n_, '.');
     for (size_t i = 0; i < nBP_; i++) {
-        res[basepairs_[i].first]  = '(';
-        res[basepairs_[i].second] = ')';
+        char start, end;
+        uint start_  = basepairs_[i].first;
+        uint end_    = basepairs_[i].second;
+        int  pklevel = 0;
+
+        switch (pklevel) {
+        case 0: start = '(', end = ')'; break;
+        case 1: start = '[', end = ']'; break;
+        case 2: start = '{', end = '}'; break;
+        case 3: start = '<', end = '>'; break;
+        }
+        if (basepairs_[i + 1].first < basepairs_[i].second) {
+            pklevel += 1;
+            closing = basepairs_[i].second;
+        }
+
+        res[start_] = start;
+        res[end_]   = end;
     }
     return res;
 }

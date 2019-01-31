@@ -17,6 +17,19 @@ using std::endl;
 using std::make_pair;
 using std::vector;
 
+unsigned getNumConstraints(IloModel& m)
+{
+    unsigned           count = 0;
+    IloModel::Iterator iter(m);
+    while (iter.ok()) {
+        if ((*iter).asConstraint().getImpl()) {
+            ++count;
+        }
+        ++iter;
+    }
+    return count;
+}
+
 MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold, bool verbose)
 : verbose_{verbose}, rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
 {
@@ -73,6 +86,7 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold
     // Adding the problem's constraints
     model_ = IloModel(env_);
     define_problem_constraints();
+    if (verbose_) cout << "A total of " << getNumConstraints(model_) << " constraints are used." << endl;
 
     // Define the motif objective function:
     obj1 = IloExpr(env_);
@@ -126,6 +140,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     model_.add(bounds);
     IloCplex cplex_ = IloCplex(model_);
     cplex_.setOut(env_.getNullStream());
+    cplex_.exportModel("latestmodel.lp");
 
     if (!cplex_.solve()) {
         if (verbose_) env_.error() << "\t>Failed to optimize LP: no more solutions to find." << endl;
@@ -171,8 +186,8 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
             c += IloNum(1) - basepair_dv_[d];
         else
             c += basepair_dv_[d];
-    if (verbose_) cout << "\t>adding constraint " << (c >= IloNum(1)) << endl;
     model_.add(c >= IloNum(1));
+    if (verbose_) cout << "\t>adding " << getNumConstraints(model_) << "th constraint " << (c >= IloNum(1)) << endl;
 
     // Removing the objective from the model_
     model_.remove(obj);

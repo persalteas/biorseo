@@ -5,12 +5,10 @@
 
 #include "SecondaryStructure.h"
 #include "rna.h"
+#include <ilconcert/ilomodel.h>
 #include <ilcplex/ilocplex.h>
 
 using std::vector;
-
-const double PRECISION = 0.0001;
-
 
 class MOIP
 {
