@@ -140,35 +140,31 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     model_.add(bounds);
     IloCplex cplex_ = IloCplex(model_);
     cplex_.setOut(env_.getNullStream());
-    cplex_.exportModel("latestmodel.lp");
+    // cplex_.exportModel("latestmodel.lp");
 
     if (!cplex_.solve()) {
         if (verbose_) env_.error() << "\t>Failed to optimize LP: no more solutions to find." << endl;
         return SecondaryStructure(true);
     }
 
-    if (verbose_)
+    if (verbose_) {
         cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective " << o << " value "
              << cplex_.getObjValue() << endl;
-    IloNumArray basepair_values(env_);
-    IloNumArray insertion_values(env_);
-    cplex_.getValues(basepair_values, basepair_dv_);
-    cplex_.getValues(insertion_values, insertion_dv_);
-
-    if (verbose_) cout << "\t>Building secondary structure..." << endl;
+        cout << "\t>Building secondary structure..." << endl;
+    }
 
     // Build a secondary Structure
     SecondaryStructure best_ss = SecondaryStructure(rna_);
     // if (verbose_) cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++)
         // A constraint requires that all the components are inserted or none, so testing the first is enough:
-        if (insertion_values[index_of_first_components[i]]) best_ss.insert_motif(insertion_sites_[i]);
+        if (cplex_.getValue(insertion_dv_[index_of_first_components[i]])) best_ss.insert_motif(insertion_sites_[i]);
 
     // if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
     for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++)
             if (allowed_basepair(u, v))
-                if (basepair_values[get_yuv_index(u, v)]) best_ss.set_basepair(u, v);
+                if (cplex_.getValue(y(u, v))) best_ss.set_basepair(u, v);
 
     best_ss.sort();    // order the basepairs in the vector
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
