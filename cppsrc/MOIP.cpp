@@ -158,13 +158,14 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     // if (verbose_) cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++)
         // A constraint requires that all the components are inserted or none, so testing the first is enough:
-        if (cplex_.getValue(insertion_dv_[index_of_first_components[i]])) best_ss.insert_motif(insertion_sites_[i]);
+        if (cplex_.getValue(insertion_dv_[index_of_first_components[i]]) > 0.5)
+            best_ss.insert_motif(insertion_sites_[i]);
 
     // if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
     for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++)
             if (allowed_basepair(u, v))
-                if (cplex_.getValue(y(u, v))) best_ss.set_basepair(u, v);
+                if (cplex_.getValue(y(u, v)) > 0.5) best_ss.set_basepair(u, v);
 
     best_ss.sort();    // order the basepairs in the vector
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
@@ -173,12 +174,12 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     // Forbidding to find best_ss later : add a constraint to model_
     IloExpr c(env_);
     for (uint d = 0; d < insertion_dv_.getSize(); d++)
-        if (cplex_.getValue(insertion_dv_[d]))
+        if (cplex_.getValue(insertion_dv_[d]) > 0.5)
             c += IloNum(1) - insertion_dv_[d];
         else
             c += insertion_dv_[d];
     for (uint d = 0; d < basepair_dv_.getSize(); d++)
-        if (cplex_.getValue(basepair_dv_[d]))
+        if (cplex_.getValue(basepair_dv_[d]) > 0.5)
             c += IloNum(1) - basepair_dv_[d];
         else
             c += basepair_dv_[d];

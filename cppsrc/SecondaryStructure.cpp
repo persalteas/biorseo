@@ -1,6 +1,6 @@
 #include "SecondaryStructure.h"
-#include <boost/format.hpp>
 #include <algorithm>
+#include <boost/format.hpp>
 
 using std::abs;
 using std::cout;
@@ -20,68 +20,77 @@ SecondaryStructure::SecondaryStructure(bool empty) : rna_(RNA()) { is_empty_stru
 string SecondaryStructure::to_DBN(void) const
 {
 
-    string res = string(n_, '.');
-    int  pklevel = 0;
-    bool processed, crosses;
-    char start, end;
-    vector<vector<pair<uint, uint>>> noncrossingSG; // Non crossing sets of edges, also called pseudoknot "levels"
+    string                           res     = string(n_, '.');
+    int                              pklevel = 0;
+    bool                             crosses;
+    char                             start, end;
+    vector<vector<pair<uint, uint>>> noncrossingSG;    // Non crossing sets of edges, also called pseudoknot "levels"
+    vector<uint>                     possible_sets;
 
     // get the non crossing subsets
     for (size_t i = 0; i < nBP_; i++) {
-        processed = false;
-        for (size_t j = 0; j<noncrossingSG.size(); j++)
-        {
+        possible_sets.clear();
+        for (size_t j = 0; j < noncrossingSG.size(); j++) {
             // check if basepairs_[i] crosses the subset noncrossingSG[j]
             crosses = false;
-            for (size_t k = 0; k<noncrossingSG[j].size(); k++)
-            {
-                if ( ( (basepairs_[i].first < noncrossingSG[j][k].first) and (basepairs_[i].second < noncrossingSG[j][k].second) ) or 
-                ( (basepairs_[i].first > noncrossingSG[j][k].first) and (basepairs_[i].second > noncrossingSG[j][k].second) ) ){
+            for (size_t k = 0; k < noncrossingSG[j].size(); k++) {
+                if (
+                ((basepairs_[i].first < noncrossingSG[j][k].first) and (basepairs_[i].second < noncrossingSG[j][k].second) and (basepairs_[i].second > noncrossingSG[j][k].first)) or
+                ((basepairs_[i].first > noncrossingSG[j][k].first) and (basepairs_[i].second > noncrossingSG[j][k].second) and (noncrossingSG[j][k].second > basepairs_[i].first))) {
                     crosses = true;
                     break;
                 }
             }
-
-            if (crosses) {
-                // search if you can include basepairs_[i] in noncrossingSG[j+1], then
-                continue; 
-            } else {
-                // add it to noncrossingSG[j]
-                noncrossingSG[j].push_back(basepairs_[i]);
-                processed = true;
-                break;
-            }
+            // if not, consider possible to add basepairs_[i] to noncrossingSG[j]
+            if (!crosses) possible_sets.push_back(j);
         }
-        // If basepairs_[i] has not been inserted in any subset, create a new one
-        if (!processed) noncrossingSG.push_back(vector<pair<uint,uint>>(1,basepairs_[i]));
+        if (possible_sets.size()) {
+            // add it to the largest possible subset (this is a heuristic, the real problem is a k-coloration NP hard problem)
+            uint max = 0;
+            uint pos = 0;
+            for (size_t k = 0; k < possible_sets.size(); k++)
+                if (max < noncrossingSG[possible_sets[k]].size()) {
+                    max = noncrossingSG[possible_sets[k]].size();
+                    pos = possible_sets[k];
+                }
+            noncrossingSG[pos].push_back(basepairs_[i]);
+        } else {
+            // If basepairs_[i] has not been inserted in any subset, create a new one
+            noncrossingSG.push_back(vector<pair<uint, uint>>(1, basepairs_[i]));
+        }
     }
 
     // get the sizes of the non crossing subsets
     vector<uint> SGsizes(noncrossingSG.size(), 0);
-    for (size_t j = 0; j<noncrossingSG.size(); j++)
-        SGsizes[j] = noncrossingSG[j].size();
+    for (size_t j = 0; j < noncrossingSG.size(); j++) SGsizes[j] = noncrossingSG[j].size();
 
     // Process the subsets from largest to thinest
-    while (noncrossingSG.size())
-    {
+    while (noncrossingSG.size()) {
         // Find the largest non-crossing subset
         uint j = std::distance(SGsizes.begin(), std::max_element(SGsizes.begin(), SGsizes.end()));
         // Apply basepairs in the output string
-        for (uint i = 0; i<noncrossingSG[j].size(); i++)
-        {
+        for (uint i = 0; i < noncrossingSG[j].size(); i++) {
             switch (pklevel) {
             case 0: start = '(', end = ')'; break;
             case 1: start = '[', end = ']'; break;
             case 2: start = '{', end = '}'; break;
-            default: start = '<', end = '>'; break;
+            case 3: start = '<', end = '>'; break;
+            case 4: start = 'A', end = 'a'; break;
+            case 5: start = 'B', end = 'b'; break;
+            case 6: start = 'C', end = 'c'; break;
+            case 7: start = 'D', end = 'd'; break;
+            case 8: start = 'E', end = 'e'; break;
+            case 9: start = 'F', end = 'f'; break;
+            default: start = '|', end = '|';
             }
-            res[noncrossingSG[j][i].first] = start;
+            res[noncrossingSG[j][i].first]  = start;
             res[noncrossingSG[j][i].second] = end;
         }
         pklevel++;
         // Remove the processed subset from the vector
         noncrossingSG.erase(std::remove(noncrossingSG.begin(), noncrossingSG.end(), noncrossingSG[j]), noncrossingSG.end());
-    }    
+        SGsizes.erase(SGsizes.begin() + j, SGsizes.begin() + j + 1);
+    }
     return res;
 }
 
