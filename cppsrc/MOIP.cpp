@@ -122,6 +122,13 @@ bool MOIP::is_undominated_yet(const SecondaryStructure& s)
 
 SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 {
+    if (min > max) {
+        // variable swap without a third, just because i want to look clever
+        max = min + max;
+        min = max - min;
+        max = max - min;
+    }
+
     // Solves one of the objectives, under constraint that the other should be in [min, max]
     if (verbose_)
         cout << "Solving objective function " << o << ", " << min << " <= Obj" << 3 - o << " <= " << max << "..." << endl;
