@@ -219,40 +219,52 @@ void MOIP::define_problem_constraints(void)
     }
     // forbid lonely basepairs
     if (verbose_) cout << "\t>forbidding lonely basepairs..." << endl;
-    for (u = 0; u < n; u++) {
-        IloExpr c2(env_);    // for the case where s[u] is paired to s[v], v>u
-        count = 0;
-        for (v = u; v < n; v++)
-            if (allowed_basepair(u - 1, v)) c2 += y(u - 1, v);
-        for (v = u + 1; v < n; v++)
+    // for (u = 0; u < n; u++) {
+    //     IloExpr c2(env_);    // for the case where s[u] is paired to s[v], v>u
+    //     count = 0;
+    //     for (v = u; v < n; v++)
+    //         if (allowed_basepair(u - 1, v)) c2 += y(u - 1, v);
+    //     for (v = u + 1; v < n; v++)
+    //         if (allowed_basepair(u, v)) {
+    //             c2 -= y(u, v);
+    //             count++;
+    //         }
+    //     for (v = u + 2; v < n; v++)
+    //         if (allowed_basepair(u + 1, v)) c2 += y(u + 1, v);
+    //     if (count) {
+    //         model_.add(c2 >= 0);
+    //         if (verbose_) cout << "\t\t" << (c2 >= 0) << endl;
+    //     }
+    // }
+    // for (v = 2; v < n; v++) {
+    //     IloExpr c2p(env_);    // for the case where s[u] is paired to s[v], v<u
+    //     count = 0;
+    //     for (u = 0; u <= v - 2; u++)
+    //         if (allowed_basepair(u, v - 1)) c2p += y(u, v - 1);
+    //     for (u = 0; u <= v - 1; u++)
+    //         if (allowed_basepair(u, v)) {
+    //             c2p -= y(u, v);
+    //             count++;
+    //         }
+    //     for (u = 0; u <= v; u++)
+    //         if (allowed_basepair(u, v + 1)) c2p += y(u, v + 1);
+    //     if (count) {
+    //         model_.add(c2p >= 0);
+    //         if (verbose_) cout << "\t\t" << (c2p >= 0) << endl;
+    //     }
+    // }
+    for (u = 0; u < n - 5; u++)
+        for (v = u + 4; v < n; v++) {
             if (allowed_basepair(u, v)) {
-                c2 -= y(u, v);
-                count++;
+                IloExpr c2(env_);
+                c2 += -y(u, v);
+                if (allowed_basepair(u - 1, v + 1)) c2 += y(u - 1, v + 1);
+                if (allowed_basepair(u + 1, v - 1)) c2 += y(u + 1, v - 1);
+                model_.add(c2 >= 0);
+                if (verbose_) cout << "\t\t" << (c2 >= 0) << endl;
             }
-        for (v = u + 2; v < n; v++)
-            if (allowed_basepair(u + 1, v)) c2 += y(u + 1, v);
-        if (count) {
-            model_.add(c2 >= 0);
-            if (verbose_) cout << "\t\t" << (c2 >= 0) << endl;
         }
-    }
-    for (v = 2; v < n; v++) {
-        IloExpr c2p(env_);    // for the case where s[u] is paired to s[v], v<u
-        count = 0;
-        for (u = 0; u <= v - 2; u++)
-            if (allowed_basepair(u, v - 1)) c2p += y(u, v - 1);
-        for (u = 0; u <= v - 1; u++)
-            if (allowed_basepair(u, v)) {
-                c2p -= y(u, v);
-                count++;
-            }
-        for (u = 0; u <= v; u++)
-            if (allowed_basepair(u, v + 1)) c2p += y(u, v + 1);
-        if (count) {
-            model_.add(c2p >= 0);
-            if (verbose_) cout << "\t\t" << (c2p >= 0) << endl;
-        }
-    }
+
     // Forbid pairings inside every motif component if included
     if (verbose_) cout << "\t>forbidding basepairs inside included motif's components..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++) {

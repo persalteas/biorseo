@@ -6,6 +6,11 @@ rna1999.dG
 doc/*.toc
 doc/*.bbl
 doc/*.gz
+doc/*.log
+doc/*.aux
+doc/*.blg
+doc/*.fls
+doc/*.fdb_latexmk
 
 # Compiled Object files
 *.o

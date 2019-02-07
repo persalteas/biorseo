@@ -185,17 +185,24 @@ Note that \(f_{1A}\) is taken from RNA MoIP \cite{reinharz_towards_2012}, to com
 \end{equation}
 	
 \paragraph{Constraints to forbid lonely base pairs} ~
+% \begin{equation} \label{constraint:2}
+% 	\sum_{v=u}^n y^{u-1}_v - \sum_{v=u+1}^n y^u_v + \sum_{v=u+2}^n y^{u+1}_v \geq 0 \qquad \qquad \forall u \in \llbracket 1,n\rrbracket
+% \end{equation}
+% \begin{equation} \label{constraint:3}
+% 	\sum_{u=1}^{v-2} y^u_{v-1} - \sum_{u=1}^{v-1} y^u_v + \sum_{u=1}^{v} y^u_{v+1} \geq 0 \qquad \qquad \forall v \in \llbracket 1,n\rrbracket
+% \end{equation}
+% These conditions ensure that if a base pair exists with $s[i]$, 
+% one of the adjacent bases is paired too. 
+% Equation \ref{constraint:2} is useful if $s[u]$ is paired with $s[v>u]$ (a nucleotide later in the sequence), 
+% and equation \ref{constraint:3} if $s[v]$ is paired with $s[u<v]$ (a nucleotide earlier in the sequence).
 \begin{equation} \label{constraint:2}
-	\sum_{v=u}^n y^{u-1}_v - \sum_{v=u+1}^n y^u_v + \sum_{v=u+2}^n y^{u+1}_v \geq 0 \qquad \qquad \forall u \in \llbracket 1,n\rrbracket
+	y^{u-1}_{v+1} - y^u_v + y^{u+1}_{v-1} \geq 0 \qquad \qquad \forall (u,v) \in \{ (u,v) \in \llbracket 1,n\rrbracket^2 \; | \; u + 3 <v \}
 \end{equation}
-\begin{equation} \label{constraint:3}
-	\sum_{u=1}^{v-2} y^u_{v-1} - \sum_{u=1}^{v-1} y^u_v + \sum_{u=1}^{v} y^u_{v+1} \geq 0 \qquad \qquad \forall v \in \llbracket 1,n\rrbracket
-\end{equation}
-These conditions ensure that if a base pair exists with $s[i]$, 
-one of the adjacent bases is paired too. 
-Equation \ref{constraint:2} is useful if $s[u]$ is paired with $s[v>u]$ (a nucleotide later in the sequence), 
-and equation \ref{constraint:3} if $s[v]$ is paired with $s[u<v]$ (a nucleotide earlier in the sequence).
-	
+A basepair should be accompanied by one of its neighbours, forming a stable structure stabilized by stacking energies. In theory, this might add up to \( \frac{1}{2}n^2\) constraints, but in practice, this number is very reasonable as
+the only decision variables kept are those with probability above a $\theta$ threshold. 
+Then, this condition sets to zero "lonely decision variables" who have no neighbour basepair variable allowed.
+
+
 \paragraph{Constraint to forbid pairings inside a module component} ~ 
 \begin{equation} \label{constraint:4}
 	(k_{x,i}-2) \; C^x_i + \sum_{u=P_{x,i}+1}^{P_{x,i}+k_{x,i}-2}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq (k_{x,i} - 2)
