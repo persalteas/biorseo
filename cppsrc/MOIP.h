@@ -13,6 +13,7 @@ using std::vector;
 class MOIP
 {
     public:
+    MOIP(void);
     MOIP(const RNA& rna, const vector<Motif>& motifSites, float pthreshold, bool verbose);
     ~MOIP(void);
     SecondaryStructure        solve_objective(int o, double min, double max);

@@ -64,6 +64,8 @@ Motif parse_csv_line(string line)
 
 int main(int argc, char* argv[])
 {
+    /*  ARGUMENT CHECKING  */
+
     if (argc != 5) {
         cerr << argc << " arguments specified !" << endl;
         cerr << "Please specify the following input files:" << endl;
@@ -71,70 +73,63 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    /*  VARIABLE DECLARATIONS  */
 
-    const char* inputName         = argv[1];
-    const char* csvname           = argv[2];
-    bool        verbose           = (atoi(argv[4]) != 0);
-    string      fastaname         = string(inputName);
-    string      basename          = remove_ext(inputName, '.', '/');
-    float       theta_p_threshold = atof(argv[3]);
+    const char*           inputName         = argv[1];
+    const char*           csvname           = argv[2];
+    bool                  verbose           = (atoi(argv[4]) != 0);
+    string                fastaname         = string(inputName);
+    string                basename          = remove_ext(inputName, '.', '/');
+    float                 theta_p_threshold = atof(argv[3]);
+    list<Fasta>           f;
+    list<Fasta>::iterator fa = f.begin();
+    string                line;
+    ifstream              motifs;
+    vector<Motif>         posInsertionSites;
+    ofstream              outfile;
+    SecondaryStructure    bestSSO1, bestSSO2;
+    RNA                   myRNA;
+    MOIP                  myMOIP;
+
+    /*  FILE PARSING  */
+
+    // load fasta file
     if (verbose) cout << "Reading input files..." << endl;
     if (access(inputName, F_OK) == -1) {
         cerr << inputName << " not found" << endl;
         return EXIT_FAILURE;
     }
+    Fasta::load(f, inputName);
+    if (verbose) cout << "loading " << fa->name() << "..." << endl;
+    myRNA = RNA(fa->name(), fa->seq(), verbose);
+    if (verbose) cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
+
+    // load CSV file
     if (access(csvname, F_OK) == -1) {
         cerr << csvname << " not found" << endl;
         return EXIT_FAILURE;
     }
-
-    // load fasta file
-    list<Fasta> f;
-    Fasta::load(f, inputName);
-    list<Fasta>::iterator fa = f.begin();
-    if (verbose) cout << "loading " << fa->name() << "..." << endl;
-    RNA myRNA = RNA(fa->name(), fa->seq(), verbose);
-    if (verbose) cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
-
-    // load CSV file
-    string   line;
-    ifstream motifs = ifstream(csvname);
+    motifs = ifstream(csvname);
     getline(motifs, line);    // skip header
-    vector<Motif> posInsertionSites;
-    while (getline(motifs, line)) {
-        posInsertionSites.push_back(parse_csv_line(line));
-    }
+    while (getline(motifs, line)) posInsertionSites.push_back(parse_csv_line(line));
     if (verbose)
         cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
 
-    // creating the Multi-Objective problem:
-    MOIP myMOIP = MOIP(myRNA, posInsertionSites, theta_p_threshold, verbose);
-    // finding the best SecondaryStructures for each objective
-    try {
-        SecondaryStructure bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
-        SecondaryStructure bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
-        if (verbose) cout << "Best solution according to objective 1 :" << bestSSO1.to_string() << endl;
-        if (verbose) cout << "Best solution according to objective 2 :" << bestSSO2.to_string() << endl;
+    /*  FIND K-PARETO SETS  */
 
+    myMOIP = MOIP(myRNA, posInsertionSites, theta_p_threshold, verbose);
+    try {
+        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
+        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
+        if (verbose) {
+            cout << "Best solution according to objective 1 :" << bestSSO1.to_string();
+            cout << "Best solution according to objective 2 :" << bestSSO2.to_string();
+        }
         // extend to the whole pareto set
         myMOIP.add_solution(bestSSO1);
         myMOIP.add_solution(bestSSO2);
         myMOIP.extend_pareto(bestSSO2.get_objective_score(1), bestSSO1.get_objective_score(1));
 
-        // print the pareto set
-        if (verbose) {
-            cout << endl << endl << "---------------------------------------------------------------" << endl;
-            cout << "Whole Pareto Set:" << endl;
-            for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
-                myMOIP.solution(i).print();
-            }
-            cout << endl;
-
-            cout << posInsertionSites.size() << " candidate insertion sites, " << myMOIP.get_n_solutions()
-                 << " solutions kept." << endl;
-            cout << "Best value for Motif insertion objective: " << bestSSO1.get_objective_score(1) << endl;
-            cout << "Best value for structure expected accuracy: " << bestSSO2.get_objective_score(2) << endl;
-        }
     } catch (IloAlgorithm::NotExtractedException& e) {
         cerr << e << endl;
         exit(EXIT_FAILURE);
@@ -143,15 +138,27 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    // Save the pareto set to a file
+    /*  DISPLAY RESULTS  */
+
+    // print the pareto set
+    if (verbose) {
+        cout << endl << endl << "---------------------------------------------------------------" << endl;
+        cout << "Whole Pareto Set:" << endl;
+        for (uint i = 0; i < myMOIP.get_n_solutions(); i++) myMOIP.solution(i).print();
+        cout << endl;
+        cout << posInsertionSites.size() << " candidate insertion sites, " << myMOIP.get_n_solutions() << " solutions kept." << endl;
+        cout << "Best value for Motif insertion objective: " << bestSSO1.get_objective_score(1) << endl;
+        cout << "Best value for structure expected accuracy: " << bestSSO2.get_objective_score(2) << endl;
+    }
+
+    // Save it to file
     if (verbose) cout << "Saving structures to " << basename << ".biom..." << endl;
-    ofstream outfile;
     outfile.open(basename + ".biom");
     outfile << fa->name() << endl << fa->seq() << endl;
-    for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
-        outfile << myMOIP.solution(i).to_string() << endl;
-    }
+    for (uint i = 0; i < myMOIP.get_n_solutions(); i++) outfile << myMOIP.solution(i).to_string() << endl;
     outfile.close();
+
+    /*  QUIT  */
 
     return EXIT_SUCCESS;
 }

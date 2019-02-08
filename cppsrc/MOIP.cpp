@@ -30,6 +30,9 @@ unsigned getNumConstraints(IloModel& m)
     return count;
 }
 
+MOIP::MOIP() {}
+
+
 MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold, bool verbose)
 : verbose_{verbose}, rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
 {

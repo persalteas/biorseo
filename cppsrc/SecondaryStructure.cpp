@@ -8,6 +8,10 @@ using std::endl;
 
 static const double PRECISION(0.0001);
 
+
+SecondaryStructure::SecondaryStructure() {}
+
+
 SecondaryStructure::SecondaryStructure(const RNA& rna)
 : objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), rna_(rna)
 {
