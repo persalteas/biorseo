@@ -326,4 +326,4 @@ resultsfile.close()
 
 # Lauching biominserter to get 2D predictions
 subprocess.call([bminDir+"/bin/biominserter",
-                 filename, basename+".sites.csv", argv[2], str(verbose)])
+                 filename, basename+".sites.csv", argv[2], str(verbose), "1"])
