@@ -18,8 +18,8 @@ using std::make_pair;
 using std::vector;
 
 uint   MOIP::obj_to_solve_ = 1;
-double MOIP::precision_    = 1e-6;
-double MOIP::epsilon_      = 1e-5;
+double MOIP::precision_    = 1e-7;
+double MOIP::epsilon_      = 1e-4;
 
 unsigned getNumConstraints(IloModel& m)
 {
@@ -100,11 +100,11 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, uint nsets, floa
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
         // RNA MoIP style : objective f_1A
-        IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
-        obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
+        // IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
+        // obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
 
         // Weighted by the JAR3D score:
-        // obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
+        obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
     }
 
     // Define the expected accuracy objective function:
@@ -137,12 +137,11 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
         max = min + max;
         min = max - min;
         max = max - min;
-        // if (verbose_) cout << "\t>Failed to optimize LP: no more solutions to find." << endl;
-        // return SecondaryStructure(true);
     }
 
     if (verbose_)
-        cout << "\nSolving objective function " << o << ", " << min << " <= Obj" << 3 - o << " <= " << max << "..." << endl;
+        cout << std::setprecision(8) << "\nSolving objective function " << o << ", " << min << " <= Obj" << 3 - o
+             << " <= " << max << "..." << endl;
 
     IloObjective obj;
     IloRange     bounds;
@@ -150,8 +149,10 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     // gather known solutions in the search zone to forbid them
     vector<IloConstraint> F;
     for (const SecondaryStructure& prev : pareto_)
-        if (min - precision_ <= prev.get_objective_score(3 - o) and prev.get_objective_score(3 - o) <= max + precision_)
+        if ((min - 2.0 * precision_) <= prev.get_objective_score(3 - o) and prev.get_objective_score(3 - o) <= (max + precision_ * 2.0)) {
             F.push_back(prev.forbid_this_);
+            if (verbose_) cout << "\t\t>forbidding " << prev.to_string() << endl;
+        }
     if (verbose_) cout << "\t>forbidding " << F.size() << " solutions already found in that zone" << endl;
 
     // impose the bounds and the objective
@@ -480,7 +481,9 @@ bool MOIP::exists_horizontal_outdated_labels(const SecondaryStructure& s) const
             result = true;
     if (result)
         for (auto x : pareto_)
-            if (x != s and abs(x.get_objective_score(1) - s.get_objective_score(1))< precision_ and abs(x.get_objective_score(2) - s.get_objective_score(2))< precision_)
+            if (
+            x != s and abs(x.get_objective_score(1) - s.get_objective_score(1)) < precision_ and
+            abs(x.get_objective_score(2) - s.get_objective_score(2)) < precision_)
                 result = false;
     return result;
 }

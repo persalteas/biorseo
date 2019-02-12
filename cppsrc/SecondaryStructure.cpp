@@ -105,8 +105,8 @@ string SecondaryStructure::to_string(void) const
     string s;
     s += to_DBN();
     for (const Motif& m : motif_info_) s += " + " + m.atlas_id;
-    s += "\t" + boost::str(boost::format("%.6f") % objective_scores_[0]) + "\t" +
-         boost::str(boost::format("%.6f") % objective_scores_[1]);
+    s += "\t" + boost::str(boost::format("%.7f") % objective_scores_[0]) + "\t" +
+         boost::str(boost::format("%.7f") % objective_scores_[1]);
     return s;
 }
 
@@ -209,13 +209,13 @@ bool operator<(const SecondaryStructure& s1, const SecondaryStructure& s2)
     if (MOIP::precision_ < s21 - s11) {
         strict1 = true;
         obj1    = true;
-    } else if (abs(s11-s21) < MOIP::precision_) {
+    } else if (abs(s11 - s21) < MOIP::precision_) {
         obj1 = true;
     }
     if (MOIP::precision_ < s22 - s12) {
         strict2 = true;
         obj2    = true;
-    } else if (abs(s12-s22) < MOIP::precision_) {
+    } else if (abs(s12 - s22) < MOIP::precision_) {
         obj2 = true;
     }
 
@@ -237,17 +237,17 @@ bool operator>=(const SecondaryStructure& s1, const SecondaryStructure& s2)
     if (s11 - s21 > MOIP::precision_) {
         strict1 = true;
         obj1    = true;
-    } else if (abs(s11-s21) < MOIP::precision_) {
+    } else if (abs(s11 - s21) < MOIP::precision_) {
         obj1 = true;
     }
     if (s12 - s22 > MOIP::precision_) {
         strict2 = true;
         obj2    = true;
-    } else if (abs(s12-s22) < MOIP::precision_) {
+    } else if (abs(s12 - s22) < MOIP::precision_) {
         obj2 = true;
     }
 
-    if ((obj1 && obj2 && (strict1 || strict2)) || ((abs(s11-s21) < MOIP::precision_ && abs(s12-s22) < MOIP::precision_))) {
+    if ((obj1 && obj2 && (strict1 || strict2)) || ((abs(s11 - s21) < MOIP::precision_ && abs(s12 - s22) < MOIP::precision_))) {
         return true;
     }
 
@@ -266,17 +266,17 @@ bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2)
     if (MOIP::precision_ < s21 - s11) {
         strict1 = true;
         obj1    = true;
-    } else if (abs(s11-s21) < MOIP::precision_) {
+    } else if (abs(s11 - s21) < MOIP::precision_) {
         obj1 = true;
     }
     if (MOIP::precision_ < s22 - s12) {
         strict2 = true;
         obj2    = true;
-    } else if (abs(s12-s22) < MOIP::precision_) {
+    } else if (abs(s12 - s22) < MOIP::precision_) {
         obj2 = true;
     }
 
-    if ((obj1 && obj2 && (strict1 || strict2)) || ((abs(s11-s21) < MOIP::precision_ && abs(s12-s22) < MOIP::precision_))) {
+    if ((obj1 && obj2 && (strict1 || strict2)) || ((abs(s11 - s21) < MOIP::precision_ && abs(s12 - s22) < MOIP::precision_))) {
         return true;
     }
     return false;
