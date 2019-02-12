@@ -1,7 +1,11 @@
 #ifndef __INC_IP_SOL__
 #define __INC_IP_SOL__
 
+#define IL_STD
+
 #include "rna.h"
+#include <ilconcert/ilomodel.h>
+#include <ilcplex/ilocplex.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -45,6 +49,8 @@ class SecondaryStructure
     void   insert_motif(const Motif& m);
     double get_objective_score(int i) const;
     void   set_objective_score(int i, double s);
+    void   set_pareto_set(uint k);
+    uint   get_pareto_set(void) const;
     uint   get_n_motifs(void) const;
     uint   get_n_bp(void) const;
     void   print(void) const;
@@ -56,9 +62,11 @@ class SecondaryStructure
     vector<pair<uint, uint>> basepairs_;    // values of the decision variable of the integer program
     vector<Motif> motif_info_;    // information about known motives in this secondary structure and their positions
     size_t        n_;             // length of the RNA
-    size_t        nBP_;
-    RNA           rna_;                  // RNA object which is folded
+    size_t        nBP_;           // number of basepairs
+    uint          k_;             // Secondary Structure belongs to the kth Pareto set
+    RNA           rna_;           // RNA object which is folded
     bool          is_empty_structure;    // Empty structure, returned when the solver does not find solutions anymore
+    IloConstraint forbid_this_;          // Add it to a cplex model to forbid that solution
 };
 
 // return if this SecondaryStructure s1 dominates s2
@@ -67,8 +75,9 @@ bool operator>=(const SecondaryStructure& s1, const SecondaryStructure& s2);
 // return if this SecondaryStructure s2 dominates s1
 bool operator<(const SecondaryStructure& s1, const SecondaryStructure& s2);
 bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2);
-// return wether SecondaryStructures are identical
+// return wether SecondaryStructures are identical or not
 bool operator==(const SecondaryStructure& s1, const SecondaryStructure& s2);
+bool operator!=(const SecondaryStructure& s1, const SecondaryStructure& s2);
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);
 bool operator!=(const Motif& m1, const Motif& m2);
@@ -81,5 +90,7 @@ inline double SecondaryStructure::get_objective_score(int i) const { return obje
 inline void   SecondaryStructure::set_objective_score(int i, double s) { objective_scores_[i - 1] = s; }
 inline uint   SecondaryStructure::get_n_motifs(void) const { return motif_info_.size(); }
 inline uint   SecondaryStructure::get_n_bp(void) const { return nBP_; }
+inline uint   SecondaryStructure::get_pareto_set(void) const { return k_; }
+inline void   SecondaryStructure::set_pareto_set(uint k) { k_ = k; }
 
 #endif

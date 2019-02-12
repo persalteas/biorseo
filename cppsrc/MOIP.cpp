@@ -17,6 +17,10 @@ using std::endl;
 using std::make_pair;
 using std::vector;
 
+uint   MOIP::obj_to_solve_ = 1;
+double MOIP::precision_    = 1e-6;
+double MOIP::epsilon_      = 1e-5;
+
 unsigned getNumConstraints(IloModel& m)
 {
     unsigned           count = 0;
@@ -30,11 +34,12 @@ unsigned getNumConstraints(IloModel& m)
     return count;
 }
 
+
 MOIP::MOIP() {}
 
 
-MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold, bool verbose)
-: verbose_{verbose}, rna_(rna), insertion_sites_(insertionSites), theta_{pthreshold}
+MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, uint nsets, float pthreshold, bool verbose)
+: verbose_{verbose}, rna_(rna), insertion_sites_(insertionSites), n_sets_(nsets), theta_{pthreshold}
 {
 
     if (verbose_) rna_.print_basepair_p_matrix(theta_);
@@ -95,11 +100,11 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float pthreshold
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
         // RNA MoIP style : objective f_1A
-        // IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
-        // obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
+        IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
+        obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
 
         // Weighted by the JAR3D score:
-        obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
+        // obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
     }
 
     // Define the expected accuracy objective function:
@@ -125,42 +130,61 @@ bool MOIP::is_undominated_yet(const SecondaryStructure& s)
 
 SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 {
+    // Solves one of the objectives, under constraint that the other should be in [min, max]
+
     if (min > max) {
         // variable swap without a third, just because i want to look clever
         max = min + max;
         min = max - min;
         max = max - min;
+        // if (verbose_) cout << "\t>Failed to optimize LP: no more solutions to find." << endl;
+        // return SecondaryStructure(true);
     }
 
-    // Solves one of the objectives, under constraint that the other should be in [min, max]
     if (verbose_)
-        cout << "Solving objective function " << o << ", " << min << " <= Obj" << 3 - o << " <= " << max << "..." << endl;
+        cout << "\nSolving objective function " << o << ", " << min << " <= Obj" << 3 - o << " <= " << max << "..." << endl;
 
     IloObjective obj;
     IloRange     bounds;
 
+    // gather known solutions in the search zone to forbid them
+    vector<IloConstraint> F;
+    for (const SecondaryStructure& prev : pareto_)
+        if (min - precision_ <= prev.get_objective_score(3 - o) and prev.get_objective_score(3 - o) <= max + precision_)
+            F.push_back(prev.forbid_this_);
+    if (verbose_) cout << "\t>forbidding " << F.size() << " solutions already found in that zone" << endl;
+
+    // impose the bounds and the objective
     switch (o) {
     case 1:
         obj    = IloMaximize(env_, obj1);
-        bounds = IloRange(env_, min, obj2, max);
+        bounds = IloRange(env_, min - precision_, obj2, max + precision_);
         break;
-    case 2: obj = IloMaximize(env_, obj2); bounds = IloRange(env_, min, obj1, max);
+    case 2:
+        obj    = IloMaximize(env_, obj2);
+        bounds = IloRange(env_, min - precision_, obj1, max + precision_);
+        break;
     }
     model_.add(obj);
     model_.add(bounds);
+    for (auto c : F) model_.add(c);
+
     IloCplex cplex_ = IloCplex(model_);
     cplex_.setOut(env_.getNullStream());
-    // cplex_.exportModel("latestmodel.lp");
+    // cplex_.exportModel("latestmodel.lp")
 
     if (!cplex_.solve()) {
-        if (verbose_) env_.error() << "\t>Failed to optimize LP: no more solutions to find." << endl;
+        if (verbose_) cout << "\t>Failed to optimize LP: no more solutions to find." << endl;
+        // Removing the objective from the model_
+        model_.remove(obj);
+        model_.remove(bounds);
+        for (auto c : F) model_.remove(c);
         return SecondaryStructure(true);
     }
 
     if (verbose_) {
-        cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective " << o << " value "
-             << cplex_.getObjValue() << endl;
-        cout << "\t>Building secondary structure..." << endl;
+        cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective values (" << cplex_.getValue(obj1)
+             << ", " << cplex_.getValue(obj2) << ')' << endl;
     }
 
     // Build a secondary Structure
@@ -178,10 +202,11 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
                 if (cplex_.getValue(y(u, v)) > 0.5) best_ss.set_basepair(u, v);
 
     best_ss.sort();    // order the basepairs in the vector
+    // truncate the result of cplex's computation which is full of numerical unprecisions
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
     best_ss.set_objective_score(1, cplex_.getValue(obj1));
 
-    // Forbidding to find best_ss later : add a constraint to model_
+    // Forbidding to find best_ss later : save a constraint
     IloExpr c(env_);
     for (uint d = 0; d < insertion_dv_.getSize(); d++)
         if (cplex_.getValue(insertion_dv_[d]) > 0.5)
@@ -193,12 +218,12 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
             c += IloNum(1) - basepair_dv_[d];
         else
             c += basepair_dv_[d];
-    model_.add(c >= IloNum(1));
-    if (verbose_) cout << "\t>adding " << getNumConstraints(model_) << "th constraint " << (c >= IloNum(1)) << endl;
+    best_ss.forbid_this_ = (c >= IloNum(1));
 
     // Removing the objective from the model_
     model_.remove(obj);
     model_.remove(bounds);
+    for (auto c : F) model_.remove(c);
 
     return best_ss;
 }
@@ -361,36 +386,121 @@ void MOIP::define_problem_constraints(void)
     }
 }
 
-void MOIP::extend_pareto(double lambdaMin, double lambdaMax)
+void MOIP::search_between(double lambdaMin, double lambdaMax)
 {
-    SecondaryStructure s = solve_objective(2, lambdaMin, lambdaMax);
+    SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin, lambdaMax);
     if (!s.is_empty_structure) {    // A solution has been found
-        if (verbose_) cout << "\t>Done, ";
-        if (is_undominated_yet(s)) {
-            add_solution(s);    // adding the SecondaryStructure s to the set pareto_
-            // std::cin.ignore();
-            extend_pareto(s.get_objective_score(1), lambdaMax);    // run localPareto above the SecondaryStructure s
+
+        // Attribute the correct pareto set label
+        vector<SecondaryStructure> L;    // the structures that dominate s
+        for (SecondaryStructure& x : pareto_)
+            if (x > s) L.push_back(x);
+        uint max = 0;
+        if (L.size()) {
+            if (verbose_) cout << "\t>dominated by " << L.size() << " structures, from set(s) ";
+            for (auto x : L) {
+                if (verbose_) cout << x.k_ << " ";
+                if (x.k_ > max) max = x.k_;
+            }
+            if (verbose_) cout << endl;
+        }
+        s.set_pareto_set(max + 1);
+        // if (verbose_) cout << "\t>belongs to Pareto set " << s.get_pareto_set() << endl;
+
+        if (s.get_pareto_set() <= n_sets_ + 1) {
+            // adding the SecondaryStructure s to the set pareto_
+            add_solution(s);
+
+            // check if some labels should be updated on the vertical
+            if (exists_vertical_outdated_labels(s))
+                for (vector<SecondaryStructure>::iterator x = pareto_.end() - 2; x >= pareto_.begin(); x--)
+                    if (
+                    abs(x->get_objective_score(obj_to_solve_) - s.get_objective_score(obj_to_solve_)) < precision_ and
+                    precision_ < s.get_objective_score(3 - obj_to_solve_) - x->get_objective_score(3 - obj_to_solve_)) {
+                        uint k = x->get_pareto_set();
+                        if (k <= n_sets_) {
+                            if (verbose_)
+                                cout << "\t>moving a structure from Pareto set " << k << " to " << k + 1 << endl;
+                            x->set_pareto_set(k + 1);
+                        } else {
+                            if (verbose_)
+                                cout << "\t>removing structure from Pareto set " << k << ":\t" << x->to_string() << endl;
+                            pareto_.erase(x);
+                        }
+                    }
+
+            if (exists_horizontal_outdated_labels(s))
+                for (vector<SecondaryStructure>::iterator x = pareto_.end() - 2; x >= pareto_.begin(); x--)
+                    if (
+                    abs(x->get_objective_score(3 - obj_to_solve_) - s.get_objective_score(3 - obj_to_solve_)) < precision_ and
+                    precision_ < s.get_objective_score(obj_to_solve_) - x->get_objective_score(obj_to_solve_)) {
+                        uint k = x->get_pareto_set();
+                        if (k <= n_sets_) {
+                            if (verbose_)
+                                cout << "\t>moving a structure from Pareto set " << k << " to " << k + 1 << endl;
+                            x->set_pareto_set(k + 1);
+                        } else {
+                            if (verbose_)
+                                cout << "\t>removing structure from Pareto set " << k << ":\t" << x->to_string() << endl;
+                            pareto_.erase(x);
+                        }
+                    }
+
+            // search below and on top of s
+            search_between(s.get_objective_score(3 - obj_to_solve_) + epsilon_, lambdaMax);
+            if (s.get_pareto_set() <= n_sets_) search_between(lambdaMin, s.get_objective_score(3 - obj_to_solve_));
+
         } else {
-            if (verbose_) cout << "but solution is dominated." << endl;
+            if (verbose_) cout << "\t>solution ignored." << endl;
         }
     }
 }
 
+bool MOIP::exists_vertical_outdated_labels(const SecondaryStructure& s) const
+{
+    bool result = false;
+    for (auto x : pareto_)
+        if (x != s and abs(x.get_objective_score(obj_to_solve_) - s.get_objective_score(obj_to_solve_)) < precision_)
+            result = true;
+    if (result)
+        for (auto x : pareto_)
+            if (
+            x != s and abs(x.get_objective_score(1) - s.get_objective_score(1)) < precision_ and
+            abs(x.get_objective_score(2) - s.get_objective_score(2)) < precision_)
+                result = false;
+    return result;
+}
+
+
+bool MOIP::exists_horizontal_outdated_labels(const SecondaryStructure& s) const
+{
+    bool result = false;
+    for (auto x : pareto_)
+        if (x != s and abs(x.get_objective_score(3 - obj_to_solve_) - s.get_objective_score(3 - obj_to_solve_)) < precision_)
+            result = true;
+    if (result)
+        for (auto x : pareto_)
+            if (x != s and abs(x.get_objective_score(1) - s.get_objective_score(1))< precision_ and abs(x.get_objective_score(2) - s.get_objective_score(2))< precision_)
+                result = false;
+    return result;
+}
+
+
 void MOIP::add_solution(const SecondaryStructure& s)
 {
-    if (verbose_) cout << '\n';
-    vector<size_t> to_remove;
-    for (uint i = 0; i < pareto_.size(); i++)
-        if (s > pareto_[i]) {    // A solution from the set is now dominated
-            // This should only happen in the case some structures have the same optimal Obj1 value.
-            if (verbose_) cout << "\t>removing structure from Pareto set : " << pareto_[i].to_string() << endl;
-            to_remove.push_back(i);
-        }
-    if (to_remove.size()) {
-        for (size_t i = to_remove.size() - 1; i != 0; i--) pareto_.erase(pareto_.begin() + to_remove[i]);
-        pareto_.erase(pareto_.begin() + to_remove[0]);
-    }
-    if (verbose_) cout << "\t>adding structure to Pareto set :     " << s.to_string() << endl;
+    // vector<size_t> to_remove;
+    // for (uint i = 0; i < pareto_.size(); i++)
+    //     if (s > pareto_[i]) {    // A solution from the set is now dominated
+    //         // This should only happen in the case some structures have the same optimal Obj1 value.
+    //         if (verbose_) cout << "\t>removing structure from Pareto set : " << pareto_[i].to_string() << endl;
+    //         to_remove.push_back(i);
+    //     }
+    // if (to_remove.size()) {
+    //     for (size_t i = to_remove.size() - 1; i != 0; i--) pareto_.erase(pareto_.begin() + to_remove[i]);
+    //     pareto_.erase(pareto_.begin() + to_remove[0]);
+    // }
+    if (verbose_)
+        cout << "\t>adding structure to Pareto set " << s.get_pareto_set() << " :     " << s.to_string() << endl;
     pareto_.push_back(s);
 }
 
@@ -418,3 +528,6 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
         return false;    // not allowed because proba < theta_
     return true;
 }
+
+
+void MOIP::remove_solution(uint i) { pareto_.erase(pareto_.begin() + i); }

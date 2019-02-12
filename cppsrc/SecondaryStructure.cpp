@@ -1,4 +1,5 @@
 #include "SecondaryStructure.h"
+#include "MOIP.h"
 #include <algorithm>
 #include <boost/format.hpp>
 
@@ -13,12 +14,13 @@ SecondaryStructure::SecondaryStructure() {}
 
 
 SecondaryStructure::SecondaryStructure(const RNA& rna)
-: objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), rna_(rna)
+: objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), k_(0), rna_(rna)
 {
     is_empty_structure = false;
 }
 
 SecondaryStructure::SecondaryStructure(bool empty) : rna_(RNA()) { is_empty_structure = empty; }
+
 
 
 string SecondaryStructure::to_DBN(void) const
@@ -175,16 +177,16 @@ bool operator>(const SecondaryStructure& s1, const SecondaryStructure& s2)
 
     bool obj1 = false, obj2 = false, strict1 = false, strict2 = false;
 
-    if (s11 > s21) {
+    if (s11 - s21 > MOIP::precision_) {
         strict1 = true;
         obj1    = true;
-    } else if (s11 == s21) {
+    } else if (abs(s11 - s21) < MOIP::precision_) {
         obj1 = true;
     }
-    if (s12 > s22) {
+    if (s12 - s22 > MOIP::precision_) {
         strict2 = true;
         obj2    = true;
-    } else if (s12 == s22) {
+    } else if (abs(s12 - s22) < MOIP::precision_) {
         obj2 = true;
     }
 
@@ -204,16 +206,16 @@ bool operator<(const SecondaryStructure& s1, const SecondaryStructure& s2)
 
     bool obj1 = false, obj2 = false, strict1 = false, strict2 = false;
 
-    if (s11 < s21) {
+    if (MOIP::precision_ < s21 - s11) {
         strict1 = true;
         obj1    = true;
-    } else if (s11 == s21) {
+    } else if (abs(s11-s21) < MOIP::precision_) {
         obj1 = true;
     }
-    if (s12 < s22) {
+    if (MOIP::precision_ < s22 - s12) {
         strict2 = true;
         obj2    = true;
-    } else if (s12 == s22) {
+    } else if (abs(s12-s22) < MOIP::precision_) {
         obj2 = true;
     }
 
@@ -232,20 +234,20 @@ bool operator>=(const SecondaryStructure& s1, const SecondaryStructure& s2)
 
     bool obj1 = false, obj2 = false, strict1 = false, strict2 = false;
 
-    if (s11 > s21) {
+    if (s11 - s21 > MOIP::precision_) {
         strict1 = true;
         obj1    = true;
-    } else if (s11 == s21) {
+    } else if (abs(s11-s21) < MOIP::precision_) {
         obj1 = true;
     }
-    if (s12 > s22) {
+    if (s12 - s22 > MOIP::precision_) {
         strict2 = true;
         obj2    = true;
-    } else if (s12 == s22) {
+    } else if (abs(s12-s22) < MOIP::precision_) {
         obj2 = true;
     }
 
-    if ((obj1 && obj2 && (strict1 || strict2)) || ((s11 == s21 && s12 == s22))) {
+    if ((obj1 && obj2 && (strict1 || strict2)) || ((abs(s11-s21) < MOIP::precision_ && abs(s12-s22) < MOIP::precision_))) {
         return true;
     }
 
@@ -261,20 +263,20 @@ bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2)
 
     bool obj1 = false, obj2 = false, strict1 = false, strict2 = false;
 
-    if (s11 < s21) {
+    if (MOIP::precision_ < s21 - s11) {
         strict1 = true;
         obj1    = true;
-    } else if (s11 == s21) {
+    } else if (abs(s11-s21) < MOIP::precision_) {
         obj1 = true;
     }
-    if (s12 < s22) {
+    if (MOIP::precision_ < s22 - s12) {
         strict2 = true;
         obj2    = true;
-    } else if (s12 == s22) {
+    } else if (abs(s12-s22) < MOIP::precision_) {
         obj2 = true;
     }
 
-    if ((obj1 && obj2 && (strict1 || strict2)) || ((s11 == s21 && s12 == s22))) {
+    if ((obj1 && obj2 && (strict1 || strict2)) || ((abs(s11-s21) < MOIP::precision_ && abs(s12-s22) < MOIP::precision_))) {
         return true;
     }
     return false;
@@ -289,6 +291,8 @@ bool operator==(const Component& c1, const Component& c2)
 
 bool operator!=(const Component& c1, const Component& c2) { return not(c1 == c2); }
 
+
+
 bool operator==(const Motif& m1, const Motif& m2)
 {
     if (m1.atlas_id != m2.atlas_id) return false;
@@ -300,6 +304,8 @@ bool operator==(const Motif& m1, const Motif& m2)
 }
 
 bool operator!=(const Motif& m1, const Motif& m2) { return not(m1 == m2); }
+
+
 
 bool operator==(const SecondaryStructure& s1, const SecondaryStructure& s2)
 {
@@ -317,4 +323,11 @@ bool operator==(const SecondaryStructure& s1, const SecondaryStructure& s2)
     for (uint i = 0; i < s1.get_n_motifs(); i++)
         if (s1.motif_info_[i] != s2.motif_info_[i]) return false;
     return true;
+}
+
+bool operator!=(const SecondaryStructure& s1, const SecondaryStructure& s2)
+{
+    // Checks wether the secondary structures are different, including the inserted motifs.
+
+    return not(s1 == s2);
 }

@@ -111,7 +111,7 @@ RNA::RNA(string name, string seq, bool verbose)
         for (i = 0; i < length; i++) {
             p_unpaired[i] = pairPr[(length + 1) * i + j];
             double sum    = 0.0;
-            for (j = 0; j < length; j++) sum += pij_(i, j);
+            for (j = 0; j < length; j++) sum += i < j ? pij_(i, j) : pij_(j, i);
             printf("\t\t%d\tunpaired: %.4e\tpaired(pK+noPK): %.4e\tTotal: %f\n", i + 1, p_unpaired[i], sum, p_unpaired[i] + sum);
         }
         cout << "\t\t>pairing probabilities defined" << endl;
