@@ -99,12 +99,17 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, uint nsets, floa
     // Define the motif objective function:
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
-        // RNA MoIP style : objective f_1A
+        // objective f_1A
         // IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
         // obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
 
         // Weighted by the JAR3D score:
-        obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
+        // obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
+
+        // RNA MoIP style
+        IloNum sum_k= 0;
+        for(const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+        obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
     }
 
     // Define the expected accuracy objective function:
