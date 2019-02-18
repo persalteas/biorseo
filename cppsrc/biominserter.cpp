@@ -118,12 +118,10 @@ int main(int argc, char* argv[])
 
     MOIP myMOIP = MOIP(myRNA, posInsertionSites, 1, theta_p_threshold, verbose);
     try {
-        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
-        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
+        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__, false);
+        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__, false);
         bestSSO1.set_pareto_set(1);
         bestSSO2.set_pareto_set(1);
-        myMOIP.add_solution(bestSSO1);
-        myMOIP.add_solution(bestSSO2);
         if (verbose) {
             cout << endl << "Best solution according to objective 1 :" << bestSSO1.to_string() << endl;
             cout << "Best solution according to objective 2 :" << bestSSO2.to_string() << endl;
@@ -131,15 +129,17 @@ int main(int argc, char* argv[])
 
         // extend to the whole pareto set
         if (MOIP::obj_to_solve_ == 1) {
+            myMOIP.add_solution(bestSSO1);
             if (verbose) cout << endl << "Solving obj1 on top of best solution 1." << endl;
-            myMOIP.search_between(bestSSO1.get_objective_score(2) + MOIP::epsilon_, bestSSO2.get_objective_score(2));
+            myMOIP.search_between(bestSSO1.get_objective_score(2) + MOIP::epsilon_, bestSSO2.get_objective_score(2), false);
             if (verbose) cout << endl << "Solving obj1 below best solution 1." << endl;
-            myMOIP.search_between(-__DBL_MAX__, bestSSO1.get_objective_score(2));
+            myMOIP.search_between(-__DBL_MAX__, bestSSO1.get_objective_score(2), true);
         } else {
+            myMOIP.add_solution(bestSSO2);
             if (verbose) cout << endl << "Solving obj2 on top of best solution 2." << endl;
-            myMOIP.search_between(bestSSO2.get_objective_score(1) + MOIP::epsilon_, bestSSO1.get_objective_score(1));
+            myMOIP.search_between(bestSSO2.get_objective_score(1) + MOIP::epsilon_, bestSSO1.get_objective_score(1), false);
             if (verbose) cout << endl << "Solving obj2 below best solution 2." << endl;
-            myMOIP.search_between(-__DBL_MAX__, bestSSO2.get_objective_score(1));
+            myMOIP.search_between(-__DBL_MAX__, bestSSO2.get_objective_score(1), true);
         }
     } catch (IloAlgorithm::NotExtractedException& e) {
         cerr << e << endl;

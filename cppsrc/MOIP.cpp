@@ -107,8 +107,8 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, uint nsets, floa
         // obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
 
         // RNA MoIP style
-        IloNum sum_k= 0;
-        for(const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+        IloNum sum_k = 0;
+        for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
         obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
     }
 
@@ -133,7 +133,7 @@ bool MOIP::is_undominated_yet(const SecondaryStructure& s)
     return true;
 }
 
-SecondaryStructure MOIP::solve_objective(int o, double min, double max)
+SecondaryStructure MOIP::solve_objective(int o, double min, double max, bool below)
 {
     // Solves one of the objectives, under constraint that the other should be in [min, max]
 
@@ -144,19 +144,25 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
         max = max - min;
     }
 
-    if (verbose_)
-        cout << std::setprecision(8) << "\nSolving objective function " << o << ", " << min << " <= Obj" << 3 - o
-             << " <= " << max << "..." << endl;
-
+    if (verbose_) {
+        cout << std::setprecision(8) << "\nSolving objective function " << o << ", ";
+        if (below)
+            cout << "below " << max;
+        else
+            cout << "on top of " << min;
+        cout << ": Obj" << 3 - o << "  being in [" << min - precision_ << ", " << max + precision_ << "]..." << endl;
+    }
     IloObjective obj;
     IloRange     bounds;
 
     // gather known solutions in the search zone to forbid them
+    if (verbose_)
+        cout << "\t>forbidding solutions found in [" << std::setprecision(10) << (min) << ", " << (max) << ']' << endl;
     vector<IloConstraint> F;
     for (const SecondaryStructure& prev : pareto_)
-        if ((min - 2.0 * precision_) <= prev.get_objective_score(3 - o) and prev.get_objective_score(3 - o) <= (max + precision_ * 2.0)) {
+        if ((min) <= prev.get_objective_score(3 - o) and prev.get_objective_score(3 - o) <= (max)) {
             F.push_back(prev.forbid_this_);
-            if (verbose_) cout << "\t\t>forbidding " << prev.to_string() << endl;
+            // if (verbose_) cout << "\t\t>forbidding " << prev.to_string() << endl;
         }
     if (verbose_) cout << "\t>forbidding " << F.size() << " solutions already found in that zone" << endl;
 
@@ -392,9 +398,9 @@ void MOIP::define_problem_constraints(void)
     }
 }
 
-void MOIP::search_between(double lambdaMin, double lambdaMax)
+void MOIP::search_between(double lambdaMin, double lambdaMax, bool below)
 {
-    SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin, lambdaMax);
+    SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin, lambdaMax, below);
     if (!s.is_empty_structure) {    // A solution has been found
 
         // Attribute the correct pareto set label
@@ -430,31 +436,34 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
                             x->set_pareto_set(k + 1);
                         } else {
                             if (verbose_)
-                                cout << "\t>removing structure from Pareto set " << k << ":\t" << x->to_string() << endl;
+                                cout << "\t>removing structure from Pareto set " << k << ":\tobj" << 3 - obj_to_solve_
+                                     << '=' << x->get_objective_score(3 - obj_to_solve_) << endl;
                             pareto_.erase(x);
                         }
                     }
 
-            if (exists_horizontal_outdated_labels(s))
-                for (vector<SecondaryStructure>::iterator x = pareto_.end() - 2; x >= pareto_.begin(); x--)
-                    if (
-                    abs(x->get_objective_score(3 - obj_to_solve_) - s.get_objective_score(3 - obj_to_solve_)) < precision_ and
-                    precision_ < s.get_objective_score(obj_to_solve_) - x->get_objective_score(obj_to_solve_)) {
-                        uint k = x->get_pareto_set();
-                        if (k <= n_sets_) {
-                            if (verbose_)
-                                cout << "\t>moving a structure from Pareto set " << k << " to " << k + 1 << endl;
-                            x->set_pareto_set(k + 1);
-                        } else {
-                            if (verbose_)
-                                cout << "\t>removing structure from Pareto set " << k << ":\t" << x->to_string() << endl;
-                            pareto_.erase(x);
-                        }
-                    }
+            // if (exists_horizontal_outdated_labels(s))
+            //     for (vector<SecondaryStructure>::iterator x = pareto_.end() - 2; x >= pareto_.begin(); x--)
+            //         if (
+            //         abs(x->get_objective_score(3 - obj_to_solve_) - s.get_objective_score(3 - obj_to_solve_)) < precision_ and
+            //         precision_ < s.get_objective_score(obj_to_solve_) - x->get_objective_score(obj_to_solve_)) {
+            //             uint k = x->get_pareto_set();
+            //             if (k <= n_sets_) {
+            //                 if (verbose_)
+            //                     cout << "\t>moving a structure from Pareto set " << k << " to " << k + 1 << endl;
+            //                 x->set_pareto_set(k + 1);
+            //             } else {
+            //                 if (verbose_)
+            //                     cout << "\t>removing structure from Pareto set " << k << ":\tobj" << 3 - obj_to_solve_
+            //                          << '=' << x->get_objective_score(3 - obj_to_solve_) << endl;
+            //                 pareto_.erase(x);
+            //             }
+            //         }
 
             // search below and on top of s
-            search_between(s.get_objective_score(3 - obj_to_solve_) + epsilon_, lambdaMax);
-            if (s.get_pareto_set() <= n_sets_) search_between(lambdaMin, s.get_objective_score(3 - obj_to_solve_));
+            search_between(s.get_objective_score(3 - obj_to_solve_) + epsilon_, lambdaMax, false);
+            if (s.get_pareto_set() <= n_sets_)
+                search_between(lambdaMin, s.get_objective_score(3 - obj_to_solve_), true);
 
         } else {
             if (verbose_) cout << "\t>solution ignored." << endl;

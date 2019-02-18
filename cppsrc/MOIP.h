@@ -16,11 +16,11 @@ class MOIP
     MOIP(void);
     MOIP(const RNA& rna, const vector<Motif>& motifSites, uint nsets, float pthreshold, bool verbose);
     ~MOIP(void);
-    SecondaryStructure        solve_objective(int o, double min, double max);
+    SecondaryStructure        solve_objective(int o, double min, double max, bool below);
     SecondaryStructure        solve_objective(int o);
     uint                      get_n_solutions(void) const;
     const SecondaryStructure& solution(uint i) const;
-    void                      search_between(double lambdaMin, double lambdaMax);
+    void                      search_between(double lambdaMin, double lambdaMax, bool below);
     bool                      allowed_basepair(size_t u, size_t v) const;
     void                      add_solution(const SecondaryStructure& s);
     void                      remove_solution(uint i);
@@ -66,5 +66,5 @@ inline uint                      MOIP::get_n_solutions(void) const { return pare
 inline const SecondaryStructure& MOIP::solution(uint i) const { return pareto_[i]; }
 inline IloNumExprArg&            MOIP::y(size_t u, size_t v) { return basepair_dv_[get_yuv_index(u, v)]; }
 inline IloNumExprArg&            MOIP::C(size_t x, size_t i) { return insertion_dv_[get_Cpxi_index(x, i)]; }
-inline SecondaryStructure        MOIP::solve_objective(int o) { return solve_objective(o, 0, rna_.get_RNA_length()); }
+inline SecondaryStructure MOIP::solve_objective(int o) { return solve_objective(o, 0, rna_.get_RNA_length(), false); }
 #endif    // MOIP_H_
