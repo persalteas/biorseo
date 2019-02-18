@@ -16,14 +16,15 @@ class MOIP
     MOIP(void);
     MOIP(const RNA& rna, const vector<Motif>& motifSites, uint nsets, float pthreshold, bool verbose);
     ~MOIP(void);
-    SecondaryStructure        solve_objective(int o, double min, double max, bool below);
+    SecondaryStructure        solve_objective(int o, double min, double max, const vector<IloConstraint>& F);
     SecondaryStructure        solve_objective(int o);
     uint                      get_n_solutions(void) const;
     const SecondaryStructure& solution(uint i) const;
-    void                      search_between(double lambdaMin, double lambdaMax, bool below);
+    void                      search_between(double lambdaMin, double lambdaMax, const vector<IloConstraint>& F_);
     bool                      allowed_basepair(size_t u, size_t v) const;
     void                      add_solution(const SecondaryStructure& s);
     void                      remove_solution(uint i);
+    vector<IloConstraint>     forbid_solutions_between(double min, double max);
     static uint obj_to_solve_;    // What objective do you prefer to solve in mono-objective portions of the algorithm ?
     static double precision_;    // decimals to keep in objective values, to avoid numerical issues. otherwise, solution with objective 5.0000000009 dominates solution with 5.0 =(
     static double epsilon_;
@@ -66,5 +67,8 @@ inline uint                      MOIP::get_n_solutions(void) const { return pare
 inline const SecondaryStructure& MOIP::solution(uint i) const { return pareto_[i]; }
 inline IloNumExprArg&            MOIP::y(size_t u, size_t v) { return basepair_dv_[get_yuv_index(u, v)]; }
 inline IloNumExprArg&            MOIP::C(size_t x, size_t i) { return insertion_dv_[get_Cpxi_index(x, i)]; }
-inline SecondaryStructure MOIP::solve_objective(int o) { return solve_objective(o, 0, rna_.get_RNA_length(), false); }
+inline SecondaryStructure        MOIP::solve_objective(int o)
+{
+    return solve_objective(o, 0, rna_.get_RNA_length(), vector<IloConstraint>());
+}
 #endif    // MOIP_H_

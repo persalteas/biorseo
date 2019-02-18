@@ -118,8 +118,8 @@ int main(int argc, char* argv[])
 
     MOIP myMOIP = MOIP(myRNA, posInsertionSites, 1, theta_p_threshold, verbose);
     try {
-        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__, false);
-        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__, false);
+        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__, vector<IloConstraint>());
+        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__, vector<IloConstraint>());
         bestSSO1.set_pareto_set(1);
         bestSSO2.set_pareto_set(1);
         if (verbose) {
@@ -127,20 +127,47 @@ int main(int argc, char* argv[])
             cout << "Best solution according to objective 2 :" << bestSSO2.to_string() << endl;
         }
 
-        // extend to the whole pareto set
+        double                min, max;
+        vector<IloConstraint> F;
+
+        // extend the Pareto set on top
         if (MOIP::obj_to_solve_ == 1) {
             myMOIP.add_solution(bestSSO1);
+            min = bestSSO1.get_objective_score(2) + MOIP::precision_;
+            max = bestSSO2.get_objective_score(2);
             if (verbose) cout << endl << "Solving obj1 on top of best solution 1." << endl;
-            myMOIP.search_between(bestSSO1.get_objective_score(2) + MOIP::epsilon_, bestSSO2.get_objective_score(2), false);
-            if (verbose) cout << endl << "Solving obj1 below best solution 1." << endl;
-            myMOIP.search_between(-__DBL_MAX__, bestSSO1.get_objective_score(2), true);
         } else {
             myMOIP.add_solution(bestSSO2);
+            min = bestSSO2.get_objective_score(1) + MOIP::precision_;
+            max = bestSSO1.get_objective_score(1);
             if (verbose) cout << endl << "Solving obj2 on top of best solution 2." << endl;
-            myMOIP.search_between(bestSSO2.get_objective_score(1) + MOIP::epsilon_, bestSSO1.get_objective_score(1), false);
-            if (verbose) cout << endl << "Solving obj2 below best solution 2." << endl;
-            myMOIP.search_between(-__DBL_MAX__, bestSSO2.get_objective_score(1), true);
         }
+
+        if (verbose)
+            cout << std::setprecision(8) << "\nSolving objective function " << MOIP::obj_to_solve_ << ", on top of "
+                 << min << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in [" << min << ", " << max << "]..." << endl;
+        myMOIP.search_between(min, max, F);    // F is empty
+
+
+        // extend the Pareto set below
+        if (MOIP::obj_to_solve_ == 1) {
+            if (verbose) cout << endl << "Solving obj1 below best solution 1." << endl;
+            min = -__DBL_MAX__;
+            max = bestSSO1.get_objective_score(2);
+        } else {
+            if (verbose) cout << endl << "Solving obj2 below best solution 2." << endl;
+            min = -__DBL_MAX__;
+            max = bestSSO2.get_objective_score(1);
+        }
+        F.clear();
+        F = myMOIP.forbid_solutions_between(min, max);
+        if (verbose)
+            cout << std::setprecision(8) << "\nSolving objective function " << MOIP::obj_to_solve_ << ", below (or eq. to) "
+                 << max << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in [" << min << ", " << max << "]..." << endl
+                 << "\t>forbidding " << F.size() << " solutions found in [" << std::setprecision(10)
+                 << min - MOIP::precision_ << ", " << max + MOIP::precision_ << ']' << endl;
+        myMOIP.search_between(min, max, F);
+
     } catch (IloAlgorithm::NotExtractedException& e) {
         cerr << e << endl;
         exit(EXIT_FAILURE);
