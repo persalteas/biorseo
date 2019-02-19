@@ -157,6 +157,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max, const ve
     }
     model_.add(obj);
     model_.add(bounds);
+    // cout << "\t>adding bounds: " << bounds << endl;
     for (auto c : F) model_.add(c);
 
     IloCplex cplex_ = IloCplex(model_);
@@ -172,20 +173,19 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max, const ve
         return SecondaryStructure(true);
     }
 
-    if (verbose_) {
+    if (verbose_)
         cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective values (" << cplex_.getValue(obj1)
              << ", " << cplex_.getValue(obj2) << ')' << endl;
-    }
 
     // Build a secondary Structure
     SecondaryStructure best_ss = SecondaryStructure(rna_);
-    // if (verbose_) cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
+    if (verbose_) cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++)
         // A constraint requires that all the components are inserted or none, so testing the first is enough:
         if (cplex_.getValue(insertion_dv_[index_of_first_components[i]]) > 0.5)
             best_ss.insert_motif(insertion_sites_[i]);
 
-    // if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
+    if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
     for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++)
             if (allowed_basepair(u, v))
@@ -196,6 +196,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max, const ve
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
     best_ss.set_objective_score(1, cplex_.getValue(obj1));
 
+    if (verbose_) cout << "\t\t>building the IP forbidding condition..." << endl;
     // Forbidding to find best_ss later : save a constraint
     IloExpr c(env_);
     for (uint d = 0; d < insertion_dv_.getSize(); d++)
@@ -211,10 +212,13 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max, const ve
     best_ss.forbid_this_ = (c >= IloNum(1));
 
     // Removing the objective from the model_
+    if (verbose_) cout << "\t\t>removing temporary constraints..." << endl;
     model_.remove(obj);
     model_.remove(bounds);
     for (auto c : F) model_.remove(c);
 
+    // exit
+    if (verbose_) cout << "\t>computation completed." << endl;
     return best_ss;
 }
 
@@ -392,10 +396,11 @@ void MOIP::search_between(double lambdaMin, double lambdaMax, const vector<IloCo
                 if (verbose_) cout << x.k_ << " ";
                 if (x.k_ > max) max = x.k_;
             }
-            if (verbose_) cout << endl;
+            if (verbose_) cout << ", belongs to Pareto set " << max + 1 << endl;
+        } else {
+            if (verbose_) cout << "\t>not dominated." << endl;
         }
         s.set_pareto_set(max + 1);
-        // if (verbose_) cout << "\t>belongs to Pareto set " << s.get_pareto_set() << endl;
 
         if (s.get_pareto_set() <= n_sets_) {
             // adding the SecondaryStructure s to the set pareto_
@@ -420,40 +425,44 @@ void MOIP::search_between(double lambdaMin, double lambdaMax, const vector<IloCo
                         }
                     }
 
-            double                min = s.get_objective_score(3 - obj_to_solve_) + precision_;
-            double                max = lambdaMax;
-            vector<IloConstraint> F   = forbid_solutions_between(min, max);
-
             // search on top
+            double                min     = s.get_objective_score(3 - obj_to_solve_) + precision_;
+            double                truemin = s.get_objective_score(3 - obj_to_solve_);
+            double                max     = lambdaMax;
+            vector<IloConstraint> F       = forbid_solutions_between(min, max);
             if (verbose_)
-                cout << std::setprecision(8) << "\nSolving objective function " << obj_to_solve_ << ", on top of "
+                cout << std::setprecision(-log10(precision_) + 4) << "\nSolving o" << obj_to_solve_ << ", on top of "
                      << s.get_objective_score(3 - obj_to_solve_) << ": Obj" << 3 - obj_to_solve_ << "  being in ["
-                     << min << ", " << max << "]..." << endl
-                     << "\t>forbidding " << F.size() << " solutions found in [" << std::setprecision(10)
-                     << min - precision_ << ", " << max + precision_ << ']' << endl;
+                     << std::setprecision(-log10(precision_) + 4) << min << ", "
+                     << std::setprecision(-log10(precision_) + 4) << max << "]..." << endl
+                     << "\t>forbidding " << F.size() << " solutions found in [" << std::setprecision(-log10(precision_) + 4)
+                     << std::setprecision(-log10(precision_) + 4) << min - precision_ << ", "
+                     << std::setprecision(-log10(precision_) + 4) << max + precision_ << ']' << endl;
             search_between(min, max, F);
 
-            if (s.get_pareto_set() <= n_sets_) {
 
-                min = lambdaMin;
-                max = s.get_objective_score(3 - obj_to_solve_);
-
-                F.clear();
-                F = forbid_solutions_between(min, max);
+            if (std::abs(max - min) - precision_ > precision_) {
 
                 // search below
+                min = lambdaMin;
+                max = s.get_objective_score(3 - obj_to_solve_);
+                F.clear();
+                F = forbid_solutions_between(min, max);
                 if (verbose_)
-                    cout << std::setprecision(8) << "\nSolving objective function " << obj_to_solve_ << ", below (or eq. to) "
-                         << max << ": Obj" << 3 - obj_to_solve_ << "  being in [" << min << ", " << max << "]..." << endl
-                         << "\t>forbidding " << F.size() << " solutions found in [" << std::setprecision(10)
-                         << min - precision_ << ", " << max + precision_ << ']' << endl;
+                    cout << std::setprecision(-log10(precision_) + 4) << "\nSolving o" << obj_to_solve_
+                         << ", below (or eq. to) " << max << ": Obj" << 3 - obj_to_solve_ << "  being in ["
+                         << std::setprecision(-log10(precision_) + 4) << min << ", "
+                         << std::setprecision(-log10(precision_) + 4) << max << "]..." << endl
+                         << "\t>forbidding " << F.size() << " solutions found in ["
+                         << std::setprecision(-log10(precision_) + 4) << min - precision_ << ", "
+                         << std::setprecision(-log10(precision_) + 4) << max + precision_ << ']' << endl;
                 search_between(min, max, F);
             }
+        } else {
+            if (verbose_) cout << "\t>solution ignored." << endl;
         }
-
-
     } else {
-        if (verbose_) cout << "\t>solution ignored." << endl;
+        if (verbose_) cout << "\t>no solutions found." << endl;
     }
 }
 
@@ -502,8 +511,8 @@ vector<IloConstraint> MOIP::forbid_solutions_between(double min, double max)
 
 void MOIP::add_solution(const SecondaryStructure& s)
 {
-    // if (verbose_)
-    cout << "\t>adding structure to Pareto set " << s.get_pareto_set() << " :     " << s.to_string() << endl;
+    if (verbose_)
+        cout << "\t>adding structure to Pareto set " << s.get_pareto_set() << " :     " << s.to_string() << endl;
     pareto_.push_back(s);
 }
 
