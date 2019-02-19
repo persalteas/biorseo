@@ -14,7 +14,7 @@ SecondaryStructure::SecondaryStructure() {}
 
 
 SecondaryStructure::SecondaryStructure(const RNA& rna)
-: objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), k_(0), rna_(rna)
+: objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), rna_(rna)
 {
     is_empty_structure = false;
 }

@@ -14,17 +14,18 @@ class MOIP
 {
     public:
     MOIP(void);
-    MOIP(const RNA& rna, const vector<Motif>& motifSites, uint nsets, float pthreshold, bool verbose);
+    MOIP(const RNA& rna, const vector<Motif>& motifSites, float pthreshold, bool verbose);
     ~MOIP(void);
-    SecondaryStructure        solve_objective(int o, double min, double max, const vector<IloConstraint>& F);
+    SecondaryStructure        solve_objective(int o, double min, double max, const IloConstraintArray& F);
     SecondaryStructure        solve_objective(int o);
     uint                      get_n_solutions(void) const;
     const SecondaryStructure& solution(uint i) const;
-    void                      search_between(double lambdaMin, double lambdaMax, const vector<IloConstraint>& F_);
+    void                      search_between(double lambdaMin, double lambdaMax, const IloConstraintArray& F_);
     bool                      allowed_basepair(size_t u, size_t v) const;
     void                      add_solution(const SecondaryStructure& s);
     void                      remove_solution(uint i);
-    vector<IloConstraint>     forbid_solutions_between(double min, double max);
+    IloConstraintArray        forbid_solutions_between(double min, double max);
+    IloEnv&                   get_env(void);
     static uint obj_to_solve_;    // What objective do you prefer to solve in mono-objective portions of the algorithm ?
     static double precision_;    // decimals to keep in objective values, to avoid numerical issues. otherwise, solution with objective 5.0000000009 dominates solution with 5.0 =(
     static double epsilon_;
@@ -46,7 +47,7 @@ class MOIP
     RNA                        rna_;                // RNA object
     vector<Motif>              insertion_sites_;    // Potential Motif insertion sites
     vector<SecondaryStructure> pareto_;             // Vector of results
-    uint                       n_sets_;             // number of Pareto sets to return
+    // uint                       n_sets_;             // number of Pareto sets to return
 
     // Objectives related
     float theta_;    // theta parameter for the probability function
@@ -69,6 +70,7 @@ inline IloNumExprArg&            MOIP::y(size_t u, size_t v) { return basepair_d
 inline IloNumExprArg&            MOIP::C(size_t x, size_t i) { return insertion_dv_[get_Cpxi_index(x, i)]; }
 inline SecondaryStructure        MOIP::solve_objective(int o)
 {
-    return solve_objective(o, 0, rna_.get_RNA_length(), vector<IloConstraint>());
+    return solve_objective(o, 0, rna_.get_RNA_length(), IloConstraintArray(env_));
 }
+inline IloEnv&                   MOIP::get_env(void) { return env_; }
 #endif    // MOIP_H_
