@@ -114,15 +114,15 @@ int main(int argc, char* argv[])
     if (verbose)
         cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
 
-    /*  FIND K-PARETO SETS  */
+    /*  FIND PARETO SET  */
 
     MOIP               myMOIP = MOIP(myRNA, posInsertionSites, theta_p_threshold, verbose);
     double             min, max;
     IloConstraintArray F(myMOIP.get_env());
 
     try {
-        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__, F);
-        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__, F);
+        bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
+        bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
         if (verbose) {
             cout << endl << "Best solution according to objective 1 :" << bestSSO1.to_string() << endl;
             cout << "Best solution according to objective 2 :" << bestSSO2.to_string() << endl;
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
             cout << std::setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function "
                  << MOIP::obj_to_solve_ << ", on top of " << min << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in ["
                  << min << ", " << max << "]..." << endl;
-        myMOIP.search_between(min, max, F);    // F is empty
+        myMOIP.search_between(min, max);
 
 
         // extend the Pareto set below
@@ -158,36 +158,18 @@ int main(int argc, char* argv[])
             min = -__DBL_MAX__;
             max = bestSSO2.get_objective_score(1);
         }
-        F.clear();
-        F = myMOIP.forbid_solutions_between(min, max);
         if (verbose)
             cout << std::setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function "
                  << MOIP::obj_to_solve_ << ", below (or eq. to) " << max << ": Obj" << 3 - MOIP::obj_to_solve_
                  << "  being in [" << min << ", " << max << "]..." << endl
                  << "\t>forbidding " << F.getSize() << " solutions found in [" << std::setprecision(10)
                  << min - MOIP::precision_ << ", " << max + MOIP::precision_ << ']' << endl;
-        myMOIP.search_between(min, max, F);
+        myMOIP.search_between(min, max);
 
     } catch (IloCplex::Exception& e) {
         cerr << "Cplex Exception: " << e.getMessage() << endl;
         exit(EXIT_FAILURE);
     }
-
-    /*  REMOVE SOLUTIONS WITH TOO HIGH LABEL  */
-
-    // vector<size_t> to_remove;
-    // if (verbose) cout << endl;
-    // for (uint i = 0; i < myMOIP.get_n_solutions(); i++)
-    //     if (myMOIP.solution(i).get_pareto_set() > 1) {    // Some solution is fromm a Pareto set of too high order
-    //         if (verbose)
-    //             cout << "Removing structure from Pareto set " << myMOIP.solution(i).get_pareto_set() << " : "
-    //                  << myMOIP.solution(i).to_string() << endl;
-    //         to_remove.push_back(i);
-    //     }
-    // if (to_remove.size()) {
-    //     for (size_t i = to_remove.size() - 1; i != 0; i--) myMOIP.remove_solution(to_remove[i]);
-    //     myMOIP.remove_solution(to_remove[0]);
-    // }
 
     /*  DISPLAY RESULTS  */
 
