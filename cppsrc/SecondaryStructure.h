@@ -1,8 +1,7 @@
-#ifndef __INC_IP_SOL__
-#define __INC_IP_SOL__
+#ifndef SECONDARY_STRUCTURE_
+#define SECONDARY_STRUCTURE_
 
-#define IL_STD
-
+#include "Motif.h"
 #include "rna.h"
 #include <iostream>
 #include <string>
@@ -12,28 +11,6 @@ using std::pair;
 using std::string;
 using std::vector;
 
-typedef struct Comp_ {
-    pair<uint, uint> pos;
-    size_t           k;
-    Comp_(pair<int, int> p) : pos(p) { k = 1 + pos.second - pos.first; }
-} Component;
-
-typedef struct {
-    string            atlas_id;
-    vector<Component> comp;
-    bool              reversed;
-    int               score;
-    string            pos_string(void) const
-    {
-        std::stringstream s;
-        s << atlas_id << " ( ";
-        for (auto c : comp) {
-            s << c.pos.first << '-' << c.pos.second << ' ';
-        }
-        s << ')';
-        return s.str();
-    }
-} Motif;
 
 class SecondaryStructure
 {
@@ -56,11 +33,11 @@ class SecondaryStructure
 
     vector<double> objective_scores_;       // values of the different objective functions for that SecondaryStructure
     vector<pair<uint, uint>> basepairs_;    // values of the decision variable of the integer program
-    vector<Motif> motif_info_;              // information about known motives in this secondary structure and their positions
-    size_t        n_;                       // length of the RNA
-    size_t        nBP_;                     // number of basepairs
-    RNA           rna_;                     // RNA object which is folded
-    bool          is_empty_structure;       // Empty structure, returned when the solver does not find solutions anymore
+    vector<Motif> motif_info_;    // information about known motives in this secondary structure and their positions
+    size_t        n_;             // length of the RNA
+    size_t        nBP_;           // number of basepairs
+    RNA           rna_;           // RNA object which is folded
+    bool          is_empty_structure;    // Empty structure, returned when the solver does not find solutions anymore
 };
 
 // return if this SecondaryStructure s1 dominates s2
@@ -72,11 +49,7 @@ bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2);
 // return wether SecondaryStructures are identical or not
 bool operator==(const SecondaryStructure& s1, const SecondaryStructure& s2);
 bool operator!=(const SecondaryStructure& s1, const SecondaryStructure& s2);
-// utilities to compare secondary structures:
-bool operator==(const Motif& m1, const Motif& m2);
-bool operator!=(const Motif& m1, const Motif& m2);
-bool operator==(const Component& c1, const Component& c2);
-bool operator!=(const Component& c1, const Component& c2);
+
 bool motif_sorter(Motif& m1, Motif& m2);
 bool basepair_sorter(pair<uint, uint>& i, pair<uint, uint>& j);
 
@@ -85,4 +58,5 @@ inline void   SecondaryStructure::set_objective_score(int i, double s) { objecti
 inline uint   SecondaryStructure::get_n_motifs(void) const { return motif_info_.size(); }
 inline uint   SecondaryStructure::get_n_bp(void) const { return nBP_; }
 
-#endif
+
+#endif    //  SECONDARY_STRUCTURE_

@@ -3,7 +3,6 @@
 ***/
 
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
@@ -12,6 +11,7 @@
 #include <vector>
 
 #include "MOIP.h"
+#include "Motif.h"
 #include "fa.h"
 
 using namespace std;
@@ -49,19 +49,6 @@ string remove_ext(const char* mystr, char dot, char sep)
     return string(retstr);
 }
 
-Motif parse_csv_line(string line)
-{
-    vector<string> tokens;
-    boost::split(tokens, line, boost::is_any_of(","));
-    Motif m;
-    m.atlas_id = tokens[0];
-    m.score    = stoi(tokens[2]);
-    m.comp.push_back(Component(make_pair<int, int>(stoi(tokens[3]), stoi(tokens[4]))));
-    if (tokens[5] != "-") m.comp.push_back(Component(make_pair<int, int>(stoi(tokens[5]), stoi(tokens[6]))));
-    m.reversed = (tokens[1] == "True");
-    return m;
-}
-
 int main(int argc, char* argv[])
 {
     /*  ARGUMENT CHECKING  */
@@ -81,8 +68,6 @@ int main(int argc, char* argv[])
     string             basename          = remove_ext(inputName, '.', '/');
     float              theta_p_threshold = atof(argv[3]);
     list<Fasta>        f;
-    string             line;
-    ifstream           motifs;
     vector<Motif>      posInsertionSites;
     ofstream           outfile;
     SecondaryStructure bestSSO1, bestSSO2;
@@ -108,9 +93,7 @@ int main(int argc, char* argv[])
         cerr << csvname << " not found" << endl;
         return EXIT_FAILURE;
     }
-    motifs = ifstream(csvname);
-    getline(motifs, line);    // skip header
-    while (getline(motifs, line)) posInsertionSites.push_back(parse_csv_line(line));
+    posInsertionSites = load_desc_folder(csvname);
     if (verbose)
         cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
 

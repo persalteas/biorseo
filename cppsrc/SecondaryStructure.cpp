@@ -104,7 +104,7 @@ string SecondaryStructure::to_string(void) const
 {
     string s;
     s += to_DBN();
-    for (const Motif& m : motif_info_) s += " + " + m.atlas_id;
+    for (const Motif& m : motif_info_) s += " + " + m.get_identifier();
     s += "\t" + boost::str(boost::format("%.7f") % objective_scores_[0]) + "\t" +
          boost::str(boost::format("%.7f") % objective_scores_[1]);
     return s;
@@ -164,7 +164,7 @@ bool basepair_sorter(pair<uint, uint>& i, pair<uint, uint>& j)
 
 bool motif_sorter(Motif& m1, Motif& m2)
 {
-    if (m1.atlas_id.compare(m2.atlas_id) < 0) return true;
+    if (m1.get_identifier().compare(m2.get_identifier()) < 0) return true;
     return false;
 }
 
@@ -281,30 +281,6 @@ bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2)
     }
     return false;
 }
-
-bool operator==(const Component& c1, const Component& c2)
-{
-    if (c1.pos.first != c2.pos.first) return false;
-    if (c1.pos.second != c2.pos.second) return false;
-    return true;
-}
-
-bool operator!=(const Component& c1, const Component& c2) { return not(c1 == c2); }
-
-
-
-bool operator==(const Motif& m1, const Motif& m2)
-{
-    if (m1.atlas_id != m2.atlas_id) return false;
-    if (m1.score != m2.score) return false;
-    if (m1.reversed != m2.reversed) return false;
-    for (uint i = 0; i < m1.comp.size(); i++)
-        if (m1.comp[i] != m2.comp[i]) return false;
-    return true;
-}
-
-bool operator!=(const Motif& m1, const Motif& m2) { return not(m1 == m2); }
-
 
 
 bool operator==(const SecondaryStructure& s1, const SecondaryStructure& s2)
