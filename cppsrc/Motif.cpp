@@ -22,7 +22,15 @@ struct recursive_directory_range {
 Motif::Motif(void) {}
 
 
-void Motif::build_from_desc(const string& descfile)
+
+Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
+{
+    is_model_ = false;
+    reversed_ = false;
+    source_   = RNA3DMOTIF;
+}
+
+vector<Motif> Motif::build_from_desc(const string& descfile, string rna)
 {
     std::ifstream  motif;
     string         line;
@@ -30,11 +38,7 @@ void Motif::build_from_desc(const string& descfile)
     vector<string> component_sequences;
     vector<string> bases;
     int            last;
-
-    PDBID     = descfile.substr(0, descfile.find(".desc"));
-    is_model_ = false;
-    reversed_ = false;
-    source_   = RNA3DMOTIF;
+    vector<Motif>  results;
 
     motif = std::ifstream(descfile);
     std::getline(motif, line);                    // ignore "id: number"
@@ -49,24 +53,29 @@ void Motif::build_from_desc(const string& descfile)
 
         if (pos - last > 5) {    // finish this component and start a new one
             component_sequences.push_back(seq);
-            seq = nt;
-        } else if (pos - last == 1) {    // we are on the same component
-            seq += nt;
+            seq = "";
         } else if (pos - last == 2) {
-            seq += '.' + nt;
+            seq += '.';
         } else if (pos - last == 3) {
-            seq += ".." + nt;
+            seq += "..";
         } else if (pos - last == 4) {
-            seq += "..." + nt;
+            seq += "...";
         } else if (pos - last == 5) {
-            seq += "...." + nt;
+            seq += "....";
         }
+        seq += nt;
     }
     // Now component_sequences is a vector of sequences like {AGCGC, CGU..GUUU}
-    for (string& comp : component_sequences) {
-    }
-}
 
+    // We need to search for the different positions where to insert the first component
+    vector<vector<Component>> vresults = find_next_ones_in(rna, component_sequences);
+
+    // Now create proper motifs
+    for (vector<Component>& v : vresults) {
+        results.push_back(Motif(v, descfile.substr(0, descfile.find(".desc"))));
+    }
+    return results;
+}
 
 void Motif::load_from_csv(string csv_line)
 {
@@ -81,7 +90,6 @@ void Motif::load_from_csv(string csv_line)
     PDBID     = "";
     source_   = RNAMOTIFATLAS;
 }
-
 
 string Motif::pos_string(void) const
 {
@@ -100,12 +108,35 @@ string Motif::get_identifier(void) const
     }
 }
 
+vector<vector<Component>> Motif::find_next_ones_in(string rna, vector<string> vc)
+{
+    std::smatch               matches;
+    std::regex                c(vc[0]);
+    pair<uint, uint>          pos;
+    vector<vector<Component>> results;
+    vector<vector<Component>> next_ones;
+    vector<string>            next_seqs(&vc[1], &vc[vc.size() - 1]);
 
+    std::regex_search(rna, matches, c);
 
+    for (uint i = 0; i < matches.size(); ++i)    // Pour chacun des matches
+    {
+        pos.first  = matches.position(i);
+        pos.second = matches.length(i) + pos.first - 1;
+        next_ones  = find_next_ones_in(rna.substr(pos.second + 1), next_seqs);
+        for (vector<Component> v : next_ones)    // Pour chacune des combinaisons suivantes
+        {
+            // Combiner le match et la combinaison suivante
+            vector<Component> r;
+            r.push_back(Component(pos));
+            for (Component& c : v) r.push_back(c);
+            results.push_back(r);
+        }
+    }
+    return results;
+}
 
-
-
-vector<Motif> load_desc_folder(const string& path, const string& rna)
+vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose)
 {
     vector<Motif> posInsertionSites;
 
@@ -115,9 +146,9 @@ vector<Motif> load_desc_folder(const string& path, const string& rna)
     }
 
     for (auto it : recursive_directory_range(path)) {
-        if (is_desc_insertible(it.path().string(), rna)) {
-            posInsertionSites.push_back(Motif());
-            posInsertionSites.back().build_from_desc(it.path().string());
+        if (is_desc_insertible(it.path().string(), rna, verbose)) {
+            vector<Motif> m = Motif::build_from_desc(it.path().string(), rna);
+            for (Motif& mot : m) posInsertionSites.push_back(mot);
         }
     }
     return posInsertionSites;
@@ -158,18 +189,17 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
         int  pos = std::stoi(b->substr(0, b->find('_')));
 
         if (pos - last > 5) {    // finish this component and start a new one
-            seq += ".{5,}" + nt;
-        } else if (pos - last == 1) {    // we are on the same component
-            seq += nt;
+            seq += ".{5,}";
         } else if (pos - last == 2) {
-            seq += "." + nt;
+            seq += ".";
         } else if (pos - last == 3) {
-            seq += ".." + nt;
+            seq += "..";
         } else if (pos - last == 4) {
-            seq += "..." + nt;
+            seq += "...";
         } else if (pos - last == 5) {
-            seq += "...." + nt;
+            seq += "....";
         }
+        seq += nt;    // pos - last == 1 in particular
         last = pos;
     }
     std::smatch m;

@@ -14,7 +14,7 @@ CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unu
 
 LINKER   = clang++
 # linking flags here
-LDFLAGS   = -L$(LCONCERT) -L$(LCPLEX) -lconcert -lilocplex -lcplex -lpthread -ldl -lnupackpfunc -lnupackutils
+LDFLAGS   = -L$(LCONCERT) -L$(LCPLEX) -lboost_system -lboost_filesystem -lconcert -lilocplex -lcplex -lpthread -ldl -lnupackpfunc -lnupackutils
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc

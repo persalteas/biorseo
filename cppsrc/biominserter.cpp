@@ -93,9 +93,10 @@ int main(int argc, char* argv[])
         cerr << csvname << " not found" << endl;
         return EXIT_FAILURE;
     }
-    posInsertionSites = load_desc_folder(csvname);
+    posInsertionSites = load_desc_folder(csvname, fa->seq(), verbose);
     if (verbose)
         cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
+    exit(0);
 
     /*  FIND PARETO SET  */
 
