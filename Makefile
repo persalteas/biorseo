@@ -9,7 +9,7 @@ TARGET   = biominserter
 
 CC	   = clang++
 # compiling flags here
-CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -I$(INUPACK) -I$(IEIGEN) -O3  
+CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -I$(INUPACK) -I$(IEIGEN) -g
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable
 
 LINKER   = clang++
@@ -35,6 +35,12 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 	@mkdir -p $(OBJDIR)
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) $< -o $@
 	@echo "\033[00;32mCompiled "$<".\033[00m"
+
+.PHONY: all
+all: $(BINDIR)/$(TARGET)
+
+.PHONY: re
+re: remove clean all
 
 .PHONY: clean
 clean:

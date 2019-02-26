@@ -39,19 +39,26 @@ vector<Motif> Motif::build_from_desc(const string& descfile, string rna)
     vector<string> bases;
     int            last;
     vector<Motif>  results;
+    char           c    = 'a';
+    char*          prev = &c;
 
     motif = std::ifstream(descfile);
-    std::getline(motif, line);                    // ignore "id: number"
-    std::getline(motif, line);                    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
-    split(bases, line, boost::is_any_of(" "));    // get a vector of 866_G, 867_G, etc...
+    std::getline(motif, line);    // ignore "id: number"
+    std::getline(motif, line);    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
+    boost::split(bases, line, [prev](char c) {
+        bool res = (*prev == ' ' or *prev == ':');
+        *prev    = c;
+        return (c == ' ' and res);
+    });    // get a vector of 866_G, 867_G, etc...
 
-    seq  = bases[1].back();
+    seq  = bases[1].substr(bases[1].find('_') + 1, 1);
     last = std::stoi(bases[1].substr(0, bases[1].find('_')));
-    for (vector<string>::iterator b = bases.begin() + 2; b != bases.end(); b++) {
-        char nt  = b->back();
+    for (vector<string>::iterator b = bases.begin() + 1; b != bases.end() - 1; b++) {
+        char nt  = b->substr(b->find('_') + 1, 1).back();
         int  pos = std::stoi(b->substr(0, b->find('_')));
 
         if (pos - last > 5) {    // finish this component and start a new one
+            seq += nt;
             component_sequences.push_back(seq);
             seq = "";
         } else if (pos - last == 2) {
@@ -63,7 +70,7 @@ vector<Motif> Motif::build_from_desc(const string& descfile, string rna)
         } else if (pos - last == 5) {
             seq += "....";
         }
-        seq += nt;
+        if (pos - last <= 5) seq += nt;
     }
     // Now component_sequences is a vector of sequences like {AGCGC, CGU..GUUU}
 
@@ -74,6 +81,7 @@ vector<Motif> Motif::build_from_desc(const string& descfile, string rna)
     for (vector<Component>& v : vresults) {
         results.push_back(Motif(v, descfile.substr(0, descfile.find(".desc"))));
     }
+    std::cout << "\t>returning vector of size " << results.size() << std::endl;
     return results;
 }
 
@@ -115,24 +123,47 @@ vector<vector<Component>> Motif::find_next_ones_in(string rna, vector<string> vc
     pair<uint, uint>          pos;
     vector<vector<Component>> results;
     vector<vector<Component>> next_ones;
-    vector<string>            next_seqs(&vc[1], &vc[vc.size() - 1]);
+    vector<string>            next_seqs;
 
-    std::regex_search(rna, matches, c);
+    if (vc.size() > 1) {
+        if (vc.size() > 2)
+            next_seqs = vector<string>(&vc[1], &vc[vc.size() - 1]);
+        else
+            next_seqs = vector<string>(1, vc.back());
 
-    for (uint i = 0; i < matches.size(); ++i)    // Pour chacun des matches
-    {
-        pos.first  = matches.position(i);
-        pos.second = matches.length(i) + pos.first - 1;
-        next_ones  = find_next_ones_in(rna.substr(pos.second + 1), next_seqs);
-        for (vector<Component> v : next_ones)    // Pour chacune des combinaisons suivantes
+        std::regex_search(rna, matches, c);
+
+        for (uint i = 0; i < matches.size(); ++i)    // Pour chacun des matches
         {
+            pos.first  = matches.position(i);
+            pos.second = matches.length(i) + pos.first - 1;
+            std::cout << "\t\t>We can insert " << vc[0] << " in [" << pos.first << ',' << pos.second << ']' << std::endl;
+            std::cout << "\t\t>Now searching in " << rna.substr(pos.second + 1) << std::endl;
+            next_ones = find_next_ones_in(rna.substr(pos.second + 1), next_seqs);
+            for (vector<Component> v : next_ones)    // Pour chacune des combinaisons suivantes
+            {
+                // Combiner le match et la combinaison suivante
+                vector<Component> r;
+                r.push_back(Component(pos));
+                for (Component& c : v) r.push_back(c);
+                results.push_back(r);
+            }
+        }
+    } else {
+        std::regex_search(rna, matches, c);
+
+        for (uint i = 0; i < matches.size(); ++i)    // Pour chacun des matches
+        {
+            pos.first  = matches.position(i);
+            pos.second = matches.length(i) + pos.first - 1;
+            std::cout << "\t\t>We can insert " << vc[0] << " in [" << pos.first << ',' << pos.second << ']' << std::endl;
             // Combiner le match et la combinaison suivante
             vector<Component> r;
             r.push_back(Component(pos));
-            for (Component& c : v) r.push_back(c);
             results.push_back(r);
         }
     }
+    std::cout << "\t> returning vector of size " << results.size() << std::endl;
     return results;
 }
 
@@ -143,6 +174,8 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
     if (!exists(path)) {
         std::cerr << "Hmh, i can't find that folder: " << path << std::endl;
         return posInsertionSites;
+    } else {
+        if (verbose) std::cout << "loading DESC motifs from " << path << "..." << std::endl;
     }
 
     for (auto it : recursive_directory_range(path)) {
@@ -176,16 +209,22 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
     string         seq;
     vector<string> bases;
     int            last;
+    char           c    = 'a';
+    char*          prev = &c;
 
     motif = std::ifstream(descfile);
-    std::getline(motif, line);                    // ignore "id: number"
-    std::getline(motif, line);                    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
-    split(bases, line, boost::is_any_of(" "));    // get a vector of 866_G, 867_G, etc...
+    std::getline(motif, line);    // ignore "id: number"
+    std::getline(motif, line);    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
+    boost::split(bases, line, [prev](char c) {
+        bool res = (*prev == ' ' or *prev == ':');
+        *prev    = c;
+        return (c == ' ' and res);
+    });    // get a vector of 866_G, 867_G, etc...
 
-    seq  = bases[1].back();
+    seq  = "";
     last = std::stoi(bases[1].substr(0, bases[1].find('_')));
-    for (vector<string>::iterator b = bases.begin() + 2; b != bases.end(); b++) {
-        char nt  = b->back();
+    for (vector<string>::iterator b = (bases.begin() + 1); b != (bases.end() - 1); b++) {
+        char nt  = b->substr(b->find('_') + 1, 1).back();
         int  pos = std::stoi(b->substr(0, b->find('_')));
 
         if (pos - last > 5) {    // finish this component and start a new one
@@ -206,15 +245,14 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
     std::regex  e(seq);
     if (std::regex_search(rna, m, e)) {
         if (verbose)
-            std::cout << "Motif " << descfile.substr(0, descfile.find(".desc")) << " " << seq << " can be inserted." << std::endl;
+            std::cout << "\t>Motif " << descfile.substr(0, descfile.find(".desc")) << "   \t" << seq
+                      << " can be inserted." << std::endl;
         return true;
     } else {
-        if (verbose)
-            std::cout << "Ignoring motif " << descfile.substr(0, descfile.find(".desc")) << " " << seq << std::endl;
+        // if (verbose) std::cout << "Ignoring motif " << descfile.substr(0, descfile.find(".desc")) << "   \t" << seq << std::endl;
         return false;
     }
 }
-
 
 bool operator==(const Component& c1, const Component& c2)
 {

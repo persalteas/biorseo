@@ -56,14 +56,14 @@ int main(int argc, char* argv[])
     if (argc != 6) {
         cerr << argc << " arguments specified !" << endl;
         cerr << "Please specify the following input files:" << endl;
-        cerr << "biominserter sequence.fasta insertion.sites.csv prob_threshold verbose obj" << endl;
+        cerr << "biominserter sequence.fasta motifs_file_or_DESC_folder prob_threshold verbose obj" << endl;
         return EXIT_FAILURE;
     }
 
     /*  VARIABLE DECLARATIONS  */
 
     const char*        inputName         = argv[1];
-    const char*        csvname           = argv[2];
+    const char*        motifs_path_name  = argv[2];
     bool               verbose           = (atoi(argv[4]) != 0);
     string             basename          = remove_ext(inputName, '.', '/');
     float              theta_p_threshold = atof(argv[3]);
@@ -89,13 +89,13 @@ int main(int argc, char* argv[])
     if (verbose) cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
     // load CSV file
-    if (access(csvname, F_OK) == -1) {
-        cerr << csvname << " not found" << endl;
+    if (access(motifs_path_name, F_OK) == -1) {
+        cerr << motifs_path_name << " not found" << endl;
         return EXIT_FAILURE;
     }
-    posInsertionSites = load_desc_folder(csvname, fa->seq(), verbose);
+    posInsertionSites = load_desc_folder(motifs_path_name, fa->seq(), verbose);
     if (verbose)
-        cout << "\t>" << csvname << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
+        cout << "\t>" << motifs_path_name << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
     exit(0);
 
     /*  FIND PARETO SET  */
