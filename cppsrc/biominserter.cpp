@@ -96,7 +96,6 @@ int main(int argc, char* argv[])
     posInsertionSites = load_desc_folder(motifs_path_name, fa->seq(), verbose);
     if (verbose)
         cout << "\t>" << motifs_path_name << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
-    exit(0);
 
     /*  FIND PARETO SET  */
 

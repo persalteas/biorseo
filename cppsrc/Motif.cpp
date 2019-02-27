@@ -81,7 +81,7 @@ vector<Motif> Motif::build_from_desc(const string& descfile, string rna)
 
     // Now create proper motifs
     for (vector<Component>& v : vresults) {
-        results.push_back(Motif(v, descfile.substr(0, descfile.find(".desc"))));
+        results.push_back(Motif(v, path(descfile).stem().string()));
     }
     cout << results.size() << " times" << endl;
     return results;

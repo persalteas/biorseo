@@ -170,8 +170,8 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     }
 
     if (verbose_)
-        cout << "\t>Solution status: " << cplex_.getStatus() << ", with objective values (" << cplex_.getValue(obj1)
-             << ", " << cplex_.getValue(obj2) << ')' << endl;
+        cout << "\t>Solution status: objective values (" << cplex_.getValue(obj1)
+             << ", " << cplex_.getValue(obj2) << ')';
 
     // Build a secondary Structure
     SecondaryStructure best_ss = SecondaryStructure(rna_);
@@ -377,12 +377,12 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
 
         // if the solution is dominated, ignore it
         if (!is_undominated_yet(s)) {
-            if (verbose_) cout << "\t\t>structure is dominated." << endl;
+            if (verbose_) cout << ", but structure is dominated." << endl;
             return;
         }
 
         // adding the SecondaryStructure s to the set pareto_
-        if (verbose_) cout << "\t\t>not dominated." << endl;
+        if (verbose_) cout << ", not dominated." << endl;
         add_solution(s);
 
         // check if some labels should be updated on the vertical
