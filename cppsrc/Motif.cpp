@@ -83,7 +83,6 @@ vector<Motif> Motif::build_from_desc(const string& descfile, string rna)
     for (vector<Component>& v : vresults) {
         results.push_back(Motif(v, path(descfile).stem().string()));
     }
-    cout << results.size() << " times" << endl;
     return results;
 }
 
@@ -246,22 +245,24 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
     char error;
     for (auto it : recursive_directory_range(path)) {
         if ((error = Motif::is_valid_DESC(it.path().string()))) {
-            cerr << "\t>Ignoring motif " << it.path().stem();
-            switch (error)
-            {
-                case '-':
-                    cerr << ", some nucleotides have a negative number...";
-                    break;
-                case 'l':
-                    cerr << ", hairpin (terminal) loops must be at least of size 3 !";
-                    break;
-                case 'b':
-                    cerr << ", backbone link between non-consecutive residues ?";
-                    break;
-                default:
-                    cerr << ", use of an unknown nucleotide " << error;
+            if (verbose) {
+                cerr << "\t>Ignoring motif " << it.path().stem();
+                switch (error)
+                {
+                    case '-':
+                        cerr << ", some nucleotides have a negative number...";
+                        break;
+                    case 'l':
+                        cerr << ", hairpin (terminal) loops must be at least of size 3 !";
+                        break;
+                    case 'b':
+                        cerr << ", backbone link between non-consecutive residues ?";
+                        break;
+                    default:
+                        cerr << ", use of an unknown nucleotide " << error;
+                }
+                cerr << endl;
             }
-            cerr << endl;
             errors++;
             continue;
         }
@@ -269,6 +270,7 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
         if (is_desc_insertible(it.path().string(), rna, verbose)) {
             inserted++;
             vector<Motif> m = Motif::build_from_desc(it.path().string(), rna);
+            if (verbose) cout << m.size() << " times" << endl;
             for (Motif& mot : m) posInsertionSites.push_back(mot);
         }
     }

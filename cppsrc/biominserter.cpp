@@ -3,6 +3,7 @@
 ***/
 
 #include <algorithm>
+#include <boost/program_options.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
@@ -15,6 +16,7 @@
 #include "fa.h"
 
 using namespace std;
+namespace po = boost::program_options;
 
 string remove_ext(const char* mystr, char dot, char sep)
 {
@@ -51,49 +53,91 @@ string remove_ext(const char* mystr, char dot, char sep)
 
 int main(int argc, char* argv[])
 {
-    /*  ARGUMENT CHECKING  */
-
-    if (argc != 6) {
-        cerr << argc << " arguments specified !" << endl;
-        cerr << "Please specify the following input files:" << endl;
-        cerr << "biominserter sequence.fasta motifs_file_or_DESC_folder prob_threshold verbose obj" << endl;
-        return EXIT_FAILURE;
-    }
-
     /*  VARIABLE DECLARATIONS  */
 
-    const char*        inputName         = argv[1];
-    const char*        motifs_path_name  = argv[2];
-    bool               verbose           = (atoi(argv[4]) != 0);
-    string             basename          = remove_ext(inputName, '.', '/');
-    float              theta_p_threshold = atof(argv[3]);
+    string             inputName, outputName, motifs_path_name, basename;
+    bool               verbose = false;
+    float              theta_p_threshold;
     list<Fasta>        f;
     vector<Motif>      posInsertionSites;
     ofstream           outfile;
     SecondaryStructure bestSSO1, bestSSO2;
     RNA                myRNA;
-    MOIP::obj_to_solve_ = atoi(argv[5]);
+
+    /*  ARGUMENT CHECKING  */
+
+    po::options_description desc("Options");
+    desc.add_options()("help,h", "Print the help message")("version", "Print the program version")(
+    "seq,s", po::value<string>(&inputName)->required(), "Fasta file containing the RNA sequence")(
+    "descfolder,d",
+    po::value<string>(&motifs_path_name),
+    "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")(
+    "jar3dcsv,f",
+    po::value<string>(&motifs_path_name),
+    "A file containing the output of JAR3D's search for motifs in the sequence, as produced by searchForMotifSites.py")(
+    "first-objective,c",
+    po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1),
+    "Objective to solve in the mono-objective portions of the algorithm")("output,o", po::value<string>(&outputName), "A file to summarize the computation results")(
+    "theta,t",
+    po::value<float>(&theta_p_threshold)->default_value(0.001),
+    "Pairing probability threshold to consider or not the possibility of pairing")("verbose,v", "Print what is happening to stdout");
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    basename = remove_ext(inputName.c_str(), '.', '/');
+
+    try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);    // can throw
+
+        if (vm.count("help") or vm.count("-h")) {
+            cout << "Biominserter, bio-objective integer linear programming framework to predict RNA secondary "
+                    "structures with included known RNA modules."
+                 << endl
+                 << "developped by Louis Becquey (louis.becquey@univ-evry.fr), 2019" << endl
+                 << "NOTE THIS VERSION IS SUPPOSED TO MIMIC RNA MoIP (input data, objective functions, constraints)" << endl
+                 << endl
+                 << desc << endl;
+            return EXIT_SUCCESS;
+        }
+        if (vm.count("version")) {
+            cout << "Biominserter RNA-MoIP special edition, 2019" << endl;
+            return EXIT_SUCCESS;
+        }
+        if (vm.count("verbose")) verbose = true;
+        if (!vm.count("jar3dcsv") and !vm.count("descfolder")) {
+            cerr << "You must provide at least --jar3dcsv or --descfolder. See --help for more information." << endl;
+            return EXIT_FAILURE;
+        }
+
+        po::notify(vm);    // throws on error, so do after help in case there are any problems
+    } catch (po::error& e) {
+        cerr << "ERROR: " << e.what() << endl;
+        cerr << desc << endl;
+        return EXIT_FAILURE;
+    }
 
     /*  FILE PARSING  */
 
     // load fasta file
     if (verbose) cout << "Reading input files..." << endl;
-    if (access(inputName, F_OK) == -1) {
+    if (access(inputName.c_str(), F_OK) == -1) {
         cerr << inputName << " not found" << endl;
         return EXIT_FAILURE;
     }
-    Fasta::load(f, inputName);
+    Fasta::load(f, inputName.c_str());
     list<Fasta>::iterator fa = f.begin();
     if (verbose) cout << "loading " << fa->name() << "..." << endl;
     myRNA = RNA(fa->name(), fa->seq(), verbose);
     if (verbose) cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
     // load CSV file
-    if (access(motifs_path_name, F_OK) == -1) {
+    if (access(motifs_path_name.c_str(), F_OK) == -1) {
         cerr << motifs_path_name << " not found" << endl;
         return EXIT_FAILURE;
     }
-    posInsertionSites = load_desc_folder(motifs_path_name, fa->seq(), verbose);
+    if (vm.count("jar3dcsv"))
+        posInsertionSites = load_jar3d_output(motifs_path_name.c_str());
+    else
+        posInsertionSites = load_desc_folder(motifs_path_name.c_str(), fa->seq(), verbose);
     if (verbose)
         cout << "\t>" << motifs_path_name << " successfuly loaded (" << posInsertionSites.size() << " insertion sites)" << endl;
 
@@ -125,9 +169,8 @@ int main(int argc, char* argv[])
         }
 
         if (verbose)
-            cout << std::setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function "
-                 << MOIP::obj_to_solve_ << ", on top of " << min << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in ["
-                 << min << ", " << max << "]..." << endl;
+            cout << setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function " << MOIP::obj_to_solve_ << ", on top of "
+                 << min << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in [" << min << ", " << max << "]..." << endl;
         myMOIP.search_between(min, max);
 
 
@@ -142,10 +185,10 @@ int main(int argc, char* argv[])
             max = bestSSO2.get_objective_score(1);
         }
         if (verbose)
-            cout << std::setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function "
-                 << MOIP::obj_to_solve_ << ", below (or eq. to) " << max << ": Obj" << 3 - MOIP::obj_to_solve_
-                 << "  being in [" << min << ", " << max << "]..." << endl
-                 << "\t>forbidding " << F.getSize() << " solutions found in [" << std::setprecision(10)
+            cout << setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function " << MOIP::obj_to_solve_
+                 << ", below (or eq. to) " << max << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in [" << min << ", "
+                 << max << "]..." << endl
+                 << "\t>forbidding " << F.getSize() << " solutions found in [" << setprecision(10)
                  << min - MOIP::precision_ << ", " << max + MOIP::precision_ << ']' << endl;
         myMOIP.search_between(min, max);
 
@@ -168,11 +211,13 @@ int main(int argc, char* argv[])
     }
 
     // Save it to file
-    if (verbose) cout << "Saving structures to " << basename << ".biom..." << endl;
-    outfile.open(basename + ".biom");
-    outfile << fa->name() << endl << fa->seq() << endl;
-    for (uint i = 0; i < myMOIP.get_n_solutions(); i++) outfile << myMOIP.solution(i).to_string() << endl;
-    outfile.close();
+    if (vm.count("output")) {
+        if (verbose) cout << "Saving structures to " << outputName << "..." << endl;
+        outfile.open(outputName);
+        outfile << fa->name() << endl << fa->seq() << endl;
+        for (uint i = 0; i < myMOIP.get_n_solutions(); i++) outfile << myMOIP.solution(i).to_string() << endl;
+        outfile.close();
+    }
 
     /*  QUIT  */
 
