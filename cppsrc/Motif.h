@@ -27,6 +27,7 @@ class Motif
     Motif(const vector<Component>& v, string PDB);
     void                 load_from_csv(string csv_line);
     static vector<Motif> build_from_desc(const string& descfile, string rna);
+    static char          is_valid_DESC(const string& descfile);
     string               pos_string(void) const;
     string               get_origin(void) const;
     string               get_identifier(void) const;
@@ -35,7 +36,7 @@ class Motif
     bool                 reversed_;
 
     private:
-    static vector<vector<Component>> find_next_ones_in(string rna, vector<string> vc);
+    static vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string> vc);
 
     string atlas_id;     // if source = RNAMOTIFATLAS
     string PDBID;        // if source = RNA3DMOTIF
