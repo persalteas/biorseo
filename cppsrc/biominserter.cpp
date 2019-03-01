@@ -8,7 +8,6 @@
 #include <iostream>
 #include <iterator>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "MOIP.h"

@@ -1,12 +1,23 @@
 #ifndef MOTIF_H_
 #define MOTIF_H_
 
+#include <mutex>
 #include <string>
 #include <vector>
 
 using std::pair;
 using std::string;
 using std::vector;
+
+class Motif;    // forward declaration
+
+typedef struct args_ {
+    const string&  descfile;
+    string         rna;
+    vector<Motif>& final_results;
+    std::mutex&    posInsertionSites_mutex;
+    args_(const string& descfile_, string rna_, vector<Motif>& vector_, std::mutex& mutex_) : descfile(descfile_), rna(rna_), final_results(vector_), posInsertionSites_mutex(mutex_){}
+} args_of_parallel_func;
 
 typedef struct Comp_ {
     pair<uint, uint> pos;
@@ -25,15 +36,15 @@ class Motif
     public:
     Motif();
     Motif(const vector<Component>& v, string PDB);
-    void                 load_from_csv(string csv_line);
-    static vector<Motif> build_from_desc(const string& descfile, string rna);
-    static char          is_valid_DESC(const string& descfile);
-    string               pos_string(void) const;
-    string               get_origin(void) const;
-    string               get_identifier(void) const;
-    vector<Component>    comp;
-    double               score_;
-    bool                 reversed_;
+    void              load_from_csv(string csv_line);
+    static void       build_from_desc(args_of_parallel_func arg_struct);
+    static char       is_valid_DESC(const string& descfile);
+    string            pos_string(void) const;
+    string            get_origin(void) const;
+    string            get_identifier(void) const;
+    vector<Component> comp;
+    double            score_;
+    bool              reversed_;
 
     private:
     static vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string> vc);
