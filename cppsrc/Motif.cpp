@@ -1,7 +1,6 @@
 #include "Motif.h"
 #include "Pool.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <regex>
 #include <sstream>
@@ -34,9 +33,10 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 }
 
 void Motif::build_from_desc(args_of_parallel_func arg_struct)
+// void Motif::build_from_desc(path descfile, string rna, vector<Motif>& final_results)
 {
-    string         descfile                 = arg_struct.descfile;
-    string         rna                      = arg_struct.rna;
+    path           descfile                 = arg_struct.descfile;
+    string&        rna                      = arg_struct.rna;
     vector<Motif>& final_results            = arg_struct.final_results;
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
@@ -50,7 +50,7 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
     char                      c    = 'a';
     char*                     prev = &c;
 
-    motif = std::ifstream(descfile);
+    motif = std::ifstream(descfile.string());
     getline(motif, line);    // ignore "id: number"
     getline(motif, line);    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
     boost::split(bases, line, [prev](char c) {
@@ -102,8 +102,10 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
         for (vector<string>::iterator b = bases.begin() + 1; b < bases.end() - 1; b++) {
             int  pos = stoi(b->substr(0, b->find('_')));
             char nt  = b->substr(b->find('_') + 1, 1).back();
-            if (actual_comp == comp_of_size_1[0])    // we are on the first component of size 1
+            if (comp_of_size_1.size() and actual_comp == comp_of_size_1[0])    // we are on the first component of size 1
             {
+                b--;
+                nt          = b->substr(b->find('_') + 1, 1).back();
                 string seq1 = "";
                 seq1 += nt;
                 seq1 += "..";
@@ -123,12 +125,20 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
                 seq = "";
                 actual_comp++;
                 comp_of_size_1.erase(comp_of_size_1.begin());    // the first element has been processed, remove it
-            } else if (actual_comp == comp_of_size_2[0]) {       // we are on the first component of size 2
+                last = pos;
+            } else if (comp_of_size_2.size() and actual_comp == comp_of_size_2[0]) {    // we are on the first component of size 2
+                b--;
+                nt = b->substr(b->find('_') + 1, 1).back();
+                b++;    // skip the next nucleotide
+                char next   = b->substr(b->find('_') + 1, 1).back();
+                last        = stoi(b->substr(0, b->find('_')));
                 string seq1 = "";
                 seq1 += nt;
+                seq1 += next;
                 seq1 += ".";
                 string seq2 = ".";
                 seq2 += nt;
+                seq2 += next;
                 uint end = motif_variants.size();    // before to add the new one
                 for (uint u = 0; u < end; ++u) {
                     motif_variants.push_back(motif_variants[u]);    // copy 1 for seq2
@@ -136,13 +146,12 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
                     motif_variants[u].push_back(seq1);
                 }
                 seq = "";
-                b++;    // skip the next nucleotide
                 actual_comp++;
-                comp_of_size_2.erase(comp_of_size_1.begin());    // the first element has been processed, remove it
+                comp_of_size_2.erase(comp_of_size_2.begin());    // the first element has been processed, remove it
             } else {                                             // we are on a longer component
                 if (pos - last > 5) {                            // finish this component and start a new one
                     actual_comp++;
-                    for (auto c_s : motif_variants) c_s.push_back(seq);
+                    for (vector<string>& c_s : motif_variants) c_s.push_back(seq);
                     seq = "";
                 } else if (pos - last == 2) {
                     seq += '.';
@@ -154,10 +163,11 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
                     seq += "....";
                 }
                 seq += nt;
+                last = pos;
             }
-            last = pos;
         }
-        for (auto c_s : motif_variants) c_s.push_back(seq);    // pushing the last one after iterating over the bases
+        for (auto c_s : motif_variants)
+            if (seq.length()) c_s.push_back(seq);    // pushing the last one after iterating over the bases
 
         // We need to search for the different positions where to insert the first component
         for (auto c_s : motif_variants) {
@@ -318,13 +328,14 @@ char Motif::is_valid_DESC(const string& descfile)
 
 vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose)
 {
-    vector<Motif>  posInsertionSites;
-    mutex          posInsertionSites_access;
-    Pool           pool;
-    int            errors      = 0;
-    int            accepted    = 0;
-    int            inserted    = 0;
-    int            num_threads = thread::hardware_concurrency();
+    vector<Motif> posInsertionSites;
+    mutex         posInsertionSites_access;
+    Pool          pool;
+    int           errors   = 0;
+    int           accepted = 0;
+    int           inserted = 0;
+    // int           num_threads = thread::hardware_concurrency();
+    int            num_threads = 4;
     vector<thread> thread_pool;
 
     if (!exists(path)) {
@@ -354,9 +365,10 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
         }
         accepted++;
         if (is_desc_insertible(it.path().string(), rna, verbose)) {
-            args_of_parallel_func args(it.path().string(), rna, posInsertionSites, posInsertionSites_access);
+            args_of_parallel_func args(it.path(), rna, posInsertionSites, posInsertionSites_access);
             inserted++;
             pool.push(bind(Motif::build_from_desc, args));
+            // Motif::build_from_desc(it.path(), rna, posInsertionSites);
         }
     }
     pool.done();
@@ -424,7 +436,7 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
     regex  e(seq);
     if (regex_search(rna, m, e)) {
         if (verbose)
-            cout << "\t>Motif " << boost::filesystem::path(descfile).stem() << "   \t" << seq << "\tcan be inserted ";
+            cout << "\t>Motif " << boost::filesystem::path(descfile).stem() << "   \t" << seq << "\tcan be inserted " << endl;
         return true;
     } else {
         // if (verbose) cout << "Ignoring motif " << descfile.substr(0, descfile.find(".desc")) << "   \t" << seq << endl;

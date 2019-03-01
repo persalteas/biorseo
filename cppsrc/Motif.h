@@ -1,10 +1,12 @@
 #ifndef MOTIF_H_
 #define MOTIF_H_
 
+#include <boost/filesystem.hpp>
 #include <mutex>
 #include <string>
 #include <vector>
 
+using boost::filesystem::path;
 using std::pair;
 using std::string;
 using std::vector;
@@ -12,11 +14,14 @@ using std::vector;
 class Motif;    // forward declaration
 
 typedef struct args_ {
-    const string&  descfile;
+    path           descfile;
     string         rna;
     vector<Motif>& final_results;
     std::mutex&    posInsertionSites_mutex;
-    args_(const string& descfile_, string rna_, vector<Motif>& vector_, std::mutex& mutex_) : descfile(descfile_), rna(rna_), final_results(vector_), posInsertionSites_mutex(mutex_){}
+    args_(path descfile_, string rna_, vector<Motif>& vector_, std::mutex& mutex_)
+    : descfile(descfile_), rna(rna_), final_results(vector_), posInsertionSites_mutex(mutex_)
+    {
+    }
 } args_of_parallel_func;
 
 typedef struct Comp_ {
@@ -37,7 +42,8 @@ class Motif
     Motif();
     Motif(const vector<Component>& v, string PDB);
     void              load_from_csv(string csv_line);
-    static void       build_from_desc(args_of_parallel_func arg_struct);
+    // static void       build_from_desc(path descfile, string rna, vector<Motif>& final_results);
+    static void       build_from_desc(args_of_parallel_func args);
     static char       is_valid_DESC(const string& descfile);
     string            pos_string(void) const;
     string            get_origin(void) const;
