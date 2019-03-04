@@ -39,9 +39,10 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
 : verbose_{verbose}, rna_(rna), insertion_sites_(insertionSites)
 {
 
+    if (verbose_) cout << "Summary of basepair probabilities:" << endl;
     if (verbose_) rna_.print_basepair_p_matrix(theta);
 
-    if (verbose_) cout << "defining problem decision variables..." << endl;
+    if (verbose_) cout << "Defining problem decision variables..." << endl;
     basepair_dv_  = IloNumVarArray(env_);
     insertion_dv_ = IloNumVarArray(env_);
 
@@ -63,13 +64,47 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
             }
     if (verbose_) cout << endl;
 
+    // Purge the list of insertion sites : remove those that are forbidden because bounding basepairs are forbidden
+    if (verbose_) cout << "\t>Checking insertion sites..." << endl;
+    vector<uint> to_remove;
+    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+        Motif& x = insertion_sites_[i];
+        if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second;
+        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) > 0) {
+            if (verbose_) cout << ") is allowed" << endl;
+        } else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i)) {
+            if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+            to_remove.push_back(i);
+            continue;
+        } else {
+            if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+        }
+        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
+            continue;
+        for (size_t j = 0; j < x.comp.size() - 1; j++) {
+            if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first;
+            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first) > 0) {
+                if (verbose_) cout << ") is allowed" << endl;
+            } else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i)) {
+                if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                to_remove.push_back(i);
+            } else {
+                if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+            }
+        }
+    }
+    for (vector<uint>::reverse_iterator i = to_remove.rbegin(); i != to_remove.rend(); ++i)
+        insertion_sites_.erase(insertion_sites_.begin() + (*i));
+
     // Add the Cx,i,p decision variables
-    if (verbose_) cout << "\t>Candidate motif insertion sites : " << endl;
+    if (verbose_) cout << "\t>Allowed candidate insertion sites:" << endl;
     index_of_first_components.reserve(insertionSites.size());
     index_of_Cxip_.reserve(insertionSites.size());
     size_t i = 0;
-    for (const Motif m : insertionSites) {
-        if (verbose_) cout << "\t\t" << m.pos_string() << endl;
+    for (uint p = 0; p < insertion_sites_.size(); ++p) {
+        const Motif& m = insertion_sites_[p];
+
+        if (verbose_) cout << "\t\t>" << m.get_identifier() << '\t' << m.pos_string() << endl;
         index_of_first_components.push_back(i);
         index_of_Cxip_.push_back(vector<size_t>(0));
         for (const Component cmp : m.comp) {
@@ -218,6 +253,26 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 
 void MOIP::define_problem_constraints(void)
 {
+    // Force basepairs between the end of a component and the beginning of the next
+    if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
+    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+        Motif&  x   = insertion_sites_[i];
+        IloExpr c6p = IloExpr(env_);
+        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
+            c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
+        if (verbose_) cout << "\t\t" << (C(i, 0) <= c6p) << endl;
+        model_.add(C(i, 0) <= c6p);
+        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
+            continue;
+        for (size_t j = 0; j < x.comp.size() - 1; j++) {
+            IloExpr c6 = IloExpr(env_);
+            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first))
+                c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
+            model_.add(C(i, j) <= c6);
+            if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+        }
+    }
+
     // ensure there only is 0 or 1 pairing by nucleotide:
     if (verbose_) cout << "\t>ensuring there are at most 1 pairing by nucleotide..." << endl;
     uint u, v, count;
@@ -298,7 +353,7 @@ void MOIP::define_problem_constraints(void)
             IloNum     kxi = IloNum(c.k);
             c3 += (kxi - IloNum(2)) * C(i, j);
             uint count = 0;
-            for (u = c.pos.first + 1; u < c.pos.second - 1; u++) {
+            for (u = c.pos.first + 1; u < c.pos.second; u++) {
                 for (v = 0; v < n; v++)
                     if (allowed_basepair(u, v)) {
                         c3 += y(u, v);
@@ -346,31 +401,6 @@ void MOIP::define_problem_constraints(void)
         }
         model_.add(c5 == jm1 * C(i, 0));
         if (verbose_) cout << "\t\t>motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
-    }
-    // Force basepairs between the end of a component and the beginning of the next
-    if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
-        Motif&  x   = insertion_sites_[i];
-        IloExpr c6p = IloExpr(env_);
-        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
-            c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
-        if (verbose_)
-            cout << "\t\t" << (C(i, 0) <= c6p) << "\t(" << x.comp[0].pos.first << ',' << x.comp.back().pos.second
-                 << (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) > 0 ? ") is allowed" : ") is not allowed")
-                 << endl;
-        model_.add(C(i, 0) <= c6p);
-        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
-            continue;
-        for (size_t j = 0; j < x.comp.size() - 1; j++) {
-            IloExpr c6 = IloExpr(env_);
-            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first))
-                c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
-            model_.add(C(i, j) <= c6);
-            if (verbose_)
-                cout << "\t\t" << (C(i, j) <= c6) << "\t(" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first
-                     << (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first) > 0 ? ") is allowed" : ") is not allowed")
-                     << endl;
-        }
     }
 }
 
