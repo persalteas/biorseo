@@ -335,7 +335,7 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
     int           accepted = 0;
     int           inserted = 0;
     // int           num_threads = thread::hardware_concurrency();
-    int            num_threads = 4;
+    int            num_threads = 2;
     vector<thread> thread_pool;
 
     if (!exists(path)) {
