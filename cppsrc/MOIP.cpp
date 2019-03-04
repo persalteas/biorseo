@@ -93,6 +93,11 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
     define_problem_constraints();
     if (verbose_) cout << "A total of " << getNumConstraints(model_) << " constraints are used." << endl;
 
+    if (getNumConstraints(model_) > 2000) {
+        cerr << "Stopping 'cause too big for me..." << endl;
+        exit(-1);
+    }
+
     // Define the motif objective function:
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
@@ -170,8 +175,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     }
 
     if (verbose_)
-        cout << "\t>Solution status: objective values (" << cplex_.getValue(obj1)
-             << ", " << cplex_.getValue(obj2) << ')';
+        cout << "\t>Solution status: objective values (" << cplex_.getValue(obj1) << ", " << cplex_.getValue(obj2) << ')';
 
     // Build a secondary Structure
     SecondaryStructure best_ss = SecondaryStructure(rna_);
@@ -301,10 +305,10 @@ void MOIP::define_problem_constraints(void)
                         count++;
                     }
             }
-            if (count > 1) {
+            if (count > 0) {
                 model_.add(c3 <= (kxi - IloNum(2)));
                 if (verbose_) cout << "\t\t";
-                // if (verbose_) cout << x.atlas_id << '-' << j << ": ";
+                if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
                 if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
             }
         }

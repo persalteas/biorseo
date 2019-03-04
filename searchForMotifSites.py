@@ -227,102 +227,102 @@ filename = argv[1]
 verbose = int(argv[3])
 basename = filename[0:filename.index('.')]
 
-# Retrieving possible 2D structrures from RNAsubopt
-if (verbose):
-    print("Retrieving possible 2D structures from RNAsubopt...")
-dbn = open(basename+"_temp.dbn", "w")
-subprocess.call(["RNAsubopt", "-i", filename], stdout=dbn)
-dbn.close()
-dbn = open(basename+"_temp.dbn", "r")
-dbn.readline()
-s = dbn.readline().split(' ')[0]
-structures = []
-l = dbn.readline()
-while l:
-    structures.append(l.split(' ')[0])
-    l = dbn.readline()
-dbn.close()
-subprocess.call(["rm", basename+"_temp.dbn"])
-for ss in structures:
-    if (verbose):
-        print(ss)
-if (verbose):
-    print()
+# # Retrieving possible 2D structrures from RNAsubopt
+# if (verbose):
+#     print("Retrieving possible 2D structures from RNAsubopt...")
+# dbn = open(basename+"_temp.dbn", "w")
+# subprocess.call(["RNAsubopt", "-i", filename], stdout=dbn)
+# dbn.close()
+# dbn = open(basename+"_temp.dbn", "r")
+# dbn.readline()
+# s = dbn.readline().split(' ')[0]
+# structures = []
+# l = dbn.readline()
+# while l:
+#     structures.append(l.split(' ')[0])
+#     l = dbn.readline()
+# dbn.close()
+# subprocess.call(["rm", basename+"_temp.dbn"])
+# for ss in structures:
+#     if (verbose):
+#         print(ss)
+# if (verbose):
+#     print()
 
 
-# Extracting probable loops from these structures
-if (verbose):
-    print("Extracting probable loops from these structures...")
-HLs = []
-ILs = []
-for ss in structures:
-    loop_candidates = enumerate_loops(ss)
-    for loop_candidate in loop_candidates:
-        if len(loop_candidate) == 1 and loop_candidate not in HLs:
-            HLs.append(loop_candidate)
-        if len(loop_candidate) == 2 and loop_candidate not in ILs:
-            ILs.append(loop_candidate)
-if (verbose):
-    print("TOTAL:")
-    print(len(HLs), "probable hairpin loops found")
-    print(len(ILs), "probable internal loops")
-    print()
+# # Extracting probable loops from these structures
+# if (verbose):
+#     print("Extracting probable loops from these structures...")
+# HLs = []
+# ILs = []
+# for ss in structures:
+#     loop_candidates = enumerate_loops(ss)
+#     for loop_candidate in loop_candidates:
+#         if len(loop_candidate) == 1 and loop_candidate not in HLs:
+#             HLs.append(loop_candidate)
+#         if len(loop_candidate) == 2 and loop_candidate not in ILs:
+#             ILs.append(loop_candidate)
+# if (verbose):
+#     print("TOTAL:")
+#     print(len(HLs), "probable hairpin loops found")
+#     print(len(ILs), "probable internal loops")
+#     print()
 
-# Retrieve subsequences corresponding to the possible loops
-if (verbose):
-    print("Retrieving subsequences corresponding to the possible loops...")
-loops = []
-for i, l in enumerate(HLs):
-    loops.append(Loop(">HL%d" % (i+1), s[l[0][0]-1:l[0][1]], "h", l))
-    if (verbose):
-        print()
-        print(loops[-1].get_header(), "\t\t", l)
-        print(loops[-1].subsequence())
-for i, l in enumerate(ILs):
-    loops.append(
-        Loop(">IL%d" % (i+1), s[l[0][0]-1:l[0][1]]+'*'+s[l[1][0]-1:l[1][1]], "i", l))
-    if (verbose):
-        print()
-        print(loops[-1].get_header(), "\t\t", l)
-        print(loops[-1].subsequence())
-if (verbose):
-    print()
+# # Retrieve subsequences corresponding to the possible loops
+# if (verbose):
+#     print("Retrieving subsequences corresponding to the possible loops...")
+# loops = []
+# for i, l in enumerate(HLs):
+#     loops.append(Loop(">HL%d" % (i+1), s[l[0][0]-1:l[0][1]], "h", l))
+#     if (verbose):
+#         print()
+#         print(loops[-1].get_header(), "\t\t", l)
+#         print(loops[-1].subsequence())
+# for i, l in enumerate(ILs):
+#     loops.append(
+#         Loop(">IL%d" % (i+1), s[l[0][0]-1:l[0][1]]+'*'+s[l[1][0]-1:l[1][1]], "i", l))
+#     if (verbose):
+#         print()
+#         print(loops[-1].get_header(), "\t\t", l)
+#         print(loops[-1].subsequence())
+# if (verbose):
+#     print()
 
-# Scanning loop subsequences against motif database
-if (verbose):
-    print("Scanning loop subsequences against motif database (using %d threads)..." %
-          (cpu_count()-1))
-pool = Pool(processes=cpu_count()-1)
-insertion_sites = [x for y in pool.map(launchJar3d, loops) for x in y]
-insertion_sites.sort(reverse=True)
-if (verbose):
-    print(len(insertion_sites), "insertions found:")
+# # Scanning loop subsequences against motif database
+# if (verbose):
+#     print("Scanning loop subsequences against motif database (using %d threads)..." %
+#           (cpu_count()-1))
+# pool = Pool(processes=cpu_count()-1)
+# insertion_sites = [x for y in pool.map(launchJar3d, loops) for x in y]
+# insertion_sites.sort(reverse=True)
+# if (verbose):
+#     print(len(insertion_sites), "insertions found:")
 
-# Writing results to file
-c = 0
-resultsfile = open(basename+".sites.csv", "w")
-resultsfile.write("Motif,Rotation,Score,Start1,End1,Start2,End2\n")
-for site in insertion_sites:
-    if site.score > 10:
-        c += 1
-        string = "FOUND with score %d:\t\t possible insertion of motif " % site.score + site.atlas_id
-        if site.rotation:
-            string += " (reversed)"
-        string += (" on " + site.loop.get_header() + " at positions")
-        if (verbose):
-            print(string, site.loop.subsequence(),
-                  '*'.join([str(x) for x in site.position]))
-    resultsfile.write(site.atlas_id+',' +
-                      str(bool(site.rotation))+",%d" % site.score+',')
-    positions = [','.join([str(y) for y in x]) for x in site.position]
-    if len(positions) == 1:
-        positions.append("-,-")
-    resultsfile.write(','.join(positions)+'\n')
-if c < len(insertion_sites):
-    if (verbose):
-        print("... and %d more with score(s) below 10." %
-              (len(insertion_sites)-c))
-resultsfile.close()
+# # Writing results to file
+# c = 0
+# resultsfile = open(basename+".sites.csv", "w")
+# resultsfile.write("Motif,Rotation,Score,Start1,End1,Start2,End2\n")
+# for site in insertion_sites:
+#     if site.score > 10:
+#         c += 1
+#         string = "FOUND with score %d:\t\t possible insertion of motif " % site.score + site.atlas_id
+#         if site.rotation:
+#             string += " (reversed)"
+#         string += (" on " + site.loop.get_header() + " at positions")
+#         if (verbose):
+#             print(string, site.loop.subsequence(),
+#                   '*'.join([str(x) for x in site.position]))
+#     resultsfile.write(site.atlas_id+',' +
+#                       str(bool(site.rotation))+",%d" % site.score+',')
+#     positions = [','.join([str(y) for y in x]) for x in site.position]
+#     if len(positions) == 1:
+#         positions.append("-,-")
+#     resultsfile.write(','.join(positions)+'\n')
+# if c < len(insertion_sites):
+#     if (verbose):
+#         print("... and %d more with score(s) below 10." %
+#               (len(insertion_sites)-c))
+# resultsfile.close()
 
 # Lauching biominserter to get 2D predictions
 subprocess.call([bminDir+"/bin/biominserter",
