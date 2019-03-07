@@ -134,6 +134,11 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
     }
 
 
+    if (getNumConstraints(model_) > 2000) {
+        cerr << "Stopping 'cause too big for me..." << endl;
+        exit(-1);
+    }
+
     // Define the motif objective function:
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
@@ -376,10 +381,10 @@ void MOIP::define_problem_constraints(void)
                         count++;
                     }
             }
-            if (count) {
+            if (count > 0) {
                 model_.add(c3 <= (kxi - IloNum(2)));
                 if (verbose_) cout << "\t\t";
-                // if (verbose_) cout << x.atlas_id << '-' << j << ": ";
+                if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
                 if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
             }
         }
