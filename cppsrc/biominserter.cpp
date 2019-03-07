@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
     string             inputName, outputName, motifs_path_name, basename;
     bool               verbose = false;
     float              theta_p_threshold;
+    int                obj_function_nbr = 3;
     list<Fasta>        f;
     vector<Motif>      posInsertionSites;
     ofstream           outfile;
@@ -79,7 +80,12 @@ int main(int argc, char* argv[])
     "Objective to solve in the mono-objective portions of the algorithm")("output,o", po::value<string>(&outputName), "A file to summarize the computation results")(
     "theta,t",
     po::value<float>(&theta_p_threshold)->default_value(0.001),
-    "Pairing probability threshold to consider or not the possibility of pairing")("verbose,v", "Print what is happening to stdout");
+    "Pairing probability threshold to consider or not the possibility of pairing")(
+    "type",
+    po::value<int>(&obj_function_nbr),
+    "If -f is provided, what objective function to use to include motifs: square of motif size in nucleotides like "
+    "RNA-MoIP (1), jar3d score (2), motif size + jar3d score + number of components (3), motif size + number of "
+    "components (4)")("verbose,v", "Print what is happening to stdout");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     basename = remove_ext(inputName.c_str(), '.', '/');
@@ -103,23 +109,33 @@ int main(int argc, char* argv[])
         }
         if (vm.count("verbose")) verbose = true;
         if (!vm.count("jar3dcsv") and !vm.count("descfolder")) {
-            cerr << "You must provide at least --jar3dcsv or --descfolder. See --help for more information." << endl;
+            cerr << "\033[31mYou must provide at least --jar3dcsv or --descfolder.\033[0m See --help for more "
+                    "information."
+                 << endl;
+            return EXIT_FAILURE;
+        }
+        if (vm.count("-d") and (obj_function_nbr == 1 or obj_function_nbr == 3)) {
+            cerr << "\033[31mYou must provide at -f to use --type 1 or --type 3.\033[0m See --help for more "
+                    "information."
+                 << endl;
             return EXIT_FAILURE;
         }
 
         po::notify(vm);    // throws on error, so do after help in case there are any problems
     } catch (po::error& e) {
-        cerr << "ERROR: " << e.what() << endl;
+        cerr << "ERROR: \033[31m" << e.what() << "\033[0m" << endl;
         cerr << desc << endl;
         return EXIT_FAILURE;
     }
+
+    MOIP::obj_function_nbr_ = obj_function_nbr;
 
     /*  FILE PARSING  */
 
     // load fasta file
     if (verbose) cout << "Reading input files..." << endl;
     if (access(inputName.c_str(), F_OK) == -1) {
-        cerr << inputName << " not found" << endl;
+        cerr << "\033[31m" << inputName << " not found\033[0m" << endl;
         return EXIT_FAILURE;
     }
     Fasta::load(f, inputName.c_str());
@@ -130,7 +146,7 @@ int main(int argc, char* argv[])
 
     // load CSV file
     if (access(motifs_path_name.c_str(), F_OK) == -1) {
-        cerr << motifs_path_name << " not found" << endl;
+        cerr << "\033[31m" << motifs_path_name << " not found\033[0m" << endl;
         return EXIT_FAILURE;
     }
     if (vm.count("jar3dcsv"))
@@ -190,7 +206,7 @@ int main(int argc, char* argv[])
         myMOIP.search_between(min, max);
 
     } catch (IloCplex::Exception& e) {
-        cerr << "Cplex Exception: " << e.getMessage() << endl;
+        cerr << "\033[31mCplex Exception: " << e.getMessage() << "\033[0m" << endl;
         exit(EXIT_FAILURE);
     }
 

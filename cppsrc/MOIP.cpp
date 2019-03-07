@@ -17,8 +17,9 @@ using std::endl;
 using std::make_pair;
 using std::vector;
 
-uint   MOIP::obj_to_solve_ = 1;
-double MOIP::precision_    = 1e-5;
+uint   MOIP::obj_function_nbr_ = 1;
+uint   MOIP::obj_to_solve_     = 1;
+double MOIP::precision_        = 1e-5;
 
 unsigned getNumConstraints(IloModel& m)
 {
@@ -127,21 +128,41 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
     model_ = IloModel(env_);
     define_problem_constraints();
     if (verbose_) cout << "A total of " << getNumConstraints(model_) << " constraints are used." << endl;
+    if (getNumConstraints(model_) > 1500) {
+        cerr << "\033[31m Quitting because too hard for me (too many constraints). Srry. \033[0m" << endl;
+        exit(1);
+    }
+
 
     // Define the motif objective function:
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
-        // objective f_1A
-        // IloNum n_compo_squared = IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].comp.size());
-        // obj1 += n_compo_squared * insertion_dv_[index_of_first_components[i]];
-
-        // Weighted by the JAR3D score:
-        // obj1 += IloNum(insertion_sites_[i].score) * insertion_dv_[index_of_first_components[i]];
-
-        // RNA MoIP style
         IloNum sum_k = 0;
-        for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-        obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
+        switch (obj_function_nbr_) {
+        case 1:
+            // RNA MoIP style
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
+            break;
+
+        case 2:
+            // Weighted by the JAR3D score only:
+            obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
+            break;
+
+        case 3:
+            // everything
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            obj1 += IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].score_ / log2(sum_k)) *
+                    insertion_dv_[index_of_first_components[i]];
+            break;
+
+        case 4:
+            // everything but Jar3D score
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
+            break;
+        }
     }
 
     // Define the expected accuracy objective function:
@@ -470,7 +491,6 @@ bool MOIP::exists_vertical_outdated_labels(const SecondaryStructure& s) const
     return result;
 }
 
-
 bool MOIP::exists_horizontal_outdated_labels(const SecondaryStructure& s) const
 {
     bool result = false;
@@ -490,6 +510,10 @@ void MOIP::add_solution(const SecondaryStructure& s)
 {
     if (verbose_) cout << "\t>adding structure to Pareto set :\t" << s.to_string() << endl;
     pareto_.push_back(s);
+    if (pareto_.size() > 300) {
+        cerr << "\033[31m Quitting because combinatorial issues. \033[0m";
+        exit(1);
+    }
 }
 
 size_t MOIP::get_yuv_index(size_t u, size_t v) const
