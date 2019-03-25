@@ -41,7 +41,7 @@ class Motif
     public:
     Motif();
     Motif(const vector<Component>& v, string PDB);
-    void              load_from_csv(string csv_line);
+    void load_from_csv(string csv_line);
     // static void       build_from_desc(path descfile, string rna, vector<Motif>& final_results);
     static void       build_from_desc(args_of_parallel_func args);
     static char       is_valid_DESC(const string& descfile);
@@ -63,7 +63,7 @@ class Motif
 
 bool          is_desc_insertible(const string& descfile, const string& rna, bool verbose);
 vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose);
-vector<Motif> load_jar3d_output(const string& path);
+vector<Motif> load_csv(const string& path);
 
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);

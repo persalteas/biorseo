@@ -72,12 +72,14 @@ int main(int argc, char* argv[])
     "descfolder,d",
     po::value<string>(&motifs_path_name),
     "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")(
-    "jar3dcsv,f",
+    "jar3dcsv",
     po::value<string>(&motifs_path_name),
-    "A file containing the output of JAR3D's search for motifs in the sequence, as produced by searchForMotifSites.py")(
-    "first-objective,c",
-    po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1),
-    "Objective to solve in the mono-objective portions of the algorithm")("output,o", po::value<string>(&outputName), "A file to summarize the computation results")(
+    "A file containing the output of JAR3D's search for motifs in the sequence, as produced by test_on_RNAstrand.py")(
+    "bayespaircsv",
+    po::value<string>(&motifs_path_name),
+    "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by "
+    "test_on_RNAstrand.py")("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")(
+    "output,o", po::value<string>(&outputName), "A file to summarize the computation results")(
     "theta,t",
     po::value<float>(&theta_p_threshold)->default_value(0.001),
     "Pairing probability threshold to consider or not the possibility of pairing")(
@@ -108,14 +110,16 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
         if (vm.count("verbose")) verbose = true;
-        if (!vm.count("jar3dcsv") and !vm.count("descfolder")) {
-            cerr << "\033[31mYou must provide at least --jar3dcsv or --descfolder.\033[0m See --help for more "
+        if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder")) {
+            cerr << "\033[31mYou must provide at least --jar3dcsv, --bayespaircsv or --descfolder.\033[0m See --help "
+                    "for more "
                     "information."
                  << endl;
             return EXIT_FAILURE;
         }
-        if (vm.count("-d") and (obj_function_nbr == 1 or obj_function_nbr == 3)) {
-            cerr << "\033[31mYou must provide at -f to use --type 1 or --type 3.\033[0m See --help for more "
+        if (vm.count("-d") and (obj_function_nbr == 2 or obj_function_nbr == 3)) {
+            cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --type 2 or --type 3.\033[0m See "
+                    "--help for more "
                     "information."
                  << endl;
             return EXIT_FAILURE;
@@ -150,7 +154,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     if (vm.count("jar3dcsv"))
-        posInsertionSites = load_jar3d_output(motifs_path_name.c_str());
+        posInsertionSites = load_csv(motifs_path_name.c_str());
+    else if (vm.count("bayespaircsv"))
+        posInsertionSites = load_csv(motifs_path_name.c_str());
     else
         posInsertionSites = load_desc_folder(motifs_path_name.c_str(), fa->seq(), verbose);
 

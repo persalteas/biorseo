@@ -193,14 +193,35 @@ void Motif::load_from_csv(string csv_line)
 {
     vector<string> tokens;
     split(tokens, csv_line, boost::is_any_of(","));
-    atlas_id = tokens[0];
-    score_   = stoi(tokens[2]);
-    comp.push_back(Component(make_pair<int, int>(stoi(tokens[3]), stoi(tokens[4]))));
-    if (tokens[5] != "-") comp.push_back(Component(make_pair<int, int>(stoi(tokens[5]), stoi(tokens[6]))));
-    reversed_ = (tokens[1] == "True");
-    is_model_ = true;
-    PDBID     = "";
-    source_   = RNAMOTIFATLAS;
+    if (csv_line.find(string("True")) != std::string::npos or csv_line.find(string("False")) != std::string::npos) {    // This has been created by jar3d
+        atlas_id = tokens[0];
+        score_   = stoi(tokens[2]);
+        comp.push_back(Component(make_pair<int, int>(stoi(tokens[3]), stoi(tokens[4]))));
+        if (tokens[5] != "-") comp.push_back(Component(make_pair<int, int>(stoi(tokens[5]), stoi(tokens[6]))));
+        reversed_ = (tokens[1] == "True");
+        is_model_ = true;
+        PDBID     = "";
+        source_   = RNAMOTIFATLAS;
+    } else {    // this has been created by BayesPairing
+        score_ = stoi(tokens[1]);
+        // identify source:
+        if (tokens[0].find(string("rna3dmotif")) == std::string::npos) {
+            is_model_ = true;
+            PDBID     = "";
+            source_   = RNAMOTIFATLAS;
+            atlas_id  = tokens[0];
+        } else {
+            is_model_ = false;
+            PDBID     = tokens[0];
+            source_   = RNA3DMOTIF;
+            atlas_id  = "";
+        }
+        uint i = 2;
+        while (i < tokens.size()) {
+            comp.push_back(Component(make_pair<int, int>(stoi(tokens[i]), stoi(tokens[i + 1]))));
+            i += 2;
+        }
+    }
 }
 
 string Motif::pos_string(void) const
@@ -378,7 +399,7 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
     return posInsertionSites;
 }
 
-vector<Motif> load_jar3d_output(const string& path)
+vector<Motif> load_csv(const string& path)
 {
     vector<Motif> posInsertionSites;
     std::ifstream motifs;
