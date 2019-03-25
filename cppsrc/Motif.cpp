@@ -218,7 +218,10 @@ void Motif::load_from_csv(string csv_line)
         }
         uint i = 2;
         while (i < tokens.size()) {
-            comp.push_back(Component(make_pair<int, int>(stoi(tokens[i]), stoi(tokens[i + 1]))));
+            if (stoi(tokens[i]) < stoi(tokens[i + 1]))
+                comp.push_back(Component(make_pair<int, int>(stoi(tokens[i]), stoi(tokens[i + 1]))));
+            else
+                i = i + 0;
             i += 2;
         }
     }
