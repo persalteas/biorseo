@@ -128,16 +128,16 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
     model_ = IloModel(env_);
     define_problem_constraints();
     if (verbose_) cout << "A total of " << getNumConstraints(model_) << " constraints are used." << endl;
-    if (getNumConstraints(model_) > 1500) {
-        cerr << "\033[31m Quitting because too hard for me (too many constraints). Srry. \033[0m" << endl;
-        exit(1);
-    }
+    // if (getNumConstraints(model_) > 1500) {
+    //     cerr << "\033[31m Quitting because too hard for me (too many constraints). Srry. \033[0m" << endl;
+    //     exit(1);
+    // }
 
 
-    if (getNumConstraints(model_) > 2000) {
-        cerr << "Stopping 'cause too big for me..." << endl;
-        exit(-1);
-    }
+    // if (getNumConstraints(model_) > 2000) {
+    //     cerr << "\033[31mStopping 'cause too big for me...\033[0m" << endl;
+    //     exit(-1);
+    // }
 
     // Define the motif objective function:
     obj1 = IloExpr(env_);
@@ -495,7 +495,7 @@ void MOIP::add_solution(const SecondaryStructure& s)
 {
     if (verbose_) cout << "\t>adding structure to Pareto set :\t" << s.to_string() << endl;
     pareto_.push_back(s);
-    if (pareto_.size() > 300) {
+    if (pareto_.size() > 500) {
         cerr << "\033[31m Quitting because combinatorial issues. \033[0m";
         exit(1);
     }
