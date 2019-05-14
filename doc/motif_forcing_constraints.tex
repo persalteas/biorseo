@@ -57,14 +57,14 @@
 	\vspace{5cm}
 	
 	\hrulefill
-	\flushright{		
+	\flushright{
 		\textbf{under the supervision of:\\}
-			Fariza Tahi, HDR \\
-			Eric Angel, HDR \\
-			\textit{AROBAS, IBISC, Paris-Saclay University}\\
-			~ \\
-			\includegraphics[height=1cm]{logoIBISC.png} ~ ~ 
-			\includegraphics[height=1cm]{minisaclay.png}
+		Fariza Tahi, HDR \\
+		Eric Angel, HDR \\
+		\textit{AROBAS, IBISC, Paris-Saclay University}\\
+		~ \\
+		\includegraphics[height=1cm]{logoIBISC.png} ~ ~ 
+		\includegraphics[height=1cm]{minisaclay.png}
 	}
 	\flushleft
 	\hrulefill
@@ -83,13 +83,13 @@
 We now have quite consistent RNA module databases (RNA3Dmodule \cite{djelloul_automated_2008}, the RNA Motif Atlas \cite{petrov_automated_2013}, or CaRNAval \cite{reinharz2018mining}). 
 We call a RNA module the combined description of these points:
 \begin{itemize}
-	\item A particular base-pairing pattern of canonical \& wobble pairing (bi-dimensional information),
+\item A particular base-pairing pattern of canonical \& wobble pairing (bi-dimensional information),
 	\item A particular organisation of non-canonical contacts in space (tri-dimensional information).
 	\item A sequence or consensus sequence that we know to adopt that particular base-pairing organisation (sequence information), or at least a probabilistic model to predict if a given sequence will fold according to the module.
 \end{itemize}
 Then, a RNA module is direct data about how a sequence can fold in space. Here, we are interested in using them to predict the bi or tri dimensional structure of an RNA sequence from scratch. 
 Then, the algorithm we plan to use is the following:
-	
+
 \begin{itemize}
 	\item Find all possible occurences of known RNA modules in the query sequence by using the sequence probabilistic models of the modules against the query bases,
 	\item Define constraints on the secondary structure imposed by motives if they would be included
@@ -130,7 +130,7 @@ This computation should be avoided in the future : It requires the computation o
 Unfortunately, to avoid computing it twice, we should reimplement ourselves the algorithms instead of using the actual implementations. We have programs that output the basepair matrix but no structures, and programs that output structures but not the basepair matrix, and we don't have a program that can do both.
 
 \section{Formulation of the IP problem}
-	
+
 This formulation is an improved merge between the IPknot \cite{sato_ipknot:_2011} formulation to fold RNAs with pseudoknots (but without "levels") and RNAMoIP's one \cite{reinharz_towards_2012} to include modules.
 The bi-objective algorithm is inspired from BiokoP \cite{legendre_bi-objective_2018} and detailed later in section \ref{methods}.
 % This problem has been inspired by IPknot's model \cite{sato_ipknot:_2011}, but without the use of what they call \textit{levels}, which are pseudoknot-free
@@ -138,10 +138,10 @@ The bi-objective algorithm is inspired from BiokoP \cite{legendre_bi-objective_2
 % Levels are mutually exclusive (a base cannot be paired in two different levels). The more levels you use, the more decision variables you have, 
 % but the more complex pseudoknots you are able to predict. IPknot and BiokoP use 2 levels, to predict simple knots.\\
 % \begin{figure}[h]\centering \includegraphics[height=5cm]{levels.png}\end{figure}
-	
-	
-\subsection{Variables} 
-	
+
+
+\subsection{Variables}
+
 % Let $m$ be the number of levels that our program uses.\\
 Let $n$ be the number of nucleotides in the query RNA sequence $s$.\\
 Let $M$ be the set of modules that could be inserted in $s$ (a loop from $s$ has a good JAR3D score against one of the modules).\\
@@ -151,8 +151,8 @@ As the same module model can be inserted several times in $s$, several different
 Let $k_{x,i}$ be the size in nucleotides of that $i$th component of $x$.\\
 Let $y^u_v$ be the \textbf{decision boolean variable} indicating that $s[u]$ and $s[v]$ form a canonical base pairing. According to the standard loop model, we always have $v > u + 3$.\\
 Let $C^x_i$ be the \textbf{decision boolean variable} indicating that we do insert the $i$th component of module $x$ at position $P_{x,i}$.
-	
-	
+
+
 Note that a base pair $y^u_v$ is possible if and only if $v>u+3$, and that we do not need to use two variables $y^u_v$ and $y_{vu}$ for the same pair. 
 Then, we have $\sum_{i=4}^n (n-i)$ decision variables ($\approx \frac{1}{2}n^2$ decision variables) of the form $y^u_v$.
 Regarding the $C^x_i$, if we have an average insertion of $\nu$ motives by RNA sequence, the motives having in average $\mu$ components, components that can be inserted in average at $\pi$ different positions in $s$,
@@ -168,7 +168,7 @@ Let $X$ be the vector of all our decision variables, we define the following obj
 \[ f_{1B}(X) = \sum_{x \in M} p(x) \times C^x_1 \]
 \[ f_{1C}(X) = \sum_{x \in M} \left[ \frac{\|x\|}{\log_2(\sum_{i=1}^{\|x\|}k_{x,i})} \times p(x) \times C^x_1 \right]\]
 $$ f_2(X) = \sum_{u<v} p_{uv}\times y^u_v \times I[p_{uv}>\theta], \qquad \qquad
-p_{uv} = \sum_{\sigma \in S(s)} y^u_v.p(\sigma | s)$$
+	p_{uv} = \sum_{\sigma \in S(s)} y^u_v.p(\sigma | s)$$
 The different $f_1$ objectives are supposed to maximize the number of inserted motives in $s$, 
 weighted by their number of components (squared for 1A), or the JAR3D score (B and C). 
 In $1C$, a penalty is added on the number of nucleotides involved in the looped zone (sum of $k_{x,i}$) to avoid long unpaired zones. 
@@ -183,7 +183,7 @@ Note that \(f_{1A}\) is taken from RNA MoIP \cite{reinharz_towards_2012}, to com
 \begin{equation} \label{constraint:1}
 	\sum_{v<u} y^v_u + \sum_{v>u} y^u_v \leq 1 \qquad\qquad \forall u \in \llbracket 1,n \rrbracket
 \end{equation}
-	
+
 \paragraph{Constraints to forbid lonely base pairs} ~
 % \begin{equation} \label{constraint:2}
 % 	\sum_{v=u}^n y^{u-1}_v - \sum_{v=u+1}^n y^u_v + \sum_{v=u+2}^n y^{u+1}_v \geq 0 \qquad \qquad \forall u \in \llbracket 1,n\rrbracket
@@ -208,14 +208,14 @@ Then, this condition sets to zero "lonely decision variables" who have no neighb
 	(k_{x,i}-2) \; C^x_i + \sum_{u=P_{x,i}+1}^{P_{x,i}+k_{x,i}-2}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq (k_{x,i} - 2)
 	\qquad \qquad \forall x \in M, i \in \llbracket 1,\|x\| \rrbracket
 \end{equation}
-	
+
 \paragraph{Constraint to forbid component to overlap} ~
 \begin{equation} \label{constraint:5}
 	\sum_{x \in M} \sum_{i=1}^{\|x\|} C^x_i \times I( u \in [ P_{x,i} ; P_{x,i}+k_{x,i}-1]) \leq 1 \qquad \qquad \forall u \in \llbracket 1,n \rrbracket
 \end{equation}
 $I( u \in [ P_{x,i} ; P_{x,i}+k_{x,i}-1])$ is a booleean value depending on the condition's truth. Then, whatever the nucleotide $u$, it can be part of a module component only once.
 % \begin{center}\includegraphics[height=3cm]{component.png}\end{center}
-	
+
 \paragraph{Constraints to respect the structure of large motives ($\{ x\in M \; | \; \|x\| \geq 2\}$)} ~ 
 
 This constraint ensures that none or all the components of a motif are inserted.

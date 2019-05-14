@@ -20,6 +20,7 @@ using std::vector;
 uint   MOIP::obj_function_nbr_ = 1;
 uint   MOIP::obj_to_solve_     = 1;
 double MOIP::precision_        = 1e-5;
+bool   MOIP::allow_pk_         = true;
 
 unsigned getNumConstraints(IloModel& m)
 {
@@ -390,19 +391,21 @@ void MOIP::define_problem_constraints(void)
         if (verbose_) cout << "\t\t>motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
     }
     // Forbid pseudoknots
-    if (verbose_) cout << "\t>forbidding pseudoknots..." << endl;
-    for (size_t u = 0; u < n - 6; u++)
-        for (size_t v = u + 4; v < n - 1; v++)
-            if (allowed_basepair(u, v))
-                for (size_t k = u + 1; k < v; ++k)
-                    for (size_t l = v + 1; l < n; ++l)
-                        if (allowed_basepair(k, l)) {
-                            IloExpr c(env_);
-                            c += y(u, v);
-                            c += y(k, l);
-                            model_.add(c <= 1);
-                            if (verbose_) cout << "\t\t" << (c <= 1) << endl;
-                        }
+    if (!this->allow_pk_) {
+        if (verbose_) cout << "\t>forbidding pseudoknots..." << endl;
+        for (size_t u = 0; u < n - 6; u++)
+            for (size_t v = u + 4; v < n - 1; v++)
+                if (allowed_basepair(u, v))
+                    for (size_t k = u + 1; k < v; ++k)
+                        for (size_t l = v + 1; l < n; ++l)
+                            if (allowed_basepair(k, l)) {
+                                IloExpr c(env_);
+                                c += y(u, v);
+                                c += y(k, l);
+                                model_.add(c <= 1);
+                                if (verbose_) cout << "\t\t" << (c <= 1) << endl;
+                            }
+    }
 }
 
 void MOIP::search_between(double lambdaMin, double lambdaMax)

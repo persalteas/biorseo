@@ -1,6 +1,7 @@
 EditMe
 rna1999.dG
 .vscode/*
+.vscode
 
 # LaTeX temporary files
 doc/*.toc
