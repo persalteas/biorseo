@@ -1,5 +1,3 @@
-EditMe
-rna1999.dG
 .vscode/*
 .vscode
 
@@ -19,3 +17,9 @@ obj/*
 
 # Executables
 bin/*
+
+# results
+results/*
+log_of_the_run.sh
+IL*
+HL*

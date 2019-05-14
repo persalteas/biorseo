@@ -1,0 +1,27 @@
+>1dk1 nts=57 [1dk1] -- secondary structure derived by DSSR
+GGGCGGCCUUCGGGCUAGACGGUGGGAGAGGCUUCGGCUGGUCCACCCGUGACGCUC
+((((.(((....)))..(((((((((...(((....)))..))))).)))..)))))
+>1lng nts=97 [1lng] -- secondary structure derived by DSSR
+UCGGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUC
+..(.((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).)).)
+>1mfq nts=128 [1mfq] -- secondary structure derived by DSSR
+GACACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGUc
+((((((..(.(((((((((((.(((((..((((((....))))))..))))).))))......(.(((((.....((((....(((....)))....))))...))))))))))))).)...))))))
+>1mms nts=116 [1mms] -- secondary structure derived by DSSR
+GCUGGGAUGUUGGCUUAGAAGCAGCCAUCAUUUAAAGAGUGCGUAACAGCUCACCAGC
+(((((.(((..(((.........)))..))).....(...((......)).).)))))
+>2du3 nts=71 [2du3] -- secondary structure derived by DSSR
+GCCAGGGUGGCAGAGGGGCUUUGCGGCGGACUGCAGAUCCGCUUUACCCCGGUUCGAAUCCGGGCCCUGGC
+(((((((..(((.....[...)))..((((.......))))......(((((..]....))))))))))))
+>2gdi nts=160 [2gdi] -- secondary structure derived by DSSR
+gGACUCGGGGUGCCCUUCUGCGUGAAGGCUGAGAAAUACCCGUAUCACCUGAUCUGGAUAAUGCCAGCGUAGGGAAGUUc
+(((((((((.((((.(((.[[..))))))......)..)))).....(((...((((......))))...)))..)))))
+>2hoj nts=79 [2hoj] -- secondary structure derived by DSSR
+GCGACUCGGGGUGCCCUCGUGAAGGCUGAGAAAUACCCGUAUCACCUGAUCUGGAUAAUGCCAGCGUAGGGAAGUCGCa
+((((((((((.((((........)))......)..)))).....(((...((((......))))...)))..)))))).
+>3d2g nts=154 [3d2g] -- secondary structure derived by DSSR
+GGGACCAGGGGUGCUUGUUCACAGGCUGAGAAAGUCCCUUUGAACCUGAACAGGGUAAUGCCUGCGCAGGGAGUGUC
+..((((((((..(((((....))))).........)))).....(((...((((......))))...)))..).)))
+>3e5c nts=54 [3e5c] -- secondary structure derived by DSSR
+gUUCCCGAAAGGAUGGCGGAAACGCCAGAUGCCUUGUAACCGAAAGGGGGAAUa
+((((((..((((.(((((....)))))....))))....((....)))))))).
