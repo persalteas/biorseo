@@ -1,5 +1,5 @@
 /***
-        Biominserter, Louis Becquey, nov 2018
+        Biorseo, Louis Becquey, nov 2018
         louis.becquey@univ-evry.fr
 ***/
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     string             inputName, outputName, motifs_path_name, basename;
     bool               verbose = false;
     float              theta_p_threshold;
-    int                obj_function_nbr = 3;
+    char               obj_function_nbr = 'A';
     list<Fasta>        f;
     vector<Motif>      posInsertionSites;
     ofstream           outfile;
@@ -78,9 +78,8 @@ int main(int argc, char* argv[])
     ("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
     ("output,o", po::value<string>(&outputName), "A file to summarize the computation results")
     ("theta,t", po::value<float>(&theta_p_threshold)->default_value(0.001), "Pairing probability threshold to consider or not the possibility of pairing")
-    ("type,f", po::value<int>(&obj_function_nbr), "What objective function to use to include motifs: square of motif size in nucleotides like "
-    "RNA-MoIP (1), jar3d score (2), motif size + jar3d score + number of components (3), motif size + number of "
-    "components (4)")
+    ("type,f", po::value<char>(&obj_function_nbr)->default_value('A'), "What objective function to use to include motifs: square of motif size in nucleotides like "
+    "RNA-MoIP (A), motif size + number of components (B), site score (C), motif size + site score + number of components (D)")
     ("disable-pseudoknots,n", "Add constraints forbidding the formation of pseudoknots")
     ("verbose,v", "Print what is happening to stdout");
     po::variables_map vm;
@@ -91,8 +90,8 @@ int main(int argc, char* argv[])
         po::store(po::parse_command_line(argc, argv, desc), vm);    // can throw
 
         if (vm.count("help") or vm.count("-h")) {
-            cout << "Biominserter, bio-objective integer linear programming framework to predict RNA secondary "
-                    "structures with included known RNA modules."
+            cout << "Biorseo, bio-objective integer linear programming framework to predict RNA secondary "
+                    "structures by including known RNA modules."
                  << endl
                  << "developped by Louis Becquey (louis.becquey@univ-evry.fr), 2019" << endl
                  << endl
@@ -100,20 +99,20 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
         if (vm.count("version")) {
-            cout << "Biominserter RNA-MoIP special edition, 2019" << endl;
+            cout << "Biorseo v1.0, May 2019" << endl;
             return EXIT_SUCCESS;
         }
         if (vm.count("verbose")) verbose = true;
         if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
         if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder")) {
-            cerr << "\033[31mYou must provide at least --jar3dcsv, --bayespaircsv or --descfolder.\033[0m See --help "
+            cerr << "\033[31mYou must provide at least one of --jar3dcsv, --bayespaircsv or --descfolder.\033[0m See --help "
                     "for more "
                     "information."
                  << endl;
             return EXIT_FAILURE;
         }
-        if (vm.count("-d") and (obj_function_nbr == 2 or obj_function_nbr == 3)) {
-            cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --type 2 or --type 3.\033[0m See "
+        if (vm.count("-d") and (obj_function_nbr == 'C' or obj_function_nbr == 'D')) {
+            cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --type C or --type D.\033[0m See "
                     "--help for more "
                     "information."
                  << endl;
