@@ -5,7 +5,7 @@ LCONCERT=$(CPLEXDir)/concert/lib/x86-64_linux/static_pic/
 LCPLEX=$(CPLEXDir)/cplex/lib/x86-64_linux/static_pic/
 
 # project name (generate executable with this name)
-TARGET   = biominserter
+TARGET   = biorseo
 
 CC	   = clang++
 # compiling flags here

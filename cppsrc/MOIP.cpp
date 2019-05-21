@@ -17,7 +17,7 @@ using std::endl;
 using std::make_pair;
 using std::vector;
 
-uint   MOIP::obj_function_nbr_ = 1;
+char   MOIP::obj_function_nbr_ = 'A';
 uint   MOIP::obj_to_solve_     = 1;
 double MOIP::precision_        = 1e-5;
 bool   MOIP::allow_pk_         = true;
@@ -145,29 +145,30 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
     for (uint i = 0; i < insertion_sites_.size(); i++) {
         IloNum sum_k = 0;
         switch (obj_function_nbr_) {
-        case 1:
+        case 'A':
             // RNA MoIP style
             for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
             obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
             break;
+            
+        case 'B':
+            // everything but the Jar3D/Bayespairing score
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
+            break;
 
-        case 2:
-            // Weighted by the JAR3D score only:
+        case 'C':
+            // Weighted by the JAR3D or BayesPairing score only:
             obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
             break;
 
-        case 3:
+        case 'D':
             // everything
             for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
             obj1 += IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].score_ / log2(sum_k)) *
                     insertion_dv_[index_of_first_components[i]];
             break;
 
-        case 4:
-            // everything but Jar3D score
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
-            break;
         }
     }
 
