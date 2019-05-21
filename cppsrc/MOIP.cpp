@@ -499,7 +499,7 @@ void MOIP::add_solution(const SecondaryStructure& s)
     if (verbose_) cout << "\t>adding structure to Pareto set :\t" << s.to_string() << endl;
     pareto_.push_back(s);
     if (pareto_.size() > 500) {
-        cerr << "\033[31m Quitting because combinatorial issues. \033[0m";
+        cerr << "\033[31m Quitting because combinatorial issues (>500 solutions in Pareto set). \033[0m" << endl;
         exit(1);
     }
 }
