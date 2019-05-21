@@ -985,78 +985,78 @@ for instance in RNAcontainer:
     # joblist.append(Job(function=launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header_, basename], how_many_in_parallel=-1, priority=3, checkFunc=check_BayesPairing, checkArgs=[basename]))
     # joblist.append(Job(function=launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header_, basename], how_many_in_parallel=-1, priority=3, checkFunc=check_BGSUBayesPairing, checkArgs=[basename]))
     # bmotinBGSUJAR3D1-4
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D1, checkArgs=[basename, False]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d2", "--type", str(2), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D2, checkArgs=[basename, False]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d3", "--type", str(3), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D3, checkArgs=[basename, False]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d4", "--type", str(4), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D4, checkArgs=[basename, False]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D1, checkArgs=[basename, True]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d2", "--type", str(2)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D2, checkArgs=[basename, True]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d3", "--type", str(3)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D3, checkArgs=[basename, True]))
-    joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d4", "--type", str(4)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D4, checkArgs=[basename, True]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D1, checkArgs=[basename, False]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d2", "--type", str(2), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D2, checkArgs=[basename, False]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d3", "--type", str(3), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D3, checkArgs=[basename, False]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3d4", "--type", str(4), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D4, checkArgs=[basename, False]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D1, checkArgs=[basename, True]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d2", "--type", str(2)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D2, checkArgs=[basename, True]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d3", "--type", str(3)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D3, checkArgs=[basename, True]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3d4", "--type", str(4)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUJAR3D4, checkArgs=[basename, True]))
     # bmotinBGSUBayesPair1-4
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair1, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp2", "--type", str(2), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair2, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp3", "--type", str(3), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair3, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp4", "--type", str(4), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair4, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair1, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp2", "--type", str(2)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair2, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp3", "--type", str(3)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair3, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp4", "--type", str(4)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair4, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair1, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp2", "--type", str(2), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair2, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp3", "--type", str(3), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair3, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubyp4", "--type", str(4), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair4, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair1, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp2", "--type", str(2)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair2, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp3", "--type", str(3)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair3, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubyp4", "--type", str(4)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBGSUBayesPair4, checkArgs=[basename, True]))
     # bmotinBayesPair1-4
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair1, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp2", "--type", str(2), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair2, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp3", "--type", str(3), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair3, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp4", "--type", str(4), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair4, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair1, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp2", "--type", str(2)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair2, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp3", "--type", str(3)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair3, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp4", "--type", str(4)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair4, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair1, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp2", "--type", str(2), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair2, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp3", "--type", str(3), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair3, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".byp4", "--type", str(4), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair4, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair1, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp2", "--type", str(2)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair2, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp3", "--type", str(3)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair3, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"PK/"+basename+".byp4", "--type", str(4)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsBayesPair4, checkArgs=[basename, True]))
     # bmotinsRaw1,4
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"noPK/" + basename + ".raw1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsRaw1, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"noPK/" + basename + ".raw4", "--type", str(4), "-n"], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_bmotinsRaw4, checkArgs=[basename, False]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".raw1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsRaw1, checkArgs=[basename, True]))
-    # joblist.append(Job(command=[bminDir+"/bin/biominserter", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".raw4", "--type", str(4)], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_bmotinsRaw4, checkArgs=[basename, True]))
+    joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"noPK/" + basename + ".raw1", "--type", str(1), "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsRaw1, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"noPK/" + basename + ".raw4", "--type", str(4), "-n"], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_bmotinsRaw4, checkArgs=[basename, False]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".raw1", "--type", str(1)], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_bmotinsRaw1, checkArgs=[basename, True]))
+    # joblist.append(Job(command=[bminDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".raw4", "--type", str(4)], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_bmotinsRaw4, checkArgs=[basename, True]))
     # RNA MoIP
     joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename], priority=3, timeout=3600, checkFunc=check_RNAMoIP, checkArgs=[basename]))
     # Biokop
     # joblist.append(Job(command=[bminDir + "../biokop/biokop", "-n1", "-i", outputDir + basename + ".fa", "-o", outputDir + basename + ".biok"], priority=5, timeout=15000, how_many_in_parallel=3, checkFunc=check_biokop, checkArgs=[basename]))
 
 
-# execute jobs
-jobs = {}
-jobcount = len(joblist)
-for job in joblist:
-    if job.priority_ not in jobs.keys():
-        jobs[job.priority_] = {}
-    if job.nthreads not in jobs[job.priority_].keys():
-        jobs[job.priority_][job.nthreads] = []
-    jobs[job.priority_][job.nthreads].append(job)
-nprio = max(jobs.keys())
+# # execute jobs
+# jobs = {}
+# jobcount = len(joblist)
+# for job in joblist:
+#     if job.priority_ not in jobs.keys():
+#         jobs[job.priority_] = {}
+#     if job.nthreads not in jobs[job.priority_].keys():
+#         jobs[job.priority_][job.nthreads] = []
+#     jobs[job.priority_][job.nthreads].append(job)
+# nprio = max(jobs.keys())
 
 
-for i in range(1,nprio+1):
-    if not len(jobs[i].keys()): continue
+# for i in range(1,nprio+1):
+#     if not len(jobs[i].keys()): continue
 
-    # check the thread numbers
-    different_thread_numbers = [n for n in jobs[i].keys()]
-    different_thread_numbers.sort()
+#     # check the thread numbers
+#     different_thread_numbers = [n for n in jobs[i].keys()]
+#     different_thread_numbers.sort()
 
-    for n in different_thread_numbers:
-        bunch = jobs[i][n]
-        if not len(bunch): continue
-        pool = MyPool(processes=n)
-        results = pool.map(execute_job, bunch)
-        pool.close()
-        pool.join()
+#     for n in different_thread_numbers:
+#         bunch = jobs[i][n]
+#         if not len(bunch): continue
+#         pool = MyPool(processes=n)
+#         results = pool.map(execute_job, bunch)
+#         pool.close()
+#         pool.join()
 
-if len(fails):
-    print()
-    print("Some jobs failed! :")
-    print()
-    for j in fails:
-        print(j.cmd_)
+# if len(fails):
+#     print()
+#     print("Some jobs failed! :")
+#     print()
+#     for j in fails:
+#         print(j.cmd_)
 
-exit()
+# exit()
 
 
 
@@ -1140,9 +1140,9 @@ print("Friedman test without PK: H0 = 'The position parameter of all distributio
 
 
 # load results in objects for pseudoknot computations
-for instance in RNAcontainer:
-    instance.load_results_from(outputDir + "PK/")
-    instance.evaluate()
+# for instance in RNAcontainer:
+#     instance.load_results_from(outputDir + "PK/")
+#     instance.evaluate()
 
 x_PK = [
     [ rna.biokop.max_mcc for rna in RNAcontainer if len(rna.biokop.predictions)],
@@ -1335,117 +1335,119 @@ print("Friedman test with PK: H0 = 'The position parameter of all distributions 
 # plt.legend(loc="lower right")
 # plt.show()
 
-# # ========================= Number of solutions ===========================
+# ========================= Number of solutions ===========================
 
-# plt.subplot(231)
-# x = [
-#     [ rna.bmotinsBayesPair1.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBayesPair2.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBayesPair3.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBayesPair4.n_pred for rna in RNAs_fully_predicted]
-# ]
-# colors = ['olive', 'forestgreen', 'lime', 'limegreen']
-# labels = ["$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$"]
-# # plt.hist(x, max([ max(x[i]) for i in range(len(x))])0, color=colors, align="mid", density=False, fill=False, histtype="step", stacked=False, label=labels)
-# plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
-# for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
-#     plt.axvline(x=i, linestyle='--', color='gray')
-# plt.xlabel("Size of Pareto set")
-# plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
+plt.subplot(231)
+x = [
+    [ rna.bmotinsBayesPair1.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBayesPair2.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBayesPair3.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBayesPair4.n_pred for rna in RNAs_fully_predicted]
+]
+colors = ['red', 'black', 'blue', 'limegreen']
+labels = ["$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$"]
+# plt.hist(x, max([ max(x[i]) for i in range(len(x))])0, color=colors, align="mid", density=False, fill=False, histtype="step", stacked=False, label=labels)
+plt.hist(x, max([ max(x[i]) for i in range(len(x))]),  align="mid", density=False, stacked=False, label=labels)
+for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
+    plt.axvline(x=i, linestyle='--', color='gray')
+plt.xlabel("Size of Pareto set")
+plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
+plt.ylabel("Number of RNAs")
+plt.ylim((0,265))
+plt.legend(loc="upper right")
+plt.title("(A) Rna3Dmotifs + BayesPairing")
+
+plt.subplot(232)
+x = [
+    [ rna.bmotinsBGSUBayesPair1.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBGSUBayesPair2.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBGSUBayesPair3.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBGSUBayesPair4.n_pred for rna in RNAs_fully_predicted],
+]
+plt.hist(x, max([ max(x[i]) for i in range(len(x))]),  align="mid", density=False, stacked=False, label=labels)
+for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
+    plt.axvline(x=i, linestyle='--', color='gray')
+plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
+plt.xlabel("Size of Pareto set")
 # plt.ylabel("Number of RNAs")
-# plt.ylim((0,265))
-# plt.legend(loc="upper right")
-# plt.title("(A) Rna3Dmotifs + BayesPairing")
-
-# plt.subplot(232)
-# x = [
-#     [ rna.bmotinsBGSUBayesPair1.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBGSUBayesPair2.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBGSUBayesPair3.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBGSUBayesPair4.n_pred for rna in RNAs_fully_predicted],
-# ]
-# plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
-# for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
-#     plt.axvline(x=i, linestyle='--', color='gray')
-# plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
-# plt.xlabel("Size of Pareto set")
-# # plt.ylabel("Number of RNAs")
-# plt.ylim((0,265))
-# plt.legend(loc="upper right")
-# plt.title("(B) The RNA Motif Atlas 3.2 + BayesPairing")
+plt.ylim((0,265))
+plt.legend(loc="upper right")
+plt.title("(B) The RNA Motif Atlas 3.2 + BayesPairing")
 
 
-# plt.subplot(233)
-# x = [
-#     [ rna.bmotinsRaw1.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsRaw4.n_pred for rna in RNAs_fully_predicted],
-# ]
+plt.subplot(233)
+x = [
+    [ rna.bmotinsRaw1.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsRaw4.n_pred for rna in RNAs_fully_predicted if rna.bmotinsRaw4.n_pred < 55],
+]
 # colors = ['red', 'firebrick']
-# labels = ["$f_{1A}$", "$f_{1B}$"]
-# plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
-# for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
-#     plt.axvline(x=i, linestyle='--', color='gray')
-# plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
-# plt.ylim((0,265))
-# plt.xlabel("Size of Pareto set")
-# # plt.ylabel("Number of RNAs")
-# plt.legend(loc="upper right")
-# plt.title("(C) Rna3Dmotifs + Simple pattern matching")
+colors = ['red', 'black']
+labels = ["$f_{1A}$", "$f_{1B}$"]
+plt.hist(x, 55,  align="mid", density=False, stacked=False, label=labels)
+for i in range(0, 55, 10):
+    plt.axvline(x=i, linestyle='--', color='gray')
+plt.xticks([i for i in range(55)])
+plt.ylim((0,265))
+plt.xlabel("Size of Pareto set")
+# plt.ylabel("Number of RNAs")
+plt.legend(loc="upper right")
+plt.title("(C) Rna3Dmotifs + Simple pattern matching")
 
 
-# plt.subplot(234)
-# x = [
-#     [ rna.bmotinsBGSUJAR3D1.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBGSUJAR3D2.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBGSUJAR3D3.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.bmotinsBGSUJAR3D4.n_pred for rna in RNAs_fully_predicted],
-# ]
+plt.subplot(234)
+x = [
+    [ rna.bmotinsBGSUJAR3D1.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBGSUJAR3D2.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBGSUJAR3D3.n_pred for rna in RNAs_fully_predicted],
+    [ rna.bmotinsBGSUJAR3D4.n_pred for rna in RNAs_fully_predicted],
+]
 # colors = ['darkturquoise', 'darkcyan', 'royalblue', 'navy']
-# labels = ["$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$"]
-# plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
-# for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
-#     plt.axvline(x=i, linestyle='--', color='gray')
-# plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
-# plt.xlabel("Size of Pareto set")
-# # plt.ylabel("Number of RNAs")
-# plt.legend(loc="upper right")
-# plt.title("(D) The RNA Motif Atlas 3.2 + JAR3D")
+colors = ['red', 'black', 'blue', 'limegreen']
+labels = ["$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$"]
+plt.hist(x, max([ max(x[i]) for i in range(len(x))]),  align="mid", density=False, stacked=False, label=labels)
+for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
+    plt.axvline(x=i, linestyle='--', color='gray')
+plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
+plt.xlabel("Size of Pareto set")
+# plt.ylabel("Number of RNAs")
+plt.legend(loc="upper right")
+plt.title("(D) The RNA Motif Atlas 3.2 + JAR3D")
 
 
-# plt.subplot(235)
-# x = [
-#     [ rna.rnasubopt.n_pred for rna in RNAs_fully_predicted],
-#     [ rna.rnamoip.n_pred for rna in RNAs_fully_predicted],
-# ]
-# colors = ['blue', 'goldenrod']
-# labels = ["RNAsubopt", "RNA-MoIP"]
-# plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
-# for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
-#     plt.axvline(x=i, linestyle='--', color='gray')
-# plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
-# plt.xlabel("Size of results set")
-# plt.ylim((0,265))
-# # plt.ylabel("Number of RNAs")
-# plt.legend(loc="upper right")
-# plt.title("(E) Other methods")
+plt.subplot(235)
+x = [
+    [ rna.rnasubopt.n_pred for rna in RNAs_fully_predicted],
+    [ rna.rnamoip.n_pred for rna in RNAs_fully_predicted],
+]
+colors = ['blue', 'goldenrod']
+labels = ["RNAsubopt", "RNA-MoIP"]
+plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
+for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
+    plt.axvline(x=i, linestyle='--', color='gray')
+plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
+plt.xlabel("Size of results set")
+plt.ylim((0,265))
+# plt.ylabel("Number of RNAs")
+plt.legend(loc="upper right")
+plt.title("(E) Other methods")
 
-# plt.subplot(236)
-# x = [
-#     [ rna.biokop.n_pred for rna in RNAs_fully_predicted],
-# ]
-# colors = ['green']
-# labels = [ "Biokop"]
-# plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
-# for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
-#     plt.axvline(x=i, linestyle='--', color='gray')
-# plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
-# plt.xlabel("Size of Pareto set")
-# plt.ylim((0,265))
-# # plt.ylabel("Number of RNAs")
-# plt.legend(loc="upper right")
-# plt.title("(F) Biokop")
+plt.subplot(236)
+x = [
+    [ rna.biokop.n_pred for rna in RNAs_fully_predicted],
+]
+colors = ['green']
+labels = [ "Biokop"]
+plt.hist(x, max([ max(x[i]) for i in range(len(x))]), color=colors, align="mid", density=False, stacked=False, label=labels)
+for i in range(0, max([ max(x[i]) for i in range(len(x))]), 10):
+    plt.axvline(x=i, linestyle='--', color='gray')
+plt.xticks([i for i in range(max([ max(x[i]) for i in range(len(x))]))])
+plt.xlabel("Size of Pareto set")
+plt.ylim((0,265))
+# plt.ylabel("Number of RNAs")
+plt.legend(loc="upper right")
+plt.title("(F) Biokop")
 
-# plt.show()
+plt.show()
 
 
 # # MCC boost compared to RNA subopt
