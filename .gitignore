@@ -21,5 +21,7 @@ bin/*
 # results
 results/*
 log_of_the_run.sh
+logBadDesc.txt
+gurobi.log
 IL*
 HL*

@@ -13,22 +13,23 @@ import ast
 
 # ================== DEFINITION OF THE PATHS ==============================
 
-biorseoDir = "."
-runDir = path.dirname(path.realpath(__file__))
-dataFile = argv[1]
-outputDir = biorseoDir + "/results/"
-
-# Retrieve Jar3D Paths from file EditMe
+# Retrieve Paths from file EditMe
 jar3dexec = ""
 HLmotifDir = ""
 ILmotifDir = ""
 descfolder = ""
 bypdir = ""
+biorseoDir = "."
 exec(compile(open(biorseoDir+"/EditMe").read(), '', 'exec'))
+runDir = path.dirname(path.realpath(__file__))
+dataFile = argv[1]
+outputDir = biorseoDir + "/results/"
 
+# Create some folders to store the results
 subprocess.call(["mkdir", "-p", outputDir])
 subprocess.call(["mkdir", "-p", outputDir + "PK/"])
 subprocess.call(["mkdir", "-p", outputDir + "noPK/"])
+
 m = Manager()
 running_stats = m.list()
 running_stats.append(0) # n_launched
@@ -727,6 +728,7 @@ class RNA:
                     m.max_mcc = max(mccs)
                     m.min_mcc = min(mccs)
                     m.avg_mcc = sum(mccs)/float(len(mccs))
+                    m.best_pred = sec_structs[mccs.index(m.max_mcc)]
                 for p,n in zip(m.predictions, m.ninsertions):
                     if not ')' in p:
                         continue
@@ -1001,7 +1003,7 @@ for nt, number in ignored_nt_dict.items():
 tot = len(RNAcontainer)
 print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudoknots." % (tot, pk_counter))
 
-# ================= PREDICTION OF STRUCTURES ===============================
+# # ================= PREDICTION OF STRUCTURES ===============================
 
 # # define job list
 # joblist = []
@@ -1050,7 +1052,7 @@ print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudokno
 #     # RNA MoIP
 #     joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename], priority=3, timeout=3600, checkFunc=check_RNAMoIP, checkArgs=[basename]))
 #     # Biokop
-#     joblist.append(Job(command=[biorseoDir + "../biokop/biokop", "-n1", "-i", outputDir + basename + ".fa", "-o", outputDir + basename + ".biok"], priority=5, timeout=15000, how_many_in_parallel=3, checkFunc=check_biokop, checkArgs=[basename]))
+#     joblist.append(Job(command=[biorseoDir + "/../biokop/biokop", "-n1", "-i", outputDir + basename + ".fa", "-o", outputDir + basename + ".biok"], priority=5, timeout=15000, how_many_in_parallel=3, checkFunc=check_biokop, checkArgs=[basename]))
 
 
 # # execute jobs
@@ -1118,6 +1120,7 @@ x_noPK = [
     [ rna.biorseoBayesPairC.max_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairC.predictions)],
     [ rna.biorseoBayesPairD.max_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairD.predictions)],
 ]
+
 x_noPK_fully = [
     [ rna.rnasubopt.max_mcc for rna in RNAs_fully_predicted],
     [ rna.rnamoip.max_mcc for rna in RNAs_fully_predicted],
@@ -1257,6 +1260,33 @@ test = stats.wilcoxon(x_PK_fully[0], x_PK_fully[11])
 print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value = ", test.pvalue)
 
 
+# ================== Print results for application cases =====================
+
+labels = ["Biokop","Biokop","RawA","RawB","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA","JAR3DB","JAR3DC","JAR3DD","BGSUBayesPairingA","BGSUBayesPairingB","BGSUBayesPairingC","BGSUBayesPairingD"]
+print("RNAsubopt",":",x_noPK[0])
+print("RNA-MOIP",":",x_noPK[1])
+for data, name in zip(x_PK, labels):
+    print(name,":",data)
+labels = ["RNAsubopt","Biokop\t", "RNA MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
+for r in RNAcontainer:
+    print("\n",r.header_,"\nTrue structure:\t", r.true2d)
+    for m, name in zip([r.rnasubopt, r.biokop, r.rnamoip,
+                   r.biorseoRawA, 
+                   r.biorseoRawB,
+                   r.biorseoBayesPairA, 
+                   r.biorseoBayesPairB, 
+                   r.biorseoBayesPairC, 
+                   r.biorseoBayesPairD,
+                   r.biorseoBGSUJAR3DA, 
+                   r.biorseoBGSUJAR3DB, 
+                   r.biorseoBGSUJAR3DC, 
+                   r.biorseoBGSUJAR3DD,
+                   r.biorseoBGSUBayesPairA, 
+                   r.biorseoBGSUBayesPairB, 
+                   r.biorseoBGSUBayesPairC, 
+                   r.biorseoBGSUBayesPairD ], labels):
+        print(name+":\t",m.best_pred)
+
 # # ================= PLOTS OF RESULTS =======================================
 
 # merge = [   x_PK_fully[0], # Biokop
@@ -1356,16 +1386,6 @@ print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop
 
 # plt.show()
 
-
-def isbetter(rna):
-    # if rna.rnasubopt.max_mcc > rna.biorseoBGSUJAR3DA.max_mcc: return False
-    # if rna.biokop.max_mcc > rna.biorseoBGSUJAR3DA.max_mcc: return False
-    if rna.rnasubopt.max_mcc > rna.biorseoRawA.max_mcc: return False
-    # if rna.biokop.max_mcc > rna.biorseoRawA.max_mcc: return False
-    return True
-x_names = [ rna.header_ for rna in RNAs_fully_predicted if len(rna.seq_) > 50 and "TRNA" not in rna.header_ and isbetter(rna) ]
-for r in x_names:
-    print(r)
 
 # # ================== MCC performance ====================================
 # # plt.subplot(141)
