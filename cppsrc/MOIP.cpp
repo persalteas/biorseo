@@ -276,25 +276,6 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 
 void MOIP::define_problem_constraints(void)
 {
-    // Force basepairs between the end of a component and the beginning of the next
-    if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
-        Motif&  x   = insertion_sites_[i];
-        IloExpr c6p = IloExpr(env_);
-        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
-            c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
-        if (verbose_) cout << "\t\t" << (C(i, 0) <= c6p) << endl;
-        model_.add(C(i, 0) <= c6p);
-        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
-            continue;
-        for (size_t j = 0; j < x.comp.size() - 1; j++) {
-            IloExpr c6 = IloExpr(env_);
-            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first))
-                c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
-            model_.add(C(i, j) <= c6);
-            if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
-        }
-    }
 
     // ensure there only is 0 or 1 pairing by nucleotide:
     if (verbose_) cout << "\t>ensuring there are at most 1 pairing by nucleotide..." << endl;
@@ -390,6 +371,25 @@ void MOIP::define_problem_constraints(void)
         }
         model_.add(c5 == jm1 * C(i, 0));
         if (verbose_) cout << "\t\t>motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
+    }
+    // Force basepairs between the end of a component and the beginning of the next
+    if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
+    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+        Motif&  x   = insertion_sites_[i];
+        IloExpr c6p = IloExpr(env_);
+        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
+            c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
+        if (verbose_) cout << "\t\t" << (C(i, 0) <= c6p) << endl;
+        model_.add(C(i, 0) <= c6p);
+        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
+            continue;
+        for (size_t j = 0; j < x.comp.size() - 1; j++) {
+            IloExpr c6 = IloExpr(env_);
+            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first))
+                c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
+            model_.add(C(i, j) <= c6);
+            if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+        }
     }
     // Forbid pseudoknots
     if (!this->allow_pk_) {
