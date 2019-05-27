@@ -7,3 +7,4 @@ ILmotifDir="/nhome/siniac/lbecquey/Data/RNA/motifs/BGSU/Matlab_results/IL/3.2/li
 HLmotifDir="/nhome/siniac/lbecquey/Data/RNA/motifs/BGSU/Matlab_results/HL/3.2/lib"
 descfolder="/local/local/labo/03_tests_biominserter/No_Redondance_DESC/"
 bypdir="/nhome/siniac/lbecquey/Software/BayesPairing/bayespairing/src"
+biorseoDir="/nhome/siniac/lbecquey/Software/biorseo"
