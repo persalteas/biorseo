@@ -15,15 +15,15 @@ import ast
 
 # Retrieve Paths from file EditMe
 jar3dexec = ""
-HLmotifDir = ""
-ILmotifDir = ""
-descfolder = ""
 bypdir = ""
 biorseoDir = "."
 exec(compile(open(biorseoDir+"/EditMe").read(), '', 'exec'))
 runDir = path.dirname(path.realpath(__file__))
 dataFile = argv[1]
 outputDir = biorseoDir + "/results/"
+HLmotifDir = biorseoDir + "/data/modules/BGSU/HL/3.2/lib"
+ILmotifDir = biorseoDir + "/data/modules/BGSU/IL/3.2/lib"
+descfolder = biorseoDir + "/data/modules/DESC"
 
 # Create some folders to store the results
 subprocess.call(["mkdir", "-p", outputDir])

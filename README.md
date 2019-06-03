@@ -1,4 +1,6 @@
 Biorseo (Bi-Objective RNA Structure Efficient Optimizer)
+===================================
+
 This tool predicts the secondary structure of a RNA sequence with pieces of 3D information (non-canonical contacts) at some places, 
 by identifying zones that can fold like known modules from data like the RNA 3D Motif Atlas or Rna3Dmotifs.
 
@@ -47,13 +49,16 @@ OBJECTIVE FUNCTIONS FOR THE MODULE INSERTION CRITERIA
     * Benchmarks show Biorseo does not perform better than simpler tools like RNAsubopt alone. Please use RNAsubopt (ViennaRNA package) or Fold (RNAstructure package).
 
 - If you **might expect a pseudoknot, or don't know**:
-    * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function B. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it.
-    * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions.
+    * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function B. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it. Example:
+    `./bin/biorseo -s PDB_00304.fa --descfolder ./data/modules/DESC --type B -o PDB_00304.rawB `
+    
+    * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
+    `./bin/biorseo -s PDB_00304.fa --jar3dcsv PDB_00304.sites.csv --type B -o PDB_00304.jar3dB`
 
 
 4/ Installation
 ==================================
-DEPENDENCIES
+### DEPENDENCIES
 - Make sure you have Python 3.5+, Cmake, and a C++ compiler installed on your distribution.
 - Install automake and libboost-filesystem.
 - Download and install [IBM ILOG Cplex optimization studio](https://www.ibm.com/analytics/cplex-optimizer), an academic account is required. The free version is too limited, you must register as academic. This is also free.
@@ -79,13 +84,13 @@ make -j4
 sudo make install
 ```
 
-OPTIONAL DEPENDENCIES FOR USE OF JAR3D
+### OPTIONAL DEPENDENCIES FOR USE OF JAR3D
 - Download and install RNAsubopt from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/).
 - Download and install Java runtime (Tested with Java 10)
 - Download the latest JAR3D executable "*jar3d_releasedate.jar*", and latest IL and HL models from [here](http://rna.bgsu.edu/data/jar3d/models/).
   Note that only the latest version is required (not all the versions provided in the folders).
 
-OPTIONAL DEPENDENCIES FOR USE OF BAYESPAIRING
+### OPTIONAL DEPENDENCIES FOR USE OF BAYESPAIRING
 - Download and install RNAfold from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/).
 - Make sure you have Python 3.5+ with packages networkx, numpy, regex, wrapt and biopython
 - Clone the latest BayesPairing Git repo, and install it : 
@@ -95,15 +100,16 @@ cd BayesPairing
 pip install .
 ```
 
-RNA3DMOTIFS DATA
+### RNA3DMOTIFS DATA
 
-If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)).
+If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Put all the .desc from the `Non_Redundant_DESC` folder into `./data/modules/DESC`. Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)). You also need to move the final DESC files into `./data/modules/DESC`.
 
-THE RNA 3D MOTIF ATLAS DATA
+### THE RNA 3D MOTIF ATLAS DATA
 
-If not done during the installation of JAR3D, get the latest version of the HL and IL module models from the [BGSU website](http://rna.bgsu.edu/data/jar3d/models/) and extract the Zip files.
+If not done during the installation of JAR3D, get the latest version of the HL and IL module models from the [BGSU website](http://rna.bgsu.edu/data/jar3d/models/) and extract the Zip files. Put the HL and IL folders into `./data/modules/BGSU`.
 
-BUILDING
+### BUILDING
+* Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` and `cd biorseo`.
 * Edit the file `EditMe` to set the paths of the above dependencies and data. Fileds that you will not use can be ignored (ex: bypdir if you do not use BayesPairing). Example of my setup:
     * CPLEXDir="/opt/ibm/ILOG/CPLEX_Studio128_Student"
     * IEIGEN="/usr/local/include/eigen3"
@@ -118,4 +124,11 @@ BUILDING
 * Build it: `make -j4`
 * The working executable file is `./bin/biorseo`.
 
-BAYESPAIRING USERS: PREPARE BAYESIAN NETWORKS
+### BAYESPAIRING USERS: PREPARE BAYESIAN NETWORKS
+We run an example job for it to build the bayesian networks of our modules.
+```
+cd rnabayespairing/src
+python3 parse_sequences.py -d rna3dmotif -seq ACACGGGGUAAGAGCUGAACGCAUCUAAGCUCGAAACCCACUUGGAAAAGAGACACCGCCGAGGUCCCGCGUACAAGACGCGGUCGAUAGACUCGGGGUGUGCGCGUCGAGGUAACGAGACGUUAAGCCCACGAGCACUAACAGACCAAAGCCAUCAU -ss ".................................................................((...............)xxxx(...................................................)xxx).............."
+```
+Use `-d rna3dmotif` or `-d 3dmotifatlas` depending on the module source you are planning to use.
+This is a quite long step, but the bayesian networks will be ready for all the future uses.
