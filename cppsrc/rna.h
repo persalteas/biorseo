@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-using Eigen::MatrixXf, Eigen::Matrix;
+using Eigen::MatrixXf;
 using std::map;
 using std::pair;
 using std::string;

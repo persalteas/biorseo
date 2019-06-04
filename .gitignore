@@ -23,5 +23,11 @@ results/*
 log_of_the_run.sh
 logBadDesc.txt
 gurobi.log
-IL*
-HL*
+temp/*
+
+# data 
+data/modules/BGSU/HL/3.2/diagnostic/*
+data/modules/BGSU/HL/3.2/lib/*
+data/modules/BGSU/IL/3.2/diagnostic/*
+data/modules/BGSU/IL/3.2/lib/*
+data/modules/DESC/*.desc

@@ -15,15 +15,15 @@ import ast
 
 # Retrieve Paths from file EditMe
 jar3dexec = ""
-HLmotifDir = ""
-ILmotifDir = ""
-descfolder = ""
 bypdir = ""
 biorseoDir = "."
 exec(compile(open(biorseoDir+"/EditMe").read(), '', 'exec'))
 runDir = path.dirname(path.realpath(__file__))
 dataFile = argv[1]
 outputDir = biorseoDir + "/results/"
+HLmotifDir = biorseoDir + "/data/modules/BGSU/HL/3.2/lib"
+ILmotifDir = biorseoDir + "/data/modules/BGSU/IL/3.2/lib"
+descfolder = biorseoDir + "/data/modules/DESC"
 
 # Create some folders to store the results
 subprocess.call(["mkdir", "-p", outputDir])
@@ -360,8 +360,8 @@ def launch_RNAMoIP(seq_, header_, basename):
     ninsertions = [ t[1] for t in results if t[0] != ""]
     scores = [ t[2] for t in results if t[0] != ""]
     rna = open(outputDir + basename + ".moip", "w")
-    rna.write(header_)
-    rna.write(seq_)
+    rna.write(header_+'\n')
+    rna.write(seq_+'\n')
     for p,n,s in zip(predictions, ninsertions, scores):
         rna.write(p+'\t'+str(n)+'\t'+str(s)+'\n')
     rna.close()
@@ -885,8 +885,8 @@ class RNA:
                 if ss not in self.biorseoBGSUBayesPairA.predictions:
                     self.biorseoBGSUBayesPairA.predictions.append(ss)
                 self.biorseoBGSUBayesPairA.ninsertions.append(lines[i].count('+'))
-        else:
-            print(targetdir+ self.basename + ".bgsubypA not found !")
+        # else:
+        #     print(targetdir+ self.basename + ".bgsubypA not found !")
     
     def get_biorseoBGSUBayesPairB_results(self, targetdir):
         if path.isfile(targetdir+ self.basename + ".bgsubypB"):
@@ -898,8 +898,8 @@ class RNA:
                 if ss not in self.biorseoBGSUBayesPairB.predictions:
                     self.biorseoBGSUBayesPairB.predictions.append(ss)
                 self.biorseoBGSUBayesPairB.ninsertions.append(lines[i].count('+'))
-        else:
-            print(targetdir+ self.basename + ".bgsubypB not found !")
+        # else:
+        #     print(targetdir+ self.basename + ".bgsubypB not found !")
 
     def get_biorseoBGSUBayesPairC_results(self, targetdir):  
         if path.isfile(targetdir+ self.basename + ".bgsubypC"):
@@ -911,8 +911,8 @@ class RNA:
                 if ss not in self.biorseoBGSUBayesPairC.predictions:
                     self.biorseoBGSUBayesPairC.predictions.append(ss)
                 self.biorseoBGSUBayesPairC.ninsertions.append(lines[i].count('+'))
-        else:
-            print(targetdir+ self.basename + ".bgsubypC not found !")
+        # else:
+        #     print(targetdir+ self.basename + ".bgsubypC not found !")
 
     def get_biorseoBGSUBayesPairD_results(self, targetdir):  
         if path.isfile(targetdir+ self.basename + ".bgsubypD"):
@@ -924,8 +924,8 @@ class RNA:
                 if ss not in self.biorseoBGSUBayesPairD.predictions:
                     self.biorseoBGSUBayesPairD.predictions.append(ss)
                 self.biorseoBGSUBayesPairD.ninsertions.append(lines[i].count('+'))
-        else:
-            print(targetdir+ self.basename + ".bgsubypD not found !")
+        # else:
+        #     print(targetdir+ self.basename + ".bgsubypD not found !")
 
     def load_results_from(self, targetDir):
         self.get_biokop_results()
@@ -1003,9 +1003,9 @@ for nt, number in ignored_nt_dict.items():
 tot = len(RNAcontainer)
 print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudoknots." % (tot, pk_counter))
 
-# # ================= PREDICTION OF STRUCTURES ===============================
+# #================= PREDICTION OF STRUCTURES ===============================
 
-# # define job list
+# #define job list
 # joblist = []
 # for instance in RNAcontainer:
 #     basename = instance.basename
@@ -1017,7 +1017,7 @@ print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudokno
 #     # BayesPairing and BGSUBayesPairing
 #     joblist.append(Job(function=launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header_, basename], how_many_in_parallel=-1, priority=3, checkFunc=check_BayesPairing, checkArgs=[basename]))
 #     joblist.append(Job(function=launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header_, basename], how_many_in_parallel=-1, priority=3, checkFunc=check_BGSUBayesPairing, checkArgs=[basename]))
-#     # bmotinBGSUJAR3DA-D
+#     # biorseoBGSUJAR3DA-D
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3dA", "--type", "A", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUJAR3DA, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3dB", "--type", "B", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUJAR3DB, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"noPK/"+basename+".jar3dC", "--type", "C", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUJAR3DC, checkArgs=[basename, False]))
@@ -1026,7 +1026,7 @@ print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudokno
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3dB", "--type", "B"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUJAR3DB, checkArgs=[basename, True]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3dC", "--type", "C"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUJAR3DC, checkArgs=[basename, True]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--jar3dcsv", outputDir+basename+".sites.csv", "-o", outputDir+"PK/"+basename+".jar3dD", "--type", "D"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUJAR3DD, checkArgs=[basename, True]))
-#     # bmotinBGSUBayesPairA-D
+#     # biorseoBGSUBayesPairA-D
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubypA", "--type", "A", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUBayesPairA, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubypB", "--type", "B", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUBayesPairB, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"noPK/"+basename+".bgsubypC", "--type", "C", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUBayesPairC, checkArgs=[basename, False]))
@@ -1035,7 +1035,7 @@ print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudokno
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubypB", "--type", "B"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUBayesPairB, checkArgs=[basename, True]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubypC", "--type", "C"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUBayesPairC, checkArgs=[basename, True]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".bgsubyp.csv", "-o", outputDir+"PK/"+basename+".bgsubypD", "--type", "D"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBGSUBayesPairD, checkArgs=[basename, True]))
-#     # bmotinBayesPairA-D
+#     # biorseoBayesPairA-D
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".bypA", "--type", "A", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBayesPairA, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".bypB", "--type", "B", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBayesPairB, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir+basename+".fa", "--bayespaircsv", outputDir+basename+".byp.csv", "-o", outputDir+"noPK/"+basename+".bypC", "--type", "C", "-n"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoBayesPairC, checkArgs=[basename, False]))
@@ -1049,7 +1049,7 @@ print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudokno
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"noPK/" + basename + ".rawB", "--type", "B", "-n"], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_biorseoRawB, checkArgs=[basename, False]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".rawA", "--type", "A"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoRawA, checkArgs=[basename, True]))
 #     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".rawB", "--type", "B"], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_biorseoRawB, checkArgs=[basename, True]))
-#     # RNA MoIP
+#     # RNA-MoIP
 #     joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename], priority=3, timeout=3600, checkFunc=check_RNAMoIP, checkArgs=[basename]))
 #     # Biokop
 #     joblist.append(Job(command=[biorseoDir + "/../biokop/biokop", "-n1", "-i", outputDir + basename + ".fa", "-o", outputDir + basename + ".biok"], priority=5, timeout=15000, how_many_in_parallel=3, checkFunc=check_biokop, checkArgs=[basename]))
@@ -1088,13 +1088,15 @@ print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudokno
 #     print()
 #     for j in fails:
 #         print(j.cmd_)
-
-# exit()
-
+# else:
+#     print()
+#     print("Computations ran successfully.")
+#     print()
 
 
 # ================= Statistics (without pseudoknots) ========================
 
+print("Loading results from files... (without pseudoknots)")
 # load results in objects 
 for instance in RNAcontainer:
     instance.load_results_from(outputDir + "noPK/")
@@ -1145,7 +1147,7 @@ x_noPK_fully = [
 print()
 print("Without PK:")
 print("%s RNAsubopt predictions" % is_all(len(x_noPK[0]), tot))
-print("%s RNA MoIP predictions" % is_all(len(x_noPK[1]), tot))
+print("%s RNA-MoIP predictions" % is_all(len(x_noPK[1]), tot))
 print("%s biorseo + BGSU + JAR3D + f1A predictions" % is_all(len(x_noPK[2]), tot))
 print("%s biorseo + BGSU + JAR3D + f1B predictions" % is_all(len(x_noPK[3]), tot))
 print("%s biorseo + BGSU + JAR3D + f1C predictions" % is_all(len(x_noPK[4]), tot))
@@ -1174,6 +1176,7 @@ print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-Mo
 
 # ================= Statistics (with pseudoknots) ========================
 
+print("Loading results from files... (with pseudoknots)")
 # load results in objects
 for instance in RNAcontainer:
     instance.load_results_from(outputDir + "PK/")
@@ -1271,8 +1274,8 @@ print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop
 # print("RNA-MOIP",":",x_noPK[1])
 # for data, name in zip(x_PK, labels):
 #     print(name,":",data)
-# labels = ["RNAsubopt","Biokop\t", "RNA MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
-# # for r in RNAcontainer:
+# labels = ["RNAsubopt","Biokop\t", "RNA-MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
+# for r in RNAcontainer:
 #     print("\n",r.header_,"\nTrue structure:\t", r.true2d)
 #     for m, name in zip([r.rnasubopt, r.biokop, r.rnamoip,
 #                    r.biorseoRawA, 
@@ -1295,7 +1298,7 @@ print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop
 
 merge = [   x_PK_fully[0], # Biokop
             x_noPK_fully[0], # RNA subopt
-            x_noPK_fully[1], # RNA MoIP
+            x_noPK_fully[1], # RNA-MoIP
             x_noPK_fully[2], x_PK_fully[2], #biorseoRawA
             x_noPK_fully[3], x_PK_fully[3], #biorseoRawB
             x_noPK_fully[4], x_PK_fully[4], #biorseoBayesPairA
@@ -1329,7 +1332,7 @@ colors = [  'green', 'blue', 'goldenrod',
             'lime', 'lime'
 ]
 labels = [  "Biokop", "RNAsubopt",
-            "RNA MoIP",
+            "RNA-MoIP",
             "$f_{1A}$",
             "$f_{1B}$",
             "$f_{1A}$",
@@ -1360,7 +1363,7 @@ for patch, color in zip(bplot['boxes'], colors):
 # plt.axhline(y=0, color="black", linewidth=1)
 # plt.axhline(y=1, color="black", linewidth=1)
 plt.xticks([1.0+i for i in range(16)], labels[1:])
-plt.ylim((0, 1.01))
+plt.ylim((0.5, 1.01))
 plt.ylabel("MCC", fontsize=12)
 plt.subplots_adjust(left=0.05, right=0.95)
 # plt.title("Performance without pseudoknots (%d RNAs included)" % len(x_noPK_fully[0]))
@@ -1382,7 +1385,7 @@ for patch, color in zip(bplot['boxes'], colors):
 # plt.axhline(y=0, color="black", linewidth=1)
 # plt.axhline(y=1, color="black", linewidth=1)
 plt.xticks([1.0+i for i in range(16)], labels)
-plt.ylim((0, 1.01))
+plt.ylim((0.5, 1.01))
 plt.ylabel("MCC", fontsize=12)
 plt.subplots_adjust(left=0.05, right=0.95)
 # plt.text(6.2,-0.3,"Performance with pseudoknots (%d RNAs included)" % len(x_PK_fully[0]), fontsize=12)
@@ -1392,20 +1395,18 @@ plt.show()
 
 
 # # ================== MCC performance ====================================
-# # plt.subplot(141)
-
-# RNAs_fully_predicted.sort(key=lambda x: x.rnasubopt.max_mcc)
+# RNAcontainer.sort(key=lambda x: x.rnasubopt.max_mcc)
 
 # x = [
-#     [ rna.rnasubopt.max_mcc for rna in RNAs_fully_predicted],
-#     [ rna.rnamoip.max_mcc for rna in RNAs_fully_predicted],
-#     #[ rna.biorseoRawA.max_mcc for rna in RNAs_fully_predicted],
+#     [ rna.rnasubopt.max_mcc for rna in RNAcontainer],
+#     [ rna.rnamoip.max_mcc for rna in RNAcontainer],
+#     # [ rna.biorseoRawA.max_mcc for rna in RNAs_fully_predicted],
 #     # [ rna.biorseoRawB.max_mcc for rna in RNAs_fully_predicted],
-#     #[ rna.biokop.max_mcc for rna in RNAs_fully_predicted],
-#     #[ rna.biorseoBGSUJAR3DA.max_mcc for rna in RNAs_fully_predicted]
+#     # [ rna.biokop.max_mcc for rna in RNAs_fully_predicted],
+#     # [ rna.biorseoBGSUJAR3DA.max_mcc for rna in RNAs_fully_predicted]
 # ]
-# colors = ['xkcd:blue','goldenrod']#, 'green', 'cyan']
-# labels = ["Best RNAsubopt MCC",  "Best RNA-MoIP MCC"]#, "Best Biokop prediction", "Best JAR3DA prediction"]
+# colors = ['xkcd:blue','goldenrod']#xkcd:red', 'green', 'cyan']
+# labels = ["Best RNAsubopt MCC", "Best RNA-MoIP MCC"]# "Best RawA prediction", "Best Biokop prediction", "Best JAR3DA prediction"]
 # for y, col, lab in zip(x, colors, labels):
 #     x_data = [ i for i in range(len(y)) if y[i]]
 #     y_data = [ i for i in y if i]
@@ -1544,7 +1545,7 @@ plt.show()
 #     [ rna.biokop.max_mcc - rna.rnasubopt.max_mcc for rna in RNAcontainer if len(rna.biokop.predictions)],
 #]
 # colors = ['xkcd:goldenrod', 'xkcd:red', 'firebrick', 'limegreen']
-# labels = ["$\Delta$MCC(RNAsubopt,RNA MoIP)","$\Delta$MCC(RNAsubopt,RNA MoBOIP)",
+# labels = ["$\Delta$MCC(RNAsubopt,RNA-MoIP)","$\Delta$MCC(RNAsubopt,RNA MoBOIP)",
 #     "$\Delta$MCC(RNAsubopt,RNA MoBOIP++)","$\Delta$MCC(RNAsubopt,Biokop)"]
 # bplot = plt.boxplot(x, vert=False, patch_artist=True, notch=False, whis=[3,97])
 # for patch, color in zip(bplot['boxes'], colors):
