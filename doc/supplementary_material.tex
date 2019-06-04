@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{stmaryrd}   % llbracket, rrbracket
+\usepackage{siunitx}	% SI units
+\usepackage{geometry}
+\usepackage{charter}	% betterfont
+
+\geometry{top=1.5cm,bottom=1.5cm, left=2cm, right=2cm}
+
+\begin{document}
+
+\appendix
+\section{Linear constraints to model RNA Structure in a linear integer program}
+The constraints have been rewritten by us, but are inspired by works like IPknot, Biokop, and RNA-MoIP.
+
+\paragraph{Extended notations} ~ Here we repeat the definition of the variables that we already used in the article, and we use a few more, that also are defined:\\
+Let $n$ be the number of nucleotides in the query RNA sequence $s$.\\
+Let $M$ be the set of modules that could be inserted in $s$.\\
+Let $x$ be a module of $M$, $\|x\|$ be the number of distinct components of $x$, and $p(x)$ the associated score of insertion given by JAR3D for that motif inserted at a particular position.\\
+Let $P_{x,i}$ be the position in $s$ where we can insert the $i$th component of module $x$.\\
+As the same module model can be inserted several times in $s$, several different $x$ modules in $M$ may refer to the same theoretical module, but inserted at different positions.\\
+Let $k_{x,i}$ be the size in nucleotides of that $i$th component of $x$.\\
+Let $y^u_v$ be the \textbf{decision boolean variable} indicating that $s[u]$ and $s[v]$ form a canonical base pairing. According to the standard loop model, we always have $v > u + 3$.\\
+Let $C^x_i$ be the \textbf{decision boolean variable} indicating that we do insert the $i$th component of module $x$ at position $P_{x,i}$.
+
+
+Note that a base pair $y^u_v$ is possible if and only if $v>u+3$, and that we do not need to use two variables $y^u_v$ and $y_{vu}$ for the same pair. 
+Then, we have $\sum_{i=4}^n (n-i)$ decision variables ($\approx \frac{1}{2}n^2$ decision variables) of the form $y^u_v$.
+Regarding the $C^x_i$, if we have an average insertion of $\nu$ motives by RNA sequence, the motives having in average $\mu$ components, components that can be inserted in average at $\pi$ different positions in $s$,
+then we need to add, in average, $\nu \times \mu \times \pi$ decision variables $C^x_i$.
+
+Then, we expect having around $\frac{1}{2}n^2+\nu \mu \pi$ decision variables.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Constraint to ensure there only is 0 or 1 canonical pairing by nucleotide} ~ 
+\begin{equation} \label{constraint:1}
+	\sum_{v<u} y^v_u + \sum_{v>u} y^u_v \leq 1 \qquad\qquad \forall u \in \llbracket 1,n \rrbracket
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Constraints to forbid lonely base pairs} ~
+% \begin{equation} \label{constraint:2}
+% 	\sum_{v=u}^n y^{u-1}_v - \sum_{v=u+1}^n y^u_v + \sum_{v=u+2}^n y^{u+1}_v \geq 0 \qquad \qquad \forall u \in \llbracket 1,n\rrbracket
+% \end{equation}
+% \begin{equation} \label{constraint:3}
+% 	\sum_{u=1}^{v-2} y^u_{v-1} - \sum_{u=1}^{v-1} y^u_v + \sum_{u=1}^{v} y^u_{v+1} \geq 0 \qquad \qquad \forall v \in \llbracket 1,n\rrbracket
+% \end{equation}
+% These conditions ensure that if a base pair exists with $s[i]$, 
+% one of the adjacent bases is paired too. 
+% Equation \ref{constraint:2} is useful if $s[u]$ is paired with $s[v>u]$ (a nucleotide later in the sequence), 
+% and equation \ref{constraint:3} if $s[v]$ is paired with $s[u<v]$ (a nucleotide earlier in the sequence).
+\begin{equation} \label{constraint:2}
+	y^{u-1}_{v+1} - y^u_v + y^{u+1}_{v-1} \geq 0 \qquad \qquad \forall (u,v) \in \{ (u,v) \in \llbracket 1,n\rrbracket^2 \; | \; u + 3 <v \}
+\end{equation}
+A basepair should be accompanied by one of its neighbours, forming a stable structure stabilized by stacking energies. In theory, this might add up to \( \frac{1}{2}n^2\) constraints, but in practice, this number is very reasonable as
+the only decision variables kept are those with probability above a $\theta$ threshold. 
+Then, this condition sets to zero "lonely decision variables" who have no neighbour basepair variable allowed.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Constraint to forbid pairings inside a module component} ~ 
+\begin{equation} \label{constraint:4}
+	(k_{x,i}-2) \; C^x_i + \sum_{u=P_{x,i}+1}^{P_{x,i}+k_{x,i}-2}\left[ \sum_{v>u} y^u_v + \sum_{v<u} y^v_u \right] \leq (k_{x,i} - 2)
+	\qquad \qquad \forall x \in M, i \in \llbracket 1,\|x\| \rrbracket
+\end{equation}
+If $C^x_i$ is set to 1, then the sum has to be zero. Obviously, this constraint prevents the program to correctly detect pseudoknots of HHH (kissing hairpins) and LL types (kissing higher-order loops), which is a limit of the approach.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Constraint to forbid component to overlap} ~
+\begin{equation} \label{constraint:5}
+	\sum_{x \in M} \sum_{i=1}^{\|x\|} C^x_i \times I(P_{x,i}<u<P_{x,i}+k_{x,i}-1) \leq 1 \qquad \qquad \forall u \in \llbracket 1,n \rrbracket
+\end{equation}
+$I(P_{x,i}<u<P_{x,i}+k_{x,i}-1)$ is a boolean value depending on the condition's truth. Then, whatever the nucleotide $u$, it can be part of a module component only once.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Constraints to respect the structure of large motives ($\{ x\in M \; | \; \|x\| \geq 2\}$)} ~ 
+
+This constraint ensures that none or all the components of a motif are inserted.
+\begin{equation}\label{constraint:6}
+	\sum_{i=2}^{\|x\|} C^x_i = (\|x\| - 1) \times C^{x}_{1}	 \qquad \qquad \forall x \in \{ x\in M \; | \; \|x\| \geq 2\}
+\end{equation}
+
+And then, we force base pairs between the end of a component and the beginning of the next one:
+\begin{equation}\label{constraint:7}
+	C^x_1 \leq y^{P_{x,1}}_{P_{x,\|x\|}+k_{x,\|x\|}-1} \qquad \qquad \forall x \in \{ x\in M \; | \; \|x\| \geq 2\}
+\end{equation}
+\begin{equation}\label{constraint:8}
+	C^x_j \leq y^{P_{x,j}+k_{x,j}-1}_{P_{x,j+1}} \qquad \qquad \forall x \in \{ x\in M \; | \; \|x\| \geq 2\}, \forall j \in \llbracket 1,\|x\| \llbracket
+\end{equation}
+
+Constraint \ref{constraint:7} binds the first nucleotide of first component to the last one of the last component. 
+Constraint \ref{constraint:8} binds the last nucleotide of component $j$ to the first of component $j+1$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Facultative constraint to forbid pseudoknots} ~
+\begin{equation}\label{constraint:9}
+	y^u_v + y^k_l \leq 1 \qquad \qquad \forall u,v,k,l \text{ such as } 1\leq u<k<v<l\leq n
+\end{equation}
+
+To limit the number of constraints added, we obviously define the condition for allowed basepairs only ($u + 3 <v$, $k + 3 <l$, $p_{uv} > \theta$, $p_{kl} > \theta$).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Constraint to forbid a previously found solution} ~ 
+
+As several solutions may result in the same values of the two objectives, we can't forbid the algorithm to search twice the same region of the objective landscape.
+We have to explicitly forbid to find again every found solution.\\
+We do it by adding iteratively, for every structure $s^*$ found, the following condition :
+\begin{equation}\label{constraint:10}
+	\sum_{y^u_v \in \{ y^u_v  | y^u_v = 1 \text{ in } s^* \}} (1 - y^u_v) + \sum_{y^u_v \in \{ y^u_v  | y^u_v = 0 \text{ in } s^* \}} y^u_v +
+	\sum_{C^x_i \in \{ C^x_i  | C^x_i = 1 \text{ in } s^* \}} (1 - C^x_i) + \sum_{C^x_i \in \{ C^x_i  |C^x_i = 0 \text{ in } s^* \}} C^x_i \geq 1
+\end{equation}
+
+It ensures that at least one of the decision variables differs from $s^*$.
+\end{document}

@@ -12,7 +12,6 @@ doc/*.fls
 doc/*.fdb_latexmk
 
 # Compiled Object files
-*.o
 obj/*
 
 # Executables
