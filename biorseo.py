@@ -53,6 +53,43 @@ class MyPool(multiprocessing.pool.Pool):
         super(MyPool, self).__init__(*args, **kwargs)
 
 
+class Loop:
+    def __init__(self, header, subsequence, looptype, position):
+        self.header = header
+        self.seq = subsequence
+        self.type = looptype
+        self.position = position
+
+    def get_header(self):
+        return self.header
+
+    def subsequence(self):
+        return self.seq
+
+
+class InsertionSite:
+    def __init__(self, loop, csv_line):
+        # BEWARE : jar3d csv output is crap because of java's locale settings.
+        # On french OSes, it uses commas to delimit the fields AND as floating point delimiters !!
+        # Parse with caution, and check what the csv output files look like on your system...
+        info = csv_line.split(',')
+        self.loop = loop  # the Loop object that has been searched with jar3d
+        # position of the loop's components, so the motif's ones, in the query sequence.
+        self.position = loop.position
+        # Motif model identifier of the RNA 3D Motif Atlas
+        self.atlas_id = info[2]
+        # alignment score of the subsequence to the motif model
+        self.score = int(float(info[4]))
+        # should the motif model be inverted to fit the sequence ?
+        self.rotation = int(info[-2])
+
+    def __lt__(self, other):
+        return self.score < other.score
+
+    def __gt__(self, other):
+        return self.score > other.score
+
+
 class Job:
     def __init__(self, command=[], function=None, args=[], how_many_in_parallel=0, priority=1, timeout=None, checkFunc=None, checkArgs=[]):
         self.cmd_ = command
@@ -72,10 +109,14 @@ class Job:
 
 class BiorseoInstance:
     def __init__(self, argv):
+        # set default options
         self.type = "dpm"
         self.modules = "desc"
         self.func = 'B'
         self.outputf = outputDir
+        self.jobcount = 0
+
+        # Parse options
         try:
             opts, args = getopt.getopt(
                 argv, "hil::o:", ["type=", "func=", "modules="])
@@ -123,6 +164,114 @@ class BiorseoInstance:
 
             # Create the output folder
             subprocess.call(["mkdir", "-p", self.outputf])
+
+    def enumerate_loops(self, s):
+        def resort(unclosedLoops):
+            loops.insert(len(loops)-1-unclosedLoops, loops[-1])
+            loops.pop(-1)
+
+        opened = []
+        openingStart = []
+        closingStart = []
+        loops = []
+        loopsUnclosed = 0
+        consecutiveOpenings = []
+        if s[0] == '(':
+            consecutiveOpenings.append(1)
+        consecutiveClosings = 0
+
+        lastclosed = -1
+        previous = ''
+        for i in range(len(s)):
+
+            # If we arrive on an unpaired segment
+            if s[i] == '.':
+                if previous == '(':
+                    openingStart.append(i-1)
+                if previous == ')':
+                    closingStart.append(i-1)
+
+            # Opening basepair
+            if s[i] == '(':
+                if previous == '(':
+                    consecutiveOpenings[-1] += 1
+                else:
+                    consecutiveOpenings.append(1)
+                if previous == ')':
+                    closingStart.append(i-1)
+
+                # We have something like (...(
+                if len(openingStart) and openingStart[-1] == opened[-1]:
+                    # Create a new loop starting with this component.
+                    loops.append([(openingStart[-1], i)])
+                    openingStart.pop(-1)
+                    loopsUnclosed += 1
+                # We have something like )...( or even )(
+                if len(closingStart) and closingStart[-1] == lastclosed:
+                    # Append a component to existing multiloop
+                    loops[-1].append((closingStart[-1], i))
+                    closingStart.pop(-1)
+
+                opened.append(i)
+
+            # Closing basepair
+            if s[i] == ')':
+                if previous == ')':
+                    consecutiveClosings += 1
+                else:
+                    consecutiveClosings = 1
+                # This is not supposed to happen in real data, but whatever.
+                if previous == '(':
+                    openingStart.append(i-1)
+
+                # We have something like (...) or ()
+                if len(openingStart) and openingStart[-1] == opened[-1]:
+                    # Create a new loop, and save it as already closed (HL)
+                    loops.append([(openingStart[-1], i)])
+                    openingStart.pop(-1)
+                    resort(loopsUnclosed)
+                # We have something like )...)
+                if len(closingStart) and closingStart[-1] == lastclosed:
+                    # Append a component to existing multiloop and close it.
+                    loops[-1].append((closingStart[-1], i))
+                    closingStart.pop(-1)
+                    loopsUnclosed -= 1
+                    resort(loopsUnclosed)
+
+                if i+1 < len(s):
+                    if s[i+1] != ')':  # We are on something like: ).
+                        # an openingStart has not been correctly detected, like in ...((((((...)))...)))
+                        if consecutiveClosings < consecutiveOpenings[-1]:
+                            # Create a new loop (uncompleted)
+                            loops.append([(opened[-2], opened[-1])])
+                            loopsUnclosed += 1
+
+                        # We just completed an HL+stem, like ...(((...))).., we can forget its info
+                        if consecutiveClosings == consecutiveOpenings[-1]:
+                            consecutiveClosings = 0
+                            consecutiveOpenings.pop(-1)
+                        else:  # There are still several basepairs to remember, forget only the processed ones, keep the others
+                            consecutiveOpenings[-1] -= consecutiveClosings
+                            consecutiveClosings = 0
+
+                    else:  # We are on something like: ))
+                        # we are on an closingStart that cannot be correctly detected, like in ...(((...(((...))))))
+                        if consecutiveClosings == consecutiveOpenings[-1]:
+                            # Append a component to the uncomplete loop and close it.
+                            loops[-1].append((i, i+1))
+                            loopsUnclosed -= 1
+                            resort(loopsUnclosed)
+                            # Forget the info about the processed stem.
+                            consecutiveClosings = 0
+                            consecutiveOpenings.pop(-1)
+
+                opened.pop(-1)
+                lastclosed = i
+
+            previous = s[i]
+            # print(i,"=",s[i],"\t", "consec. Op=", consecutiveOpenings,"Cl=",consecutiveClosings)
+
+        return(loops)
 
     def launch_JAR3D_worker(self, loop):
         # write motif to a file
@@ -182,7 +331,7 @@ class BiorseoInstance:
         HLs = []
         ILs = []
         for ss in rnasubopt_preds:
-            loop_candidates = enumerate_loops(ss)
+            loop_candidates = self.enumerate_loops(ss)
             for loop_candidate in loop_candidates:
                 if len(loop_candidate) == 1 and loop_candidate not in HLs:
                     HLs.append(loop_candidate)
@@ -199,7 +348,7 @@ class BiorseoInstance:
         # Scanning loop subsequences against motif database
         pool = MyPool(processes=cpu_count())
         insertion_sites = [x for y in pool.map(
-            launch_JAR3D_worker, loops) for x in y]
+            self.launch_JAR3D_worker, loops) for x in y]
         insertion_sites.sort(reverse=True)
         # Writing results to CSV file
         c = 0
@@ -265,21 +414,21 @@ class BiorseoInstance:
     def execute_job(self, j):
         if j.checkFunc_ is not None:
             if j.checkFunc_(*j.checkArgs_):
-                running_stats[2] += 1
-                print("["+str(running_stats[0]+running_stats[2]) +
-                      '/'+str(jobcount)+"]\tSkipping a finished job")
+                self.running_stats[2] += 1
+                print("["+str(self.running_stats[0]+self.running_stats[2]) +
+                      '/'+str(self.jobcount)+"]\tSkipping a finished job")
                 return 0
-        running_stats[0] += 1
+        self.running_stats[0] += 1
         if len(j.cmd_):
             logfile = open("log_of_the_run.sh", 'a')
             logfile.write(" ".join(j.cmd_))
             logfile.write("\n")
             logfile.close()
-            print("["+str(running_stats[0]+running_stats[2]) +
-                  '/'+str(jobcount)+"]\t"+" ".join(j.cmd_))
+            print("["+str(self.running_stats[0]+self.running_stats[2]) +
+                  '/'+str(self.jobcount)+"]\t"+" ".join(j.cmd_))
             r = subprocess.call(j.cmd_, timeout=j.timeout_)
         elif j.func_ is not None:
-            print("["+str(running_stats[0]+running_stats[2])+'/'+str(jobcount) +
+            print("["+str(self.running_stats[0]+self.running_stats[2])+'/'+str(self.jobcount) +
                   "]\t"+j.func_.__name__+'('+", ".join([a for a in j.args_])+')')
             try:
                 r = j.func_(*j.args_)
@@ -287,11 +436,11 @@ class BiorseoInstance:
                 r = 1
                 pass
         if r:
-            fails.append(j)
-        running_stats[1] += 1
+            self.fails.append(j)
+        self.running_stats[1] += 1
         return r
 
-    def check_existence(self, datatype, method, function, with_PK, basename):
+    def check_result_existence(self, datatype, method, function, with_PK, basename):
         folder = self.outputf+"PK/" if with_PK else self.outputf+"noPK/"
         if datatype == "bgsu":
             if method == "jar3d":
@@ -311,7 +460,7 @@ class BiorseoInstance:
             raise "Unknown data type !"
         return path.isfile(folder + basename + extension + function)
 
-    def check_existence(self, datatype, method, basename):
+    def check_csv_existence(self, datatype, method, basename):
         if datatype == "bgsu":
             if method == "jar3d":
                 extension = ".sites.csv"
