@@ -1167,6 +1167,10 @@ print("==> %s ARN were predicted with all methods successful." % is_all(len(x_no
 test = stats.friedmanchisquare(*x_noPK_fully)
 print("Friedman test without PK: H0 = 'The position parameter of all distributions is equal', p-value = ", test.pvalue)
 # ==> No they are not, but none does better, no need to test one further.
+test = stats.wilcoxon(x_noPK_fully[1], x_noPK_fully[2])
+print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawA are equal', p-value = ", test.pvalue)
+test = stats.wilcoxon(x_noPK_fully[1], x_noPK_fully[3])
+print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawB are equal', p-value = ", test.pvalue)
 
 # ================= Statistics (with pseudoknots) ========================
 
@@ -1260,154 +1264,157 @@ test = stats.wilcoxon(x_PK_fully[0], x_PK_fully[11])
 print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value = ", test.pvalue)
 
 
-# ================== Print results for application cases =====================
+# # ================== Print results for application cases =====================
 
-labels = ["Biokop","Biokop","RawA","RawB","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA","JAR3DB","JAR3DC","JAR3DD","BGSUBayesPairingA","BGSUBayesPairingB","BGSUBayesPairingC","BGSUBayesPairingD"]
-print("RNAsubopt",":",x_noPK[0])
-print("RNA-MOIP",":",x_noPK[1])
-for data, name in zip(x_PK, labels):
-    print(name,":",data)
-labels = ["RNAsubopt","Biokop\t", "RNA MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
-for r in RNAcontainer:
-    print("\n",r.header_,"\nTrue structure:\t", r.true2d)
-    for m, name in zip([r.rnasubopt, r.biokop, r.rnamoip,
-                   r.biorseoRawA, 
-                   r.biorseoRawB,
-                   r.biorseoBayesPairA, 
-                   r.biorseoBayesPairB, 
-                   r.biorseoBayesPairC, 
-                   r.biorseoBayesPairD,
-                   r.biorseoBGSUJAR3DA, 
-                   r.biorseoBGSUJAR3DB, 
-                   r.biorseoBGSUJAR3DC, 
-                   r.biorseoBGSUJAR3DD,
-                   r.biorseoBGSUBayesPairA, 
-                   r.biorseoBGSUBayesPairB, 
-                   r.biorseoBGSUBayesPairC, 
-                   r.biorseoBGSUBayesPairD ], labels):
-        print(name+":\t",m.best_pred)
+# labels = ["Biokop","Biokop","RawA","RawB","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA","JAR3DB","JAR3DC","JAR3DD","BGSUBayesPairingA","BGSUBayesPairingB","BGSUBayesPairingC","BGSUBayesPairingD"]
+# print("RNAsubopt",":",x_noPK[0])
+# print("RNA-MOIP",":",x_noPK[1])
+# for data, name in zip(x_PK, labels):
+#     print(name,":",data)
+# labels = ["RNAsubopt","Biokop\t", "RNA MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
+# # for r in RNAcontainer:
+#     print("\n",r.header_,"\nTrue structure:\t", r.true2d)
+#     for m, name in zip([r.rnasubopt, r.biokop, r.rnamoip,
+#                    r.biorseoRawA, 
+#                    r.biorseoRawB,
+#                    r.biorseoBayesPairA, 
+#                    r.biorseoBayesPairB, 
+#                    r.biorseoBayesPairC, 
+#                    r.biorseoBayesPairD,
+#                    r.biorseoBGSUJAR3DA, 
+#                    r.biorseoBGSUJAR3DB, 
+#                    r.biorseoBGSUJAR3DC, 
+#                    r.biorseoBGSUJAR3DD,
+#                    r.biorseoBGSUBayesPairA, 
+#                    r.biorseoBGSUBayesPairB, 
+#                    r.biorseoBGSUBayesPairC, 
+#                    r.biorseoBGSUBayesPairD ], labels):
+#         print(name+":\t",m.best_pred)
 
-# # ================= PLOTS OF RESULTS =======================================
+# ================= PLOTS OF RESULTS =======================================
 
-# merge = [   x_PK_fully[0], # Biokop
-#             x_noPK_fully[0], # RNA subopt
-#             x_noPK_fully[1], # RNA MoIP
-#             x_noPK_fully[2], x_PK_fully[2], #biorseoRawA
-#             x_noPK_fully[3], x_PK_fully[3], #biorseoRawB
-#             x_noPK_fully[4], x_PK_fully[4], #biorseoBayesPairA
-#             x_noPK_fully[5], x_PK_fully[5], #biorseoBayesPairB
-#             x_noPK_fully[6], x_PK_fully[6], #biorseoBayesPairC
-#             x_noPK_fully[7], x_PK_fully[7], #biorseoBayesPairD
-#             x_noPK_fully[8], x_PK_fully[8], #biorseoBGSUJAR3DA
-#             x_noPK_fully[9], x_PK_fully[9], #biorseoBGSUJAR3DB
-#             x_noPK_fully[10], x_PK_fully[10], #biorseoBGSUJAR3DC
-#             x_noPK_fully[11], x_PK_fully[11], #biorseoBGSUJAR3DD
-#             x_noPK_fully[12], x_PK_fully[12], #biorseoBGSUBayesPairA
-#             x_noPK_fully[13], x_PK_fully[13], #biorseoBGSUBayesPairB
-#             x_noPK_fully[14], x_PK_fully[14], #biorseoBGSUBayesPairC
-#             x_noPK_fully[15], x_PK_fully[15], #biorseoBGSUBayesPairD
-# ]
+merge = [   x_PK_fully[0], # Biokop
+            x_noPK_fully[0], # RNA subopt
+            x_noPK_fully[1], # RNA MoIP
+            x_noPK_fully[2], x_PK_fully[2], #biorseoRawA
+            x_noPK_fully[3], x_PK_fully[3], #biorseoRawB
+            x_noPK_fully[4], x_PK_fully[4], #biorseoBayesPairA
+            x_noPK_fully[5], x_PK_fully[5], #biorseoBayesPairB
+            x_noPK_fully[6], x_PK_fully[6], #biorseoBayesPairC
+            x_noPK_fully[7], x_PK_fully[7], #biorseoBayesPairD
+            x_noPK_fully[8], x_PK_fully[8], #biorseoBGSUJAR3DA
+            x_noPK_fully[9], x_PK_fully[9], #biorseoBGSUJAR3DB
+            x_noPK_fully[10], x_PK_fully[10], #biorseoBGSUJAR3DC
+            x_noPK_fully[11], x_PK_fully[11], #biorseoBGSUJAR3DD
+            x_noPK_fully[12], x_PK_fully[12], #biorseoBGSUBayesPairA
+            x_noPK_fully[13], x_PK_fully[13], #biorseoBGSUBayesPairB
+            x_noPK_fully[14], x_PK_fully[14], #biorseoBGSUBayesPairC
+            x_noPK_fully[15], x_PK_fully[15], #biorseoBGSUBayesPairD
+]
 
-# colors = [  'green', 'blue', 'goldenrod',
-#             'darkturquoise', 'darkturquoise', 
-#             'red', 'red', 
-#             'firebrick', 'firebrick',
-#             'limegreen', 'limegreen',
-#             'olive', 'olive',
-#             'forestgreen', 'forestgreen', 
-#             'lime', 'lime',
-#             'darkcyan', 'darkcyan', 
-#             'royalblue', 'royalblue', 
-#             'navy', 'navy', 
-#             'limegreen', 'limegreen',
-#             'olive', 'olive', 
-#             'forestgreen', 'forestgreen', 
-#             'lime', 'lime'
-# ]
-# labels = [  "Biokop", "RNAsubopt",
-#             "RNA MoIP",
-#             "$f_{1A}$",
-#             "$f_{1B}$",
-#             "$f_{1A}$",
-#             "$f_{1B}$",
-#             "$f_{1C}$",
-#             "$f_{1D}$",
-#             "$f_{1A}$",
-#             "$f_{1B}$",
-#             "$f_{1C}$",
-#             "$f_{1D}$",
-#             "$f_{1A}$",
-#             "$f_{1B}$",
-#             "$f_{1C}$",
-#             "$f_{1D}$"        
-# ]
+colors = [  'green', 'blue', 'goldenrod',
+            'darkturquoise', 'darkturquoise', 
+            'red', 'red', 
+            'firebrick', 'firebrick',
+            'limegreen', 'limegreen',
+            'olive', 'olive',
+            'forestgreen', 'forestgreen', 
+            'lime', 'lime',
+            'darkcyan', 'darkcyan', 
+            'royalblue', 'royalblue', 
+            'navy', 'navy', 
+            'limegreen', 'limegreen',
+            'olive', 'olive', 
+            'forestgreen', 'forestgreen', 
+            'lime', 'lime'
+]
+labels = [  "Biokop", "RNAsubopt",
+            "RNA MoIP",
+            "$f_{1A}$",
+            "$f_{1B}$",
+            "$f_{1A}$",
+            "$f_{1B}$",
+            "$f_{1C}$",
+            "$f_{1D}$",
+            "$f_{1A}$",
+            "$f_{1B}$",
+            "$f_{1C}$",
+            "$f_{1D}$",
+            "$f_{1A}$",
+            "$f_{1B}$",
+            "$f_{1C}$",
+            "$f_{1D}$"        
+]
 
-# ax = plt.subplot(211)
-# ax.tick_params(labelsize=12)
-# for y in [ i/10 for i in range(11) ]:
-#     plt.axhline(y=y, color="grey", linestyle="--", linewidth=1)
-# colors = [  'blue','goldenrod',
-#             'red', 'firebrick','limegreen','olive', 'forestgreen', 'lime',
-#             'darkturquoise', 'darkcyan', 'royalblue', 'navy', 'limegreen','olive', 'forestgreen', 'lime'
-#          ]
-# bplot = plt.boxplot(x_noPK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97])
-# for patch, color in zip(bplot['boxes'], colors):
-#     patch.set_facecolor(color)
-# # plt.axhline(y=0, color="black", linewidth=1)
-# # plt.axhline(y=1, color="black", linewidth=1)
-# plt.xticks([1.0+i for i in range(16)], labels[1:])
-# plt.ylim((0, 1.01))
-# plt.ylabel("MCC", fontsize=12)
-# plt.subplots_adjust(left=0.05, right=0.95)
-# # plt.title("Performance without pseudoknots (%d RNAs included)" % len(x_noPK_fully[0]))
-
-
-# ax = plt.subplot(212)
-# ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False, labelsize=12)
-# ax.xaxis.set_label_position('top')
-# for y in [ i/10 for i in range(11) ]:
-#     plt.axhline(y=y, color="grey", linestyle="--", linewidth=1)
-# colors = [  'green','green', 
-#             'red', 'firebrick','limegreen','olive', 'forestgreen', 'lime',
-#             'darkturquoise', 'darkcyan', 'royalblue', 'navy', 'limegreen','olive', 'forestgreen', 'lime'
-#          ]
-# labels = [  "Biokop"]
-# bplot = plt.boxplot(x_PK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97])
-# for patch, color in zip(bplot['boxes'], colors):
-#     patch.set_facecolor(color)
-# # plt.axhline(y=0, color="black", linewidth=1)
-# # plt.axhline(y=1, color="black", linewidth=1)
-# plt.xticks([1.0+i for i in range(16)], labels)
-# plt.ylim((0, 1.01))
-# plt.ylabel("MCC", fontsize=12)
-# plt.subplots_adjust(left=0.05, right=0.95)
-# # plt.text(6.2,-0.3,"Performance with pseudoknots (%d RNAs included)" % len(x_PK_fully[0]), fontsize=12)
+ax = plt.subplot(211)
+ax.tick_params(labelsize=12)
+for y in [ i/10 for i in range(11) ]:
+    plt.axhline(y=y, color="grey", linestyle="--", linewidth=1)
+colors = [  'blue','goldenrod',
+            'red', 'firebrick','limegreen','olive', 'forestgreen', 'lime',
+            'darkturquoise', 'darkcyan', 'royalblue', 'navy', 'limegreen','olive', 'forestgreen', 'lime'
+         ]
+bplot = plt.boxplot(x_noPK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97])
+for patch, color in zip(bplot['boxes'], colors):
+    patch.set_facecolor(color)
+# plt.axhline(y=0, color="black", linewidth=1)
+# plt.axhline(y=1, color="black", linewidth=1)
+plt.xticks([1.0+i for i in range(16)], labels[1:])
+plt.ylim((0, 1.01))
+plt.ylabel("MCC", fontsize=12)
+plt.subplots_adjust(left=0.05, right=0.95)
+# plt.title("Performance without pseudoknots (%d RNAs included)" % len(x_noPK_fully[0]))
 
 
-# plt.show()
+ax = plt.subplot(212)
+ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False, labelsize=12)
+ax.xaxis.set_label_position('top')
+for y in [ i/10 for i in range(11) ]:
+    plt.axhline(y=y, color="grey", linestyle="--", linewidth=1)
+colors = [  'green','green', 
+            'red', 'firebrick','limegreen','olive', 'forestgreen', 'lime',
+            'darkturquoise', 'darkcyan', 'royalblue', 'navy', 'limegreen','olive', 'forestgreen', 'lime'
+         ]
+labels = [  "Biokop"]
+bplot = plt.boxplot(x_PK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97])
+for patch, color in zip(bplot['boxes'], colors):
+    patch.set_facecolor(color)
+# plt.axhline(y=0, color="black", linewidth=1)
+# plt.axhline(y=1, color="black", linewidth=1)
+plt.xticks([1.0+i for i in range(16)], labels)
+plt.ylim((0, 1.01))
+plt.ylabel("MCC", fontsize=12)
+plt.subplots_adjust(left=0.05, right=0.95)
+# plt.text(6.2,-0.3,"Performance with pseudoknots (%d RNAs included)" % len(x_PK_fully[0]), fontsize=12)
+
+
+plt.show()
 
 
 # # ================== MCC performance ====================================
 # # plt.subplot(141)
+
+# RNAs_fully_predicted.sort(key=lambda x: x.rnasubopt.max_mcc)
+
 # x = [
 #     [ rna.rnasubopt.max_mcc for rna in RNAs_fully_predicted],
-#     # [ rna.rnamoip.max_mcc for rna in RNAs_fully_predicted],
-#     [ rna.biorseoRawA.max_mcc for rna in RNAs_fully_predicted],
+#     [ rna.rnamoip.max_mcc for rna in RNAs_fully_predicted],
+#     #[ rna.biorseoRawA.max_mcc for rna in RNAs_fully_predicted],
 #     # [ rna.biorseoRawB.max_mcc for rna in RNAs_fully_predicted],
-#     [ rna.biokop.max_mcc for rna in RNAs_fully_predicted],
-#     [ rna.biorseoBGSUJAR3DA.max_mcc for rna in RNAs_fully_predicted]
+#     #[ rna.biokop.max_mcc for rna in RNAs_fully_predicted],
+#     #[ rna.biorseoBGSUJAR3DA.max_mcc for rna in RNAs_fully_predicted]
 # ]
-# colors = ['xkcd:blue','xkcd:red', 'green', 'cyan']
-# labels = ["Best RNAsubopt prediction",  "Best RawA prediction", "Best Biokop prediction", "Best JAR3DA prediction"]
+# colors = ['xkcd:blue','goldenrod']#, 'green', 'cyan']
+# labels = ["Best RNAsubopt MCC",  "Best RNA-MoIP MCC"]#, "Best Biokop prediction", "Best JAR3DA prediction"]
 # for y, col, lab in zip(x, colors, labels):
 #     x_data = [ i for i in range(len(y)) if y[i]]
 #     y_data = [ i for i in y if i]
 #     plt.scatter(x_data, y_data, color=col, label=lab, marker='o', s=2.5)
 # plt.axhline(y=0, color='black', linewidth=1)
 # plt.axvline(x=0, color='black', linewidth=1)
-# plt.xlabel("RNA Strand verified tRNA structures (10 < |nt| < 100)")
+# # plt.xlabel("RNA Strand verified tRNA structures (10 < |nt| < 100)")
 # plt.ylabel("Mattews Correlation Coefficient")
-# plt.title("Performance of the prediction method")
+# # plt.title("Performance of the prediction method")
 # plt.legend(loc="lower right")
 # plt.show()
 
