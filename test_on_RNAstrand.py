@@ -1003,7 +1003,7 @@ for nt, number in ignored_nt_dict.items():
 tot = len(RNAcontainer)
 print("Loaded %d RNAs of length between 10 and 100. %d of them contain pseudoknots." % (tot, pk_counter))
 
-# #================= PREDICTION OF STRUCTURES ===============================
+#================= PREDICTION OF STRUCTURES ===============================
 
 #define job list
 joblist = []
@@ -1050,7 +1050,7 @@ for instance in RNAcontainer:
     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".rawA", "--type", "A"], priority=4, timeout=3600, how_many_in_parallel=3, checkFunc=check_biorseoRawA, checkArgs=[basename, True]))
     joblist.append(Job(command=[biorseoDir+"/bin/biorseo", "-s", outputDir + basename + ".fa", "-d", descfolder, "-o", outputDir+"PK/" + basename + ".rawB", "--type", "B"], priority=4, timeout=3600,  how_many_in_parallel=3, checkFunc=check_biorseoRawB, checkArgs=[basename, True]))
     # RNA-MoIP
-    joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename], priority=3, timeout=3600, checkFunc=check_RNAMoIP, checkArgs=[basename]))
+    # joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename], priority=3, timeout=3600, checkFunc=check_RNAMoIP, checkArgs=[basename]))
     # Biokop
     joblist.append(Job(command=[biorseoDir + "/../biokop/biokop", "-n1", "-i", outputDir + basename + ".fa", "-o", outputDir + basename + ".biok"], priority=5, timeout=15000, how_many_in_parallel=3, checkFunc=check_biokop, checkArgs=[basename]))
 
