@@ -8,7 +8,7 @@ from os import path, makedirs, getcwd, chdir, devnull
 import matplotlib.pyplot as plt
 from matplotlib import colors
 from math import sqrt
-from multiprocessing import Pool, cpu_count, Manager
+from multiprocessing import cpu_count, Manager
 import multiprocessing
 import ast
 
@@ -21,11 +21,25 @@ bypdir = ""
 biorseoDir = "."
 exec(compile(open(biorseoDir+"/EditMe").read(), '', 'exec'))
 runDir = path.dirname(path.realpath(__file__))
-self.outputf = biorseoDir + "/results/"
 tempDir = biorseoDir + "/temp/"
 HLmotifDir = biorseoDir + "/data/modules/BGSU/HL/3.2/lib"
 ILmotifDir = biorseoDir + "/data/modules/BGSU/IL/3.2/lib"
 descfolder = biorseoDir + "/data/modules/DESC"
+
+# Parse options
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func="])
+except getopt.GetoptError:
+    print("Please provide arguments !")
+    sys.exit(2)
+
+
+m = Manager()
+running_stats = m.list()
+running_stats.append(0) # n_launched
+running_stats.append(0) # n_finished
+running_stats.append(0) # n_skipped
+fails = m.list()
 
 
 # ================== CLASSES AND FUNCTIONS ================================
@@ -55,11 +69,10 @@ class NoDaemonProcess(multiprocessing.Process):
 class NoDaemonContext(type(multiprocessing.get_context())):
     Process = NoDaemonProcess
 
-# We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
-# because the latter is only a wrapper function, not a proper class.
-
 
 class MyPool(multiprocessing.pool.Pool):
+    # We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
+    # because the latter is only a wrapper function, not a proper class.
     def __init__(self, *args, **kwargs):
         kwargs['context'] = NoDaemonContext()
         super(MyPool, self).__init__(*args, **kwargs)
@@ -103,12 +116,10 @@ class InsertionSite:
 
 
 class Job:
-    def __init__(self, command=[], function=None, args=[], how_many_in_parallel=0, priority=1, timeout=None, checkFunc=None, checkArgs=[]):
+    def __init__(self, command=[], function=None, args=[], how_many_in_parallel=0, priority=1, timeout=None):
         self.cmd_ = command
         self.func_ = function
         self.args_ = args
-        self.checkFunc_ = checkFunc
-        self.checkArgs_ = checkArgs
         self.priority_ = priority
         self.timeout_ = timeout
         if not how_many_in_parallel:
@@ -122,7 +133,7 @@ class Job:
 class RNA:
     def __init__(self, header, seq):
         self.seq_ = seq
-        self.header_ = header
+        self.header = header
         self.length = len(seq)
 
         self.rnasubopt = []
@@ -314,62 +325,55 @@ class RNA:
 
 
 class BiorseoInstance:
-    def __init__(self, argv):
+    def __init__(self, opts):
         # set default options
         self.type = "dpm"
         self.modules = "desc"
         self.func = 'B'
-        self.outputf = self.outputf
+        self.inputfile = ""
+        self.outputf = biorseoDir + "/results/" # default results location
         self.jobcount = 0
+        self.joblist = []
+        self.mode = 0 # default is single sequence mode
 
-        # Parse options
-        try:
-            opts, args = getopt.getopt(
-                argv, "hi:o:", ["type=", "func=", "modules=", "rna3dmotifs", "3dmotifatlas", "jar3d", "bayespairing", "patternmatching"])
-        except getopt.GetoptError:
-            print("Please provide arguments !")
-            sys.exit(2)
         for opt, arg in opts:
             if opt == "-h":
-                print("biorseo.py -i myRNA.fa -o myRNA.jar3dB --type jar3d --func B")
+                print("biorseo.py -i myRNA.fa -o myRNA.rawB --rna3dmotifs --patternmatch --func B")
+                print("biorseo.py -i myRNA.fa -o myRNA.jar3dB --3dmotifatlas --jar3d --func B")
+                print("biorseo.py -i myRNA.fa -o myRNA.bgsubypD --3dmotifatlas --bayespairing --func D")
                 sys.exit()
             elif opt == "-i":
                 self.inputfile = arg
-                self.mode = 0  # single sequence mode
             elif opt == "-o":
-                self.outputf = arg  # output file or folder...
+                self.outputf = arg # output file or folder...
+                if self.outputf[1] != '/':
+                    self.outputf = getcwd() + '/' + self.outputf
+                if self.outputf[-1] != '/':
+                    self.outputf = self.outputf + '/'
             elif opt == "--func":
                 if arg in ['A', 'B', 'C', 'D']:
                     self.func = arg
                 else:
                     raise "Unknown scoring function " + arg
-            elif opt == "--type":
-                if arg in ['dpm', 'jar3d', 'byp']:
-                    self.type = arg
-                else:
-                    raise "Unknown pattern matching method " + arg
-            elif opt == "--modules":
-                if arg in ['desc', 'bgsu']:
-                    self.modules = arg
-                else:
-                    raise "Unsupported module model type " + arg
+            elif opt == "--patternmatch":
+                self.type = "dpm"
+            elif opt == "--jar3d":
+                self.type = "jar3d"
+            elif opt == "--bayespairing":
+                self.type = "byp"
+            elif opt == "--rna3dmotifs":
+                self.modules = "desc"
+            elif opt == "--3dmotifatlas":
+                self.modules = "bgsu"
             else:
                 raise "Unknown option " + opt
 
+        print("saving files to", self.outputf)
         # create jobs
         self.list_jobs()
 
-        if self.mode:
-            # Create a job manager
-            self.manager = Manager()
-            self.running_stats = self.manager.list()
-            self.running_stats.append(0)  # n_launched
-            self.running_stats.append(0)  # n_finished
-            self.running_stats.append(0)  # n_skipped
-            self.fails = self.manager.list()
-
-            # Create the output folder
-            subprocess.call(["mkdir", "-p", self.outputf])
+        # run them
+        self.execute_jobs()           
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
@@ -575,11 +579,11 @@ class BiorseoInstance:
             resultsfile.write(','.join(positions)+'\n')
         resultsfile.close()
 
-    def launch_BayesPairing(self, module_type, seq_, header_, basename):
+    def launch_BayesPairing(self, module_type, seq_, header_):
         chdir(bypdir)
 
         cmd = ["python3", "parse_sequences.py", "-seq", self.outputf +
-               basename + ".fa", "-d", module_type, "-interm", "1"]
+               header_ + ".fa", "-d", module_type, "-interm", "1"]
 
         logfile = open("log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
@@ -595,9 +599,9 @@ class BiorseoInstance:
             l = BypLog[idx]
         insertion_sites = [x for x in ast.literal_eval(l.split(":")[1][1:])]
         if module_type == "rna3dmotif":
-            rna = open(self.outputf + basename + ".byp.csv", "w")
+            rna = open(self.outputf + header_ + ".byp.csv", "w")
         else:
-            rna = open(self.outputf + basename + ".bgsubyp.csv", "w")
+            rna = open(self.outputf + header_ + ".bgsubyp.csv", "w")
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
         for i, module in enumerate(insertion_sites):
             if len(module):
@@ -618,23 +622,18 @@ class BiorseoInstance:
         rna.close()
 
     def execute_job(self, j):
-        if j.checkFunc_ is not None:
-            if j.checkFunc_(*j.checkArgs_):
-                self.running_stats[2] += 1
-                print("["+str(self.running_stats[0]+self.running_stats[2]) +
-                      '/'+str(self.jobcount)+"]\tSkipping a finished job")
-                return 0
-        self.running_stats[0] += 1
+        
+        running_stats[0] += 1
         if len(j.cmd_):
             logfile = open("log_of_the_run.sh", 'a')
             logfile.write(" ".join(j.cmd_))
             logfile.write("\n")
             logfile.close()
-            print("["+str(self.running_stats[0]+self.running_stats[2]) +
+            print("["+str(running_stats[0]+running_stats[2]) +
                   '/'+str(self.jobcount)+"]\t"+" ".join(j.cmd_))
             r = subprocess.call(j.cmd_, timeout=j.timeout_)
         elif j.func_ is not None:
-            print("["+str(self.running_stats[0]+self.running_stats[2])+'/'+str(self.jobcount) +
+            print("["+str(running_stats[0]+running_stats[2])+'/'+str(self.jobcount) +
                   "]\t"+j.func_.__name__+'('+", ".join([a for a in j.args_])+')')
             try:
                 r = j.func_(*j.args_)
@@ -642,9 +641,46 @@ class BiorseoInstance:
                 r = 1
                 pass
         if r:
-            self.fails.append(j)
-        self.running_stats[1] += 1
+            fails.append(j)
+        running_stats[1] += 1
         return r
+
+    def execute_jobs(self):
+        jobs = {}
+        self.jobcount = len(self.joblist)
+        for job in self.joblist:
+            if job.priority_ not in jobs.keys():
+                jobs[job.priority_] = {}
+            if job.nthreads not in jobs[job.priority_].keys():
+                jobs[job.priority_][job.nthreads] = []
+            jobs[job.priority_][job.nthreads].append(job)
+        nprio = max(jobs.keys())
+
+        for i in range(1,nprio+1):
+            if not len(jobs[i].keys()): continue
+
+            # check the thread numbers
+            different_thread_numbers = [n for n in jobs[i].keys()]
+            different_thread_numbers.sort()
+
+            for n in different_thread_numbers:
+                bunch = jobs[i][n]
+                if not len(bunch): continue
+                pool = MyPool(processes=n)
+                pool.map(self.execute_job, bunch)
+                pool.close()
+                pool.join()
+
+        if len(fails):
+            print()
+            print("Some jobs failed! :")
+            print()
+            for j in fails:
+                print(j.cmd_)
+        else:
+            print()
+            print("Computations ran successfully.")
+            print()
 
     def check_result_existence(self, datatype, method, function, with_PK, basename):
         folder = self.outputf+"PK/" if with_PK else self.outputf+"noPK/"
@@ -687,8 +723,8 @@ class BiorseoInstance:
 
         # Read fasta file, which can contain one or several RNAs
         RNAcontainer = []
-        print("loading file(s)...")
-
+        subprocess.call(["mkdir", "-p", self.outputf])  # Create the output folder
+        print("loading file %s..." % self.inputfile)
         db = open(self.inputfile, "r")
         c = 0
         header = ""
@@ -701,33 +737,33 @@ class BiorseoInstance:
             c = c % 2
             if c == 1:
                 if header != "": # This is our second RNA in the fasta file
-                    self.mode = 1
-                header = l[:-1]
+                    self.mode = 1 # we switch to batch mode
+                header = l[1:-1]
             if c == 0:
                 seq = l[:-1].upper()
                 if is_canonical_nts(seq):
-                    header = header.replace('/', '_')
+                    header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','')
                     RNAcontainer.append(RNA(header, seq))
                     if not path.isfile(self.outputf + header + ".fa"):
                         rna = open(self.outputf + header + ".fa", "w")
                         rna.write(">" + header +'\n')
                         rna.write(seq +'\n')
                         rna.close()
-                    db.close()
+        db.close()
 
         for nt, number in ignored_nt_dict.items():
             print("ignored %d sequences because of char %c" % (number, nt))
         tot = len(RNAcontainer)
         print("Loaded %d RNAs." % (tot))
 
-        #define job list
-        joblist = []
+        # define job list
         for instance in RNAcontainer:
             
             executable = biorseoDir + "/bin/biorseo"
             fastafile = self.outputf+instance.header+".fa"
             method_type = ""
             ext = ".raw"
+            priority = 1
 
             if self.type == "jar3d":
                 ext = ".jar3d"
@@ -735,28 +771,30 @@ class BiorseoInstance:
                 csv = self.outputf + instance.header + ".sites.csv"
 
                 # RNAsubopt
-                joblist.append(Job(command=["RNAsubopt", "-i", fastafile, "--outfile="+ instance.header + ".subopt"], priority=1, checkFunc=check_RNAsubopt, checkArgs=[instance.header]))
-                joblist.append(Job(command=["mv", instance.header + ".subopt", self.outputf], priority=2, checkFunc=check_RNAsubopt, checkArgs=[instance.header]))
+                self.joblist.append(Job(command=["RNAsubopt", "-i", fastafile, "--outfile="+ instance.header + ".subopt"], priority=1))
+                self.joblist.append(Job(command=["mv", instance.header + ".subopt", self.outputf], priority=2))
                 # JAR3D
-                joblist.append(Job(function=self.launch_JAR3D, args=[instance.seq_, instance.header], priority=3, how_many_in_parallel=1, checkFunc=check_JAR3D, checkArgs=[instance.header]))
-
+                self.joblist.append(Job(function=self.launch_JAR3D, args=[instance.seq_, instance.header], priority=3, how_many_in_parallel=1))
+                priority = 4
             if self.type == "byp":
                 method_type = "--bayespaircsv"
                 if self.modules == "desc":
                     ext = ".byp"
                     csv = self.outputf + instance.header + ".byp.csv"
-                    joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header_, instance.header], how_many_in_parallel=-1, priority=1, checkFunc=check_BayesPairing, checkArgs=[instance.header]))
+                    self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp"
                     csv = self.outputf + instance.header + ".bgsubyp.csv"
-                    joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header_, instance.header], how_many_in_parallel=-1, priority=1, checkFunc=check_BGSUBayesPairing, checkArgs=[instance.header]))
-
+                    self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+                priority = 2
+            if self.type == "dpm":
+                method_type = "--descfolder"
+                csv = descfolder
             command = [executable, "-s", fastafile ]
             if method_type:
                 command += [ method_type, csv ]
             command += [ "-o", self.outputf + instance.header + ext + self.func, "--type", self.func ]
-            joblist.append(Job(command=command, priority=4, timeout=3600, how_many_in_parallel=3))
+            self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
             
 
-if __name__ == "__main__":
-    BiorseoInstance(sys.argv)
+BiorseoInstance(opts)
