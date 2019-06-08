@@ -22,7 +22,8 @@ typedef unsigned int uint;
 unsigned int Fasta::load(std::list<Fasta>& data, const char* file){
 
   std::string line, name, seq, str;
-  std::ifstream ifs(file);
+  std::ifstream ifs;
+  ifs.open(file, std::ios::in);
   while (std::getline(ifs, line)) {
     if (line[0]=='>') {         // header
       if (!name.empty()) {
