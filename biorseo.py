@@ -325,7 +325,7 @@ class BiorseoInstance:
         # Parse options
         try:
             opts, args = getopt.getopt(
-                argv, "hi:o:", ["type=", "func=", "modules="])
+                argv, "hi:o:", ["type=", "func=", "modules=", "rna3dmotifs", "3dmotifatlas", "jar3d", "bayespairing", "patternmatching"])
         except getopt.GetoptError:
             print("Please provide arguments !")
             sys.exit(2)
