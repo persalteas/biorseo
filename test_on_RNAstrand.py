@@ -9,7 +9,7 @@ from matplotlib import colors
 from math import sqrt
 from multiprocessing import Pool, cpu_count, Manager
 import multiprocessing
-import ast
+import ast, time
 
 # ================== DEFINITION OF THE PATHS ==============================
 
@@ -77,9 +77,8 @@ class MyPool(multiprocessing.pool.Pool):
         kwargs['context'] = NoDaemonContext()
         super(MyPool, self).__init__(*args, **kwargs)
 
-exit()
-def execute_job(j):
 
+def execute_job(j):
     if j.checkFunc_ is not None:
         if j.checkFunc_(*j.checkArgs_):
             running_stats[2] += 1
@@ -223,6 +222,7 @@ def launch_JAR3D_worker(loop):
     return insertion_sites
 
 def launch_JAR3D(seq_, basename):
+    time1 = time.time()
     rnasubopt_preds = []
     # Extracting probable loops from RNA-subopt structures
     rna = open(outputDir + basename + ".subopt", "r")
@@ -270,9 +270,10 @@ def launch_JAR3D(seq_, basename):
             positions.append("-,-")
         resultsfile.write(','.join(positions)+'\n')
     resultsfile.close()
+    time2 = time.time()
+    print("<%s | %.3fs" % (basename, time2-time1))
 
 def launch_BayesPairing(module_type, seq_, header_, basename):
-    chdir(bypdir)
 
     cmd = ["python3","parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
 
@@ -281,6 +282,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
     logfile.write("\n")
     logfile.close()
 
+    chdir(bypdir)
     out = subprocess.check_output(cmd).decode('utf-8')
     BypLog = out.split('\n')
     idx = 0
@@ -1176,43 +1178,43 @@ for instance in RNAcontainer:
     instance.evaluate()
 
 x_PK = [
-    [ rna.biokop.avg_mcc for rna in RNAcontainer if len(rna.biokop.predictions)],
-    [ rna.biokop.avg_mcc for rna in RNAcontainer if len(rna.biokop.predictions)],
-    [ rna.biorseoRawA.avg_mcc for rna in RNAcontainer if len(rna.biorseoRawA.predictions)],
-    [ rna.biorseoRawB.avg_mcc for rna in RNAcontainer if len(rna.biorseoRawB.predictions)],
-    [ rna.biorseoBayesPairA.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairA.predictions)],
-    [ rna.biorseoBayesPairB.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairB.predictions)],
-    [ rna.biorseoBayesPairC.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairC.predictions)],
-    [ rna.biorseoBayesPairD.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairD.predictions)],
-    [ rna.biorseoBGSUJAR3DA.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DA.predictions)],
-    [ rna.biorseoBGSUJAR3DB.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DB.predictions)],
-    [ rna.biorseoBGSUJAR3DC.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DC.predictions)],
-    [ rna.biorseoBGSUJAR3DD.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DD.predictions)],
-    [ rna.biorseoBGSUBayesPairA.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairA.predictions)],
-    [ rna.biorseoBGSUBayesPairB.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairB.predictions)],
-    [ rna.biorseoBGSUBayesPairC.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairC.predictions)],
-    [ rna.biorseoBGSUBayesPairD.avg_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairD.predictions)]
+    [ rna.biokop.max_mcc for rna in RNAcontainer if len(rna.biokop.predictions)],
+    [ rna.biokop.max_mcc for rna in RNAcontainer if len(rna.biokop.predictions)],
+    [ rna.biorseoRawA.max_mcc for rna in RNAcontainer if len(rna.biorseoRawA.predictions)],
+    [ rna.biorseoRawB.max_mcc for rna in RNAcontainer if len(rna.biorseoRawB.predictions)],
+    [ rna.biorseoBayesPairA.max_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairA.predictions)],
+    [ rna.biorseoBayesPairB.max_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairB.predictions)],
+    [ rna.biorseoBayesPairC.max_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairC.predictions)],
+    [ rna.biorseoBayesPairD.max_mcc  for rna in RNAcontainer if len(rna.biorseoBayesPairD.predictions)],
+    [ rna.biorseoBGSUJAR3DA.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DA.predictions)],
+    [ rna.biorseoBGSUJAR3DB.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DB.predictions)],
+    [ rna.biorseoBGSUJAR3DC.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DC.predictions)],
+    [ rna.biorseoBGSUJAR3DD.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUJAR3DD.predictions)],
+    [ rna.biorseoBGSUBayesPairA.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairA.predictions)],
+    [ rna.biorseoBGSUBayesPairB.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairB.predictions)],
+    [ rna.biorseoBGSUBayesPairC.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairC.predictions)],
+    [ rna.biorseoBGSUBayesPairD.max_mcc  for rna in RNAcontainer if len(rna.biorseoBGSUBayesPairD.predictions)]
 ]
 
 RNAs_fully_predicted = [ x for x in RNAcontainer if x.has_complete_results(True)]
 
 x_PK_fully = [
-    [ rna.biokop.avg_mcc for rna in RNAs_fully_predicted],
-    [ rna.biokop.avg_mcc for rna in RNAs_fully_predicted],
-    [ rna.biorseoRawA.avg_mcc for rna in RNAs_fully_predicted],
-    [ rna.biorseoRawB.avg_mcc for rna in RNAs_fully_predicted],
-    [ rna.biorseoBayesPairA.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBayesPairB.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBayesPairC.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBayesPairD.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUJAR3DA.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUJAR3DB.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUJAR3DC.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUJAR3DD.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUBayesPairA.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUBayesPairB.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUBayesPairC.avg_mcc  for rna in RNAs_fully_predicted],
-    [ rna.biorseoBGSUBayesPairD.avg_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biokop.max_mcc for rna in RNAs_fully_predicted],
+    [ rna.biokop.max_mcc for rna in RNAs_fully_predicted],
+    [ rna.biorseoRawA.max_mcc for rna in RNAs_fully_predicted],
+    [ rna.biorseoRawB.max_mcc for rna in RNAs_fully_predicted],
+    [ rna.biorseoBayesPairA.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBayesPairB.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBayesPairC.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBayesPairD.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUJAR3DA.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUJAR3DB.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUJAR3DC.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUJAR3DD.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUBayesPairA.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUBayesPairB.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUBayesPairC.max_mcc  for rna in RNAs_fully_predicted],
+    [ rna.biorseoBGSUBayesPairD.max_mcc  for rna in RNAs_fully_predicted],
 ]  # We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
 
 print()
@@ -1260,87 +1262,88 @@ test = stats.wilcoxon(x_PK_fully[0], x_PK_fully[11])
 print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value = ", test.pvalue)
 
 
-# # ================== Print results for application cases =====================
+# ================== Print results for application cases =====================
 
-# labels = ["Biokop","Biokop","RawA","RawB","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA","JAR3DB","JAR3DC","JAR3DD","BGSUBayesPairingA","BGSUBayesPairingB","BGSUBayesPairingC","BGSUBayesPairingD"]
-# print("RNAsubopt",":",x_noPK[0])
-# print("RNA-MOIP",":",x_noPK[1])
-# for data, name in zip(x_PK, labels):
-#     print(name,":",data)
-# labels = ["RNAsubopt","Biokop\t", "RNA-MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
-# for r in RNAcontainer:
-#     print("\n",r.header_,"\nTrue structure:\t", r.true2d)
-#     for m, name in zip([r.rnasubopt, r.biokop, r.rnamoip,
-#                    r.biorseoRawA, 
-#                    r.biorseoRawB,
-#                    r.biorseoBayesPairA, 
-#                    r.biorseoBayesPairB, 
-#                    r.biorseoBayesPairC, 
-#                    r.biorseoBayesPairD,
-#                    r.biorseoBGSUJAR3DA, 
-#                    r.biorseoBGSUJAR3DB, 
-#                    r.biorseoBGSUJAR3DC, 
-#                    r.biorseoBGSUJAR3DD,
-#                    r.biorseoBGSUBayesPairA, 
-#                    r.biorseoBGSUBayesPairB, 
-#                    r.biorseoBGSUBayesPairC, 
-#                    r.biorseoBGSUBayesPairD ], labels):
-#         print(name+":\t",m.best_pred)
+labels = ["Biokop","Biokop","RawA","RawB","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA","JAR3DB","JAR3DC","JAR3DD","BGSUBayesPairingA","BGSUBayesPairingB","BGSUBayesPairingC","BGSUBayesPairingD"]
+print("RNAsubopt",":",x_noPK[0])
+print("RNA-MOIP",":",x_noPK[1])
+for data, name in zip(x_PK, labels):
+    print(name,":",data)
+labels = ["RNAsubopt","Biokop\t", "RNA-MoIP\t","RawA\t","RawB\t","BayesPairingA","BayesPairingB","BayesPairingC","BayesPairingD","JAR3DA\t","JAR3DB\t","JAR3DC\t","JAR3DD\t","BGSUBPairingA","BGSUBPairingB","BGSUBPairingC","BGSUBPairingD"]
+for r in RNAcontainer:
+    print("\n",r.header_,"\nTrue structure:\t", r.true2d)
+    for m, name in zip([r.rnasubopt, r.biokop, r.rnamoip,
+                   r.biorseoRawA, 
+                   r.biorseoRawB,
+                   r.biorseoBayesPairA, 
+                   r.biorseoBayesPairB, 
+                   r.biorseoBayesPairC, 
+                   r.biorseoBayesPairD,
+                   r.biorseoBGSUJAR3DA, 
+                   r.biorseoBGSUJAR3DB, 
+                   r.biorseoBGSUJAR3DC, 
+                   r.biorseoBGSUJAR3DD,
+                   r.biorseoBGSUBayesPairA, 
+                   r.biorseoBGSUBayesPairB, 
+                   r.biorseoBGSUBayesPairC, 
+                   r.biorseoBGSUBayesPairD ], labels):
+        print(name+":\t",m.best_pred, "%.2f"% m.max_mcc, m.n_pred)
 
-# ================= PLOTS OF RESULTS =======================================
+# # ================= PLOTS OF RESULTS =======================================
 
-merge = [   x_noPK[0], # RNA subopt
-            x_noPK[1], # RNA-MoIP
-            x_PK[0], # Biokop
-            x_PK[2], #biorseoRawA
-            x_PK[3], #biorseoRawB
-            x_PK[4], #biorseoBayesPairA
-            x_PK[5], #biorseoBayesPairB
-            x_PK[6], #biorseoBayesPairC
-            x_PK[7], #biorseoBayesPairD
-            x_PK[8], #biorseoBGSUJAR3DA
-            x_PK[9], #biorseoBGSUJAR3DB
-            x_PK[10], #biorseoBGSUJAR3DC
-            x_PK[11], #biorseoBGSUJAR3DD
-            x_PK[12], #biorseoBGSUBayesPairA
-            x_PK[13], #biorseoBGSUBayesPairB
-            x_PK[14], #biorseoBGSUBayesPairC
-            x_PK[15], #biorseoBGSUBayesPairD
-]
+# merge = [   
+#             x_PK[0], # Biokop
+#             x_noPK[0], # RNA subopt
+#             x_noPK[1], # RNA-MoIP
+#             x_PK[2], #biorseoRawA
+#             x_PK[3], #biorseoRawB
+#             x_PK[4], #biorseoBayesPairA
+#             x_PK[5], #biorseoBayesPairB
+#             x_PK[6], #biorseoBayesPairC
+#             x_PK[7], #biorseoBayesPairD
+#             x_PK[8], #biorseoBGSUJAR3DA
+#             x_PK[9], #biorseoBGSUJAR3DB
+#             x_PK[10], #biorseoBGSUJAR3DC
+#             x_PK[11], #biorseoBGSUJAR3DD
+#             x_PK[12], #biorseoBGSUBayesPairA
+#             x_PK[13], #biorseoBGSUBayesPairB
+#             x_PK[14], #biorseoBGSUBayesPairC
+#             x_PK[15], #biorseoBGSUBayesPairD
+# ]
 
-colors = [  'blue', 'goldenrod', 'green', 
-            'red',
-            'firebrick', 
-            'limegreen', 
-            'olive', 
-            'forestgreen', 
-            'lime', 
-            'darkcyan', 
-            'royalblue',
-            'navy', 
-            'limegreen', 
-            'olive', 
-            'forestgreen', 
-            'lime'
-]
-labels = [  "RNAsubopt",
-            "RNA-MoIP",
-            "Biokop", 
-            "$f_{1A}$",
-            "$f_{1B}$",
-            "$f_{1A}$",
-            "$f_{1B}$",
-            "$f_{1C}$",
-            "$f_{1D}$",
-            "$f_{1A}$",
-            "$f_{1B}$",
-            "$f_{1C}$",
-            "$f_{1D}$",
-            "$f_{1A}$",
-            "$f_{1B}$",
-            "$f_{1C}$",
-            "$f_{1D}$"        
-]
+# colors = [  'green', 'blue', 'goldenrod', 
+#             'red',
+#             'firebrick', 
+#             'limegreen', 
+#             'olive', 
+#             'forestgreen', 
+#             'lime', 
+#             'darkturquoise',
+#             'darkcyan', 
+#             'royalblue',
+#             'navy', 
+#             'limegreen', 
+#             'olive', 
+#             'forestgreen', 
+#             'lime'
+# ]
+# labels = [  "Biokop", "RNAsubopt",
+#             "RNA-MoIP",            
+#             "$f_{1A}$",
+#             "$f_{1B}$",
+#             "$f_{1A}$",
+#             "$f_{1B}$",
+#             "$f_{1C}$",
+#             "$f_{1D}$",
+#             "$f_{1A}$",
+#             "$f_{1B}$",
+#             "$f_{1C}$",
+#             "$f_{1D}$",
+#             "$f_{1A}$",
+#             "$f_{1B}$",
+#             "$f_{1C}$",
+#             "$f_{1D}$"        
+# ]
 
 
 # for y in [ i/10 for i in range(11) ]:
@@ -1371,7 +1374,7 @@ labels = [  "RNAsubopt",
 # # plt.axhline(y=0, color="black", linewidth=1)
 # # plt.axhline(y=1, color="black", linewidth=1)
 # plt.xticks([1.0+i for i in range(16)], labels[1:])
-# plt.ylim((0.5, 1.01))
+# plt.ylim((0.4, 1.01))
 # plt.ylabel("MCC", fontsize=12)
 # plt.subplots_adjust(left=0.05, right=0.95)
 # # plt.title("Performance without pseudoknots (%d RNAs included)" % len(x_noPK_fully[0]))

@@ -549,7 +549,7 @@ class BiorseoInstance:
             cmd = ["java", "-jar", jar3dexec, filename, ILmotifDir+"/all.txt",
                    loop.header[1:]+".ILloop.csv", loop.header[1:]+".ILseq.csv"]
         nowhere = open(devnull, 'w')
-        logfile = open("log_of_the_run.sh", 'a')
+        logfile = open(biorseoDir + "/log_of_the_run.sh", 'a')
         logfile.write(' '.join(cmd))
         logfile.write("\n")
         logfile.close()
@@ -789,7 +789,7 @@ class BiorseoInstance:
             if c == 0:
                 seq = l[:-1].upper()
                 if is_canonical_nts(seq):
-                    header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','')
+                    header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_')
                     RNAcontainer.append(RNA(header, seq))
                     if not path.isfile(self.outputf + header + ".fa"):
                         rna = open(self.outputf + header + ".fa", "w")
