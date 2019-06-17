@@ -312,7 +312,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
     rna.close()
 
 def launch_RNAMoIP_worker(x):
-    RNAMoIP = "../RNAMoIP/RNAMoIP.py"
+    RNAMoIP = biorseoDir + "/../RNAMoIP/Src/RNAMoIP.py"
     logfile = open("log_of_the_run.sh", 'a')
     logfile.write(" ".join(["gurobi.sh", RNAMoIP, "-s", '"' +x[1]+'"', "-ss", '"'+x[0].strip()+'"', "-d", descfolder]))
     logfile.write("\n")
