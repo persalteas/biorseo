@@ -9,7 +9,7 @@ Contact : louis.becquey@univ-evry.fr
 1/ How it works
 ===================================
 INPUT:
-- An RNA sequence (tested with sequences ~100 bases)
+- An RNA sequence (with 16 GB of RAM you can go up to ~230 bases)
 
 THEN
 - **Pattern-matching step** : Find all possible occurrences of known RNAmodules in the query sequence, by finding subsequences of the querythat score well with the probabilistic models of the modules (like JAR3D, or BayesPairing)

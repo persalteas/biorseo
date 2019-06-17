@@ -21,18 +21,17 @@ bypdir = ""
 biorseoDir = "."
 exec(compile(open(biorseoDir+"/EditMe").read(), '', 'exec'))
 runDir = path.dirname(path.realpath(__file__))
-tempDir = biorseoDir + "/temp/"
-HLmotifDir = biorseoDir + "/data/modules/BGSU/HL/3.2/lib"
-ILmotifDir = biorseoDir + "/data/modules/BGSU/IL/3.2/lib"
-descfolder = biorseoDir + "/data/modules/DESC"
+modulespath = biorseoDir + "/data/modules"
+HLmotifDir = modulespath + "/BGSU/HL/3.2/lib"
+ILmotifDir = modulespath + "/BGSU/IL/3.2/lib"
+descfolder = modulespath + "/DESC"
 
 # Parse options
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func="])
-except getopt.GetoptError:
-    print("Please provide arguments !")
+    opts, args = getopt.getopt(sys.argv[1:], "bc:f:hi:jl:no:pt:v", ["verbose", "rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=","help","version","seq=","modules-path=", "first-objective=","output=","theta=","interrupt-limit="])
+except getopt.GetoptError as err:
+    print(err)
     sys.exit(2)
-
 
 m = Manager()
 running_stats = m.list()
@@ -335,38 +334,75 @@ class BiorseoInstance:
         self.jobcount = 0
         self.joblist = []
         self.mode = 0 # default is single sequence mode
+        self.forward_options = []
 
         for opt, arg in opts:
-            if opt == "-h":
-                print("biorseo.py -i myRNA.fa -o myRNA.rawB --rna3dmotifs --patternmatch --func B")
-                print("biorseo.py -i myRNA.fa -o myRNA.jar3dB --3dmotifatlas --jar3d --func B")
-                print("biorseo.py -i myRNA.fa -o myRNA.bgsubypD --3dmotifatlas --bayespairing --func D")
+            if opt == "-h" or opt == "--help":
+                print(  "Biorseo, Bi-Objective RNA Structure Efficient Optimizer\n"
+                        "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules.\n"
+                        "Developped by Louis Becquey (louis.becquey@univ-evry.fr), 2019\n\n")
+                print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs or --3dmotifatlas"
+                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t")
+                print("Options:")
+                print("-h [ --help ]\t\tPrint this help message")
+                print("--version\t\t\tPrint the program version")
+                print("-i [ --seq ]\t\tFASTA file with the query RNA sequence")
+                print("-p [ --patternmatch ]\t\tUse regular expressions to place modules in the sequence")
+                print("-j [ --jar3d ]\t\tUse JAR3D to place modules in the sequence (requires --3dmotifatlas)")
+                print("-b [ --bayespairing ]\t\tUse BayesPairing to place modules in the sequence")
+                print("-o [ --output ]\t\tFolder where to output files")
+                print("-f [ --func ]\t\t(A, B, C or D, default is B)"
+                      "\t\t\t\tObjective function to score module insertions: (A) insert big modules (B) insert light, high-order modules"
+                      "\t\t\t\t(c) insert modules which score well with the sequence (D) insert light, high-order modules which score well with the sequence.")
+                      "\t\t\t\tC and D require cannot be used with --patternmatch.")
+
+                print("biorseo.py -i myRNA.fa -o myResultsFolder/ --rna3dmotifs --patternmatch --func B")
+                print("biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B")
+                print("biorseo.py -i myRNA.fa --3dmotifatlas --bayespairing --func D")
                 sys.exit()
-            elif opt == "-i":
+            elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg
-            elif opt == "-o":
+            elif opt == "-o" or opt == "--output":
                 self.outputf = arg # output file or folder...
                 if self.outputf[1] != '/':
                     self.outputf = getcwd() + '/' + self.outputf
                 if self.outputf[-1] != '/':
                     self.outputf = self.outputf + '/'
-            elif opt == "--func":
+            elif opt == "-f" or opt == "--func":
                 if arg in ['A', 'B', 'C', 'D']:
                     self.func = arg
                 else:
                     raise "Unknown scoring function " + arg
-            elif opt == "--patternmatch":
+            elif opt == "-p" or opt == "--patternmatch":
                 self.type = "dpm"
-            elif opt == "--jar3d":
+            elif opt == "-j" or opt == "--jar3d":
                 self.type = "jar3d"
-            elif opt == "--bayespairing":
+            elif opt == "-b" or opt == "--bayespairing":
                 self.type = "byp"
             elif opt == "--rna3dmotifs":
                 self.modules = "desc"
             elif opt == "--3dmotifatlas":
                 self.modules = "bgsu"
-            else:
-                raise "Unknown option " + opt
+            elif opt == "--modulespath":
+                HLmotifDir = arg + "/HL/3.2/lib"
+                ILmotifDir = arg + "/IL/3.2/lib"
+                descfolder = arg
+            elif opt == "--version":
+                subprocess.call([biorseoDir+"/bin/biorseo", "--version"])
+                exit(0)
+            elif opt == "-l" or opt == "--interrupt-limit":
+                self.forward_options.append("-l")
+                self.forward_options.append(arg)
+            elif opt == "-v" or opt == "--verbose":
+                self.forward_options.append("-v")
+            elif opt == "-n" or opt == "--disable-pseudoknots":
+                self.forward_options.append("-n")
+            elif opt == "-t" or opt == "--theta":
+                self.forward_options.append("-t")
+                self.forward_options.append(arg)
+            elif opt == "-c" or opt == "--first-objective":
+                self.forward_options.append("-c")
+                self.forward_options.append(arg)
 
         print("saving files to", self.outputf)
         # create jobs
@@ -793,7 +829,8 @@ class BiorseoInstance:
             command = [executable, "-s", fastafile ]
             if method_type:
                 command += [ method_type, csv ]
-            command += [ "-o", self.outputf + instance.header + ext + self.func, "--type", self.func ]
+            command += [ "-o", self.outputf + instance.header + ext + self.func, "--function", self.func ]
+            command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
             
 
