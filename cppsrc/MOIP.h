@@ -30,7 +30,8 @@ class MOIP
     static uint               obj_to_solve_;  // What objective do you prefer to solve in mono-objective portions of the algorithm ?
     static double             precision_;   // decimals to keep in objective values, to avoid numerical issues. otherwise, solution with objective 5.0000000009 dominates solution with 5.0 =(
     static bool               allow_pk_;      // Wether we forbid pseudoknots (false) or allow them (true)
-
+    static uint               max_sol_nbr_;  // Number of solutions to accept in the Pareto set before we give up the computation
+    
     private:
     bool   is_undominated_yet(const SecondaryStructure& s);
     void   define_problem_constraints(void);

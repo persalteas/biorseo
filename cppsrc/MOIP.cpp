@@ -21,6 +21,7 @@ char   MOIP::obj_function_nbr_ = 'A';
 uint   MOIP::obj_to_solve_     = 1;
 double MOIP::precision_        = 1e-5;
 bool   MOIP::allow_pk_         = true;
+uint   MOIP::max_sol_nbr_      = 500;
 
 unsigned getNumConstraints(IloModel& m)
 {
@@ -499,8 +500,8 @@ void MOIP::add_solution(const SecondaryStructure& s)
 {
     if (verbose_) cout << "\t>adding structure to Pareto set :\t" << s.to_string() << endl;
     pareto_.push_back(s);
-    if (pareto_.size() > 500) {
-        cerr << "\033[31m Quitting because combinatorial issues (>500 solutions in Pareto set). \033[0m" << endl;
+    if (pareto_.size() > max_sol_nbr_) {
+        cerr << "\033[31m Quitting because combinatorial issues (>" << max_sol_nbr_ << " solutions in Pareto set). \033[0m" << endl;
         exit(1);
     }
 }

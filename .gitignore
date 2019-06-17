@@ -19,6 +19,7 @@ bin/*
 
 # results
 results/*
+benchmark_results/*
 log_of_the_run.sh
 logBadDesc.txt
 gurobi.log

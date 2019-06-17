@@ -73,14 +73,15 @@ int main(int argc, char* argv[])
     ("version", "Print the program version")
     ("seq,s", po::value<string>(&inputName)->required(), "Fasta file containing the RNA sequence")
     ("descfolder,d", po::value<string>(&motifs_path_name), "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")
-    ("jar3dcsv", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
-    ("bayespaircsv", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
+    ("jar3dcsv,j", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
+    ("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
     ("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
     ("output,o", po::value<string>(&outputName), "A file to summarize the computation results")
     ("theta,t", po::value<float>(&theta_p_threshold)->default_value(0.001), "Pairing probability threshold to consider or not the possibility of pairing")
-    ("type,f", po::value<char>(&obj_function_nbr)->default_value('A'), "What objective function to use to include motifs: square of motif size in nucleotides like "
-    "RNA-MoIP (A), motif size + number of components (B), site score (C), motif size + site score + number of components (D)")
+    ("function,f", po::value<char>(&obj_function_nbr)->default_value('B'), "What objective function to use to include motifs: square of motif size in nucleotides like "
+    "RNA-MoIP (A), light motif size + high number of components (B), site score (C), light motif size + site score + high number of components (D)")
     ("disable-pseudoknots,n", "Add constraints forbidding the formation of pseudoknots")
+    ("limit,l", po::value<unsigned int>(&MOIP::max_sol_nbr_)->default_value(500), "Intermediate number of solutions in the Pareto set above which we give up the calculation.")
     ("verbose,v", "Print what is happening to stdout");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
         if (vm.count("version")) {
-            cout << "Biorseo v1.0, May 2019" << endl;
+            cout << "Biorseo v1.01, June 2019" << endl;
             return EXIT_SUCCESS;
         }
         if (vm.count("verbose")) verbose = true;
@@ -112,7 +113,7 @@ int main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
         if (vm.count("-d") and (obj_function_nbr == 'C' or obj_function_nbr == 'D')) {
-            cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --type C or --type D.\033[0m See "
+            cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --function C or --function D.\033[0m See "
                     "--help for more "
                     "information."
                  << endl;
