@@ -367,14 +367,6 @@ def launch_RNAMoIP(seq_, header_, basename):
         rna.write(p+'\t'+str(n)+'\t'+str(s)+'\n')
     rna.close()
 
-def launch_pKiss(seq_, header_, basename):
-    json = "{\"pkiss_input_rna_sequences\":\">%s\r\n%s\",\"paramset\":{\"pkiss_parameter_absoluteDeviation\":\"0.5\",\"pkiss_parameter_maxKnotSize\":\"3.0\",\"pkiss_parameter_windowSize\":\"1.0\",\"pkiss_parameter_param\":\"rna_andronescu2007\"}}" %(header_, seq_)
-    cmd = "curl -X POST -d @[[%s]] http://bibiserv2.cebitec.uni-bielefeld.de:80/rest/pkiss/pkiss_function_subopt/request -H \"Content-Type: application/json\"" % json
-    logfile = open("log_of_the_run.sh", 'a')
-    logfile.write(cmd+"\n")
-    logfile.close()
-    print(cmd)
-
 def mattews_corr_coeff(tp, tn, fp, fn):
     if (tp+fp == 0):
         print("We have an issue : no positives detected ! (linear structure)")
