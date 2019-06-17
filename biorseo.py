@@ -342,22 +342,33 @@ class BiorseoInstance:
                         "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules.\n"
                         "Developped by Louis Becquey (louis.becquey@univ-evry.fr), 2019\n\n")
                 print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs or --3dmotifatlas"
-                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t")
+                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D")
+                print()
                 print("Options:")
-                print("-h [ --help ]\t\tPrint this help message")
+                print("-h [ --help ]\t\t\tPrint this help message")
                 print("--version\t\t\tPrint the program version")
-                print("-i [ --seq ]\t\tFASTA file with the query RNA sequence")
+                print("-i [ --seq=… ]\t\t\tFASTA file with the query RNA sequence")
                 print("-p [ --patternmatch ]\t\tUse regular expressions to place modules in the sequence")
-                print("-j [ --jar3d ]\t\tUse JAR3D to place modules in the sequence (requires --3dmotifatlas)")
+                print("-j [ --jar3d ]\t\t\tUse JAR3D to place modules in the sequence (requires --3dmotifatlas)")
                 print("-b [ --bayespairing ]\t\tUse BayesPairing to place modules in the sequence")
-                print("-o [ --output ]\t\tFolder where to output files")
-                print("-f [ --func ]\t\t(A, B, C or D, default is B)"
-                      "\t\t\t\tObjective function to score module insertions: (A) insert big modules (B) insert light, high-order modules"
-                      "\t\t\t\t(c) insert modules which score well with the sequence (D) insert light, high-order modules which score well with the sequence.")
-                      "\t\t\t\tC and D require cannot be used with --patternmatch.")
-
+                print("-o [ --output=… ]\t\tFolder where to output files")
+                print("-f [ --func=… ]\t\t\t(A, B, C or D, default is B)"
+                      " Objective function to score module insertions:\n\t\t\t\t  (A) insert big modules (B) insert light, high-order modules"
+                      "\n\t\t\t\t  (c) insert modules which score well with the sequence\n\t\t\t\t  (D) insert light, high-order modules which score well with the sequence."
+                      "\n\t\t\t\t  C and D require cannot be used with --patternmatch.")
+                print("-c [ --first-objective=… ]\t(default 1) Objective to solve in the mono-objective portions of the algorithm."
+                      "\n\t\t\t\t  (1) is the module objective given by --func, (2) is the expected accuracy of the structure.")
+                print("-l [ --limit=… ]\t\t(default 500) Intermediate number of solutions in the Pareto set from which"
+                      "we give up the computation.")
+                print("-t [ --theta=… ]\t\t(default 0.001) Pairing-probability threshold to consider or not the possibility of pairing")
+                print("-n [ --disable-pseudoknots ]\tAdd constraints to explicitly forbid the formation of pseudoknots")
+                print("-v [ --verbose ]\t\tPrint what is happening to stdout")
+                print("--modules-path=…\t\tPath to the modules data.\n\t\t\t\t  The folder should contain modules in the DESC format as output by Djelloul & Denise's"
+                      "\n\t\t\t\t  'catalog' program for use with --rna3dmotifs, or should contain the IL/ and HL/ folders from a release of\n\t\t\t\t  the RNA 3D Motif Atlas"
+                      "for use with --3dmotifatlas.\n\t\t\t\t  Consider placing these files on a fast I/O device (NVMe SSD, ...)")
+                print("\nExamples:")
                 print("biorseo.py -i myRNA.fa -o myResultsFolder/ --rna3dmotifs --patternmatch --func B")
-                print("biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B")
+                print("biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800")
                 print("biorseo.py -i myRNA.fa --3dmotifatlas --bayespairing --func D")
                 sys.exit()
             elif opt == "-i" or opt == "--seq":
