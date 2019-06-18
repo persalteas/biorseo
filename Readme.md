@@ -57,7 +57,12 @@ Check the file INSTALL.md for installation instructions.
     `./biorseo.py -i PDB_00304.fa --rna3dmotifs --patternmatch --func B`
     
     * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
-    `./bin/biorseo -i PDB_00304.fa --3dmotifatlas --jar3d --func B`
+    `./biorseo.py -i PDB_00304.fa --3dmotifatlas --jar3d --func B`
+
+
+4/ Installation
+==================================
+Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 
 5/ List of Options
 ==================================
