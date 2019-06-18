@@ -25,6 +25,7 @@ modulespath = biorseoDir + "/data/modules"
 HLmotifDir = modulespath + "/BGSU/HL/3.2/lib"
 ILmotifDir = modulespath + "/BGSU/IL/3.2/lib"
 descfolder = modulespath + "/DESC"
+tempDir = "temp/"
 
 # Parse options
 try:
@@ -83,12 +84,6 @@ class Loop:
         self.seq = subsequence
         self.type = looptype
         self.position = position
-
-    def get_header(self):
-        return self.header
-
-    def subsequence(self):
-        return self.seq
 
 
 class InsertionSite:
@@ -150,177 +145,6 @@ class RNA:
         self.biorseoBGSUBayesPairC = []
         self.biorseoBGSUBayesPairD = []
         self.biorseoBGSUBayesPairB = []
-
-    def get_RNAsubopt_results(self):
-        rna = open(self.outputf + self.basename + ".subopt", "r")
-        lines = rna.readlines()
-        rna.close()
-        for i in range(2, len(lines)):
-            ss = lines[i].split(' ')[0]
-            if ss not in self.rnasubopt.predictions:
-                self.rnasubopt.predictions.append(ss)
-
-    def get_biorseoBayesPairA_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".bypA"):
-            rna = open(targetdir+ self.basename + ".bypA", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBayesPairA.predictions:
-                    self.biorseoBayesPairA.predictions.append(ss)
-                self.biorseoBayesPairA.ninsertions.append(lines[i].count('+'))
-    
-    def get_biorseoBayesPairB_results(self, targetdir):
-        if path.isfile(targetdir+ self.basename + ".bypB"):
-            rna = open(targetdir+ self.basename + ".bypB", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBayesPairB.predictions:
-                    self.biorseoBayesPairB.predictions.append(ss)
-                self.biorseoBayesPairB.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoBayesPairC_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".bypC"):
-            rna = open(targetdir+ self.basename + ".bypC", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBayesPairC.predictions:
-                    self.biorseoBayesPairC.predictions.append(ss)
-                self.biorseoBayesPairC.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoBayesPairD_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".bypD"):
-            rna = open(targetdir+ self.basename + ".bypD", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBayesPairD.predictions:
-                    self.biorseoBayesPairD.predictions.append(ss)
-                self.biorseoBayesPairD.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoRawA_results(self, targetdir):
-        if path.isfile(targetdir+ self.basename + ".rawA"):
-            rna = open(targetdir+ self.basename + ".rawA", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoRawA.predictions:
-                    self.biorseoRawA.predictions.append(ss)
-                self.biorseoRawA.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoRawB_results(self, targetdir):
-        if path.isfile(targetdir+ self.basename + ".rawB"):
-            rna = open(targetdir+ self.basename + ".rawB", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoRawB.predictions:
-                    self.biorseoRawB.predictions.append(ss)
-                self.biorseoRawB.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoBGSUJAR3DA_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".jar3dA"):
-            rna = open(targetdir+ self.basename + ".jar3dA", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUJAR3DA.predictions:
-                    self.biorseoBGSUJAR3DA.predictions.append(ss)
-                self.biorseoBGSUJAR3DA.ninsertions.append(lines[i].count('+'))
-    
-    def get_biorseoBGSUJAR3DB_results(self, targetdir):
-        if path.isfile(targetdir+ self.basename + ".jar3dB"):
-            rna = open(targetdir+ self.basename + ".jar3dB", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUJAR3DB.predictions:
-                    self.biorseoBGSUJAR3DB.predictions.append(ss)
-                self.biorseoBGSUJAR3DB.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoBGSUJAR3DC_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".jar3dC"):
-            rna = open(targetdir+ self.basename + ".jar3dC", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUJAR3DC.predictions:
-                    self.biorseoBGSUJAR3DC.predictions.append(ss)
-                self.biorseoBGSUJAR3DC.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoBGSUJAR3DD_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".jar3dD"):
-            rna = open(targetdir+ self.basename + ".jar3dD", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUJAR3DD.predictions:
-                    self.biorseoBGSUJAR3DD.predictions.append(ss)
-                self.biorseoBGSUJAR3DD.ninsertions.append(lines[i].count('+'))
-
-    def get_biorseoBGSUBayesPairA_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".bgsubypA"):
-            rna = open(targetdir+ self.basename + ".bgsubypA", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUBayesPairA.predictions:
-                    self.biorseoBGSUBayesPairA.predictions.append(ss)
-                self.biorseoBGSUBayesPairA.ninsertions.append(lines[i].count('+'))
-        # else:
-        #     print(targetdir+ self.basename + ".bgsubypA not found !")
-    
-    def get_biorseoBGSUBayesPairB_results(self, targetdir):
-        if path.isfile(targetdir+ self.basename + ".bgsubypB"):
-            rna = open(targetdir+ self.basename + ".bgsubypB", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUBayesPairB.predictions:
-                    self.biorseoBGSUBayesPairB.predictions.append(ss)
-                self.biorseoBGSUBayesPairB.ninsertions.append(lines[i].count('+'))
-        # else:
-        #     print(targetdir+ self.basename + ".bgsubypB not found !")
-
-    def get_biorseoBGSUBayesPairC_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".bgsubypC"):
-            rna = open(targetdir+ self.basename + ".bgsubypC", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUBayesPairC.predictions:
-                    self.biorseoBGSUBayesPairC.predictions.append(ss)
-                self.biorseoBGSUBayesPairC.ninsertions.append(lines[i].count('+'))
-        # else:
-        #     print(targetdir+ self.basename + ".bgsubypC not found !")
-
-    def get_biorseoBGSUBayesPairD_results(self, targetdir):  
-        if path.isfile(targetdir+ self.basename + ".bgsubypD"):
-            rna = open(targetdir+ self.basename + ".bgsubypD", "r")
-            lines = rna.readlines()
-            rna.close()
-            for i in range(2, len(lines)):
-                ss = lines[i].split(' ')[0].split('\t')[0]
-                if ss not in self.biorseoBGSUBayesPairD.predictions:
-                    self.biorseoBGSUBayesPairD.predictions.append(ss)
-                self.biorseoBGSUBayesPairD.ninsertions.append(lines[i].count('+'))
-        # else:
-        #     print(targetdir+ self.basename + ".bgsubypD not found !")
 
 
 class BiorseoInstance:
@@ -420,7 +244,9 @@ class BiorseoInstance:
         self.list_jobs()
 
         # run them
-        self.execute_jobs()           
+        self.execute_jobs()         
+
+        # subprocess.call(["rm", "-rf", tempDir])  # empty the temp folder  
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
@@ -532,28 +358,29 @@ class BiorseoInstance:
 
     def launch_JAR3D_worker(self, loop):
         # write motif to a file
-        newpath = getcwd()+'/'+loop.header[1:]
-        if not path.exists(newpath):
-            makedirs(newpath)
-        chdir(newpath)
-        filename = loop.header[1:]+".fasta"
+        modulefolder = tempDir + loop.header[1:] + '/'
+        if not path.exists(modulefolder):
+            makedirs(modulefolder)
+        filename = modulefolder + loop.header[1:]+".fasta"
         fasta = open(filename, 'w')
-        fasta.write('>'+loop.get_header()+'\n'+loop.subsequence()+'\n')
+        fasta.write('>'+loop.header+'\n'+loop.seq+'\n')
         fasta.close()
 
         # Launch Jar3D on it
         if loop.type == 'h':
-            cmd = ["java", "-jar", jar3dexec, filename, HLmotifDir+"/all.txt",
+            cmd = ["java", "-jar", jar3dexec, loop.header[1:]+".fasta", HLmotifDir+"/all.txt",
                    loop.header[1:]+".HLloop.csv", loop.header[1:]+".HLseq.csv"]
         else:
-            cmd = ["java", "-jar", jar3dexec, filename, ILmotifDir+"/all.txt",
+            cmd = ["java", "-jar", jar3dexec, loop.header[1:]+".fasta", ILmotifDir+"/all.txt",
                    loop.header[1:]+".ILloop.csv", loop.header[1:]+".ILseq.csv"]
         nowhere = open(devnull, 'w')
         logfile = open(biorseoDir + "/log_of_the_run.sh", 'a')
         logfile.write(' '.join(cmd))
         logfile.write("\n")
         logfile.close()
+        chdir(modulefolder)
         subprocess.call(cmd, stdout=nowhere)
+        chdir(biorseoDir)
         nowhere.close()
 
         # Retrieve results
@@ -562,7 +389,7 @@ class BiorseoInstance:
             capstype = "HL"
         else:
             capstype = "IL"
-        csv = open(loop.header[1:]+".%sseq.csv" % capstype, 'r')
+        csv = open(modulefolder + loop.header[1:] +".%sseq.csv" % capstype, 'r')
         l = csv.readline()
         while l:
             if "true" in l:
@@ -570,15 +397,12 @@ class BiorseoInstance:
             l = csv.readline()
         csv.close()
 
-        # Cleaning
-        chdir("..")
-        subprocess.call(["rm", "-r", loop.header[1:]])
         return insertion_sites
 
     def launch_JAR3D(self, seq_, basename):
         rnasubopt_preds = []
         # Extracting probable loops from RNA-subopt structures
-        rna = open(self.outputf + basename + ".subopt", "r")
+        rna = open(tempDir + basename + ".subopt", "r")
         lines = rna.readlines()
         rna.close()
         for i in range(2, len(lines)):
@@ -597,19 +421,16 @@ class BiorseoInstance:
         # Retrieve subsequences corresponding to the possible loops
         loops = []
         for i, l in enumerate(HLs):
-            loops.append(
-                Loop(">HL%d" % (i+1), seq_[l[0][0]-1:l[0][1]], "h", l))
+            loops.append(Loop(">HL%d" % (i+1), seq_[l[0][0]-1:l[0][1]], "h", l))
         for i, l in enumerate(ILs):
-            loops.append(
-                Loop(">IL%d" % (i+1), seq_[l[0][0]-1:l[0][1]]+'*'+seq_[l[1][0]-1:l[1][1]], "i", l))
+            loops.append(Loop(">IL%d" % (i+1), seq_[l[0][0]-1:l[0][1]]+'*'+seq_[l[1][0]-1:l[1][1]], "i", l))
         # Scanning loop subsequences against motif database
         pool = MyPool(processes=cpu_count())
-        insertion_sites = [x for y in pool.map(
-            self.launch_JAR3D_worker, loops) for x in y]
+        insertion_sites = [x for y in pool.map(self.launch_JAR3D_worker, loops) for x in y]
         insertion_sites.sort(reverse=True)
         # Writing results to CSV file
         c = 0
-        resultsfile = open(self.outputf+basename+".sites.csv", "w")
+        resultsfile = open(biorseoDir + "/" + tempDir+basename+".sites.csv", "w")
         resultsfile.write("Motif,Rotation,Score,Start1,End1,Start2,End2\n")
         for site in insertion_sites:
             if site.score > 10:
@@ -617,7 +438,7 @@ class BiorseoInstance:
                 string = "FOUND with score %d:\t\t possible insertion of motif " % site.score + site.atlas_id
                 if site.rotation:
                     string += " (reversed)"
-                string += (" on " + site.loop.get_header() + " at positions")
+                string += (" on " + site.loop.header + " at positions")
             resultsfile.write(site.atlas_id+',' +
                               str(bool(site.rotation))+",%d" % site.score+',')
             positions = [','.join([str(y) for y in x]) for x in site.position]
@@ -629,10 +450,10 @@ class BiorseoInstance:
     def launch_BayesPairing(self, module_type, seq_, header_):
         chdir(bypdir)
 
-        cmd = ["python3", "parse_sequences.py", "-seq", self.outputf +
+        cmd = ["python3", "parse_sequences.py", "-seq", biorseoDir + '/' + tempDir +
                header_ + ".fa", "-d", module_type, "-interm", "1"]
 
-        logfile = open("log_of_the_run.sh", 'a')
+        logfile = open(biorseoDir + "/log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
         logfile.write("\n")
         logfile.close()
@@ -646,9 +467,9 @@ class BiorseoInstance:
             l = BypLog[idx]
         insertion_sites = [x for x in ast.literal_eval(l.split(":")[1][1:])]
         if module_type == "rna3dmotif":
-            rna = open(self.outputf + header_ + ".byp.csv", "w")
+            rna = open(biorseoDir + "/" + tempDir + header_ + ".byp.csv", "w")
         else:
-            rna = open(self.outputf + header_ + ".bgsubyp.csv", "w")
+            rna = open(biorseoDir + "/" + tempDir + header_ + ".bgsubyp.csv", "w")
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
         for i, module in enumerate(insertion_sites):
             if len(module):
@@ -687,8 +508,8 @@ class BiorseoInstance:
             except:
                 r = 1
                 pass
-        if r:
-            fails.append(j)
+        # if r:
+            # fails.append(j)
         running_stats[1] += 1
         return r
 
@@ -729,48 +550,12 @@ class BiorseoInstance:
             print("Computations ran successfully.")
             print()
 
-    def check_result_existence(self, datatype, method, function, with_PK, basename):
-        folder = self.outputf+"PK/" if with_PK else self.outputf+"noPK/"
-        if datatype == "bgsu":
-            if method == "jar3d":
-                extension = ".jar3d"
-            elif method == "byp":
-                extension = ".bgsubyp"
-            else:
-                raise "Unknown method !"
-        elif datatype == "desc":
-            if method == "dpm":
-                extension = ".raw"
-            elif method == "byp":
-                extension = ".byp"
-            else:
-                raise "Unknown method !"
-        else:
-            raise "Unknown data type !"
-        return path.isfile(folder + basename + extension + function)
-
-    def check_csv_existence(self, datatype, method, basename):
-        if datatype == "bgsu":
-            if method == "jar3d":
-                extension = ".sites.csv"
-            elif method == "byp":
-                extension = ".bgsubyp.csv"
-            else:
-                raise "Unknown method !"
-        elif datatype == "desc":
-            if method == "byp":
-                extension = ".byp.csv"
-            else:
-                raise "You cannot use " + method + " with " + datatype + " data !"
-        else:
-            raise "Unknown data type !"
-        return path.isfile(self.outputf + basename + extension)
-
     def list_jobs(self):
 
         # Read fasta file, which can contain one or several RNAs
         RNAcontainer = []
         subprocess.call(["mkdir", "-p", self.outputf])  # Create the output folder
+        subprocess.call(["mkdir", "-p", tempDir])  # Create the temp folder
         print("loading file %s..." % self.inputfile)
         db = open(self.inputfile, "r")
         c = 0
@@ -789,10 +574,10 @@ class BiorseoInstance:
             if c == 0:
                 seq = l[:-1].upper()
                 if is_canonical_nts(seq):
-                    header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_')
+                    header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_').replace('>','')
                     RNAcontainer.append(RNA(header, seq))
-                    if not path.isfile(self.outputf + header + ".fa"):
-                        rna = open(self.outputf + header + ".fa", "w")
+                    if not path.isfile(tempDir + header + ".fa"):
+                        rna = open(tempDir + header + ".fa", "w")
                         rna.write(">" + header +'\n')
                         rna.write(seq +'\n')
                         rna.close()
@@ -807,7 +592,7 @@ class BiorseoInstance:
         for instance in RNAcontainer:
             
             executable = biorseoDir + "/bin/biorseo"
-            fastafile = self.outputf+instance.header+".fa"
+            fastafile = tempDir+instance.header+".fa"
             method_type = ""
             ext = ".raw"
             priority = 1
@@ -815,11 +600,11 @@ class BiorseoInstance:
             if self.type == "jar3d":
                 ext = ".jar3d"
                 method_type = "--jar3dcsv"
-                csv = self.outputf + instance.header + ".sites.csv"
+                csv = tempDir + instance.header + ".sites.csv"
 
                 # RNAsubopt
                 self.joblist.append(Job(command=["RNAsubopt", "-i", fastafile, "--outfile="+ instance.header + ".subopt"], priority=1))
-                self.joblist.append(Job(command=["mv", instance.header + ".subopt", self.outputf], priority=2))
+                self.joblist.append(Job(command=["mv", instance.header + ".subopt", tempDir], priority=2))
                 # JAR3D
                 self.joblist.append(Job(function=self.launch_JAR3D, args=[instance.seq_, instance.header], priority=3, how_many_in_parallel=1))
                 priority = 4
@@ -827,11 +612,11 @@ class BiorseoInstance:
                 method_type = "--bayespaircsv"
                 if self.modules == "desc":
                     ext = ".byp"
-                    csv = self.outputf + instance.header + ".byp.csv"
+                    csv = tempDir + instance.header + ".byp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp"
-                    csv = self.outputf + instance.header + ".bgsubyp.csv"
+                    csv = tempDir + instance.header + ".bgsubyp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
                 priority = 2
             if self.type == "dpm":
