@@ -13,6 +13,7 @@ doc/*.fdb_latexmk
 
 # Compiled Object files
 obj/*
+doc/*.pdf
 
 # Executables
 bin/*

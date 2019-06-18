@@ -37,6 +37,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 	@echo "\033[00;32mCompiled "$<".\033[00m"
 
 doc: mainpdf supppdf
+	@echo "\033[00;32mLaTeX documentation rendered.\033[00m"
 
 mainpdf: doc/main_bioinformatics.tex doc/references.bib doc/bioinfo.cls doc/natbib.bst
 	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics

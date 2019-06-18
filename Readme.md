@@ -50,85 +50,45 @@ OBJECTIVE FUNCTIONS FOR THE MODULE INSERTION CRITERIA
 
 - If you **might expect a pseudoknot, or don't know**:
     * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function B. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it. Example:
-    `./bin/biorseo -s PDB_00304.fa --descfolder ./data/modules/DESC --type B -o PDB_00304.rawB `
+    `./biorseo.py -i PDB_00304.fa --rna3dmotifs --patternmatch --func B`
     
     * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
-    `./bin/biorseo -s PDB_00304.fa --jar3dcsv PDB_00304.sites.csv --type B -o PDB_00304.jar3dB`
+    `./bin/biorseo -i PDB_00304.fa --3dmotifatlas --jar3d --func B`
 
 
 4/ Installation
 ==================================
-### DEPENDENCIES
-- Make sure you have Python 3.5+, Cmake, and a C++ compiler installed on your distribution.
-- Install automake and libboost-filesystem.
-- Download and install [IBM ILOG Cplex optimization studio](https://www.ibm.com/analytics/cplex-optimizer), an academic account is required. The free version is too limited, you must register as academic. This is also free.
-- Download and install Eigen: Get the latest Eigen archive from http://eigen.tuxfamily.org. Unpack it, and install it.
-```bash
-wget http://bitbucket.org/eigen/eigen/get/3.3.7.tar.gz -O eigen_src.tar.gz
-tar -xf eigen_src.tar.gz
-cd eigen-eigen-323c052e1731
-mkdir build
-cd build
-cmake ..
-sudo make install
+Check the file INSTALL.md for installation instructions.
+
+5/ List of Options
+==================================
 ```
-- Download and install NUPACK: Register on [Nupack's website](http://www.nupack.org/downloads/source), download the source, unpack it, build it, and install it:
-```bash
-wget http://www.nupack.org/downloads/serve_file/nupack3.2.2.tar.gz
-tar -xf nupack3.2.2.tar.gz
-cd nupack3.2.2
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
+-h [ --help ]			Print this help message
+--version			Print the program version
+-i [ --seq=… ]			FASTA file with the query RNA sequence
+-p [ --patternmatch ]		Use regular expressions to place modules in the sequence
+-j [ --jar3d ]			Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
+-b [ --bayespairing ]		Use BayesPairing to place modules in the sequence
+-o [ --output=… ]		Folder where to output files
+-f [ --func=… ]			(A, B, C or D, default is B) Objective function to score module insertions:
+				  (A) insert big modules (B) insert light, high-order modules
+				  (c) insert modules which score well with the sequence
+				  (D) insert light, high-order modules which score well with the sequence.
+				  C and D require cannot be used with --patternmatch.
+-c [ --first-objective=… ]	(default 1) Objective to solve in the mono-objective portions of the algorithm.
+				  (1) is the module objective given by --func, (2) is the expected accuracy of the structure.
+-l [ --limit=… ]		(default 500) Intermediate number of solutions in the Pareto set from whichwe give up the computation.
+-t [ --theta=… ]		(default 0.001) Pairing-probability threshold to consider or not the possibility of pairing
+-n [ --disable-pseudoknots ]	Add constraints to explicitly forbid the formation of pseudoknots
+-v [ --verbose ]		Print what is happening to stdout
+--modules-path=…		Path to the modules data.
+				  The folder should contain modules in the DESC format as output by Djelloul & Denise's
+				  'catalog' program for use with --rna3dmotifs, or should contain the IL/ and HL/ folders from a release of
+				  the RNA 3D Motif Atlasfor use with --3dmotifatlas.
+				  Consider placing these files on a fast I/O device (NVMe SSD, ...)
+
+Examples:
+biorseo.py -i myRNA.fa -o myResultsFolder/ --rna3dmotifs --patternmatch --func B
+biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
+biorseo.py -i myRNA.fa --3dmotifatlas --bayespairing --func D
 ```
-
-### OPTIONAL DEPENDENCIES FOR USE OF JAR3D
-- Download and install RNAsubopt from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/).
-- Download and install Java runtime (Tested with Java 10)
-- Download the latest JAR3D executable "*jar3d_releasedate.jar*", and latest IL and HL models from [here](http://rna.bgsu.edu/data/jar3d/models/).
-  Note that only the latest version is required (not all the versions provided in the folders).
-
-### OPTIONAL DEPENDENCIES FOR USE OF BAYESPAIRING
-- Download and install RNAfold from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/).
-- Make sure you have Python 3.5+ with packages networkx, numpy, regex, wrapt and biopython
-- Clone the latest BayesPairing Git repo, and install it : 
-```
-git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing.git BayesPairing
-cd BayesPairing
-pip install .
-```
-
-### RNA3DMOTIFS DATA
-
-If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Put all the .desc from the `Non_Redundant_DESC` folder into `./data/modules/DESC`. Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)). You also need to move the final DESC files into `./data/modules/DESC`.
-
-### THE RNA 3D MOTIF ATLAS DATA
-
-If not done during the installation of JAR3D, get the latest version of the HL and IL module models from the [BGSU website](http://rna.bgsu.edu/data/jar3d/models/) and extract the Zip files. Put the HL and IL folders into `./data/modules/BGSU`.
-
-### BUILDING
-* Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` and `cd biorseo`.
-* Edit the file `EditMe` to set the paths of the above dependencies and data. Fileds that you will not use can be ignored (ex: bypdir if you do not use BayesPairing). Example of my setup:
-    * CPLEXDir="/opt/ibm/ILOG/CPLEX_Studio128_Student"
-    * IEIGEN="/usr/local/include/eigen3"
-    * INUPACK="/usr/local/include/nupack"
-    * jar3dexec="/nhome/siniac/lbecquey/Software/jar3dbin/jar3d_2014-12-11.jar"
-    * ILmotifDir="/nhome/siniac/lbecquey/Data/RNA/motifs/BGSU/Matlab_results/IL/3.2/lib"
-    * HLmotifDir="/nhome/siniac/lbecquey/Data/RNA/motifs/BGSU/Matlab_results/HL/3.2/lib"
-    * descfolder="/nhome/siniac/lbecquey/Data/RNA/motifs/Rna3Dmotifs/No_Redondance_DESC/"
-    * bypdir="/nhome/siniac/lbecquey/Software/BayesPairing/bayespairing/src"
-    * biorseoDir="/nhome/siniac/lbecquey/Software/biorseo"
-* You might want to edit `Makefile` if you are not using clang as compiler. For example, if you use g++, replace clang++ by g++.
-* Build it: `make -j4`
-* The working executable file is `./bin/biorseo`.
-
-### BAYESPAIRING USERS: PREPARE BAYESIAN NETWORKS
-We run an example job for it to build the bayesian networks of our modules.
-```
-cd rnabayespairing/src
-python3 parse_sequences.py -d rna3dmotif -seq ACACGGGGUAAGAGCUGAACGCAUCUAAGCUCGAAACCCACUUGGAAAAGAGACACCGCCGAGGUCCCGCGUACAAGACGCGGUCGAUAGACUCGGGGUGUGCGCGUCGAGGUAACGAGACGUUAAGCCCACGAGCACUAACAGACCAAAGCCAUCAU -ss ".................................................................((...............)xxxx(...................................................)xxx).............."
-```
-Use `-d rna3dmotif` or `-d 3dmotifatlas` depending on the module source you are planning to use.
-This is a quite long step, but the bayesian networks will be ready for all the future uses.
