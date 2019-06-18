@@ -39,8 +39,6 @@ running_stats = m.list()
 running_stats.append(0) # n_launched
 running_stats.append(0) # n_finished
 running_stats.append(0) # n_skipped
-fails = m.list()
-
 
 # ================== CLASSES AND FUNCTIONS ================================
 
@@ -508,8 +506,6 @@ class BiorseoInstance:
             except:
                 r = 1
                 pass
-        # if r:
-            # fails.append(j)
         running_stats[1] += 1
         return r
 
@@ -538,17 +534,6 @@ class BiorseoInstance:
                 pool.map(self.execute_job, bunch)
                 pool.close()
                 pool.join()
-
-        if len(fails):
-            print()
-            print("Some jobs failed! :")
-            print()
-            for j in fails:
-                print(j.cmd_)
-        else:
-            print()
-            print("Computations ran successfully.")
-            print()
 
     def list_jobs(self):
 
