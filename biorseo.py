@@ -4,13 +4,14 @@ import sys
 import getopt
 from scipy import stats
 import subprocess
-from os import path, makedirs, getcwd, chdir, devnull
+from os import path, makedirs, getcwd, chdir, devnull, remove, walk
 import matplotlib.pyplot as plt
 from matplotlib import colors
 from math import sqrt
 from multiprocessing import cpu_count, Manager
 import multiprocessing
 import ast
+from shutil import move
 
 
 # ================== DEFINITION OF THE PATHS ==============================
@@ -29,7 +30,9 @@ tempDir = "temp/"
 
 # Parse options
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "bc:f:hi:jl:no:pt:v", ["verbose", "rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=","help","version","seq=","modules-path=", "first-objective=","output=","theta=","interrupt-limit="])
+    opts, args = getopt.getopt(sys.argv[1:], "bc:f:hi:jl:no:O:pt:v", [  "verbose","rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=",
+                                                                        "help","version","seq=","modules-path=", "first-objective=","output=","theta=",
+                                                                        "interrupt-limit=", "outputf="])
 except getopt.GetoptError as err:
     print(err)
     sys.exit(2)
@@ -152,7 +155,9 @@ class BiorseoInstance:
         self.modules = "desc"
         self.func = 'B'
         self.inputfile = ""
-        self.outputf = biorseoDir + "/results/" # default results location
+        self.finalname = ""
+        self.outputf = ""
+        self.output = ""
         self.jobcount = 0
         self.joblist = []
         self.mode = 0 # default is single sequence mode
@@ -173,7 +178,8 @@ class BiorseoInstance:
                 print("-p [ --patternmatch ]\t\tUse regular expressions to place modules in the sequence")
                 print("-j [ --jar3d ]\t\t\tUse JAR3D to place modules in the sequence (requires --3dmotifatlas)")
                 print("-b [ --bayespairing ]\t\tUse BayesPairing to place modules in the sequence")
-                print("-o [ --output=… ]\t\tFolder where to output files")
+                print("-o [ --output=… ]\t\tFile to summarize the results")
+                print("-O [ --outputf=… ]\t\tFolder where to output result and temp files")
                 print("-f [ --func=… ]\t\t\t(A, B, C or D, default is B)"
                       " Objective function to score module insertions:\n\t\t\t\t  (A) insert big modules (B) insert light, high-order modules"
                       "\n\t\t\t\t  (c) insert modules which score well with the sequence\n\t\t\t\t  (D) insert light, high-order modules which score well with the sequence."
@@ -195,12 +201,16 @@ class BiorseoInstance:
                 sys.exit()
             elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg
-            elif opt == "-o" or opt == "--output":
-                self.outputf = arg # output file or folder...
+            elif opt == "-O" or opt == "--outputf":
+                self.outputf = arg # output folder
                 if self.outputf[1] != '/':
                     self.outputf = getcwd() + '/' + self.outputf
                 if self.outputf[-1] != '/':
                     self.outputf = self.outputf + '/'
+            elif opt == "-o" or opt == "--output":
+                self.output = arg # output file 
+                if self.output[1] != '/':
+                    self.output = getcwd() + '/' + self.output
             elif opt == "-f" or opt == "--func":
                 if arg in ['A', 'B', 'C', 'D']:
                     self.func = arg
@@ -237,14 +247,48 @@ class BiorseoInstance:
                 self.forward_options.append("-c")
                 self.forward_options.append(arg)
 
-        print("saving files to", self.outputf)
+        if self.outputf != "":
+            print("saving files to", self.outputf)
+    
         # create jobs
         self.list_jobs()
 
         # run them
         self.execute_jobs()         
 
-        # subprocess.call(["rm", "-rf", tempDir])  # empty the temp folder  
+        # locate the results at the right place
+        if self.output != "" and self.outputf != "":
+            for src_dir, dirs, files in walk(tempDir):
+                dst_dir = src_dir.replace(tempDir, self.outputf, 1)
+                if not path.exists(dst_dir):
+                    makedirs(dst_dir)
+                for file_ in files:
+                    src_file = path.join(src_dir, file_)
+                    dst_file = path.join(dst_dir, file_)
+                    if path.exists(dst_file):
+                        # in case of the src and dst are the same file
+                        if path.samefile(src_file, dst_file):
+                            continue
+                        remove(dst_file)
+                    move(src_file, dst_dir)
+            subprocess.call(["mv", self.outputf+self.finalname.split('/')[-1], self.output])
+        elif self.output != "":
+            subprocess.call(["mv", self.finalname, self.output])
+        elif self.outputf != "":
+            for src_dir, dirs, files in walk(tempDir):
+                dst_dir = src_dir.replace(tempDir, self.outputf, 1)
+                if not path.exists(dst_dir):
+                    makedirs(dst_dir)
+                for file_ in files:
+                    src_file = path.join(src_dir, file_)
+                    dst_file = path.join(dst_dir, file_)
+                    if path.exists(dst_file):
+                        # in case of the src and dst are the same file
+                        if path.samefile(src_file, dst_file):
+                            continue
+                        remove(dst_file)
+                    move(src_file, dst_dir)
+        subprocess.call(["rm", "-rf", tempDir])  # remove the temp folder  
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
@@ -539,7 +583,8 @@ class BiorseoInstance:
 
         # Read fasta file, which can contain one or several RNAs
         RNAcontainer = []
-        subprocess.call(["mkdir", "-p", self.outputf])  # Create the output folder
+        if self.outputf != "":
+            subprocess.call(["mkdir", "-p", self.outputf])  # Create the output folder
         subprocess.call(["mkdir", "-p", tempDir])  # Create the temp folder
         print("loading file %s..." % self.inputfile)
         db = open(self.inputfile, "r")
@@ -610,7 +655,8 @@ class BiorseoInstance:
             command = [executable, "-s", fastafile ]
             if method_type:
                 command += [ method_type, csv ]
-            command += [ "-o", self.outputf + instance.header + ext + self.func, "--function", self.func ]
+            self.finalname =  tempDir + instance.header + ext + self.func
+            command += [ "-o", self.finalname, "--function", self.func ]
             command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
             

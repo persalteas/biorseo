@@ -43,7 +43,11 @@ OBJECTIVE FUNCTIONS FOR THE MODULE INSERTION CRITERIA
 * **Function C** : weights a module by its insertion site score (JAR3D or BayesPairing score).
 * **Function D** : weights a module by its number of components (strands) and insertion site score (JAR3D or BayesPairing score), and penalizes it by the log^(_2) of its nucleotide size.
 
-3/ Recommended uses
+3/ Installation
+==================================
+Check the file INSTALL.md for installation instructions.
+
+4/ Recommended uses
 ==================================
 - If **you know you have no pseudoknot**:
     * Benchmarks show Biorseo does not perform better than simpler tools like RNAsubopt alone. Please use RNAsubopt (ViennaRNA package) or Fold (RNAstructure package).
@@ -55,11 +59,6 @@ OBJECTIVE FUNCTIONS FOR THE MODULE INSERTION CRITERIA
     * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
     `./bin/biorseo -i PDB_00304.fa --3dmotifatlas --jar3d --func B`
 
-
-4/ Installation
-==================================
-Check the file INSTALL.md for installation instructions.
-
 5/ List of Options
 ==================================
 ```
@@ -69,7 +68,8 @@ Check the file INSTALL.md for installation instructions.
 -p [ --patternmatch ]		Use regular expressions to place modules in the sequence
 -j [ --jar3d ]			Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
 -b [ --bayespairing ]		Use BayesPairing to place modules in the sequence
--o [ --output=… ]		Folder where to output files
+-o [ --output=… ]       File to summarize the results
+-O [ --outputf=… ]      Folder where to output result and temp files
 -f [ --func=… ]			(A, B, C or D, default is B) Objective function to score module insertions:
 				  (A) insert big modules (B) insert light, high-order modules
 				  (c) insert modules which score well with the sequence
