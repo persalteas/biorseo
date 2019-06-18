@@ -73,8 +73,8 @@ Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 -p [ --patternmatch ]		Use regular expressions to place modules in the sequence
 -j [ --jar3d ]			Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
 -b [ --bayespairing ]		Use BayesPairing to place modules in the sequence
--o [ --output=… ]       File to summarize the results
--O [ --outputf=… ]      Folder where to output result and temp files
+-o [ --output=… ]		File to summarize the results
+-O [ --outputf=… ]		Folder where to output result and temp files
 -f [ --func=… ]			(A, B, C or D, default is B) Objective function to score module insertions:
 				  (A) insert big modules (B) insert light, high-order modules
 				  (c) insert modules which score well with the sequence
