@@ -24,6 +24,7 @@ log_of_the_run.sh
 logBadDesc.txt
 gurobi.log
 temp/*
+test_on_RNAstrand.py
 
 # data 
 data/modules/BGSU/HL/3.2/diagnostic/*

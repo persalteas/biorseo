@@ -36,8 +36,19 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) $< -o $@
 	@echo "\033[00;32mCompiled "$<".\033[00m"
 
+doc: mainpdf supppdf
+
+mainpdf: doc/main_bioinformatics.tex doc/references.bib doc/bioinfo.cls doc/natbib.bst
+	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
+	cd doc; bibtex main_bioinformatics
+	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
+	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
+
+supppdf: doc/supplementary_material.tex
+	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error supplementary_material
+
 .PHONY: all
-all: $(BINDIR)/$(TARGET)
+all: $(BINDIR)/$(TARGET) doc
 
 .PHONY: re
 re: remove clean all
@@ -45,9 +56,12 @@ re: remove clean all
 .PHONY: clean
 clean:
 	$(rm) $(OBJECTS)
+	$(rm) doc/supplementary_material.bbl doc/supplementary_material.blg doc/supplementary_material.synctex.gz doc/supplementary_material.log doc/supplementary_material.aux
+	$(rm) doc/main_bioinformatics.bbl doc/main_bioinformatics.blg doc/main_bioinformatics.synctex.gz doc/main_bioinformatics.log doc/main_bioinformatics.aux doc/OUP_First_SBk_Bot_8401-eps-converted-to.pdf
 	@echo "\033[00;32mCleanup completed.\033[00m"
 
 .PHONY: remove
-remove: clean
+remove:
 	@$(rm) $(BINDIR)/$(TARGET)
-	@echo "\033[00;32mExecutable removed!\033[00m"
+	@$(rm) doc/main_bioinformatics.pdf doc/supplementary_material.pdf
+	@echo "\033[00;32mExecutable and docs removed!\033[00m"
