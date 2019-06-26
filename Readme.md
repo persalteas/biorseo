@@ -93,7 +93,7 @@ Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 				  Consider placing these files on a fast I/O device (NVMe SSD, ...)
 
 Examples:
-biorseo.py -i myRNA.fa -o myResultsFolder/ --rna3dmotifs --patternmatch --func B
-biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
+biorseo.py -i myRNA.fa -o myResultsFile.dbn --rna3dmotifs --patternmatch --func B
+biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
 biorseo.py -i myRNA.fa --3dmotifatlas --bayespairing --func D
 ```
