@@ -1,8 +1,10 @@
 include EditMe
-ICONCERT=$(CPLEXDir)/concert/include
-ICPLEX=$(CPLEXDir)/cplex/include
-LCONCERT=$(CPLEXDir)/concert/lib/x86-64_linux/static_pic/
-LCPLEX=$(CPLEXDir)/cplex/lib/x86-64_linux/static_pic/
+ICONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/include
+ICPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/include
+INUPACK=/usr/local/include/nupack
+IEIGEN=/usr/local/include/eigen3
+LCONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/lib/x86-64_linux/static_pic/
+LCPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/lib/x86-64_linux/static_pic/
 
 # project name (generate executable with this name)
 TARGET   = biorseo

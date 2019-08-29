@@ -16,15 +16,12 @@ import ast
 # ================== DEFINITION OF THE PATHS ==============================
 
 # Retrieve Paths from file EditMe
-jar3dexec = ""
-bypdir = ""
-biorseoDir = "."
-exec(compile(open(biorseoDir+"/EditMe").read(), '', 'exec'))
-runDir = path.dirname(path.realpath(__file__))
-modulespath = biorseoDir + "/data/modules"
-HLmotifDir = modulespath + "/BGSU/HL/3.2/lib"
-ILmotifDir = modulespath + "/BGSU/IL/3.2/lib"
-descfolder = modulespath + "/DESC"
+jar3dexec = "/jar3d_2014-12-11.jar"
+bypdir = "/byp/src"
+biorseoDir = "/biorseo"
+HLmotifDir = "/modules/BGSU/HL/3.2/lib"
+ILmotifDir = "/modules/BGSU/IL/3.2/lib"
+descfolder = "/modules/DESC"
 
 # Parse options
 try:
