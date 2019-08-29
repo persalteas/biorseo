@@ -17,6 +17,7 @@ docker_image/cplex_installer_12.8_Student.bin
 
 # Compiled Object files
 obj/*
+doc/*.pdf
 
 # Executables
 bin/*
@@ -28,6 +29,7 @@ log_of_the_run.sh
 logBadDesc.txt
 gurobi.log
 temp/*
+test_on_RNAstrand.py
 
 # data 
 data/modules/BGSU/HL/3.2/diagnostic/*
