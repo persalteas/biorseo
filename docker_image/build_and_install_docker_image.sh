@@ -44,7 +44,7 @@ cd ../..
 rm nupack3.2.2.tar.gz
 sudo cp nupack3.2.2/src/thermo/*.h /usr/local/include/nupack/thermo/
 
-# BayesPairing
+# BayesPairing: install on both the host (were we will train the models later) and the docker image (done by the Dockerfile)
 sudo -H pip3 install --upgrade pip
 sudo -H pip3 install networkx numpy regex wrapt biopython
 git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing.git BayesPairing
@@ -54,10 +54,12 @@ cd ..
 
 
 ######################################################### Build Biorseo ###########################################################
+# build here, install later on the docker image (done by the Dockerfile)
 git clone https://github.com/persalteas/biorseo.git
 cd biorseo
 mkdir -p results
 make -j 4
+make clean
 cd ..
 
 ######################################################## RNA modules ##############################################################
@@ -81,16 +83,17 @@ mv IL modules/BGSU
 rm IL_3.2_models.zip
 
 ######################################################## Build Docker container ##################################################
+# Execute the Dockerfile
 docker build -t biorseo
-#  docker run -v `pwd`/modules:/modules -v `pwd`/BayesPairing/bayespairing:/byp -v `pwd`/results:/biorseo/results biorseo ls /byp/models
 
-# Train Bayes Pairing
-cd bayespairing/src
+# Train Bayes Pairing (it has been installed on the image and the source has been deleted, we train the models now, and will remount it as volume at run time)
+cd BayesPairing/bayespairing/src
 python3 parse_sequences.py -d rna3dmotif -seq ACACGGGGUAAGAGCUGAACGCAUCUAAGCUCGAAACCCACUUGGAAAAGAGACACCGCCGAGGUCCCGCGUACAAGACGCGGUCGAUAGACUCGGGGUGUGCGCGUCGAGGUAACGAGACGUUAAGCCCACGAGCACUAACAGACCAAAGCCAUCAU -ss ".................................................................((...............)xxxx(...................................................)xxx).............."
 python3 parse_sequences.py -d 3dmotifatlas -seq ACACGGGGUAAGAGCUGAACGCAUCUAAGCUCGAAACCCACUUGGAAAAGAGACACCGCCGAGGUCCCGCGUACAAGACGCGGUCGAUAGACUCGGGGUGUGCGCGUCGAGGUAACGAGACGUUAAGCCCACGAGCACUAACAGACCAAAGCCAUCAU -ss ".................................................................((...............)xxxx(...................................................)xxx).............."
 cd ../../..
 
-
+# run it
+# docker run -v `pwd`/modules:/modules -v `pwd`/BayesPairing/bayespairing:/byp -v `pwd`/results:/biorseo/results biorseo ls /byp/models
 
 
 ########################################################### More stuff ###########################################################

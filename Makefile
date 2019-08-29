@@ -1,4 +1,3 @@
-include EditMe
 ICONCERT=/opt/ibm/ILOG/CPLEX_Studio_Community128/concert/include
 ICPLEX=/opt/ibm/ILOG/CPLEX_Studio_Community128/cplex/include
 INUPACK=/usr/local/include/nupack

@@ -14,10 +14,10 @@ COPY ./biorseo /biorseo
 ADD http://rna.bgsu.edu/data/jar3d/models/jar3d_2014-12-11.jar /
 
 # install codes
-RUN mkdir -p /biorseo/results   && \
-    cd /ViennaRNA               && \
+RUN cd /ViennaRNA               && \
     make install                && \
     pip3 install --upgrade pip  && \
     pip3 install networkx numpy regex wrapt biopython /BayesPairing && \
-    rm -rf /BayesPairing /ViennaRNA
+    cd / && \
+    rm -rf /BayesPairing /ViennaRNA 
 WORKDIR /biorseo
