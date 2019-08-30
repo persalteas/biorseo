@@ -11,9 +11,11 @@ doc/*.blg
 doc/*.fls
 doc/*.fdb_latexmk
 
-# Docker image temporary files
-docker_image/eigen-eigen-323c052e1731
-docker_image/cplex_installer_12.8_Student.bin
+# Docker installation temporary files
+eigen-eigen-323c052e1731
+cplex_installer_12.8_Student.bin
+BayesPairing/
+ViennaRNA-2.4.13
 
 # Compiled Object files
 obj/*
@@ -24,12 +26,12 @@ bin/*
 
 # results
 results/*
+results_old
 benchmark_results/*
 log_of_the_run.sh
 logBadDesc.txt
 gurobi.log
 temp/*
-test_on_RNAstrand.py
 
 # data 
 data/modules/BGSU/HL/3.2/diagnostic/*
