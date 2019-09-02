@@ -16,21 +16,13 @@ from shutil import move
 
 # ================== DEFINITION OF THE PATHS ==============================
 
-# Retrieve Paths from file EditMe
-jar3dexec = "/jar3d_2014-12-11.jar"
-bypdir = "/byp/src"
-biorseoDir = "/biorseo"
-HLmotifDir = "/modules/BGSU/HL/3.2/lib"
-ILmotifDir = "/modules/BGSU/IL/3.2/lib"
-descfolder = "/modules/DESC"
-runDir = path.dirname(path.realpath(__file__))
-tempDir = "temp/"
-
 # Parse options
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "bc:f:hi:jl:no:O:pt:v", [  "verbose","rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=",
-                                                                        "help","version","seq=","modules-path=", "first-objective=","output=","theta=",
-                                                                        "interrupt-limit=", "outputf="])
+    opts, args = getopt.getopt( sys.argv[1:], 
+                                "bc:f:hi:jl:no:O:pt:v", 
+                             [  "verbose","rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=",
+                                "help","version","seq=","modules-path=", "jar3dexec=", "bypdir=", "biorseodir=", "first-objective=","output=","theta=",
+                                "interrupt-limit=", "outputf="])
 except getopt.GetoptError as err:
     print(err)
     sys.exit(2)
@@ -160,6 +152,14 @@ class BiorseoInstance:
         self.joblist = []
         self.mode = 0 # default is single sequence mode
         self.forward_options = []
+        self.jar3dexec = "/jar3d_2014-12-11.jar"
+        self.bypdir = "/byp/src"
+        self.biorseoDir = "/biorseo"
+        self.HLmotifDir = "/modules/BGSU/HL/3.2/lib"
+        self.ILmotifDir = "/modules/BGSU/IL/3.2/lib"
+        self.descfolder = "/modules/DESC"
+        self.runDir = path.dirname(path.realpath(__file__))
+        self.tempDir = "temp/"
 
         for opt, arg in opts:
             if opt == "-h" or opt == "--help":
@@ -167,7 +167,8 @@ class BiorseoInstance:
                         "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules.\n"
                         "Developped by Louis Becquey (louis.becquey@univ-evry.fr), 2019\n\n")
                 print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs or --3dmotifatlas"
-                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D")
+                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
+                      "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseodir and (--jar3dexec or --bypdir)")
                 print()
                 print("Options:")
                 print("-h [ --help ]\t\t\tPrint this help message")
@@ -185,13 +186,19 @@ class BiorseoInstance:
                 print("-c [ --first-objective=… ]\t(default 1) Objective to solve in the mono-objective portions of the algorithm."
                       "\n\t\t\t\t  (1) is the module objective given by --func, (2) is the expected accuracy of the structure.")
                 print("-l [ --limit=… ]\t\t(default 500) Intermediate number of solutions in the Pareto set from which"
-                      "we give up the computation.")
+                      " we give up the computation.")
                 print("-t [ --theta=… ]\t\t(default 0.001) Pairing-probability threshold to consider or not the possibility of pairing")
                 print("-n [ --disable-pseudoknots ]\tAdd constraints to explicitly forbid the formation of pseudoknots")
                 print("-v [ --verbose ]\t\tPrint what is happening to stdout")
                 print("--modules-path=…\t\tPath to the modules data.\n\t\t\t\t  The folder should contain modules in the DESC format as output by Djelloul & Denise's"
                       "\n\t\t\t\t  'catalog' program for use with --rna3dmotifs, or should contain the IL/ and HL/ folders from a release of\n\t\t\t\t  the RNA 3D Motif Atlas"
                       "for use with --3dmotifatlas.\n\t\t\t\t  Consider placing these files on a fast I/O device (NVMe SSD, ...)")
+                print("--jar3dexec=…\t\t\tPath to the jar3d executable.\n\t\t\t\t  Default is /jar3d_2014-12-11.jar, you should use this option if you run"
+                      "\n\t\t\t\t  BiORSEO from outside the docker image.")
+                print("--bypdir=…\t\t\tPath to the BayesParing src folder.\n\t\t\t\t  Default is /byp/src, you should use this option if you run"
+                      "\n\t\t\t\t  BiORSEO from outside the docker image.")
+                print("--biorseodir=…\t\t\tPath to the BiORSEO root directory.\n\t\t\t\t  Default is /biorseo, you should use this option if you run"
+                      "\n\t\t\t\t  BiORSEO from outside the docker image. Use the FULL path.")
                 print("\nExamples:")
                 print("biorseo.py -i myRNA.fa -o myResultsFolder/ --rna3dmotifs --patternmatch --func B")
                 print("biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800")
@@ -225,11 +232,17 @@ class BiorseoInstance:
             elif opt == "--3dmotifatlas":
                 self.modules = "bgsu"
             elif opt == "--modulespath":
-                HLmotifDir = arg + "/HL/3.2/lib"
-                ILmotifDir = arg + "/IL/3.2/lib"
-                descfolder = arg
+                self.HLmotifDir = arg + "/HL/3.2/lib"
+                self.ILmotifDir = arg + "/IL/3.2/lib"
+                self.descfolder = arg
+            elif opt == "--jar3dexec":
+                self.jar3dexec = arg
+            elif opt == "--bypdir":
+                self.bypdir = arg
+            elif opt == "--biorseodir":
+                self.biorseoDir = arg
             elif opt == "--version":
-                subprocess.call([biorseoDir+"/bin/biorseo", "--version"])
+                subprocess.call([self.biorseoDir+"/bin/biorseo", "--version"])
                 exit(0)
             elif opt == "-l" or opt == "--interrupt-limit":
                 self.forward_options.append("-l")
@@ -256,8 +269,8 @@ class BiorseoInstance:
 
         # locate the results at the right place
         if self.output != "" and self.outputf != "":
-            for src_dir, dirs, files in walk(tempDir):
-                dst_dir = src_dir.replace(tempDir, self.outputf, 1)
+            for src_dir, dirs, files in walk(self.tempDir):
+                dst_dir = src_dir.replace(self.tempDir, self.outputf, 1)
                 if not path.exists(dst_dir):
                     makedirs(dst_dir)
                 for file_ in files:
@@ -270,11 +283,12 @@ class BiorseoInstance:
                         remove(dst_file)
                     move(src_file, dst_dir)
             subprocess.call(["mv", self.outputf+self.finalname.split('/')[-1], self.output])
+            subprocess.call(["mv", self.biorseoDir + "/log_of_the_run.sh", self.outputf])
         elif self.output != "":
             subprocess.call(["mv", self.finalname, self.output])
         elif self.outputf != "":
-            for src_dir, dirs, files in walk(tempDir):
-                dst_dir = src_dir.replace(tempDir, self.outputf, 1)
+            for src_dir, dirs, files in walk(self.tempDir):
+                dst_dir = src_dir.replace(self.tempDir, self.outputf, 1)
                 if not path.exists(dst_dir):
                     makedirs(dst_dir)
                 for file_ in files:
@@ -286,7 +300,8 @@ class BiorseoInstance:
                             continue
                         remove(dst_file)
                     move(src_file, dst_dir)
-        subprocess.call(["rm", "-rf", tempDir])  # remove the temp folder  
+            subprocess.call(["mv", self.biorseoDir + "/log_of_the_run.sh", self.outputf])
+        subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
@@ -398,7 +413,7 @@ class BiorseoInstance:
 
     def launch_JAR3D_worker(self, loop):
         # write motif to a file
-        modulefolder = tempDir + loop.header[1:] + '/'
+        modulefolder = self.tempDir + loop.header[1:] + '/'
         if not path.exists(modulefolder):
             makedirs(modulefolder)
         filename = modulefolder + loop.header[1:]+".fasta"
@@ -408,19 +423,19 @@ class BiorseoInstance:
 
         # Launch Jar3D on it
         if loop.type == 'h':
-            cmd = ["java", "-jar", jar3dexec, loop.header[1:]+".fasta", HLmotifDir+"/all.txt",
+            cmd = ["java", "-jar", self.jar3dexec, loop.header[1:]+".fasta", self.HLmotifDir+"/all.txt",
                    loop.header[1:]+".HLloop.csv", loop.header[1:]+".HLseq.csv"]
         else:
-            cmd = ["java", "-jar", jar3dexec, loop.header[1:]+".fasta", ILmotifDir+"/all.txt",
+            cmd = ["java", "-jar", self.jar3dexec, loop.header[1:]+".fasta", self.ILmotifDir+"/all.txt",
                    loop.header[1:]+".ILloop.csv", loop.header[1:]+".ILseq.csv"]
         nowhere = open(devnull, 'w')
-        logfile = open(biorseoDir + "/log_of_the_run.sh", 'a')
+        logfile = open(self.biorseoDir + "/log_of_the_run.sh", 'a')
         logfile.write(' '.join(cmd))
         logfile.write("\n")
         logfile.close()
         chdir(modulefolder)
         subprocess.call(cmd, stdout=nowhere)
-        chdir(biorseoDir)
+        chdir(self.biorseoDir)
         nowhere.close()
 
         # Retrieve results
@@ -442,7 +457,7 @@ class BiorseoInstance:
     def launch_JAR3D(self, seq_, basename):
         rnasubopt_preds = []
         # Extracting probable loops from RNA-subopt structures
-        rna = open(tempDir + basename + ".subopt", "r")
+        rna = open(self.tempDir + basename + ".subopt", "r")
         lines = rna.readlines()
         rna.close()
         for i in range(2, len(lines)):
@@ -470,7 +485,7 @@ class BiorseoInstance:
         insertion_sites.sort(reverse=True)
         # Writing results to CSV file
         c = 0
-        resultsfile = open(biorseoDir + "/" + tempDir+basename+".sites.csv", "w")
+        resultsfile = open(self.biorseoDir + "/" + self.tempDir+basename+".sites.csv", "w")
         resultsfile.write("Motif,Rotation,Score,Start1,End1,Start2,End2\n")
         for site in insertion_sites:
             if site.score > 10:
@@ -488,12 +503,12 @@ class BiorseoInstance:
         resultsfile.close()
 
     def launch_BayesPairing(self, module_type, seq_, header_):
-        chdir(bypdir)
+        chdir(self.bypdir)
 
-        cmd = ["python3", "parse_sequences.py", "-seq", biorseoDir + '/' + tempDir +
+        cmd = ["python3", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir +
                header_ + ".fa", "-d", module_type, "-interm", "1"]
 
-        logfile = open(biorseoDir + "/log_of_the_run.sh", 'a')
+        logfile = open(self.biorseoDir + "/log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
         logfile.write("\n")
         logfile.close()
@@ -507,9 +522,9 @@ class BiorseoInstance:
             l = BypLog[idx]
         insertion_sites = [x for x in ast.literal_eval(l.split(":")[1][1:])]
         if module_type == "rna3dmotif":
-            rna = open(biorseoDir + "/" + tempDir + header_ + ".byp.csv", "w")
+            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp.csv", "w")
         else:
-            rna = open(biorseoDir + "/" + tempDir + header_ + ".bgsubyp.csv", "w")
+            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp.csv", "w")
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
         for i, module in enumerate(insertion_sites):
             if len(module):
@@ -583,7 +598,7 @@ class BiorseoInstance:
         RNAcontainer = []
         if self.outputf != "":
             subprocess.call(["mkdir", "-p", self.outputf])  # Create the output folder
-        subprocess.call(["mkdir", "-p", tempDir])  # Create the temp folder
+        subprocess.call(["mkdir", "-p", self.tempDir])  # Create the temp folder
         print("loading file %s..." % self.inputfile)
         db = open(self.inputfile, "r")
         c = 0
@@ -604,8 +619,8 @@ class BiorseoInstance:
                 if is_canonical_nts(seq):
                     header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_').replace('>','')
                     RNAcontainer.append(RNA(header, seq))
-                    if not path.isfile(tempDir + header + ".fa"):
-                        rna = open(tempDir + header + ".fa", "w")
+                    if not path.isfile(self.tempDir + header + ".fa"):
+                        rna = open(self.tempDir + header + ".fa", "w")
                         rna.write(">" + header +'\n')
                         rna.write(seq +'\n')
                         rna.close()
@@ -619,8 +634,8 @@ class BiorseoInstance:
         # define job list
         for instance in RNAcontainer:
             
-            executable = biorseoDir + "/bin/biorseo"
-            fastafile = tempDir+instance.header+".fa"
+            executable = self.biorseoDir + "/bin/biorseo"
+            fastafile = self.tempDir+instance.header+".fa"
             method_type = ""
             ext = ".raw"
             priority = 1
@@ -628,11 +643,11 @@ class BiorseoInstance:
             if self.type == "jar3d":
                 ext = ".jar3d"
                 method_type = "--jar3dcsv"
-                csv = tempDir + instance.header + ".sites.csv"
+                csv = self.tempDir + instance.header + ".sites.csv"
 
                 # RNAsubopt
                 self.joblist.append(Job(command=["RNAsubopt", "-i", fastafile, "--outfile="+ instance.header + ".subopt"], priority=1))
-                self.joblist.append(Job(command=["mv", instance.header + ".subopt", tempDir], priority=2))
+                self.joblist.append(Job(command=["mv", instance.header + ".subopt", self.tempDir], priority=2))
                 # JAR3D
                 self.joblist.append(Job(function=self.launch_JAR3D, args=[instance.seq_, instance.header], priority=3, how_many_in_parallel=1))
                 priority = 4
@@ -640,20 +655,20 @@ class BiorseoInstance:
                 method_type = "--bayespaircsv"
                 if self.modules == "desc":
                     ext = ".byp"
-                    csv = tempDir + instance.header + ".byp.csv"
+                    csv = self.tempDir + instance.header + ".byp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp"
-                    csv = tempDir + instance.header + ".bgsubyp.csv"
+                    csv = self.tempDir + instance.header + ".bgsubyp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
                 priority = 2
             if self.type == "dpm":
                 method_type = "--descfolder"
-                csv = descfolder
+                csv = self.descfolder
             command = [executable, "-s", fastafile ]
             if method_type:
                 command += [ method_type, csv ]
-            self.finalname =  tempDir + instance.header + ext + self.func
+            self.finalname =  self.tempDir + instance.header + ext + self.func
             command += [ "-o", self.finalname, "--function", self.func ]
             command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))

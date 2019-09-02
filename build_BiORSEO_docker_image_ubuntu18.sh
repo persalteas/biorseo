@@ -34,7 +34,7 @@ make -j8
 sudo make install
 cd ../..
 sudo cp nupack3.2.2/src/thermo/*.h /usr/local/include/nupack/thermo/
-rm -r nupack3.2.2.tar.gz nupack3.2.2/
+rm -rf nupack3.2.2.tar.gz nupack3.2.2/
 
 # BayesPairing: install on the docker image (done by the Dockerfile)
 git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing.git BayesPairing
