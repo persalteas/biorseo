@@ -146,7 +146,7 @@ class BiorseoInstance:
         self.func = 'B'
         self.inputfile = ""
         self.finalname = ""
-        self.outputf = ""
+        self.outputf = "/biorseo.results"
         self.output = ""
         self.jobcount = 0
         self.joblist = []
@@ -268,40 +268,12 @@ class BiorseoInstance:
         self.execute_jobs()         
 
         # locate the results at the right place
-        if self.output != "" and self.outputf != "":
-            for src_dir, dirs, files in walk(self.tempDir):
-                dst_dir = src_dir.replace(self.tempDir, self.outputf, 1)
-                if not path.exists(dst_dir):
-                    makedirs(dst_dir)
-                for file_ in files:
-                    src_file = path.join(src_dir, file_)
-                    dst_file = path.join(dst_dir, file_)
-                    if path.exists(dst_file):
-                        # in case of the src and dst are the same file
-                        if path.samefile(src_file, dst_file):
-                            continue
-                        remove(dst_file)
-                    move(src_file, dst_dir)
-            subprocess.call(["mv", self.outputf+self.finalname.split('/')[-1], self.output])
-            subprocess.call(["mv", self.biorseoDir + "/log_of_the_run.sh", self.outputf])
-        elif self.output != "":
-            subprocess.call(["mv", self.finalname, self.output])
-        elif self.outputf != "":
-            for src_dir, dirs, files in walk(self.tempDir):
-                dst_dir = src_dir.replace(self.tempDir, self.outputf, 1)
-                if not path.exists(dst_dir):
-                    makedirs(dst_dir)
-                for file_ in files:
-                    src_file = path.join(src_dir, file_)
-                    dst_file = path.join(dst_dir, file_)
-                    if path.exists(dst_file):
-                        # in case of the src and dst are the same file
-                        if path.samefile(src_file, dst_file):
-                            continue
-                        remove(dst_file)
-                    move(src_file, dst_dir)
-            subprocess.call(["mv", self.biorseoDir + "/log_of_the_run.sh", self.outputf])
-        subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
+        if self.output != "":
+            subprocess.call(["mv", self.tempDir+self.finalname.split('/')[-1], self.output])
+        if self.outputf != "":
+            subprocess.call(["mv", self.tempDir, self.outputf])
+        else:
+            subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
@@ -429,7 +401,7 @@ class BiorseoInstance:
             cmd = ["java", "-jar", self.jar3dexec, loop.header[1:]+".fasta", self.ILmotifDir+"/all.txt",
                    loop.header[1:]+".ILloop.csv", loop.header[1:]+".ILseq.csv"]
         nowhere = open(devnull, 'w')
-        logfile = open(self.biorseoDir + "/log_of_the_run.sh", 'a')
+        logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
         logfile.write(' '.join(cmd))
         logfile.write("\n")
         logfile.close()
@@ -508,7 +480,7 @@ class BiorseoInstance:
         cmd = ["python3", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir +
                header_ + ".fa", "-d", module_type, "-interm", "1"]
 
-        logfile = open(self.biorseoDir + "/log_of_the_run.sh", 'a')
+        logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
         logfile.write("\n")
         logfile.close()
@@ -548,7 +520,7 @@ class BiorseoInstance:
         
         running_stats[0] += 1
         if len(j.cmd_):
-            logfile = open("log_of_the_run.sh", 'a')
+            logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
             logfile.write(" ".join(j.cmd_))
             logfile.write("\n")
             logfile.close()
