@@ -54,10 +54,10 @@ Check the file INSTALL.md for installation instructions.
 
 - If you **might expect a pseudoknot, or don't know**:
     * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function B. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it. Example:
-    `./biorseo.py -i PDB_00304.fa --rna3dmotifs --patternmatch --func B`
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --rna3dmotifs --patternmatch --func B`
     
     * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
-    `./biorseo.py -i PDB_00304.fa --3dmotifatlas --jar3d --func B`
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func B`
 
 
 4/ Installation
@@ -67,33 +67,53 @@ Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 5/ List of Options
 ==================================
 ```
--h [ --help ]			Print this help message
---version			Print the program version
--i [ --seq=… ]			FASTA file with the query RNA sequence
--p [ --patternmatch ]		Use regular expressions to place modules in the sequence
--j [ --jar3d ]			Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
--b [ --bayespairing ]		Use BayesPairing to place modules in the sequence
--o [ --output=… ]		File to summarize the results
--O [ --outputf=… ]		Folder where to output result and temp files
--f [ --func=… ]			(A, B, C or D, default is B) Objective function to score module insertions:
-				  (A) insert big modules (B) insert light, high-order modules
-				  (c) insert modules which score well with the sequence
-				  (D) insert light, high-order modules which score well with the sequence.
-				  C and D require cannot be used with --patternmatch.
--c [ --first-objective=… ]	(default 1) Objective to solve in the mono-objective portions of the algorithm.
-				  (1) is the module objective given by --func, (2) is the expected accuracy of the structure.
--l [ --limit=… ]		(default 500) Intermediate number of solutions in the Pareto set from whichwe give up the computation.
--t [ --theta=… ]		(default 0.001) Pairing-probability threshold to consider or not the possibility of pairing
--n [ --disable-pseudoknots ]	Add constraints to explicitly forbid the formation of pseudoknots
--v [ --verbose ]		Print what is happening to stdout
---modules-path=…		Path to the modules data.
-				  The folder should contain modules in the DESC format as output by Djelloul & Denise's
-				  'catalog' program for use with --rna3dmotifs, or should contain the IL/ and HL/ folders from a release of
-				  the RNA 3D Motif Atlasfor use with --3dmotifatlas.
-				  Consider placing these files on a fast I/O device (NVMe SSD, ...)
+Usage:  You must provide:
+        1) a FASTA input file with -i,
+        2) a module type with --rna3dmotifs or --3dmotifatlas
+        3) one module placement method in { --patternmatch, --jar3d, --bayespairing }
+        4) one scoring function with --func A, B, C or D
+
+        If you are not using the Docker image: 
+        5) --modules-path, --biorseodir and (--jar3dexec or --bypdir)
+
+Options:
+-h [ --help ]                   Print this help message
+--version                       Print the program version
+-i [ --seq=… ]                  FASTA file with the query RNA sequence
+-p [ --patternmatch ]           Use regular expressions to place modules in the sequence
+-j [ --jar3d ]                  Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
+-b [ --bayespairing ]           Use BayesPairing to place modules in the sequence
+-o [ --output=… ]               File to summarize the results
+-O [ --outputf=… ]              Folder where to output result and temp files
+-f [ --func=… ]                 (A, B, C or D, default is B) Objective function to score module insertions:
+                                  (A) insert big modules (B) insert light, high-order modules
+                                  (c) insert modules which score well with the sequence
+                                  (D) insert light, high-order modules which score well with the sequence.
+                                  C and D require cannot be used with --patternmatch.
+-c [ --first-objective=… ]      (default 1) Objective to solve in the mono-objective portions of the algorithm.
+                                  (1) is the module objective given by --func, (2) is the expected accuracy of the structure.
+-l [ --limit=… ]                (default 500) Intermediate number of solutions in the Pareto set from which we give up the computation.
+-t [ --theta=… ]                (default 0.001) Pairing-probability threshold to consider or not the possibility of pairing
+-n [ --disable-pseudoknots ]    Add constraints to explicitly forbid the formation of pseudoknots
+-v [ --verbose ]                Print what is happening to stdout
+--modules-path=…                Path to the modules data.
+                                  The folder should contain modules in the DESC format as output by Djelloul & Denise's
+                                  'catalog' program for use with --rna3dmotifs, or should contain the IL/ and HL/ 
+				  folders from a release of the RNA 3D Motif Atlasfor use with --3dmotifatlas.
+                                  Consider placing these files on a fast I/O device (NVMe SSD, ...)
+--jar3dexec=…                   Path to the jar3d executable.
+                                  Default is /jar3d_2014-12-11.jar, you should use this option if you run
+                                  BiORSEO from outside the docker image.
+--bypdir=…                      Path to the BayesParing src folder.
+                                  Default is /byp/src, you should use this option if you run
+                                  BiORSEO from outside the docker image.
+--biorseodir=…                  Path to the BiORSEO root directory.
+                                  Default is /biorseo, you should use this option if you run
+                                  BiORSEO from outside the docker image. Use the FULL path.
 
 Examples:
-biorseo.py -i myRNA.fa -o myResultsFile.dbn --rna3dmotifs --patternmatch --func B
+biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B
 biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
-biorseo.py -i myRNA.fa --3dmotifatlas --bayespairing --func D
+biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D
+
 ```
