@@ -147,6 +147,8 @@ class BiorseoInstance:
         self.inputfile = ""
         self.finalname = ""
         self.outputf = ""
+        if path.exists("/biorseo/results"): # docker image default
+            self.outputf = "/biorseo/results"
         self.output = ""
         self.jobcount = 0
         self.joblist = []
@@ -208,14 +210,14 @@ class BiorseoInstance:
                 self.inputfile = arg
             elif opt == "-O" or opt == "--outputf":
                 self.outputf = arg # output folder
-                if self.outputf[1] != '/':
+                if self.outputf[0] != '/':
                     self.outputf = getcwd() + '/' + self.outputf
                 if self.outputf[-1] != '/':
                     self.outputf = self.outputf + '/'
             elif opt == "-o" or opt == "--output":
                 self.output = arg # output file 
-                if self.output[1] != '/':
-                    self.output = getcwd() + '/' + self.output
+                if self.output[0] != '/':
+                    self.output = getcwd() + self.output
             elif opt == "-f" or opt == "--func":
                 if arg in ['A', 'B', 'C', 'D']:
                     self.func = arg
