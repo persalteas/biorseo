@@ -202,9 +202,9 @@ class BiorseoInstance:
                 print("--biorseodir=…\t\t\tPath to the BiORSEO root directory.\n\t\t\t\t  Default is /biorseo, you should use this option if you run"
                       "\n\t\t\t\t  BiORSEO from outside the docker image. Use the FULL path.")
                 print("\nExamples:")
-                print("biorseo.py -i myRNA.fa -o myResultsFolder/ --rna3dmotifs --patternmatch --func B")
-                print("biorseo.py -i myRNA.fa -o myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800")
-                print("biorseo.py -i myRNA.fa --3dmotifatlas --bayespairing --func D")
+                print("biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B")
+                print("biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800")
+                print("biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D")
                 sys.exit()
             elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg
