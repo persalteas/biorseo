@@ -3,3 +3,5 @@ build_BiORSEO_docker_image_ubuntu18.sh
 deploy_BiORSEO_docker_image_linux.sh
 INSTALL.md
 Readme.md
+benchmark_results/
+doc/

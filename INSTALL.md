@@ -52,9 +52,9 @@ $ docker run
 biorseo 
 yourexamplejobcommandhere
 ```
-You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 3 volumes : A first to give BiORSEO access to the module files, a second to give it access to your trained BayesPairing, and a third for it to output the result files of your job. An example job command can be ` ./biorseo.py -i /biorseo/data/fasta/applications.fa --rna3dmotifs --patternmatch --func B`, so the full run command would be 
+You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 3 volumes : A first to give BiORSEO access to the module files, a second to give it access to your trained BayesPairing, and a third for it to output the result files of your job. An example job command can be ` ./biorseo.py -i /biorseo/data/fasta/applications.fa -O /biorseo/results --rna3dmotifs --patternmatch --func B`, so the full run command would be 
 ```
-$ docker run -v `pwd`/data/modules:/modules -v `pwd`/BayesPairing/bayespairing:/byp -v `pwd`/results:/biorseo/results biorseo ./biorseo.py -i /biorseo/data/fasta/applications.fa --rna3dmotifs --patternmatch --func B
+$ docker run -v `pwd`/data/modules:/modules -v `pwd`/BayesPairing/bayespairing:/byp -v `pwd`/results:/biorseo/results biorseo ./biorseo.py -i /biorseo/data/fasta/applications.fa -O /biorseo/results --rna3dmotifs --patternmatch --func B
 ```
 
 Option 2 : Compile and Install from source (without docker, Linux only)
@@ -140,6 +140,7 @@ Now you can run biorseo.py, but, as you are not into the Docker environment, you
 ```
 $ ./biorseo.py 
 -i /biorseo/data/fasta/applications.fa 
+-O ./results/
 --rna3dmotifs --patternmatch --func B 
 --modules-path=./data/modules/DESC 
 --jar3dexec=./jar3d_releasedate.jar OR --bypdir=./BayesPairing/bayespairing/src

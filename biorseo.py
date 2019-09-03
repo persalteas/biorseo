@@ -146,7 +146,7 @@ class BiorseoInstance:
         self.func = 'B'
         self.inputfile = ""
         self.finalname = ""
-        self.outputf = "/biorseo.results"
+        self.outputf = ""
         self.output = ""
         self.jobcount = 0
         self.joblist = []
@@ -231,14 +231,17 @@ class BiorseoInstance:
                 self.modules = "desc"
             elif opt == "--3dmotifatlas":
                 self.modules = "bgsu"
-            elif opt == "--modulespath":
+            elif opt == "--modules-path":
                 self.HLmotifDir = arg + "/HL/3.2/lib"
                 self.ILmotifDir = arg + "/IL/3.2/lib"
                 self.descfolder = arg
+                print("Looking for modules in", arg)
             elif opt == "--jar3dexec":
                 self.jar3dexec = arg
+                print("Using ", arg)
             elif opt == "--bypdir":
                 self.bypdir = arg
+                print("Using trained BayesPairing in", arg)
             elif opt == "--biorseodir":
                 self.biorseoDir = arg
             elif opt == "--version":
@@ -271,9 +274,20 @@ class BiorseoInstance:
         if self.output != "":
             subprocess.call(["mv", self.tempDir+self.finalname.split('/')[-1], self.output])
         if self.outputf != "":
-            subprocess.call(["mv", self.tempDir, self.outputf])
-        else:
-            subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
+            for src_dir, dirs, files in walk(self.tempDir):
+                dst_dir = src_dir.replace(self.tempDir, self.outputf, 1)
+                if not path.exists(dst_dir):
+                    makedirs(dst_dir)
+                for file_ in files:
+                    src_file = path.join(src_dir, file_)
+                    dst_file = path.join(dst_dir, file_)
+                    if path.exists(dst_file):
+                        # in case of the src and dst are the same file
+                        if path.samefile(src_file, dst_file):
+                            continue
+                        remove(dst_file)
+                    move(src_file, dst_dir)
+        subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
