@@ -7,7 +7,7 @@ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-7 1
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-7 100
 
 # CPLEX: only to build biorseo, or needed at runtime ?
-wget --no-check-certificate -O cplex_installer_12.8_Student.bin "https://onedrive.live.com/download?cid=C9F6894F7941BBFB&resid=C9F6894F7941BBFB%21416367&authkey=AC-d-946knh0Yo0"
+wget --no-check-certificate -O cplex_installer_12.8_Student.bin "https://onedrive.live.com/download?cid=C9F6894F7941BBFB&resid=C9F6894F7941BBFB%21511909&authkey=AM4cA5-6_PX9eqg"
 chmod +x cplex_installer_12.8_Student.bin
 printf "4\n\n1\n\n\n\n\n" | sudo ./cplex_installer_12.8_Student.bin
 rm cplex_installer_12.8_Student.bin

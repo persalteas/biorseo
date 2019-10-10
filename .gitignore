@@ -26,7 +26,7 @@ bin/*
 
 # results
 results/*
-results_old
+results_*/
 benchmark_results/*
 log_of_the_run.sh
 logBadDesc.txt
