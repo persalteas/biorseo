@@ -1,7 +1,7 @@
 Option 1 : Installation using docker image (Windows, Mac, Linux)
 ==================================
-* Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` 
-* Move into the cloned repository ( `cd biorseo` )
+* Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` , or download the .zip archive from a BiORSEO release and extract it.
+* Move into the repository ( `cd biorseo` )
 
 ### Install Docker:
 * See the officiel instructions depending on your OS here : https://docs.docker.com/install/
@@ -47,15 +47,18 @@ Use the following command to run the docker image:
 ```
 $ docker run 
 -v `pwd`/data/modules:/modules 
+-v `pwd`/data/fasta:/biorseo/data/fasta
 -v `pwd`/BayesPairing/bayespairing:/byp 
 -v `pwd`/results:/biorseo/results 
-biorseo 
+persalteas/biorseo 
 yourexamplejobcommandhere
 ```
-You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 3 volumes : A first to give BiORSEO access to the module files, a second to give it access to your trained BayesPairing, and a third for it to output the result files of your job. An example job command can be ` ./biorseo.py -i /biorseo/data/fasta/applications.fa  --rna3dmotifs --patternmatch --func B`, so the full run command would be 
+You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 4 volumes : A first to give BiORSEO access to the module files, a second to give it access to your input file(s), a third for your trained BayesPairing, and a last for it to output the result files of your job. Considering you place your input file 'MyFastaFile.fa' into the `data/fasta` folder, an example job command can be ` ./biorseo.py -i /biorseo/data/fasta/myFastaFile.fa  --rna3dmotifs --patternmatch --func B`, so the full run command would be 
 ```
-$ docker run -v `pwd`/data/modules:/modules -v `pwd`/BayesPairing/bayespairing:/byp -v `pwd`/results:/biorseo/results biorseo ./biorseo.py -i /biorseo/data/fasta/applications.fa --rna3dmotifs --patternmatch --func B
+$ docker run -v `pwd`/data/modules:/modules -v `pwd`/data/fasta:/biorseo/data/fasta -v `pwd`/BayesPairing/bayespairing:/byp -v `pwd`/results:/biorseo/results persalteas/biorseo ./biorseo.py -i /biorseo/data/fasta/applications.fa --rna3dmotifs --patternmatch --func B
 ```
+
+Note that the paths to the input and output files are paths *inside the Docker container*, and those paths are mounted to folders of the host machine with -v options.
 
 Option 2 : Compile and Install from source (without docker, Linux only)
 ==================================
@@ -139,7 +142,7 @@ This is a quite long step, but the bayesian networks will be ready for all the f
 Now you can run biorseo.py, but, as you are not into the Docker environment, you MUST provide the options to tell it the jar3d or BayesPairing locations, for example:
 ```
 $ ./biorseo.py 
--i /biorseo/data/fasta/applications.fa 
+-i ./data/fasta/applications.fa 
 -O ./results/
 --rna3dmotifs --patternmatch --func B 
 --biorseodir /FULL/path/to/the/root/biorseo/dir
