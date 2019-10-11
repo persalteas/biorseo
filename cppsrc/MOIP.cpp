@@ -316,30 +316,30 @@ void MOIP::define_problem_constraints(void)
         }
 
     // Forbid pairings inside every motif component if included
-    if (verbose_) cout << "\t>forbidding basepairs inside included motif's components..." << endl;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
-        Motif& x = insertion_sites_[i];
-        for (size_t j = 0; j < x.comp.size(); j++) {
-            Component& c = x.comp[j];
-            IloExpr    c3(env_);
-            IloNum     kxi = IloNum(c.k);
-            c3 += (kxi - IloNum(2)) * C(i, j);
-            uint count = 0;
-            for (u = c.pos.first + 1; u < c.pos.second; u++) {
-                for (v = 0; v < n; v++)
-                    if (allowed_basepair(u, v)) {
-                        c3 += y(u, v);
-                        count++;
-                    }
-            }
-            if (count > 0) {
-                model_.add(c3 <= (kxi - IloNum(2)));
-                if (verbose_) cout << "\t\t";
-                if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
-                if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
-            }
-        }
-    }
+    // if (verbose_) cout << "\t>forbidding basepairs inside included motif's components..." << endl;
+    // for (size_t i = 0; i < insertion_sites_.size(); i++) {
+    //     Motif& x = insertion_sites_[i];
+    //     for (size_t j = 0; j < x.comp.size(); j++) {
+    //         Component& c = x.comp[j];
+    //         IloExpr    c3(env_);
+    //         IloNum     kxi = IloNum(c.k);
+    //         c3 += (kxi - IloNum(2)) * C(i, j);
+    //         uint count = 0;
+    //         for (u = c.pos.first + 1; u < c.pos.second; u++) {
+    //             for (v = 0; v < n; v++)
+    //                 if (allowed_basepair(u, v)) {
+    //                     c3 += y(u, v);
+    //                     count++;
+    //                 }
+    //         }
+    //         if (count > 0) {
+    //             model_.add(c3 <= (kxi - IloNum(2)));
+    //             if (verbose_) cout << "\t\t";
+    //             if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
+    //             if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
+    //         }
+    //     }
+    // }
     // Forbid component overlap
     if (verbose_) cout << "\t>forbidding component overlap..." << endl;
     for (u = 0; u < n; u++) {

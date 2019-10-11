@@ -491,8 +491,6 @@ class BiorseoInstance:
         resultsfile.close()
 
     def launch_BayesPairing(self, module_type, seq_, header_):
-        chdir(self.bypdir)
-
         cmd = ["python3", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir +
                header_ + ".fa", "-d", module_type, "-interm", "1"]
 
@@ -501,6 +499,7 @@ class BiorseoInstance:
         logfile.write("\n")
         logfile.close()
 
+        chdir(self.bypdir)
         out = subprocess.check_output(cmd).decode('utf-8')
         BypLog = out.split('\n')
         idx = 0
