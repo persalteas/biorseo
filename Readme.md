@@ -12,8 +12,8 @@ INPUT:
 - An RNA sequence (with 16 GB of RAM you can go up to ~230 bases)
 
 THEN
-- **Pattern-matching step** : Find all possible occurrences of known RNAmodules in the query sequence, by finding subsequences of the querythat score well with the probabilistic models of the modules (like JAR3D, or BayesPairing)
-- **Constraints  definition  step** : Define constraints on the secondary structure imposed by modules if they would be included (in this case, some of the canonical base-pairs are forbidden)
+- **Pattern-matching step** : Find all possible occurrences of known RNAmodules in the query sequence, by finding subsequences of the query that score well with the probabilistic models of the modules (like JAR3D, or BayesPairing)
+- **Constraints  definition  step** : Define constraints on the secondary structure imposed by modules if they would be included (in this case, the loop closing base-pairs are mandatory)
 - **Solve a bi-objective IP problem** : Find a secondary structure that satisfies as much as possible both the expected accuracy of the structure and a criterion taking into account module inclusions, by solving a bi-objective integer linear programming problem, using the previous constraints defined in the previous step.
 
 OUTPUT:
@@ -27,7 +27,7 @@ MODULE SOURCES
 Biorseo can be used with two modules datasets (yet):
 * Rna3Dmotifs (from the work of *Djelloul & Denise, 2008*), but with the 3D data of 2018
 * The RNA 3D Motif Atlas of BGSU's RNA lab (*Petrov et al, 2013*, see http://rna.bgsu.edu/rna3dhub/motifs/)
-* RNA-Bricks 2 or CaRNAval could theoretically be used, but are not supported (yet). You might write your own API.
+* RNA-Bricks 2 or CaRNAval, and others could theoretically be used, but are not supported (yet). You might write your own API.
 
 PATTERN MATCHING STEP
 - Use **simple pattern matching**. Rna3Dmotifs modules are available with sequence information. We use regular expressions to find those known loops in your query. This is the approach of RNA-MoIP (*Reinharz et al, 2012*), we deal the same way with short components and wildcards.
@@ -53,11 +53,11 @@ Check the file INSTALL.md for installation instructions.
     * Benchmarks show Biorseo does not perform better than simpler tools like RNAsubopt alone. Please use RNAsubopt (ViennaRNA package) or Fold (RNAstructure package).
 
 - If you **might expect a pseudoknot, or don't know**:
-    * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function B. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it. Example:
-    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --rna3dmotifs --patternmatch --func B`
+    * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function A. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it. Example:
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --rna3dmotifs --patternmatch --func A`
     
-    * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function B is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
-    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func B`
+    * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function A is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func A`
 
 
 4/ Installation
@@ -112,8 +112,8 @@ Options:
                                   BiORSEO from outside the docker image. Use the FULL path.
 
 Examples:
-biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B
-biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
+biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func A
+biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func A -l 800
 biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D
 
 ```

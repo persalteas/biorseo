@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #coding=utf-8
 
-# typical usage : ./test_on_RNAstrand_and_pseudobase.py data/sec_structs/verified_secondary_structures_database.dbn data/sec_structs/pseudoknots.dbn data/sec_structs/applications.dbn
+# typical usage : ./benchmark.py data/sec_structs/verified_secondary_structures_database.dbn data/sec_structs/pseudoknots.dbn data/sec_structs/applications.dbn
 
 # the .dbn files should be formatted the following way:
 # > header of the sequence (somecode)
@@ -1043,15 +1043,15 @@ if __name__ == '__main__':
             print("using", n, "processes:")
 
             # execute jobs of priority i that should be processed n by n:
-            # p = MyPool(processes=n, maxtasksperchild=10)
-            # raw_results = p.map(execute_job, bunch)
-            # p.close()
-            # p.join()
+            p = MyPool(processes=n, maxtasksperchild=10)
+            raw_results = p.map(execute_job, bunch)
+            p.close()
+            p.join()
 
-            # # extract computation times
-            # times = [ r[0] for r in raw_results ]
-            # for j, t in zip(bunch, times):
-            #     j.comp_time = t
+            # extract computation times
+            times = [ r[0] for r in raw_results ]
+            for j, t in zip(bunch, times):
+                j.comp_time = t
 
 
     # ================= Statistics ========================
@@ -1654,13 +1654,3 @@ if __name__ == '__main__':
     compare_subopt_MoIP()
     plt.show()
     
-    # basenames = [ rna.basename for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred ]
-    # Bkp_mccs = [ rna.get_results("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred ]
-    # Bkp_f1s = [ rna.get_results("Biokop").max_f1 for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred ]
-    # Bkp_mccs_avg = [ rna.get_results("Biokop").avg_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred ]
-    # Bkp_f1s_avg = [ rna.get_results("Biokop").avg_f1 for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred ]
-    # file = open("Biokop_results_pseudobase.csv", "w")
-    # file.write("code,maxMCC,avgMCC,maxF1,avgF1\n")
-    # for bn, m, f, am, af in zip(basenames, Bkp_mccs, Bkp_f1s, Bkp_mccs_avg, Bkp_f1s_avg):
-    #     file.write(f"{bn},{m:.2f},{am:.2f},{f:.2f},{af:.2f}\n")
-    # file.close()
