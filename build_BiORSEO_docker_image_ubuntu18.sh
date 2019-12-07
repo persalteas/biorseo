@@ -1,4 +1,11 @@
 #!/bin/bash
+
+echo "WARNING: The purpose of this file is to document how the docker image was built.";
+echo "You cannot execute it directly, because of licensing reasons. Please get your own:";
+echo "- CPLEX academic version: cplex_installer_12.8_Student.bin";
+echo "- Nupack header files: nupack_3.2.2.tar.gz";
+exit 0;
+
 THISDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ####################################################### Dependencies ##############################################################
@@ -7,7 +14,7 @@ sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-7 1
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-7 100
 
 # CPLEX: only to build biorseo, or needed at runtime ?
-wget --no-check-certificate -O cplex_installer_12.8_Student.bin "https://onedrive.live.com/download?cid=C9F6894F7941BBFB&resid=C9F6894F7941BBFB%21511909&authkey=AM4cA5-6_PX9eqg"
+# HERE YOU SHOULD GET YOU ROWN cplex_installer_12.8_Student.bin ! I am not allowed to share mine anymore.
 chmod +x cplex_installer_12.8_Student.bin
 printf "4\n\n1\n\n\n\n\n" | sudo ./cplex_installer_12.8_Student.bin
 rm cplex_installer_12.8_Student.bin
@@ -24,7 +31,7 @@ cd ../..
 rm -rf eigen_src.tar.gz eigen-eigen-323c052e1731
 
 # Nupack: only to build biorseo (no need to give it to the docker image)
-curl -u louis.becquey@univ-evry.fr:tQm03G29 http://www.nupack.org/downloads/serve_file/nupack3.2.2.tar.gz --output nupack3.2.2.tar.gz
+#curl -u yourname@yourUni.com:yourPassword http://www.nupack.org/downloads/serve_file/nupack3.2.2.tar.gz --output nupack3.2.2.tar.gz
 tar -xf nupack3.2.2.tar.gz
 cd nupack3.2.2
 mkdir build
