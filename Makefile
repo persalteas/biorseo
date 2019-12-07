@@ -40,7 +40,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 doc: mainpdf supppdf
 	@echo "\033[00;32mLaTeX documentation rendered.\033[00m"
 
-mainpdf: doc/main_bioinformatics.tex doc/references.bib doc/bioinfo.cls doc/natbib.bst
+mainpdf: doc/main_bioinformatics.tex doc/bioinfo.cls
 	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
 	cd doc; bibtex main_bioinformatics
 	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
