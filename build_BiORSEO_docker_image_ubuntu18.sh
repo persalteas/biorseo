@@ -13,7 +13,7 @@ sudo apt install -y clang-7 cmake make automake libboost-program-options-dev lib
 sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-7 100
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-7 100
 
-# CPLEX: only to build biorseo, or needed at runtime ?
+# CPLEX: only to build biorseo
 # HERE YOU SHOULD GET YOU ROWN cplex_installer_12.8_Student.bin ! I am not allowed to share mine anymore.
 chmod +x cplex_installer_12.8_Student.bin
 printf "4\n\n1\n\n\n\n\n" | sudo ./cplex_installer_12.8_Student.bin
@@ -51,7 +51,8 @@ git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing.git BayesPairing
 mkdir -p results
 make -j 8
 make clean
+rm -rf doc/ obj/
 
 ######################################################## Build Docker container ##################################################
-# Execute the Dockerfile
+# Execute the Dockerfile and build the image
 docker build . -t biorseo
