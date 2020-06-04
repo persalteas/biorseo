@@ -41,6 +41,7 @@ class Motif
     public:
     Motif();
     Motif(const vector<Component>& v, string PDB);
+    void load_from_json(int id);
     void load_from_csv(string csv_line);
     // static void       build_from_desc(path descfile, string rna, vector<Motif>& final_results);
     static void       build_from_desc(args_of_parallel_func args);
@@ -55,6 +56,7 @@ class Motif
     private:
     static vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string> vc);
 
+    string carnaval_id;  // if source = CARNAVAL
     string atlas_id;     // if source = RNAMOTIFATLAS
     string PDBID;        // if source = RNA3DMOTIF
     bool   is_model_;    // Wether the motif is a model or an extracted module from a 3D structure
