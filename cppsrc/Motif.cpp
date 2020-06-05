@@ -229,7 +229,7 @@ void Motif::load_from_csv(string csv_line)
 
 
 
-void Motif::load_from_json(int id)
+void Motif::load_from_json(string path, int id)
 {
     carnaval_id = to_string(id) ;
     atlas_id = "" ;
@@ -238,7 +238,6 @@ void Motif::load_from_json(int id)
 
 
     /*-----comp-----*/
-    string path = "C:/Users/Lenaic/Desktop/Etudes/Stage 2A/CaRNAval/Subfiles/" ; //TODO
     std::ifstream file(path + carnaval_id + ".txt") ;
 
     if (file.is_open())
@@ -248,13 +247,13 @@ void Motif::load_from_json(int id)
 
         size_t index = 0 ;
 
-        std::string pos_str ;
+        string pos_str ;
             size_t sub_index = 0 ;
-            std::string sub_pos_str ;
+            string sub_pos_str ;
 
-        std::string k_str ;
+        string k_str ;
 
-        std::string seq ;
+        string seq ;
 
         while ( std::getline(file,line) )
         {

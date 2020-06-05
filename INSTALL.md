@@ -66,7 +66,12 @@ Option 2 : Compile and Install from source (without docker, Linux only)
 ### CLONING
 * Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` and `cd biorseo`.
 
-* Create folders for the modules you will use: `mkdir -p data/modules/`. If you plan to use several module sources, add subdirectories : `mkdir -p data/modules/DESC` and `mkdir -p data/modules/BGSU`
+* Create folders for the modules you will use: `mkdir -p data/modules/`. If you plan to use several module sources, add subdirectories :
+```bash
+mkdir -p data/modules/DESC
+mkdir -p data/modules/BGSU
+mkdir -p data/modules/CaRNAval
+```
 
 ### RNA3DMOTIFS DATA
 
@@ -75,6 +80,13 @@ If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it fr
 ### THE RNA 3D MOTIF ATLAS DATA
 
 Get the latest version of the HL and IL module models from the [BGSU website](http://rna.bgsu.edu/data/jar3d/models/) and extract the Zip files. Put the HL and IL folders from inside the Zip files into `./data/modules/BGSU`. Note that only the latest Zip is required.
+
+### CARNAVAL DATA
+
+To get the CaRNAval dataset, download it from their website : http://carnaval.lri.fr/Data/dataset.json . Then, put it in `./data/modules/CaRNAval`, and run the script `./transform_json.py` :
+```bash
+python3 transform_json.py
+```
 
 
 ### DEPENDENCIES
