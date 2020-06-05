@@ -268,15 +268,15 @@ void Motif::load_from_json(string path, int id)
 
                 sub_index = pos_str.find(",") ;
                 sub_pos_str = pos_str.substr(0, sub_index) ;
-                pos_str.erase(0, index+1) ;
-                c.pos.first = std::stoi(sub_pos_str, nullptr, 10) ;
-                c.pos.second = std::stoi(pos_str, nullptr, 10) ;
+                pos_str.erase(0, sub_index+1) ;                
+                c.pos.first = std::stoi(sub_pos_str) ;                
+                c.pos.second = std::stoi(pos_str) ;                
 
             //c.k
             index = line.find(";") ;
             k_str = line.substr(0, index) ;
             line.erase(0, index+1) ;
-            c.k = std::stoi(k_str, nullptr, 10) ;
+            c.k = std::stoi(k_str) ;
 
             //c.seq_
             seq = line ;
@@ -413,6 +413,35 @@ char Motif::is_valid_DESC(const string& descfile)
     }
     return 0;
 }
+
+
+
+vector<Motif> load_txt_folder(const string& path, bool verbose)
+{
+    vector<Motif> motifs;
+    string valid_path = path ;
+
+    if (valid_path.back() != '/') valid_path.push_back('/') ;
+
+    if (!exists(valid_path))
+    {
+        cerr << "Hmh, i can't find that folder: " << valid_path << endl;
+        return motifs;
+    }
+    else if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
+
+    for (int i=0; i<337; i++) //337 is the number of RINs in CaRNAval
+    {
+        motifs.push_back(Motif()) ;
+        motifs.back().load_from_json(valid_path, i);
+    }
+
+    if (verbose) cout << "Done" << endl;
+    
+    return motifs ;
+}
+
+
 
 vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose)
 {

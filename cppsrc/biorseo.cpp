@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
     ("version", "Print the program version")
     ("seq,s", po::value<string>(&inputName)->required(), "Fasta file containing the RNA sequence")
     ("descfolder,d", po::value<string>(&motifs_path_name), "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")
+    ("txtfolder,x", po::value<string>(&motifs_path_name), "A folder containing CaRNAval's RIN in .txt format, as produced by transform_json.py")
     ("jar3dcsv,j", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
     ("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
     ("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
@@ -105,13 +106,15 @@ int main(int argc, char* argv[])
         }
         if (vm.count("verbose")) verbose = true;
         if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
-        if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder")) {
-            cerr << "\033[31mYou must provide at least one of --jar3dcsv, --bayespaircsv or --descfolder.\033[0m See --help "
+
+        if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder") and !vm.count("txtfolder")) {
+            cerr << "\033[31mYou must provide at least one of --descfolder, --txtfolder, --jar3dcsv or --bayespaircsv.\033[0m See --help "
                     "for more "
                     "information."
                  << endl;
             return EXIT_FAILURE;
         }
+
         if (vm.count("-d") and (obj_function_nbr == 'C' or obj_function_nbr == 'D')) {
             cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --function C or --function D.\033[0m See "
                     "--help for more "
@@ -152,6 +155,8 @@ int main(int argc, char* argv[])
         posInsertionSites = load_csv(motifs_path_name.c_str());
     else if (vm.count("bayespaircsv"))
         posInsertionSites = load_csv(motifs_path_name.c_str());
+    else if (vm.count("txtfolder"))
+        posInsertionSites = load_txt_folder(motifs_path_name.c_str(), verbose) ;
     else
         posInsertionSites = load_desc_folder(motifs_path_name.c_str(), fa->seq(), verbose);
 

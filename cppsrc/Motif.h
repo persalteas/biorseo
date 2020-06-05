@@ -64,6 +64,7 @@ class Motif
 };
 
 bool          is_desc_insertible(const string& descfile, const string& rna, bool verbose);
+vector<Motif> load_txt_folder(const string& path, bool verbose);
 vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose);
 vector<Motif> load_csv(const string& path);
 
