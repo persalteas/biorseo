@@ -8,12 +8,12 @@ LCPLEX=/opt/ibm/ILOG/CPLEX_Studio128/cplex/lib/x86-64_linux/static_pic/
 # project name (generate executable with this name)
 TARGET   = biorseo
 
-CC	   = clang++
+CC	   = g++
 # compiling flags here
 CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -I$(INUPACK) -I$(IEIGEN) -O3
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable
 
-LINKER   = clang++
+LINKER   = g++
 # linking flags here
 LDFLAGS   = -L$(LCONCERT) -L$(LCPLEX) -lboost_system -lboost_filesystem -lboost_program_options -lconcert -lilocplex -lcplex -lpthread -ldl -lnupackpfunc -lnupackutils
 
@@ -40,7 +40,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 doc: mainpdf supppdf
 	@echo "\033[00;32mLaTeX documentation rendered.\033[00m"
 
-mainpdf: doc/main_bioinformatics.tex doc/bioinfo.cls
+mainpdf: doc/main_bioinformatics.tex doc/references.bib doc/bioinfo.cls doc/natbib.bst
 	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
 	cd doc; bibtex main_bioinformatics
 	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
