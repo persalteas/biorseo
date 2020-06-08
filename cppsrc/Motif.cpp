@@ -268,7 +268,7 @@ void Motif::load_from_json(string path, int id)
 
                 sub_index = pos_str.find(",") ;
                 sub_pos_str = pos_str.substr(0, sub_index) ;
-                pos_str.erase(0, sub_index+1) ;                
+                pos_str.erase(0, sub_index+1) ;
                 c.pos.first = std::stoi(sub_pos_str) ;                
                 c.pos.second = std::stoi(pos_str) ;                
 

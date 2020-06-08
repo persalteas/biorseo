@@ -70,7 +70,6 @@ Option 2 : Compile and Install from source (without docker, Linux only)
 ```bash
 mkdir -p data/modules/DESC
 mkdir -p data/modules/BGSU
-mkdir -p data/modules/CaRNAval
 ```
 
 ### RNA3DMOTIFS DATA
@@ -83,9 +82,9 @@ Get the latest version of the HL and IL module models from the [BGSU website](ht
 
 ### CARNAVAL DATA
 
-To get the CaRNAval dataset, download it from their website : http://carnaval.lri.fr/Data/dataset.json . Then, put it in `./data/modules/CaRNAval`, and run the script `./transform_json.py` :
+You first need to have the 'networkx' installed for Python. Then just run the script `./transform_pickle.py` :
 ```bash
-python3 transform_json.py
+python3 transform_pickle.py
 ```
 
 
