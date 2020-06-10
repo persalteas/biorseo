@@ -229,7 +229,7 @@ void Motif::load_from_csv(string csv_line)
 
 
 
-void Motif::load_from_json(string path, int id)
+void Motif::load_from_txt(string path, int id)
 {
     carnaval_id = to_string(id) ;
     atlas_id = "" ;
@@ -269,8 +269,8 @@ void Motif::load_from_json(string path, int id)
                 sub_index = pos_str.find(",") ;
                 sub_pos_str = pos_str.substr(0, sub_index) ;
                 pos_str.erase(0, sub_index+1) ;
-                c.pos.first = std::stoi(sub_pos_str) ;                
-                c.pos.second = std::stoi(pos_str) ;                
+                c.pos.first = std::stoi(sub_pos_str) ;
+                c.pos.second = std::stoi(pos_str) ;
 
             //c.k
             index = line.find(";") ;
@@ -286,7 +286,7 @@ void Motif::load_from_json(string path, int id)
         }
     }
 
-    else std::cout << "Motif::load_from_json -> File not found : " + path + carnaval_id + ".txt" << std::endl ;
+    else std::cout << "Motif::load_from_txt -> File not found : " + path + carnaval_id + ".txt" << std::endl ;
 }
 
 
@@ -416,10 +416,42 @@ char Motif::is_valid_DESC(const string& descfile)
 
 
 
-vector<Motif> load_txt_folder(const string& path, bool verbose)
+bool Motif::is_valid(const string& rna, bool reversed)
+{
+    std::cout << rna << " " << reversed << std::endl ;
+    size_t index = 0 ;
+    reversed_ = reversed ;
+
+    for (Component& component : comp)
+    {
+        index = rna.find(component.seq_, index) ;
+
+        if (index == string::npos) //seq_ not found
+        {
+            if (reversed) return false ; //searched through rna and reversed rna, still nothing
+            else //try to look through the reversed sequence
+            {
+                string reversed_rna(rna) ;
+                std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
+                return is_valid(reversed_rna, true) ;
+            }
+        }
+
+        component.pos.first = index ;
+        component.pos.second = index + component.k - 1 ;
+    }
+
+    return true ;
+}
+
+
+
+vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbose)
 {
     vector<Motif> motifs;
     string valid_path = path ;
+
+    bool verified ;
 
     if (valid_path.back() != '/') valid_path.push_back('/') ;
 
@@ -433,7 +465,22 @@ vector<Motif> load_txt_folder(const string& path, bool verbose)
     for (int i=0; i<337; i++) //337 is the number of RINs in CaRNAval
     {
         motifs.push_back(Motif()) ;
-        motifs.back().load_from_json(valid_path, i);
+        motifs.back().load_from_txt(valid_path, i);
+        verified = motifs.back().is_valid(rna, false) ;
+        if ( !verified ) //if the motif is not in the RNA sequence, we remove it
+        {
+            motifs.pop_back() ;
+            if (verbose) std::cout << "RIN n°" << i+1 << " not found in RNA sequence\n" ;
+        }
+        else if (verbose)
+        {
+            std::cout << "RIN n°" << i+1 << " found at : " ;
+            for (Component component : motifs.back().comp)
+            {
+                std::cout << component.pos.first << "-" << component.pos.second << " " ;
+            }
+            std::cout << std::endl ;
+        }
     }
 
     if (verbose) cout << "Done" << endl;

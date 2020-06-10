@@ -41,7 +41,8 @@ class Motif
     public:
     Motif();
     Motif(const vector<Component>& v, string PDB);
-    void load_from_json(string path, int id); //full path to biorseo/data/modules/CaRNAval/Subfiles/
+    void load_from_txt(string path, int id); //full path to biorseo/data/modules/CaRNAval/Subfiles/
+    bool is_valid(const string& rna, bool reversed);
     void load_from_csv(string csv_line);
     // static void       build_from_desc(path descfile, string rna, vector<Motif>& final_results);
     static void       build_from_desc(args_of_parallel_func args);
@@ -64,7 +65,7 @@ class Motif
 };
 
 bool          is_desc_insertible(const string& descfile, const string& rna, bool verbose);
-vector<Motif> load_txt_folder(const string& path, bool verbose);
+vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbose);
 vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose);
 vector<Motif> load_csv(const string& path);
 

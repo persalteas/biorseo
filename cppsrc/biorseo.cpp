@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     else if (vm.count("bayespaircsv"))
         posInsertionSites = load_csv(motifs_path_name.c_str());
     else if (vm.count("txtfolder"))
-        posInsertionSites = load_txt_folder(motifs_path_name.c_str(), verbose) ;
+        posInsertionSites = load_txt_folder(motifs_path_name.c_str(), fa->seq(), verbose) ;
     else
         posInsertionSites = load_desc_folder(motifs_path_name.c_str(), fa->seq(), verbose);
 
