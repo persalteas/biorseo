@@ -268,18 +268,22 @@ void Motif::load_from_txt(string path, int id)
 
                 sub_index = pos_str.find(",") ;
                 sub_pos_str = pos_str.substr(0, sub_index) ;
+                //std::cout << sub_pos_str << " ";
                 pos_str.erase(0, sub_index+1) ;
                 c.pos.first = std::stoi(sub_pos_str) ;
+                //std::cout << pos_str << " ";
                 c.pos.second = std::stoi(pos_str) ;
 
             //c.k
             index = line.find(";") ;
             k_str = line.substr(0, index) ;
+            //std::cout << k_str << " ";
             line.erase(0, index+1) ;
             c.k = std::stoi(k_str) ;
 
             //c.seq_
             seq = line ;
+            //std::cout << line << "\n" ;
             c.seq_ = seq ;
 
             comp.push_back(c) ;
@@ -507,7 +511,7 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
 
         for (Component component : motifs.back().comp)
         {
-            if (component.k == 1) std::cout << "pb with RIN " << i << "\n" ;
+            //if (component.k == 1) std::cout << "pb with RIN " << i+1 << "\n" ;
             vc.push_back(component.seq_) ;
         }
 
