@@ -304,7 +304,7 @@ string Motif::get_identifier(void) const
 {
     switch (source_) {
     case RNAMOTIFATLAS: return atlas_id; break;
-    case CARNAVAL return carnaval_id; break;
+    case CARNAVAL : return carnaval_id; break;
     default: return PDBID;
     }
 }
@@ -502,10 +502,14 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
         motifs.push_back(Motif()) ;
         motifs.back().load_from_txt(valid_path, i);
 
+
         vector<string> vc; 
 
         for (Component component : motifs.back().comp)
+        {
+            if (component.k == 1) std::cout << "AAAAAAAAAAH" ;
             vc.push_back(component.seq_) ;
+        }
 
         vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
         vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
