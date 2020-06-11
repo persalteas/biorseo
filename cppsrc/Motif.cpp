@@ -32,6 +32,8 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
     source_   = RNA3DMOTIF;
 }
 
+
+
 void Motif::build_from_desc(args_of_parallel_func arg_struct)
 // void Motif::build_from_desc(path descfile, string rna, vector<Motif>& final_results)
 {
@@ -189,6 +191,8 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
     }
 }
 
+
+
 void Motif::load_from_csv(string csv_line)
 {
     vector<string> tokens;
@@ -231,14 +235,15 @@ void Motif::load_from_csv(string csv_line)
 
 void Motif::load_from_txt(string path, int id)
 {
-    carnaval_id = to_string(id) ;
+    carnaval_id = to_string(1 + id) ; // Start counting at 1 to be consistant with the website numbering
     atlas_id = "" ;
     PDBID = "" ;
     is_model_ = true ;
+    source_ = CARNAVAL ;
 
 
     /*-----comp-----*/
-    std::ifstream file(path + carnaval_id + ".txt") ;
+    std::ifstream file(path + to_string(id) + ".txt") ;
 
     if (file.is_open())
     {
@@ -300,14 +305,18 @@ string Motif::pos_string(void) const
     return s.str();
 }
 
+
+
 string Motif::get_identifier(void) const
 {
     switch (source_) {
     case RNAMOTIFATLAS: return atlas_id; break;
-    case CARNAVAL : return carnaval_id; break;
+    case CARNAVAL: return string("RIN") + carnaval_id; break;
     default: return PDBID;
     }
 }
+
+
 
 vector<vector<Component>> Motif::find_next_ones_in(string rna, uint offset, vector<string> vc)
 {
@@ -369,6 +378,8 @@ vector<vector<Component>> Motif::find_next_ones_in(string rna, uint offset, vect
     }
     return results;
 }
+
+
 
 char Motif::is_valid_DESC(const string& descfile)
 {
@@ -609,6 +620,8 @@ vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbo
     return posInsertionSites;
 }
 
+
+
 vector<Motif> load_csv(const string& path)
 {
     vector<Motif> posInsertionSites;
@@ -623,6 +636,8 @@ vector<Motif> load_csv(const string& path)
     }
     return posInsertionSites;
 }
+
+
 
 bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
 {
@@ -675,12 +690,16 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
     }
 }
 
+
+
 bool operator==(const Component& c1, const Component& c2)
 {
     if (c1.pos.first != c2.pos.first) return false;
     if (c1.pos.second != c2.pos.second) return false;
     return true;
 }
+
+
 
 bool operator!=(const Component& c1, const Component& c2) { return not(c1 == c2); }
 
@@ -695,5 +714,7 @@ bool operator==(const Motif& m1, const Motif& m2)
         if (m1.comp[i] != m2.comp[i]) return false;
     return true;
 }
+
+
 
 bool operator!=(const Motif& m1, const Motif& m2) { return not(m1 == m2); }
