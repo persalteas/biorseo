@@ -518,7 +518,7 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
 
         for (Component component : motifs.back().comp)
         {
-            if (component.k == 1) std::cout << "AAAAAAAAAAH" ;
+            if (component.k == 1) std::cout << "pb with RIN " << i << "\n" ;
             vc.push_back(component.seq_) ;
         }
 
