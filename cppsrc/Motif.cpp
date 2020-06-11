@@ -304,6 +304,7 @@ string Motif::get_identifier(void) const
 {
     switch (source_) {
     case RNAMOTIFATLAS: return atlas_id; break;
+    case CARNAVAL return carnaval_id; break;
     default: return PDBID;
     }
 }
