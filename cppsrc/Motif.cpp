@@ -416,9 +416,39 @@ char Motif::is_valid_DESC(const string& descfile)
 
 
 
-bool Motif::is_valid(const string& rna, bool reversed)
+vector<Motif> Motif::RIN_list(const string& rna, bool reversed)
 {
-    std::cout << rna << " " << reversed << std::endl ;
+    string used_rna = rna ;
+    if (reversed) std::reverse(used_rna.begin(), used_rna.end()) ;
+
+    vector<Motif> res;
+    vector< vector<int> > comps_starts ; //list of beginning indexes by components
+    vector<int> ks;
+    size_t index ;
+
+    for (Component& component : comp)
+    {
+        index = 0 ;
+        vector<int> starts ;
+
+        while (index != string::npos)
+        {
+            index = used_rna.find(component.seq_, index) ;
+            starts.push_back(index);
+        }
+
+        comps_starts.push_back(starts) ;
+        ks.push_back(component.k) ;
+    }
+
+
+    return res ;
+}
+
+
+
+bool Motif::is_valid(const string& rna, bool reversed) //renvoyer un vecteur de motifs
+{
     size_t index = 0 ;
     reversed_ = reversed ;
 
@@ -451,7 +481,11 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
     vector<Motif> motifs;
     string valid_path = path ;
 
+    string reversed_rna = rna ;
+    std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
+
     bool verified ;
+    
 
     if (valid_path.back() != '/') valid_path.push_back('/') ;
 
@@ -466,6 +500,34 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
     {
         motifs.push_back(Motif()) ;
         motifs.back().load_from_txt(valid_path, i);
+
+        vector<string> vc; 
+
+        for (Component component : motifs.back().comp)
+            vc.push_back(component.seq_) ;
+
+        vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
+        vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
+        motifs.pop_back() ;
+
+        for (vector<Component> occ : occurrences)
+        {
+            motifs.push_back(Motif()) ;
+            motifs.back().load_from_txt(valid_path, i);
+            motifs.back().comp = occ ;
+            motifs.back().reversed_ = false ;
+        }
+
+        for (vector<Component> occ : r_occurrences)
+        {
+            motifs.push_back(Motif()) ;
+            motifs.back().load_from_txt(valid_path, i);
+            motifs.back().comp = occ ;
+            motifs.back().reversed_ = true ;
+        }
+
+
+        /*
         verified = motifs.back().is_valid(rna, false) ;
         if ( !verified ) //if the motif is not in the RNA sequence, we remove it
         {
@@ -480,7 +542,7 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
                 std::cout << component.pos.first << "-" << component.pos.second << " " ;
             }
             std::cout << std::endl ;
-        }
+        }*/
     }
 
     if (verbose) cout << "Done" << endl;
