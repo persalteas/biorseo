@@ -11,7 +11,7 @@ TARGET   = biorseo
 CC	   = g++
 # compiling flags here
 CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -I$(INUPACK) -I$(IEIGEN) -O3
-CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable
+CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable -Wno-deprecated-copy -Wno-maybe-uninitialized
 
 LINKER   = g++
 # linking flags here
