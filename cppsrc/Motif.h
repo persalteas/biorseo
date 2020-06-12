@@ -36,6 +36,16 @@ typedef struct Comp_ {
     }
 } Component;
 
+
+
+typedef struct Link
+{
+    pair<uint, uint> nts;
+    bool long_range;
+} Link ;
+
+
+
 class Motif
 {
     public:
@@ -52,6 +62,7 @@ class Motif
     string            get_origin(void) const;
     string            get_identifier(void) const;
     vector<Component> comp;
+    vector<Link> links_;
     double            score_;
     bool              reversed_;
 

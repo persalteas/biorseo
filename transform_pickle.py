@@ -47,12 +47,13 @@ if __name__=="__main__":
             else:
                 print ("Successfully created the directory %s " % (dir + "Subfiles"))
 
-            header = "pos;k;seq\n"
+            header_link = "ntA,ntB,long_range;...\n"
+            header_comp = "pos;k;seq\n"
 
             for i in range(1,338):
                 motif = objects[0][i].graph
                 f = open( dir + "Subfiles/" + str(i-1) + ".txt"  ,  "w+" )
-                f.write(header)
+                f.write(header_link)
 
                 components = []
                 comp = []
@@ -71,7 +72,20 @@ if __name__=="__main__":
 
                 components.append(comp)
 
-                #print(components)
+                #print(nodes)
+
+                liaisons = ""
+                edges = list(motif.edges())
+                for a in edges:
+                    if motif.edges[a]['label'] == 'CWW' :
+                        ntA = nodes.index(a[0])
+                        ntB = nodes.index(a[1])
+
+                        if ntA <= ntB :
+                            liaisons += str(ntA) + "," + str(ntB) + "," + str(motif.edges[a]['long_range']) + ";"
+
+                f.write(liaisons + "\n")
+                f.write(header_comp)
 
                 num_nt = -1
                 for a in components:
@@ -90,6 +104,7 @@ if __name__=="__main__":
                     data_comp += "," + str(num_nt) + ";" + str(len(a)) + ";" + seq + "\n"
 
                     f.write(data_comp)
+
 
                 f.close()
 

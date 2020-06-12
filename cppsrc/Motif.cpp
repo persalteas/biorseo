@@ -243,12 +243,49 @@ void Motif::load_from_txt(string path, int id)
     if (file.is_open())
     {
         string line ;
-        std::getline(file,line) ; //skip the header line
 
+        std::getline(file,line) ; //skip the header_link line
+
+
+        std::getline(file,line) ; //get the links line
+        string link_str ;
         size_t index = 0 ;
+            string nt_str ;
+            size_t sub_index = 0 ;
+
+        while (line != "")
+        {
+            Link link ;
+
+            //link.nts
+            index = line.find(";") ;
+            link_str = line.substr(0, index) ;
+            //std::cout << "link_str :" << link_str << std::endl ;
+            line.erase(0, index+1) ;
+
+                sub_index = link_str.find(",") ;
+                nt_str = link_str.substr(0, sub_index) ;
+                //std::cout << "nt_str :" << nt_str << std::endl ;
+                link_str.erase(0, sub_index+1) ;
+                link.nts.first = std::stoi(nt_str) ;
+
+                sub_index = link_str.find(",") ;
+                nt_str = link_str.substr(0, sub_index) ;
+                //std::cout << "nt_str :" << nt_str << std::endl ;
+                link_str.erase(0, sub_index+1) ;
+                link.nts.second = std::stoi(nt_str) ;
+
+            //link.long_range
+            //std::cout << "link_str :" << link_str << std::endl << std::endl ;
+            link.long_range = (link_str == "True") ;
+
+            links_.push_back(link) ;
+        }
+
+
+        std::getline(file,line) ; //skip the header_comp line
 
         string pos_str ;
-            size_t sub_index = 0 ;
             string sub_pos_str ;
 
         string k_str ;
