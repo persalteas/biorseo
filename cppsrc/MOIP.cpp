@@ -374,25 +374,116 @@ void MOIP::define_problem_constraints(void)
         model_.add(c5 == jm1 * C(i, 0));
         if (verbose_) cout << "\t\t>motif " << i << " : " << (c5 == jm1 * C(i, 0)) << endl;
     }
-    // Force basepairs between the end of a component and the beginning of the next
+
+
+
+    //pour chaque motif i
+    //pour chaque composante j, le cij n'est inséré que si tous les appariements qui contiennent cij sont autorisés
+    //Cij <= yuv, u et v les indices des nucléotides appareillés dont au moins 1 fait partie de la composante j du motif i
+
+
     if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
-        Motif&  x   = insertion_sites_[i];
-        IloExpr c6p = IloExpr(env_);
-        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
-            c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
-        if (verbose_) cout << "\t\t" << (C(i, 0) <= c6p) << endl;
-        model_.add(C(i, 0) <= c6p);
-        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
-            continue;
-        for (size_t j = 0; j < x.comp.size() - 1; j++) {
-            IloExpr c6 = IloExpr(env_);
-            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first))
-                c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
-            model_.add(C(i, j) <= c6);
-            if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+    bool RIN_source = (insertion_sites_[0].get_identifier().find("RIN") != std::string::npos) ; //check if the vector has been generated from CaRNAval
+
+    if (RIN_source)
+    {
+        for (size_t i=0; i < insertion_sites_.size(); i++)
+        {
+            Motif&  x   = insertion_sites_[i];
+            IloExpr c6p = IloExpr(env_);
+
+
+            //TODO
+
+
+            size_t sum_comp_size = 0 ;
+
+            for (size_t j=0; j < x.comp.size(); j++)
+            {
+                IloExpr c6 = IloExpr(env_);
+                bool to_insert = true ;
+
+                for (size_t k=0; k < x.links_.size(); k++)
+                {
+                    size_t ntA = x.links_[k].nts.first ;
+                    size_t ntB = x.links_[k].nts.second ;
+
+                    //check if the j component is the first to be linked in the k link
+                    if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
+                    {
+                        size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size ;
+                        size_t ntB_location = -1 ;
+
+                        size_t sum_next_comp_size = sum_comp_size ;
+
+                        //look for the location of the other linked nucleotide
+                        for (size_t jj=j; jj < x.comp.size(); jj++)
+                        {
+                            //check if the j component is the second to be linked in the k link
+                            if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
+                            {
+                                ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size ;
+                                break ;
+                            }
+
+                            sum_next_comp_size += x.comp[jj].k ;
+                        }
+
+                        if (allowed_basepair(ntA_location, ntB_location))
+                            c6 += y(ntA_location, ntB_location) ;
+
+                        else //a link is unauthorized, the component cannot be inserted
+                        {
+                            to_insert = false ;
+                            break ;
+                        }
+                    }
+                }
+
+                sum_comp_size += x.comp[j].k ;
+                if (to_insert)
+                {
+                    model_.add(C(i,j) <= c6) ;
+                    if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+                }
+            }
         }
     }
+
+    else
+    {
+        // Force basepairs between the end of a component and the beginning of the next
+        for (size_t i = 0; i < insertion_sites_.size(); i++)
+        {
+            Motif&  x   = insertion_sites_[i];
+            IloExpr c6p = IloExpr(env_);
+
+            if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second))
+                c6p += y(x.comp[0].pos.first, x.comp.back().pos.second);
+
+            if (verbose_) cout << "\t\t" << (C(i, 0) <= c6p) << endl;
+
+            model_.add(C(i, 0) <= c6p);
+
+            if (x.comp.size() == 1)    // This constraint is for multi-component motives.
+                continue;
+
+            for (size_t j = 0; j < x.comp.size() - 1; j++)
+            {
+                IloExpr c6 = IloExpr(env_);
+
+                if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first)) //nt u et v
+                    c6 += y(x.comp[j].pos.second, x.comp[j + 1].pos.first);
+
+                model_.add(C(i, j) <= c6);
+
+                if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+            }
+        }
+    }
+    
+
+
     // Forbid pseudoknots
     if (!this->allow_pk_) {
         if (verbose_) cout << "\t>forbidding pseudoknots..." << endl;
