@@ -390,18 +390,18 @@ void MOIP::define_problem_constraints(void)
         for (size_t i=0; i < insertion_sites_.size(); i++)
         {
             Motif&  x   = insertion_sites_[i];
-            IloExpr c6p = IloExpr(env_);
+            //IloExpr c6p = IloExpr(env_);
 
-
-            //TODO
-
+            vector<size_t> weights(x.comp.size(), 0) ;
+            vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
 
             size_t sum_comp_size = 0 ;
 
             for (size_t j=0; j < x.comp.size(); j++)
             {
                 IloExpr c6 = IloExpr(env_);
-                bool to_insert = true ;
+                bool to_insert = false ;
+                size_t jj ;
 
                 for (size_t k=0; k < x.links_.size(); k++)
                 {
@@ -417,9 +417,9 @@ void MOIP::define_problem_constraints(void)
                         size_t sum_next_comp_size = sum_comp_size ;
 
                         //look for the location of the other linked nucleotide
-                        for (size_t jj=j; jj < x.comp.size(); jj++)
+                        for (jj=j; jj < x.comp.size(); jj++)
                         {
-                            //check if the j component is the second to be linked in the k link
+                            //check if the jj component is the second to be linked in the k link
                             if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
                             {
                                 ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size ;
@@ -430,7 +430,10 @@ void MOIP::define_problem_constraints(void)
                         }
 
                         if (allowed_basepair(ntA_location, ntB_location))
+                        {
                             c6 += y(ntA_location, ntB_location) ;
+                            to_insert = true ;
+                        }
 
                         else //a link is unauthorized, the component cannot be inserted
                         {
@@ -441,12 +444,38 @@ void MOIP::define_problem_constraints(void)
                 }
 
                 sum_comp_size += x.comp[j].k ;
+
                 if (to_insert)
                 {
-                    model_.add(C(i,j) <= c6) ;
-                    if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+                    if (j==jj)
+                    {
+                        //model_.add(C(i,j) <= c6) ;
+                        weights[j] += 2 ;
+                        expressions[j].push_back(c6) ;
+                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+                    }
+                    else
+                    {
+                        //model_.add(C(i,j) <= c6) ;
+                        weights[j] += 1 ;
+                        expressions[j].push_back(c6) ;
+                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+                        //model_.add(C(i,jj) <= c6) ;
+                        weights[jj] += 1 ;
+                        expressions[jj].push_back(c6) ;
+                        //if (verbose_) cout << "\t\t" << (C(i, jj) <= c6) << endl;
+                    }
                 }
             }
+
+            for (size_t j=0; j < x.comp.size(); j++)
+                if (weights[j] != 0)
+                    if (expressions[j].size() != 0)
+                        for (size_t k=0; k<expressions[j].size(); k++)
+                        {
+                            model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] ) ;
+                            if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
+                        }
         }
     }
 
