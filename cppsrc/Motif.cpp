@@ -238,7 +238,7 @@ void Motif::load_from_txt(string path, int id)
     carnaval_id = to_string(1 + id) ; // Start counting at 1 to be consistant with the website numbering
     atlas_id = "" ;
     PDBID = "" ;
-    is_model_ = true ;
+    is_model_ = false ;
     source_ = CARNAVAL ;
 
 
@@ -549,7 +549,10 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
     }
     else if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
 
-    for (int i=0; i<337; i++) //337 is the number of RINs in CaRNAval
+    size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{path}, std::filesystem::directory_iterator{});
+    std::cout << "Number of files : " << number_of_files << std::endl ;
+
+    for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
     {
         motifs.push_back(Motif()) ;
         motifs.back().load_from_txt(valid_path, i);
@@ -582,24 +585,6 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             motifs.back().comp = occ ;
             motifs.back().reversed_ = true ;
         }
-
-
-        /*
-        verified = motifs.back().is_valid(rna, false) ;
-        if ( !verified ) //if the motif is not in the RNA sequence, we remove it
-        {
-            motifs.pop_back() ;
-            if (verbose) std::cout << "RIN n°" << i+1 << " not found in RNA sequence\n" ;
-        }
-        else if (verbose)
-        {
-            std::cout << "RIN n°" << i+1 << " found at : " ;
-            for (Component component : motifs.back().comp)
-            {
-                std::cout << component.pos.first << "-" << component.pos.second << " " ;
-            }
-            std::cout << std::endl ;
-        }*/
     }
 
     if (verbose) cout << "Done" << endl;

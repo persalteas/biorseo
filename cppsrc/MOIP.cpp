@@ -68,37 +68,123 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
             }
     if (verbose_) cout << endl;
 
+
+
     // Purge the list of insertion sites : remove those that are forbidden because bounding basepairs are forbidden
     if (verbose_) cout << "\t>Checking insertion sites..." << endl;
     vector<uint> to_remove;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
-        Motif& x = insertion_sites_[i];
-        if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second;
-        if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second) > 0) {
-            if (verbose_) cout << ") is allowed" << endl;
-        } else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i)) {
-            if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
-            to_remove.push_back(i);
-            continue;
-        } else {
-            if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
-        }
-        if (x.comp.size() == 1)    // This constraint is for multi-component motives.
-            continue;
-        for (size_t j = 0; j < x.comp.size() - 1; j++) {
-            if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first;
-            if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first) > 0) {
-                if (verbose_) cout << ") is allowed" << endl;
-            } else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i)) {
-                if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
-                to_remove.push_back(i);
-            } else {
-                if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+
+    bool RIN_source = (insertion_sites_[0].get_identifier().find("RIN") != std::string::npos) ; //check if the vector has been generated from CaRNAval
+
+    if (RIN_source)
+    {
+        for (size_t i=0; i < insertion_sites_.size(); i++)
+        {
+            Motif&  x   = insertion_sites_[i];
+
+            size_t sum_comp_size = 0 ;
+
+            for (size_t j=0; j < x.comp.size(); j++)
+            {
+                size_t jj ;
+
+                for (size_t k=0; k < x.links_.size(); k++)
+                {
+                    size_t ntA = x.links_[k].nts.first ;
+                    size_t ntB = x.links_[k].nts.second ;
+
+                    //check if the j component is the first to be linked in the k link
+                    if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
+                    {
+                        size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size ;
+                        size_t ntB_location = -1 ;
+
+                        size_t sum_next_comp_size = sum_comp_size ;
+
+                        //look for the location of the other linked nucleotide
+                        for (jj=j; jj < x.comp.size(); jj++)
+                        {
+                            //check if the jj component is the second to be linked in the k link
+                            if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
+                            {
+                                ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size ;
+                                break ;
+                            }
+
+                            sum_next_comp_size += x.comp[jj].k ;
+                        }
+
+                        if (ntB_location != -1)
+                        { 
+                            if (verbose_) cout << "\t\tbasepair (" << ntA_location << ',' << ntB_location ;
+
+                            if (allowed_basepair(ntA_location, ntB_location)) {
+                                if (verbose_) cout << ") is allowed" << endl; }
+
+                            else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+                            {
+                                if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                                to_remove.push_back(i);
+                                continue;
+                            }
+
+                            else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+                        }
+                    }
+                }
+
+                sum_comp_size += x.comp[j].k ;
             }
         }
     }
+
+    else
+    {
+        for (size_t i = 0; i < insertion_sites_.size(); i++)
+        {
+            Motif& x = insertion_sites_[i];
+
+            if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second;
+
+
+            if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)) {
+                if (verbose_) cout << ") is allowed" << endl; }
+
+            else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+            {
+                if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                to_remove.push_back(i);
+                continue;
+            }
+
+            else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+
+            
+            if (x.comp.size() == 1) continue;   // This constraint is for multi-component motives.
+
+
+            for (size_t j = 0; j < x.comp.size() - 1; j++)
+            {
+                if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first;
+
+                if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first)) {
+                    if (verbose_) cout << ") is allowed" << endl; }
+
+                else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+                {
+                    if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                    to_remove.push_back(i);
+                }
+
+                else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+            }
+        }
+    }
+
     for (vector<uint>::reverse_iterator i = to_remove.rbegin(); i != to_remove.rend(); ++i)
         insertion_sites_.erase(insertion_sites_.begin() + (*i));
+
+
 
     // Add the Cx,i,p decision variables
     if (verbose_) cout << "\t>Allowed candidate insertion sites:" << endl;
@@ -377,9 +463,7 @@ void MOIP::define_problem_constraints(void)
 
 
 
-    //pour chaque motif i
-    //pour chaque composante j, le cij n'est inséré que si tous les appariements qui contiennent cij sont autorisés
-    //Cij <= yuv, u et v les indices des nucléotides appareillés dont au moins 1 fait partie de la composante j du motif i
+
 
 
     if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;

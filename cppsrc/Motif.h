@@ -5,6 +5,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 using boost::filesystem::path;
 using std::pair;
