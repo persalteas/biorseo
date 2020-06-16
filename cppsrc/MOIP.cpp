@@ -534,7 +534,8 @@ void MOIP::define_problem_constraints(void)
                     if (j==jj)
                     {
                         //model_.add(C(i,j) <= c6) ;
-                        weights[j] += 2 ;
+                        //weights[j] += 2 ;
+                        weights[j] += 1 ;
                         expressions[j].push_back(c6) ;
                         //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
                     }

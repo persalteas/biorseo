@@ -558,13 +558,21 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
         motifs.back().load_from_txt(valid_path, i);
 
 
-        vector<string> vc; 
+        vector<string> vc;
+        string motif_seq = "" ;
 
         for (Component component : motifs.back().comp)
         {
-            //if (component.k == 1) std::cout << "pb with RIN " << i+1 << "\n" ;
             vc.push_back(component.seq_) ;
+            motif_seq += component.seq_ ;
         }
+
+        if (motif_seq.length() < 5)
+        {
+            if (verbose) std::cout << "RIN n°" << i << " is too short to be loaded." << std::endl ;
+            continue ;
+        }
+
 
         vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
         vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
