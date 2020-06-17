@@ -570,7 +570,14 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
 
         if (motif_seq.length() < 5)
         {
-            if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be loaded." << std::endl ;
+            if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be considered." << std::endl ;
+            motifs.pop_back();
+            continue ;
+        }
+
+        if (motifs.back().links_.empty())
+        {
+            if (verbose) std::cout << "RIN n°" << i+1 << " is not considered for not constraining the secondary structure." << std::endl ;
             motifs.pop_back();
             continue ;
         }
