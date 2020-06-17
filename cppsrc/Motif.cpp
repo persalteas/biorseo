@@ -550,7 +550,7 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
     else if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
 
     size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{path}, std::filesystem::directory_iterator{});
-    std::cout << "Number of files : " << number_of_files << std::endl ;
+    if (verbose) std::cout << "Number of files : " << number_of_files << std::endl ;
 
     for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
     {
@@ -569,13 +569,22 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
 
         if (motif_seq.length() < 5)
         {
-            if (verbose) std::cout << "RIN n°" << i << " is too short to be loaded." << std::endl ;
+            if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be loaded." << std::endl ;
             continue ;
         }
 
 
         vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
         vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
+
+            
+        if (verbose)
+        {
+            cout << "Before find_next_ones_in -> RIN n°" << i+1 << " : " ;
+            for (Component& component : motifs.back().comp)
+                cout << component.pos.first << "-" << component.pos.second << " " ;
+            cout << endl ;
+        }
         motifs.pop_back() ;
 
         for (vector<Component> occ : occurrences)
@@ -584,6 +593,14 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             motifs.back().load_from_txt(valid_path, i);
             motifs.back().comp = occ ;
             motifs.back().reversed_ = false ;
+
+            if (verbose)
+            {
+                cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
+                for (Component& component : motifs.back().comp)
+                    cout << component.pos.first << "-" << component.pos.second << " " ;
+                cout << endl ;
+            }
         }
 
         for (vector<Component> occ : r_occurrences)
@@ -592,7 +609,17 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             motifs.back().load_from_txt(valid_path, i);
             motifs.back().comp = occ ;
             motifs.back().reversed_ = true ;
+
+            if (verbose)
+            {
+                cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
+                for (Component& component : motifs.back().comp)
+                    cout << component.pos.first << "-" << component.pos.second << " " ;
+                cout << endl ;
+            }
         }
+
+        if (verbose) cout << endl ;
     }
 
     if (verbose) cout << "Done" << endl;

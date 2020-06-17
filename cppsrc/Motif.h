@@ -52,10 +52,10 @@ class Motif
     public:
     Motif();
     Motif(const vector<Component>& v, string PDB);
-    void load_from_txt(string path, int id); //full path to biorseo/data/modules/CaRNAval/Subfiles/
-    bool is_valid(const string& rna, bool reversed);
-    vector<Motif> RIN_list(const string& rna, bool reversed);
-    void load_from_csv(string csv_line);
+    void              load_from_txt(string path, int id); //full path to biorseo/data/modules/CaRNAval/Subfiles/
+    bool              is_valid(const string& rna, bool reversed);
+    vector<Motif>     RIN_list(const string& rna, bool reversed);
+    void              load_from_csv(string csv_line);
     // static void       build_from_desc(path descfile, string rna, vector<Motif>& final_results);
     static void       build_from_desc(args_of_parallel_func args);
     static char       is_valid_DESC(const string& descfile);
@@ -63,7 +63,7 @@ class Motif
     string            get_origin(void) const;
     string            get_identifier(void) const;
     vector<Component> comp;
-    vector<Link> links_;
+    vector<Link>      links_;
     double            score_;
     bool              reversed_;
 
