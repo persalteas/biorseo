@@ -573,18 +573,23 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             continue ;
         }
 
+        cout << "RIN n°" << i+1 << " has " << vc.size() << " components : " ;
+        for (string s : vc)
+            cout << s+" " ;
+        cout << endl ;
+
 
         vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
         vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
 
-            
-        if (verbose)
+        //debug
+        /*if (verbose)
         {
             cout << "Before find_next_ones_in -> RIN n°" << i+1 << " : " ;
             for (Component& component : motifs.back().comp)
                 cout << component.pos.first << "-" << component.pos.second << " " ;
             cout << endl ;
-        }
+        }*/
         motifs.pop_back() ;
 
         for (vector<Component> occ : occurrences)
@@ -594,13 +599,14 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             motifs.back().comp = occ ;
             motifs.back().reversed_ = false ;
 
-            if (verbose)
+            //debug
+            /*if (verbose)
             {
                 cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
                 for (Component& component : motifs.back().comp)
                     cout << component.pos.first << "-" << component.pos.second << " " ;
                 cout << endl ;
-            }
+            }*/
         }
 
         for (vector<Component> occ : r_occurrences)
@@ -610,19 +616,20 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             motifs.back().comp = occ ;
             motifs.back().reversed_ = true ;
 
-            if (verbose)
+            //debug
+            /*if (verbose)
             {
                 cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
                 for (Component& component : motifs.back().comp)
                     cout << component.pos.first << "-" << component.pos.second << " " ;
                 cout << endl ;
-            }
+            }*/
         }
 
-        if (verbose) cout << endl ;
+        //if (verbose) cout << endl ;
     }
 
-    if (verbose) cout << "Done" << endl;
+    if (verbose) cout << "Done : parsed " << number_of_files << " files." << endl;
     
     return motifs ;
 }

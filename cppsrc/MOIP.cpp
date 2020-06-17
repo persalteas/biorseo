@@ -116,19 +116,17 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
 
                         if (ntB_location != -1)
                         { 
-                            if (verbose_) cout << "\t\tbasepair (" << ntA_location << ',' << ntB_location ;
+                            /*if (allowed_basepair(ntA_location, ntB_location)) {
+                                if (verbose_) cout << "\t\tbasepair (" << ntA_location << ',' << ntB_location << ") is allowed" << endl; }*/
 
-                            if (allowed_basepair(ntA_location, ntB_location)) {
-                                if (verbose_) cout << ") is allowed" << endl; }
-
-                            else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+                            /*else */if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
                             {
-                                if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                                //if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
                                 to_remove.push_back(i);
                                 continue;
                             }
 
-                            else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+                            //else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
                         }
                     }
                 }
@@ -144,20 +142,20 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
         {
             Motif& x = insertion_sites_[i];
 
-            if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second;
+            //if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second;
 
 
-            if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)) {
-                if (verbose_) cout << ") is allowed" << endl; }
+            /*if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)) {
+                if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second << ") is allowed" << endl; }
 
-            else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+            else */if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
             {
-                if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                //if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
                 to_remove.push_back(i);
                 continue;
             }
 
-            else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+            //else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
 
             
             if (x.comp.size() == 1) continue;   // This constraint is for multi-component motives.
@@ -165,24 +163,28 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
 
             for (size_t j = 0; j < x.comp.size() - 1; j++)
             {
-                if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first;
+                //if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first;
 
-                if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first)) {
-                    if (verbose_) cout << ") is allowed" << endl; }
+                /*if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first)) {
+                    if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first << ") is allowed" << endl; }
 
-                else if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+                else */if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
                 {
-                    if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
+                    //if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
                     to_remove.push_back(i);
                 }
 
-                else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
+                //else if (verbose_) cout << ") is not allowed (and motif has been previously forbidden)" << endl;
             }
         }
     }
 
+    size_t nb_candidates = insertion_sites_.size() ;
+
     for (vector<uint>::reverse_iterator i = to_remove.rbegin(); i != to_remove.rend(); ++i)
         insertion_sites_.erase(insertion_sites_.begin() + (*i));
+
+    if (verbose_) cout << "Removed " << nb_candidates - insertion_sites_.size() << " from " << nb_candidates << " candidates : " << insertion_sites_.size() << " remaining." << endl ;
 
 
 
