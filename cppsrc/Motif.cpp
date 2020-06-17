@@ -367,12 +367,13 @@ vector<vector<Component>> Motif::find_next_ones_in(string rna, uint offset, vect
     vector<string>            next_seqs;
     regex                     c(vc[0]);
 
-    // cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
+    //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
 
     if (vc.size() > 1) {
         if (regex_search(rna, c)) {
             if (vc.size() > 2)
-                next_seqs = vector<string>(&vc[1], &vc[vc.size() - 1]);
+                next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
+
             else
                 next_seqs = vector<string>(1, vc.back());
 
@@ -573,10 +574,14 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             continue ;
         }
 
-        cout << "RIN n°" << i+1 << " has " << vc.size() << " components : " ;
-        for (string s : vc)
-            cout << s+" " ;
-        cout << endl ;
+        /*if (verbose)
+        {
+            cout << "RIN n°" << i+1 << " has " << vc.size() << " components : " ;
+            for (string s : vc)
+                cout << s+" " ;
+            cout << endl ;
+        }
+        */
 
 
         vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
