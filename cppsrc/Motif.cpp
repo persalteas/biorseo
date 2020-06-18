@@ -575,7 +575,7 @@ vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbos
             continue ;
         }
 
-        if (motifs.back().links_.empty())
+        if (motifs.back().links_.size() == 0)
         {
             if (verbose) std::cout << "RIN n°" << i+1 << " is not considered for not constraining the secondary structure." << std::endl ;
             motifs.pop_back();

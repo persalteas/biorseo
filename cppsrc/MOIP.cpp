@@ -119,7 +119,8 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
                             /*if (allowed_basepair(ntA_location, ntB_location)) {
                                 if (verbose_) cout << "\t\tbasepair (" << ntA_location << ',' << ntB_location << ") is allowed" << endl; }*/
 
-                            /*else */if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+                            /*else */
+                            if (   !(allowed_basepair(ntA_location, ntB_location)) and (!to_remove.size() or (to_remove.size() and to_remove.back() != i))   )
                             {
                                 //if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
                                 to_remove.push_back(i);
@@ -148,7 +149,8 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
             /*if (allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)) {
                 if (verbose_) cout << "\t\tbasepair (" << x.comp[0].pos.first << ',' << x.comp.back().pos.second << ") is allowed" << endl; }
 
-            else */if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+            else */
+            if (   !(allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)) and (!to_remove.size() or (to_remove.size() and to_remove.back() != i))   )
             {
                 //if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
                 to_remove.push_back(i);
@@ -168,7 +170,8 @@ MOIP::MOIP(const RNA& rna, const vector<Motif>& insertionSites, float theta, boo
                 /*if (allowed_basepair(x.comp[j].pos.second, x.comp[j + 1].pos.first)) {
                     if (verbose_) cout << "\t\tbasepair (" << x.comp[j].pos.second << ',' << x.comp[j + 1].pos.first << ") is allowed" << endl; }
 
-                else */if (!to_remove.size() or (to_remove.size() and to_remove.back() != i))
+                else */
+                if (   !(allowed_basepair(x.comp[0].pos.first, x.comp.back().pos.second)) and (!to_remove.size() or (to_remove.size() and to_remove.back() != i))   )
                 {
                     //if (verbose_) cout << ") is not allowed, removing motif " << i << " from candidates" << endl;
                     to_remove.push_back(i);
