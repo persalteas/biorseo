@@ -394,19 +394,25 @@ void MOIP::define_problem_constraints(void)
             if (verbose_) cout << "\t\t" << (c1 <= 1) << endl;
         }
     }
-    // forbid lonely basepairs
-    if (verbose_) cout << "\t>forbidding lonely basepairs..." << endl;
-    for (u = 0; u < n - 5; u++)
-        for (v = u + 4; v < n; v++) {
-            if (allowed_basepair(u, v)) {
-                IloExpr c2(env_);
-                c2 += -y(u, v);
-                if (allowed_basepair(u - 1, v + 1)) c2 += y(u - 1, v + 1);
-                if (allowed_basepair(u + 1, v - 1)) c2 += y(u + 1, v - 1);
-                model_.add(c2 >= 0);
-                if (verbose_) cout << "\t\t" << (c2 >= 0) << endl;
+
+    // forbid lonely basepairs if databases other than CaRNAval are being used
+    if (!RIN_source)
+    {
+        if (verbose_) cout << "\t>forbidding lonely basepairs..." << endl;
+        for (u = 0; u < n - 5; u++)
+            for (v = u + 4; v < n; v++)
+            {
+                if (allowed_basepair(u, v))
+                {
+                    IloExpr c2(env_);
+                    c2 += -y(u, v);
+                    if (allowed_basepair(u - 1, v + 1)) c2 += y(u - 1, v + 1);
+                    if (allowed_basepair(u + 1, v - 1)) c2 += y(u + 1, v - 1);
+                    model_.add(c2 >= 0);
+                    if (verbose_) cout << "\t\t" << (c2 >= 0) << endl;
+                }
             }
-        }
+    }
 
     // Forbid pairings inside every motif component if included
     if (verbose_) cout << "\t>forbidding basepairs inside included motif's components..." << endl;
