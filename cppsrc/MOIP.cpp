@@ -369,6 +369,8 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 
 void MOIP::define_problem_constraints(void)
 {
+    bool RIN_source = (insertion_sites_[0].get_identifier().find("RIN") != std::string::npos) ; //check if the vector has been generated from CaRNAval
+
 
     // ensure there only is 0 or 1 pairing by nucleotide:
     if (verbose_) cout << "\t>ensuring there are at most 1 pairing by nucleotide..." << endl;
@@ -408,22 +410,49 @@ void MOIP::define_problem_constraints(void)
 
     // Forbid pairings inside every motif component if included
     if (verbose_) cout << "\t>forbidding basepairs inside included motif's components..." << endl;
-    for (size_t i = 0; i < insertion_sites_.size(); i++) {
+    for (size_t i = 0; i < insertion_sites_.size(); i++)
+    {
         Motif& x = insertion_sites_[i];
-        for (size_t j = 0; j < x.comp.size(); j++) {
+
+        for (size_t j = 0; j < x.comp.size(); j++)
+        {
             Component& c = x.comp[j];
             IloExpr    c3(env_);
             IloNum     kxi = IloNum(c.k);
             c3 += (kxi - IloNum(2)) * C(i, j);
             uint count = 0;
-            for (u = c.pos.first + 1; u < c.pos.second; u++) {
+            for (u = c.pos.first + 1; u < c.pos.second; u++)
                 for (v = 0; v < n; v++)
-                    if (allowed_basepair(u, v)) {
-                        c3 += y(u, v);
-                        count++;
+                {
+                    if (allowed_basepair(u,v))
+                    {
+                        if (!RIN_source)
+                        {
+                            c3 += y(u, v);
+                            count++;
+                        }
+
+                        else
+                        {
+                            bool is_link = false ;
+                            for (Link link : x.links_)
+                                if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
+                                {
+                                    is_link = true ;
+                                    break ;
+                                }
+
+                            if (!is_link)
+                            {
+                                c3 += y(u, v);
+                                count++;
+                            }
+                        }
                     }
-            }
-            if (count > 0) {
+                }
+
+            if (count > 0)
+            {
                 model_.add(c3 <= (kxi - IloNum(2)));
                 if (verbose_) cout << "\t\t";
                 if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
@@ -472,7 +501,6 @@ void MOIP::define_problem_constraints(void)
 
 
     if (verbose_) cout << "\t>forcing basepairs between bounds of inserted components..." << endl;
-    bool RIN_source = (insertion_sites_[0].get_identifier().find("RIN") != std::string::npos) ; //check if the vector has been generated from CaRNAval
 
     if (RIN_source)
     {
