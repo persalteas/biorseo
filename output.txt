@@ -798,131 +798,6 @@ Removed 3946 from 4481 candidates : 535 remaining.
 		y14,69  + y22,69  <= 1 
 		y13,70  + y15,70  + y16,70  + y21,70  + y43,70  + y49,70  <= 1 
 		y13,71  + y15,71  + y20,71  + y42,71  + y48,71  <= 1 
-	>forbidding lonely basepairs...
-		0 <= -1 * y0,10  + y1,9  
-		0 <= -1 * y0,66  + y1,65  
-		0 <= -1 * y0,67  + y1,66  
-		0 <= -1 * y1,9  + y0,10  
-		0 <= -1 * y1,10  + y2,9  
-		0 <= -1 * y1,65  + y0,66  + y2,64  
-		0 <= -1 * y1,66  + y0,67  + y2,65  
-		0 <= -1 * y1,67  + y2,66  
-		0 <= -1 * y2,9  + y1,10  
-		0 <= -1 * y2,10  
-		0 <= -1 * y2,64  + y1,65  
-		0 <= -1 * y2,65  + y1,66  + y3,64  
-		0 <= -1 * y2,66  + y1,67  + y3,65  
-		0 <= -1 * y3,64  + y2,65  + y4,63  
-		0 <= -1 * y3,65  + y2,66  
-		0 <= -1 * y4,18  + y5,17  
-		0 <= -1 * y4,63  + y3,64  + y5,62  
-		0 <= -1 * y5,17  + y4,18  + y6,16  
-		0 <= -1 * y5,44  + y6,43  
-		0 <= -1 * y5,62  + y4,63  + y6,61  
-		0 <= -1 * y6,16  + y5,17  + y7,15  
-		0 <= -1 * y6,18  
-		0 <= -1 * y6,19  
-		0 <= -1 * y6,43  + y5,44  + y7,42  
-		0 <= -1 * y6,47  + y7,46  
-		0 <= -1 * y6,61  + y5,62  
-		0 <= -1 * y7,15  + y6,16  + y8,14  
-		0 <= -1 * y7,42  + y6,43  
-		0 <= -1 * y7,46  + y6,47  + y8,45  
-		0 <= -1 * y7,61  + y8,60  
-		0 <= -1 * y8,14  + y7,15  + y9,13  
-		0 <= -1 * y8,17  + y9,16  
-		0 <= -1 * y8,22  + y9,21  
-		0 <= -1 * y8,45  + y7,46  
-		0 <= -1 * y8,60  + y7,61  
-		0 <= -1 * y9,13  + y8,14  
-		0 <= -1 * y9,16  + y8,17  + y10,15  
-		0 <= -1 * y9,21  + y8,22  + y10,20  
-		0 <= -1 * y9,43  + y10,42  
-		0 <= -1 * y10,15  + y9,16  
-		0 <= -1 * y10,20  + y9,21  
-		0 <= -1 * y10,42  + y9,43  
-		0 <= -1 * y13,22  + y14,21  
-		0 <= -1 * y13,70  + y14,69  
-		0 <= -1 * y13,71  
-		0 <= -1 * y14,21  + y13,22  
-		0 <= -1 * y14,26  + y15,25  
-		0 <= -1 * y14,42  
-		0 <= -1 * y14,69  + y13,70  
-		0 <= -1 * y15,25  + y14,26  + y16,24  
-		0 <= -1 * y15,70  
-		0 <= -1 * y15,71  + y16,70  
-		0 <= -1 * y16,24  + y15,25  + y17,23  
-		0 <= -1 * y16,70  + y15,71  
-		0 <= -1 * y17,23  + y16,24  
-		0 <= -1 * y20,45  + y21,44  
-		0 <= -1 * y20,71  + y21,70  
-		0 <= -1 * y21,44  + y20,45  + y22,43  
-		0 <= -1 * y21,70  + y20,71  + y22,69  
-		0 <= -1 * y22,43  + y21,44  
-		0 <= -1 * y22,69  + y21,70  
-		0 <= -1 * y24,40  + y25,39  
-		0 <= -1 * y24,61  
-		0 <= -1 * y25,39  + y24,40  + y26,38  
-		0 <= -1 * y26,38  + y25,39  + y27,37  
-		0 <= -1 * y26,58  + y27,57  
-		0 <= -1 * y27,37  + y26,38  + y28,36  
-		0 <= -1 * y27,57  + y26,58  + y28,56  
-		0 <= -1 * y28,35  + y29,34  
-		0 <= -1 * y28,36  + y27,37  
-		0 <= -1 * y28,56  + y27,57  + y29,55  
-		0 <= -1 * y29,34  + y28,35  
-		0 <= -1 * y29,55  + y28,56  + y30,54  
-		0 <= -1 * y30,34  
-		0 <= -1 * y30,41  + y31,40  
-		0 <= -1 * y30,54  + y29,55  + y31,53  
-		0 <= -1 * y31,40  + y30,41  + y32,39  
-		0 <= -1 * y31,53  + y30,54  
-		0 <= -1 * y32,39  + y31,40  + y33,38  
-		0 <= -1 * y33,38  + y32,39  
-		0 <= -1 * y33,51  + y34,50  
-		0 <= -1 * y33,52  + y34,51  
-		0 <= -1 * y34,50  + y33,51  + y35,49  
-		0 <= -1 * y34,51  + y33,52  
-		0 <= -1 * y35,49  + y34,50  + y36,48  
-		0 <= -1 * y36,48  + y35,49  
-		0 <= -1 * y36,49  + y37,48  
-		0 <= -1 * y37,48  + y36,49  
-		0 <= -1 * y37,49  + y38,48  
-		0 <= -1 * y38,46  + y39,45  
-		0 <= -1 * y38,48  + y37,49  
-		0 <= -1 * y39,45  + y38,46  + y40,44  
-		0 <= -1 * y39,58  + y40,57  
-		0 <= -1 * y40,44  + y39,45  
-		0 <= -1 * y40,45  
-		0 <= -1 * y40,57  + y39,58  + y41,56  
-		0 <= -1 * y40,60  + y41,59  
-		0 <= -1 * y41,56  + y40,57  
-		0 <= -1 * y41,59  + y40,60  + y42,58  
-		0 <= -1 * y42,58  + y41,59  + y43,57  
-		0 <= -1 * y42,64  
-		0 <= -1 * y42,65  + y43,64  
-		0 <= -1 * y42,71  + y43,70  
-		0 <= -1 * y43,57  + y42,58  
-		0 <= -1 * y43,64  + y42,65  + y44,63  
-		0 <= -1 * y43,70  + y42,71  
-		0 <= -1 * y44,54  + y45,53  
-		0 <= -1 * y44,55  
-		0 <= -1 * y44,63  + y43,64  
-		0 <= -1 * y45,53  + y44,54  + y46,52  
-		0 <= -1 * y45,61  + y46,60  
-		0 <= -1 * y46,52  + y45,53  + y47,51  
-		0 <= -1 * y46,60  + y45,61  + y47,59  
-		0 <= -1 * y47,51  + y46,52  
-		0 <= -1 * y47,59  + y46,60  + y48,58  
-		0 <= -1 * y48,58  + y47,59  + y49,57  
-		0 <= -1 * y48,71  + y49,70  
-		0 <= -1 * y49,57  + y48,58  
-		0 <= -1 * y49,70  + y48,71  
-		0 <= -1 * y50,55  
-		0 <= -1 * y51,55  
-		0 <= -1 * y52,61  + y53,60  
-		0 <= -1 * y53,60  + y52,61  + y54,59  
-		0 <= -1 * y54,59  + y53,60  
 	>forbidding basepairs inside included motif's components...
 		RIN20-0: C100,0-8  + y1,9  + y2,9  + y9,13  + y9,16  + y9,21  + y9,43  <= 1 
 		RIN20-1: C100,1-20  + y9,21  + y14,21  + y21,44  + y21,70  <= 1 
@@ -2794,1067 +2669,246 @@ Removed 3946 from 4481 candidates : 535 remaining.
 		C533,3-69  <= y22,69  + y21,70 
 		C534,0-16  <= y16,24 
 		C534,1-24  <= y16,24 
-A total of 2056 constraints are used.
-	>Solution status: objective values (15.2065, 3.43494)	>Solution status: objective values (0, 16.8251)
-Best solution according to objective 1 :((.[[..[[))...[[[[...((]]]]...((.....((..{{..]].))...))...}}...]]....)).. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	3.4349420
-Best solution according to objective 2 :((((((((((...))))...[[[.((((([[[.[[.)))))....(((((]].]]].))))))))))).]]].	0.0000000	16.8250554
-	>adding structure to Pareto set :	((.[[..[[))...[[[[...((]]]]...((.....((..{{..]].))...))...}}...]]....)).. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	3.4349420
+A total of 1932 constraints are used.
+	>Solution status: objective values (16.1904, 5.18988)	>Solution status: objective values (0, 16.9039)
+Best solution according to objective 1 :.[.[..[.{{{..((.((.]}}<))[)(((.{..).).(]}[<..}{.)...<....).]}>..>]]..>).. + RIN146 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8	16.1904142	5.1898796
+Best solution according to objective 2 :(((((((((({..))))(..[[[)((((([[[.[[.)))))(}..{{{{{]].]]])}}}}})))))).]]].	0.0000000	16.9038901
+	>adding structure to Pareto set :	.[.[..[.{{{..((.((.]}}<))[)(((.{..).).(]}[<..}{.)...<....).]}>..>]]..>).. + RIN146 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8	16.1904142	5.1898796
 
 Solving obj1 on top of best solution 1.
 
-Solving objective function 1, on top of 3.43495204: Obj2  being in [3.43495204, 16.8250554]...
-	>Solution status: objective values (15.2064786, 3.58000439), not dominated.
-	>adding structure to Pareto set :	(([[...[[))...[[.....((..]].[[((..]].((.{{...]].))...))....}}...]]...)).. + RIN148 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	3.5800044
-	>removing structure from Pareto set, obj 2 = 3.43494204
-
-Solving objective function 1, on top of 3.58000439: Obj2  being in [3.58001439, 16.8250554]...
-	>Solution status: objective values (15.2064786, 4.49489451), not dominated.
-	>adding structure to Pareto set :	((.[[[.[[))...[[[[..(((]]]]...((.....((..{{..]].))...))...}}..]]]....))). + RIN148 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	4.4948945
-	>removing structure from Pareto set, obj 2 = 3.58000439
-
-Solving objective function 1, on top of 4.49489451: Obj2  being in [4.49490451, 16.8250554]...
-	>Solution status: objective values (15.2064786, 5.59463391), not dominated.
-	>adding structure to Pareto set :	(([[[..[[))...[[[[..(((]]]](((((.....((..{{..]].))...)))))}}...]]]...))). + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	5.5946339
-	>removing structure from Pareto set, obj 2 = 4.49489451
-
-Solving objective function 1, on top of 5.59463391: Obj2  being in [5.59464391, 16.8250554]...
-	>Solution status: objective values (15.2064786, 6.04715282), not dominated.
-	>adding structure to Pareto set :	[[((((({{]]...[[))...<<..]](((((.((..((..[[..}}.)))).)))))]]...)))...>>.. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	6.0471528
-	>removing structure from Pareto set, obj 2 = 5.59463391
-
-Solving objective function 1, on top of 6.04715282: Obj2  being in [6.04716282, 16.8250554]...
-	>Solution status: objective values (15.2064786, 6.61689884), not dominated.
-	>adding structure to Pareto set :	[[(((((<<]]...[[))..{{{..]](((((.((..((..[[..>>.)))).)))))]]...)))...}}}. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	6.6168988
-	>removing structure from Pareto set, obj 2 = 6.04715282
-
-Solving objective function 1, on top of 6.61689884: Obj2  being in [6.61690884, 16.8250554]...
-	>Solution status: objective values (15.2064786, 6.63334099), not dominated.
-	>adding structure to Pareto set :	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	6.6333410
-	>removing structure from Pareto set, obj 2 = 6.61689884
-
-Solving objective function 1, on top of 6.63334099: Obj2  being in [6.63335099, 16.8250554]...
-	>Solution status: objective values (15.206477, 6.63335099), not dominated.
-	>adding structure to Pareto set :	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064770	6.6333510
-
-Solving objective function 1, on top of 6.63335099: Obj2  being in [6.63336099, 16.8250554]...
-	>Solution status: objective values (15.2064746, 6.63336099), not dominated.
-	>adding structure to Pareto set :	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN148 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064746	6.6333610
-
-Solving objective function 1, on top of 6.63336099: Obj2  being in [6.63337099, 16.8250554]...
-	>Solution status: objective values (15.0749988, 6.63337099), not dominated.
-	>adding structure to Pareto set :	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN135 + RIN255 + RIN263 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN94	15.0749988	6.6333710
-
-Solving objective function 1, on top of 6.63337099: Obj2  being in [6.63338099, 16.8250554]...
-	>Solution status: objective values (14.8997124, 7.1578708), not dominated.
-	>adding structure to Pareto set :	.[[[[..[[[[....[[...(((.]]((((((.((..((.{{]].]].)))).))))))}}..]]]]..))). + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN263 + RIN3 + RIN69 + RIN71 + RIN94	14.8997124	7.1578708
-
-Solving objective function 1, on top of 7.1578708: Obj2  being in [7.1578808, 16.8250554]...
-	>Solution status: objective values (14.8997124, 7.42470913), not dominated.
-	>adding structure to Pareto set :	.[[[[[.[[[[.....[[..(((]]..(((((.((..((.{{]].]].)))).))))).}}.]]]]]..))). + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997124	7.4247091
-	>removing structure from Pareto set, obj 2 = 7.1578708
-
-Solving objective function 1, on top of 7.42470913: Obj2  being in [7.42471913, 16.8250554]...
-	>Solution status: objective values (14.8997124, 8.62291056), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]](((((.((..((.{{]].]].)))).))))).}}..))))).}}}. + RIN15 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997124	8.6229106
-	>removing structure from Pareto set, obj 2 = 7.42470913
-
-Solving objective function 1, on top of 8.62291056: Obj2  being in [8.62292056, 16.8250554]...
-	>Solution status: objective values (14.8997124, 8.62964239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN15 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997124	8.6296424
-	>removing structure from Pareto set, obj 2 = 8.62291056
-
-Solving objective function 1, on top of 8.62964239: Obj2  being in [8.62965239, 16.8250554]...
-	>Solution status: objective values (14.89971, 8.62965239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN263 + RIN3 + RIN69 + RIN71 + RIN94	14.8997100	8.6296524
-	>removing structure from Pareto set, obj 2 = 8.62964239
-
-Solving objective function 1, on top of 8.62965239: Obj2  being in [8.62966239, 16.8250554]...
-	>Solution status: objective values (14.8997068, 8.62966239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN15 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997068	8.6296624
-
-Solving objective function 1, on top of 8.62966239: Obj2  being in [8.62967239, 16.8250554]...
-	>Solution status: objective values (14.8997055, 8.62967239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997055	8.6296724
-
-Solving objective function 1, on top of 8.62967239: Obj2  being in [8.62968239, 16.8250554]...
-	>Solution status: objective values (14.8983845, 9.47293233), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]].((.[[.))...]].]].]](((..[[...)))]].))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	9.4729323
-
-Solving objective function 1, on top of 9.47293233: Obj2  being in [9.47294233, 16.8250554]...
-	>Solution status: objective values (14.8983845, 9.47861522), not dominated.
-	>adding structure to Pareto set :	.(((((([[[[...[[))..{{{..]].((((({{....)).]].]][[[}}{{)))]]]}}.))))..}}}. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	9.4786152
-	>removing structure from Pareto set, obj 2 = 9.47293233
-
-Solving objective function 1, on top of 9.47861522: Obj2  being in [9.47862522, 16.8250554]...
-	>Solution status: objective values (14.8983845, 9.48433976), not dominated.
-	>adding structure to Pareto set :	[[[[[[[((((...((]]..{{{..)).[[((((]]..)))))).))(((..[[...)))]].]]]]].}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	9.4843398
-	>removing structure from Pareto set, obj 2 = 9.47861522
-
-Solving objective function 1, on top of 9.48433976: Obj2  being in [9.48434976, 16.8250554]...
-	>Solution status: objective values (14.8983845, 10.4338605), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]].((((({{....)).]].]][[[}}{{)))]]]}}.))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	10.4338605
-	>removing structure from Pareto set, obj 2 = 9.48433976
-
-Solving objective function 1, on top of 10.4338605: Obj2  being in [10.4338705, 16.8250554]...
-	>Solution status: objective values (14.8983845, 10.4338705), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]].((((({{....)).]].]][[[}}{{)))]]]}}.))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	10.4338705
-
-Solving objective function 1, on top of 10.4338705: Obj2  being in [10.4338805, 16.8250554]...
-	>Solution status: objective values (14.8983845, 11.1635789), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))).{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]]..)))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	11.1635789
-	>removing structure from Pareto set, obj 2 = 10.4338705
-	>removing structure from Pareto set, obj 2 = 10.4338605
-
-Solving objective function 1, on top of 11.1635789: Obj2  being in [11.1635889, 16.8250554]...
-	>Solution status: objective values (14.8983845, 11.1911283), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]](({{[[{{{)).]].]].]]((}}}[[}}..))]].))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	11.1911283
-	>removing structure from Pareto set, obj 2 = 11.1635789
-
-Solving objective function 1, on top of 11.1911283: Obj2  being in [11.1911383, 16.8250554]...
-	>Solution status: objective values (14.8983845, 11.733853), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]].))))).}}}. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983845	11.7338530
-	>removing structure from Pareto set, obj 2 = 11.1911283
-
-Solving objective function 1, on top of 11.733853: Obj2  being in [11.733863, 16.8250554]...
-	>Solution status: objective values (14.898375, 11.733863), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]].))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983750	11.7338630
+Solving objective function 1, on top of 5.18988958: Obj2  being in [5.18988958, 16.9038901]...
+	>Solution status: objective values (16.1904142, 5.22559748), not dominated.
+	>adding structure to Pareto set :	(.(...(.<<<..[[{[..)>>{.](].(([[.[)).[[)(({.{>..]].]{]]....))}.}}).).}]}. + RIN106 + RIN148 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	5.2255975
+	>removing structure from Pareto set, obj 2 = 5.18987958
+
+Solving objective function 1, on top of 5.22559748: Obj2  being in [5.22560748, 16.9038901]...
+	>Solution status: objective values (16.1904142, 5.87747787), not dominated.
+	>adding structure to Pareto set :	((.((.(.{{{..[[.[..)}(<.](].(.[..[..)[[)<AB})}..]].](.]..>.a.).)b))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	5.8774779
+	>removing structure from Pareto set, obj 2 = 5.22559748
+
+Solving objective function 1, on top of 5.87747787: Obj2  being in [5.87748787, 16.9038901]...
+	>Solution status: objective values (16.1904142, 6.67345152), not dominated.
+	>adding structure to Pareto set :	.((.(.(.{.{..[[.[[.)}.<]](].(([[..).).[)(.<..}{(]..)<]]..)..}>.)>))..>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	6.6734515
+	>removing structure from Pareto set, obj 2 = 5.87747787
+
+Solving objective function 1, on top of 6.67345152: Obj2  being in [6.67346152, 16.9038901]...
+	>Solution status: objective values (16.1904142, 6.97726096), not dominated.
+	>adding structure to Pareto set :	((.((((.<<<..[[{[[.)>.{]].]((([[.[).)(.{.{A>{><..).]A]]}})}.>a))a))).}]}. + RIN106 + RIN15 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	6.9772610
+	>removing structure from Pareto set, obj 2 = 6.67345152
+
+Solving objective function 1, on top of 6.97726096: Obj2  being in [6.97727096, 16.9038901]...
+	>Solution status: objective values (16.1904142, 7.37632164), not dominated.
+	>adding structure to Pareto set :	((.((((.{.{..[[<[[.)}(<]](].(([[..).)[[)<AB.)}((]].){]]..>.a)}))b))).>]>. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	7.3763216
+	>removing structure from Pareto set, obj 2 = 6.97726096
+
+Solving objective function 1, on top of 7.37632164: Obj2  being in [7.37633164, 16.9038901]...
+	>Solution status: objective values (16.1904142, 7.43310439), not dominated.
+	>adding structure to Pareto set :	(..((((.[.[..{{{)...].<..}}((({{.<).)(..}AB..][[[).><.}.a)]]]>))b).).>}.. + RIN146 + RIN148 + RIN156 + RIN196 + RIN263 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8	16.1904142	7.4331044
+	>removing structure from Pareto set, obj 2 = 7.37632164
+
+Solving objective function 1, on top of 7.43310439: Obj2  being in [7.43311439, 16.9038901]...
+	>Solution status: objective values (16.1904142, 7.45136867), not dominated.
+	>adding structure to Pareto set :	(.(((.(({{{..[[)[[.)}}<]].]((([[..).))(<(BA.)}{[)((]A]]).)>b}a.)a))).>].. + RIN106 + RIN15 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	7.4513687
+	>removing structure from Pareto set, obj 2 = 7.43310439
+
+Solving objective function 1, on top of 7.45136867: Obj2  being in [7.45137867, 16.9038901]...
+	>Solution status: objective values (16.1904142, 8.35884214), not dominated.
+	>adding structure to Pareto set :	(((.(.(.<<(..[[)[[.){>{]](].(.[[.[..)[[).({..>{.]].].]]....)}..)}))).}]}. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	8.3588421
+	>removing structure from Pareto set, obj 2 = 7.45136867
+
+Solving objective function 1, on top of 8.35884214: Obj2  being in [8.35885214, 16.9038901]...
+	>Solution status: objective values (16.1904142, 8.77309593), not dominated.
+	>adding structure to Pareto set :	(((.(.(.{{{..[[[.[.)}}<](]](((.[.[).))[.)(<.(}{.].{]<])}...)}>.)>))).>].. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	8.7730959
+	>removing structure from Pareto set, obj 2 = 8.35884214
+
+Solving objective function 1, on top of 8.77309593: Obj2  being in [8.77310593, 16.9038901]...
+	>Solution status: objective values (16.1904142, 9.12006902), not dominated.
+	>adding structure to Pareto set :	(((.((((<<...[[)[[.){>{]](].((.[.[).)[[).({((>{.]].]<])..).)}>))}))).}]}. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	9.1200690
+	>removing structure from Pareto set, obj 2 = 8.77309593
+
+Solving objective function 1, on top of 9.12006902: Obj2  being in [9.12007902, 16.9038901]...
+	>Solution status: objective values (16.1904142, 9.81079068), not dominated.
+	>adding structure to Pareto set :	(((.(((({{...[[)[[.)<}<]].]((.[..[..))(..<A..}{.)(.]A.]..).>}a))a))).>]>. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	9.8107907
+	>removing structure from Pareto set, obj 2 = 9.12006902
+
+Solving objective function 1, on top of 9.81079068: Obj2  being in [9.81080068, 16.9038901]...
+	>Solution status: objective values (16.1904142, 10.2363794), not dominated.
+	>adding structure to Pareto set :	(((.(((({.{..[[)[[.)}.<]](]((([[.[).))[).(<..}{.](.]<]]..).)}>))>))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	10.2363794
+	>removing structure from Pareto set, obj 2 = 9.81079068
+
+Solving objective function 1, on top of 10.2363794: Obj2  being in [10.2363894, 16.9038901]...
+	>Solution status: objective values (16.1904142, 10.2542487), not dominated.
+	>adding structure to Pareto set :	.((.((((<<...[[)[[.){>{]](](([[[.[[.))[).({..>{.](]]<]]].).)}>))}))..}]}. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	10.2542487
+	>removing structure from Pareto set, obj 2 = 10.2363794
+
+Solving objective function 1, on top of 10.2542487: Obj2  being in [10.2542587, 16.9038901]...
+	>Solution status: objective values (16.1904142, 10.2628726), not dominated.
+	>adding structure to Pareto set :	((([[[[[<<)..{(]((.]A>{))[)(({{{.{{.))(].[A..><.)(}}A}}}.).]>a]]a])).}}a. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	10.2628726
+	>removing structure from Pareto set, obj 2 = 10.2542487
+
+Solving objective function 1, on top of 10.2628726: Obj2  being in [10.2628826, 16.9038901]...
+	>Solution status: objective values (16.1904142, 10.433656), not dominated.
+	>adding structure to Pareto set :	(((.(((({{{..[[)[[.)}}<]].]((([[.<).))(A]AB..}{{)((><.])a)a}}>))b))).>].. + RIN106 + RIN15 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	10.4336560
+	>removing structure from Pareto set, obj 2 = 10.2628726
+
+Solving objective function 1, on top of 10.433656: Obj2  being in [10.433666, 16.9038901]...
+	>Solution status: objective values (16.1904142, 10.640788), not dominated.
+	>adding structure to Pareto set :	(((.(((({.{..[[)[[.)}(<]](](([[[.[[.))[).<A.)}(.](]]{]]].).>)}))a))).>].. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	10.6407880
+	>removing structure from Pareto set, obj 2 = 10.433656
+
+Solving objective function 1, on top of 10.640788: Obj2  being in [10.640798, 16.9038901]...
+	>Solution status: objective values (16.1904142, 11.0290379), not dominated.
+	>adding structure to Pareto set :	(((.(((({{{..[[)[[.)}}<]].](([[[.[[.))(<.<A..}{{)(]]A]]]>)>}}a))a))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	11.0290379
+	>removing structure from Pareto set, obj 2 = 10.640788
+
+Solving objective function 1, on top of 11.0290379: Obj2  being in [11.0290479, 16.9038901]...
+	>Solution status: objective values (16.1904142, 11.209494), not dominated.
+	>adding structure to Pareto set :	(((.((((<<...[[)[[.){>{]](](([[[.[[.))[).({..>{.](]]<]]].).)}>))}))).}]}. + RIN106 + RIN15 + RIN156 + RIN196 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN94	16.1904142	11.2094940
+	>removing structure from Pareto set, obj 2 = 11.0290379
+
+Solving objective function 1, on top of 11.209494: Obj2  being in [11.209504, 16.9038901]...
+	>Solution status: objective values (16.1904142, 11.2589741), not dominated.
+	>adding structure to Pareto set :	(((.(((({{{..[[)[[.)}}<]](](([[[.[[[))[)((<..}{{]]]]<]]])).}}>))>))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	11.2589741
+	>removing structure from Pareto set, obj 2 = 11.209494
+
+Solving objective function 1, on top of 11.2589741: Obj2  being in [11.2589841, 16.9038901]...
+	>Solution status: objective values (16.1904142, 11.3313031), not dominated.
+	>adding structure to Pareto set :	(((.(((.{{{..[[[.[.)}}<](]](([[[.[[.))[<)(A..}{{]{]]A]]])}>}}a))a))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	11.3313031
+	>removing structure from Pareto set, obj 2 = 11.2589741
+
+Solving objective function 1, on top of 11.3313031: Obj2  being in [11.3313131, 16.9038901]...
+	>Solution status: objective values (16.1904136, 11.3313131), not dominated.
+	>adding structure to Pareto set :	(((.(((.{{{..[[[.[.)}}<](]](([[[.[[.))[<)(A..}{{]{]]A]]])}>}}a))a))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904136	11.3313131
 
-Solving objective function 1, on top of 11.733863: Obj2  being in [11.733873, 16.8250554]...
-	>Solution status: objective values (14.8983676, 11.733873), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]].))))).}}}. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983676	11.7338730
-	>removing structure from Pareto set, obj 2 = 11.733863
-
-Solving objective function 1, on top of 11.733873: Obj2  being in [11.733883, 16.8250554]...
-	>Solution status: objective values (14.7771299, 12.5145236), not dominated.
-	>adding structure to Pareto set :	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771299	12.5145236
+Solving objective function 1, on top of 11.3313131: Obj2  being in [11.3313231, 16.9038901]...
+	>Solution status: objective values (16.190393, 11.3313231), but structure is dominated.
 
-Solving objective function 1, on top of 12.5145236: Obj2  being in [12.5145336, 16.8250554]...
-	>Solution status: objective values (14.7771248, 12.5145336), not dominated.
-	>adding structure to Pareto set :	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771248	12.5145336
+Solving objective function 1, below (or eq. to) 11.3313131: Obj2  being in [11.3313131, 11.3313131]...
+	>Solution status: objective values (16.1904133, 11.3313131), not dominated.
+	>adding structure to Pareto set :	(((.(((.{{{..[[[.[.)}}<](]](([[[.[[.))[<)(A..}{{]{]]A]]])}>}}a))a))).>].. + RIN106 + RIN15 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904133	11.3313131
 
-Solving objective function 1, on top of 12.5145336: Obj2  being in [12.5145436, 16.8250554]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
+Solving objective function 1, on top of 11.3313131: Obj2  being in [11.3313231, 11.3313131]...
+	>Solution status: objective values (15.8500408, 11.3313231), but structure is dominated.
 
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 16.8250554]...
-	>Solution status: objective values (14.4677025, 12.613423), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677025	12.6134230
+Solving objective function 1, below (or eq. to) 11.3313031: Obj2  being in [11.2589841, 11.3313031]...
+	>Solution status: objective values (16.1904142, 11.2822058), but structure is dominated.
 
-Solving objective function 1, on top of 12.613423: Obj2  being in [12.613433, 16.8250554]...
-	>Solution status: objective values (14.4676966, 12.613433), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4676966	12.6134330
+Solving objective function 1, below (or eq. to) 11.2589741: Obj2  being in [11.209504, 11.2589741]...
+	>Solution status: objective values (16.1904142, 11.2577326), but structure is dominated.
 
-Solving objective function 1, on top of 12.613433: Obj2  being in [12.613443, 16.8250554]...
-	>Solution status: objective values (13.9132567, 13.352114), not dominated.
-	>adding structure to Pareto set :	(((((((((((..{{)))..{{..((((([[[.[[.))))).))}}((((]].]]].)))).)))))).}}.. + RIN106 + RIN146 + RIN156 + RIN205 + RIN255 + RIN3 + RIN305 + RIN5 + RIN69 + RIN71	13.9132567	13.3521140
+Solving objective function 1, below (or eq. to) 11.209494: Obj2  being in [11.0290479, 11.209494]...
+	>Solution status: objective values (16.1904142, 11.0699509), but structure is dominated.
 
-Solving objective function 1, on top of 13.352114: Obj2  being in [13.352124, 16.8250554]...
-	>Solution status: objective values (13.9132495, 13.352124), not dominated.
-	>adding structure to Pareto set :	(((((((((((..{{)))..{{..((((([[[.[[.))))).))}}((((]].]]].)))).)))))).}}.. + RIN106 + RIN146 + RIN156 + RIN205 + RIN255 + RIN3 + RIN305 + RIN5 + RIN69 + RIN71	13.9132495	13.3521240
+Solving objective function 1, below (or eq. to) 11.0290379: Obj2  being in [10.640798, 11.0290379]...
+	>Solution status: objective values (16.1904142, 10.6536164), but structure is dominated.
 
-Solving objective function 1, on top of 13.352124: Obj2  being in [13.352134, 16.8250554]...
-	>Solution status: objective values (13.9132184, 13.352134), not dominated.
-	>adding structure to Pareto set :	(((((((((((..{{)))..{{..((((([[[.[[.))))).))}}((((]].]]].)))).)))))).}}.. + RIN106 + RIN146 + RIN156 + RIN205 + RIN255 + RIN3 + RIN305 + RIN5 + RIN69 + RIN71	13.9132184	13.3521340
+Solving objective function 1, below (or eq. to) 10.640788: Obj2  being in [10.433666, 10.640788]...
+	>Solution status: objective values (16.1904142, 10.5079929), but structure is dominated.
 
-Solving objective function 1, on top of 13.352134: Obj2  being in [13.352144, 16.8250554]...
-	>Solution status: objective values (13.7804576, 13.3616762), not dominated.
-	>adding structure to Pareto set :	((((((((.{{..[[))...((..(((([[[[.....)))).}}))((((...]]]])))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804576	13.3616762
+Solving objective function 1, below (or eq. to) 10.433656: Obj2  being in [10.2628826, 10.433656]...
+	>Solution status: objective values (16.1904142, 10.3561765), but structure is dominated.
 
-Solving objective function 1, on top of 13.3616762: Obj2  being in [13.3616862, 16.8250554]...
-	>Solution status: objective values (13.7804576, 13.3857683), not dominated.
-	>adding structure to Pareto set :	((((((((.{{..[[))...((..(((([[[[.[[..)))).}}))((((.]]]]]])))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804576	13.3857683
-	>removing structure from Pareto set, obj 2 = 13.3616762
+Solving objective function 1, below (or eq. to) 10.2628726: Obj2  being in [10.2542587, 10.2628726]...
+	>Solution status: objective values (16.1904142, 10.2550823), but structure is dominated.
 
-Solving objective function 1, on top of 13.3857683: Obj2  being in [13.3857783, 16.8250554]...
-	>Solution status: objective values (13.7804576, 14.2250007), not dominated.
-	>adding structure to Pareto set :	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804576	14.2250007
-	>removing structure from Pareto set, obj 2 = 13.3857683
+Solving objective function 1, below (or eq. to) 10.2542487: Obj2  being in [10.2363894, 10.2542487]...
+	>Solution status: objective values (16.1904142, 10.2401373), but structure is dominated.
 
-Solving objective function 1, on top of 14.2250007: Obj2  being in [14.2250107, 16.8250554]...
-	>Solution status: objective values (13.7804521, 14.2250107), not dominated.
-	>adding structure to Pareto set :	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804521	14.2250107
+Solving objective function 1, below (or eq. to) 10.2363794: Obj2  being in [9.81080068, 10.2363794]...
+	>Solution status: objective values (16.1904142, 9.85059028), but structure is dominated.
 
-Solving objective function 1, on top of 14.2250107: Obj2  being in [14.2250207, 16.8250554]...
-	>Solution status: objective values (13.6489863, 14.5640668), not dominated.
-	>adding structure to Pareto set :	((((((.(({{...))((..[[[))((([[[[.<<..)))]]}}.(((((>>...]]))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.5640668
+Solving objective function 1, below (or eq. to) 9.81079068: Obj2  being in [9.12007902, 9.81079068]...
+	>Solution status: objective values (16.1904142, 9.6842003), but structure is dominated.
 
-Solving objective function 1, on top of 14.5640668: Obj2  being in [14.5640768, 16.8250554]...
-	>Solution status: objective values (13.6489863, 14.8748703), not dominated.
-	>adding structure to Pareto set :	((((((.(({{...))((..[[[))((((.[[.<<.))))]]}}.(((((>>.....))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.8748703
-	>removing structure from Pareto set, obj 2 = 14.5640668
+Solving objective function 1, below (or eq. to) 9.12006902: Obj2  being in [8.77310593, 9.12006902]...
+	>Solution status: objective values (16.1904142, 9.08764207), but structure is dominated.
 
-Solving objective function 1, on top of 14.8748703: Obj2  being in [14.8748803, 16.8250554]...
-	>Solution status: objective values (13.6489718, 14.8748803), but structure is dominated.
+Solving objective function 1, below (or eq. to) 8.77309593: Obj2  being in [8.35885214, 8.77309593]...
+	>Solution status: objective values (16.1904142, 8.76946634), but structure is dominated.
 
-Solving objective function 1, below (or eq. to) 14.8748703: Obj2  being in [14.5640768, 14.8748703]...
-	>Solution status: objective values (13.6489863, 14.8748703), not dominated.
-	>adding structure to Pareto set :	((((((.(({{...))((..[[[))((((.[[.<<.))))]]}}.(((((>>.....))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.8748703
+Solving objective function 1, below (or eq. to) 8.35884214: Obj2  being in [7.45137867, 8.35884214]...
+	>Solution status: objective values (16.1904142, 7.80673399), but structure is dominated.
 
-Solving objective function 1, on top of 14.8748703: Obj2  being in [14.8748803, 14.8748703]...
-	>Solution status: objective values (13.6489863, 14.8748703), not dominated.
-	>adding structure to Pareto set :	((((((.(({{...))((..[[[))((((.[[.<<.))))]]}}.(((((>>.....))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.8748703
+Solving objective function 1, below (or eq. to) 7.45136867: Obj2  being in [7.43311439, 7.45136867]...
+	>Solution status: objective values (16.1904142, 7.44229066), but structure is dominated.
 
-Solving objective function 1, on top of 14.8748703: Obj2  being in [14.8748803, 14.8748703]...
-	>Solution status: objective values (13.1756783, 14.8748703), but structure is dominated.
+Solving objective function 1, below (or eq. to) 7.43310439: Obj2  being in [7.37633164, 7.43310439]...
+	>Solution status: objective values (16.1904142, 7.37944894), but structure is dominated.
 
-Solving objective function 1, below (or eq. to) 14.5640668: Obj2  being in [14.2250207, 14.5640668]...
-	>Solution status: objective values (13.7804465, 14.2250207), not dominated.
-	>adding structure to Pareto set :	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804465	14.2250207
+Solving objective function 1, below (or eq. to) 7.37632164: Obj2  being in [6.97727096, 7.37632164]...
+	>Solution status: objective values (16.1904142, 7.01856129), but structure is dominated.
 
-Solving objective function 1, on top of 14.2250207: Obj2  being in [14.2250307, 14.5640668]...
-	>Solution status: objective values (13.6489863, 14.3846639), but structure is dominated.
+Solving objective function 1, below (or eq. to) 6.97726096: Obj2  being in [6.67346152, 6.97726096]...
+	>Solution status: objective values (16.1904142, 6.69420351), but structure is dominated.
 
-Solving objective function 1, below (or eq. to) 14.2250207: Obj2  being in [14.2250207, 14.2250207]...
-	>Solution status: objective values (13.7804465, 14.2250207), not dominated.
-	>adding structure to Pareto set :	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804465	14.2250207
+Solving objective function 1, below (or eq. to) 6.67345152: Obj2  being in [5.87748787, 6.67345152]...
+	>Solution status: objective values (16.1904142, 5.95417434), but structure is dominated.
 
-Solving objective function 1, on top of 14.2250207: Obj2  being in [14.2250307, 14.2250207]...
-	>Solution status: objective values (12.4884279, 14.2250307), but structure is dominated.
+Solving objective function 1, below (or eq. to) 5.87747787: Obj2  being in [5.22560748, 5.87747787]...
+	>Solution status: objective values (16.1904142, 5.22736197), but structure is dominated.
 
-Solving objective function 1, below (or eq. to) 14.2250107: Obj2  being in [14.2250107, 14.2250107]...
-	>Failed to optimize LP: no more solutions to find.
-	>no solutions found.
-
-Solving objective function 1, below (or eq. to) 14.2250007: Obj2  being in [13.3857783, 14.2250007]...
-	>Solution status: objective values (13.7804576, 13.7013889), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 13.3857683: Obj2  being in [13.3616862, 13.3857683]...
-	>Solution status: objective values (13.7804576, 13.3857683), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 13.3616762: Obj2  being in [13.352144, 13.3616762]...
-	>Solution status: objective values (13.7804576, 13.3616762), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 13.352134: Obj2  being in [13.352134, 13.352134]...
-	>Solution status: objective values (12.315653, 13.352134), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 13.352124: Obj2  being in [13.352124, 13.352124]...
-	>Solution status: objective values (13.5250659, 13.352124), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 13.352114: Obj2  being in [12.613443, 13.352114]...
-	>Solution status: objective values (14.4676913, 12.613443), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4676913	12.6134430
-
-Solving objective function 1, on top of 12.613443: Obj2  being in [12.613453, 13.352114]...
-	>Solution status: objective values (13.9132567, 13.0124013), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 12.613443: Obj2  being in [12.613443, 12.613443]...
-	>Solution status: objective values (12.4884279, 12.613443), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 12.613433: Obj2  being in [12.613433, 12.613433]...
-	>Solution status: objective values (12.6118968, 12.613433), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 12.613423: Obj2  being in [12.613423, 12.613423]...
-	>Solution status: objective values (14.4676963, 12.613423), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 12.613413: Obj2  being in [12.5145436, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.467708, 12.613413), not dominated.
-	>adding structure to Pareto set :	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-
-Solving objective function 1, on top of 12.613413: Obj2  being in [12.613423, 12.613413]...
-	>Solution status: objective values (14.3362367, 12.613413), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 12.5145336: Obj2  being in [12.5145336, 12.5145336]...
-	>Solution status: objective values (14.7771234, 12.5145336), not dominated.
-	>adding structure to Pareto set :	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771234	12.5145336
-
-Solving objective function 1, on top of 12.5145336: Obj2  being in [12.5145436, 12.5145336]...
-	>Solution status: objective values (14.7771256, 12.5145336), not dominated.
-	>adding structure to Pareto set :	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771256	12.5145336
-
-Solving objective function 1, on top of 12.5145336: Obj2  being in [12.5145436, 12.5145336]...
-	>Solution status: objective values (14.644325, 12.5145336), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 12.5145236: Obj2  being in [11.733883, 12.5145236]...
-	>Solution status: objective values (14.7771299, 12.512677), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 11.733873: Obj2  being in [11.733873, 11.733873]...
-	>Solution status: objective values (12.5799233, 11.733873), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 11.733863: Obj2  being in [11.733863, 11.733863]...
-	>Solution status: objective values (14.89838, 11.733863), not dominated.
-	>adding structure to Pareto set :	((((((([[[[...[[))..{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]].))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983800	11.7338630
-	>removing structure from Pareto set, obj 2 = 11.733853
-
-Solving objective function 1, on top of 11.733863: Obj2  being in [11.733873, 11.733863]...
-	>Solution status: objective values (14.898375, 11.733863), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 11.733853: Obj2  being in [11.1911383, 11.733853]...
-	>Solution status: objective values (14.8983845, 11.5415072), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 11.1911283: Obj2  being in [11.1635889, 11.1911283]...
-	>Solution status: objective values (14.8983845, 11.164107), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 11.1635789: Obj2  being in [10.4338805, 11.1635789]...
-	>Solution status: objective values (14.8983845, 10.9895899), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 10.4338705: Obj2  being in [10.4338705, 10.4338705]...
-	>Solution status: objective values (14.898375, 10.4338705), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 10.4338605: Obj2  being in [9.48434976, 10.4338605]...
-	>Solution status: objective values (14.8983845, 9.89240477), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 9.48433976: Obj2  being in [9.47862522, 9.48433976]...
-	>Solution status: objective values (14.8983845, 9.47862522), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 9.47861522: Obj2  being in [9.47294233, 9.47861522]...
-	>Solution status: objective values (14.8983845, 9.47839988), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 9.47293233: Obj2  being in [8.62968239, 9.47293233]...
-	>Solution status: objective values (14.8996888, 8.62968239), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 8.62967239: Obj2  being in [8.62967239, 8.62967239]...
-	>Solution status: objective values (13.7391524, 8.62967239), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 8.62966239: Obj2  being in [8.62966239, 8.62966239]...
-	>Solution status: objective values (14.8997027, 8.62966239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997027	8.6296624
-
-Solving objective function 1, on top of 8.62966239: Obj2  being in [8.62967239, 8.62966239]...
-	>Solution status: objective values (14.8997095, 8.62966239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997095	8.6296624
-
-Solving objective function 1, on top of 8.62966239: Obj2  being in [8.62967239, 8.62966239]...
-	>Solution status: objective values (14.8997036, 8.62966239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN148 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997036	8.6296624
-
-Solving objective function 1, on top of 8.62966239: Obj2  being in [8.62967239, 8.62966239]...
-	>Solution status: objective values (14.8997021, 8.62966239), not dominated.
-	>adding structure to Pareto set :	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN15 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997021	8.6296624
-
-Solving objective function 1, on top of 8.62966239: Obj2  being in [8.62967239, 8.62966239]...
-	>Solution status: objective values (14.8983827, 8.62966239), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 8.62965239: Obj2  being in [8.62965239, 8.62965239]...
-	>Solution status: objective values (14.8997069, 8.62965239), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 8.62964239: Obj2  being in [8.62292056, 8.62964239]...
-	>Solution status: objective values (14.8997124, 8.62964239), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 8.62291056: Obj2  being in [7.42471913, 8.62291056]...
-	>Solution status: objective values (14.8997124, 7.45269289), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 7.42470913: Obj2  being in [7.1578808, 7.42470913]...
-	>Solution status: objective values (14.8997124, 7.41340095), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 7.1578708: Obj2  being in [6.63338099, 7.1578708]...
-	>Solution status: objective values (14.8997124, 6.92661934), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 6.63337099: Obj2  being in [6.63337099, 6.63337099]...
-	>Solution status: objective values (14.047248, 6.63337099), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 6.63336099: Obj2  being in [6.63336099, 6.63336099]...
-	>Solution status: objective values (15.2064735, 6.63336099), not dominated.
-	>adding structure to Pareto set :	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN148 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064735	6.6333610
-
-Solving objective function 1, on top of 6.63336099: Obj2  being in [6.63337099, 6.63336099]...
-	>Solution status: objective values (14.8983794, 6.63336099), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 6.63335099: Obj2  being in [6.63335099, 6.63335099]...
-	>Solution status: objective values (15.0750052, 6.63335099), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 6.63334099: Obj2  being in [6.61690884, 6.63334099]...
-	>Solution status: objective values (15.206476, 6.61690884), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 6.61689884: Obj2  being in [6.04716282, 6.61689884]...
-	>Solution status: objective values (15.2064786, 6.44284186), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 6.04715282: Obj2  being in [5.59464391, 6.04715282]...
-	>Solution status: objective values (15.2064786, 5.68777183), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 5.59463391: Obj2  being in [4.49490451, 5.59463391]...
-	>Solution status: objective values (15.2064786, 4.75289634), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 4.49489451: Obj2  being in [3.58001439, 4.49489451]...
-	>Solution status: objective values (15.2064786, 4.17590214), but structure is dominated.
-
-Solving objective function 1, below (or eq. to) 3.58000439: Obj2  being in [3.43495204, 3.58000439]...
-	>Solution status: objective values (15.2064786, 3.56207292), but structure is dominated.
+Solving objective function 1, below (or eq. to) 5.22559748: Obj2  being in [5.18988958, 5.22559748]...
+	>Solution status: objective values (16.1904142, 5.1949506), but structure is dominated.
 
 Solving obj1 below best solution 1.
 
-Solving objective function 1, below (or eq. to) 3.43494204: Obj2  being in [-1.79769313e+308, 3.43494204]...
-	>forbidding 0 solutions found in [-1.797693135e+308, 3.434952042]
-	>Solution status: objective values (15.20647861, 3.430150782), but structure is dominated.
+Solving objective function 1, below (or eq. to) 5.18987958: Obj2  being in [-1.79769313e+308, 5.18987958]...
+	>forbidding 0 solutions found in [-1.797693135e+308, 5.189889577]
+	>Solution status: objective values (16.1904142, 3.22361762), but structure is dominated.
 
 
 ---------------------------------------------------------------
 Whole Pareto Set:
 
 	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064786	6.6333410
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--       --        -                                                     	 ( 0-1 9-10 19-19 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	              -           -                --                      -     	 ( 14-14 26-26 43-44 67-67 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN15 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064770	6.6333510
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --                    -     	 ( 7-8 45-46 67-67 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--       --        -                                                     	 ( 0-1 9-10 19-19 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	              -           -                --                -           	 ( 14-14 26-26 43-44 61-61 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN148 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064746	6.6333610
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--       --        -                                                     	 ( 0-1 9-10 19-19 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	              -           -                --                      -     	 ( 14-14 26-26 43-44 67-67 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN135 + RIN255 + RIN263 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN94	15.0749988	6.6333710
-	           --       --                                                -- 	 ( 11-12 20-21 70-71 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	     -                        --                     --                  	 ( 5-5 30-31 53-54 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--       --                       -                                      	 ( 0-1 9-10 34-34 )
-	               --       --                             -                 	 ( 15-16 24-25 55-55 )
-	                                     -           -            --        -	 ( 37-37 49-49 62-63 72-72 )
-	              -           -                --                      -     	 ( 14-14 26-26 43-44 67-67 )
-	                   -                  --       --                        	 ( 19-19 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN263 + RIN3 + RIN69 + RIN71 + RIN94	14.8997100	8.6296524
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --               -                               --     	 ( 0-1 17-18 34-34 66-67 )
-	                   -          --                     --                  	 ( 19-19 30-31 53-54 )
-	                         -              --                 --            	 ( 25-25 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	                          --                             --         -    	 ( 26-27 57-58 68-68 )
-	                                     -           -            --        -	 ( 37-37 49-49 62-63 72-72 )
-	                            -         --       --                        	 ( 28-28 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN15 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997068	8.6296624
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	-        --                               --                       -     	 ( 0-0 9-10 42-43 67-67 )
-	                   --     --                             --              	 ( 19-20 26-27 57-58 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997055	8.6296724
-	   --                                                 --        -        	 ( 3-4 54-55 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --               -                               --     	 ( 0-1 17-18 34-34 66-67 )
-	                         -              --                 --            	 ( 25-25 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	                          --                             --             -	 ( 26-27 57-58 72-72 )
-	                               -                     -        --    -    	 ( 31-31 53-53 62-63 68-68 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	                            -         --       --                        	 ( 28-28 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((([[[[...[[))..{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]].))))).}}}. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983676	11.7338730
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	              -           -          --              -                   	 ( 14-14 26-26 37-38 53-53 )
-	           --                                       -        --          	 ( 11-12 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771299	12.5145236
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	           --                     --             -       --              	 ( 11-12 34-35 49-49 57-58 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	                   -          --                     --                  	 ( 19-19 30-31 53-54 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	         --                               --           -                 	 ( 9-10 42-43 55-55 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                         -             -                      --    -    	 ( 25-25 39-39 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771248	12.5145336
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	           --               --                   -       --              	 ( 11-12 28-29 49-49 57-58 )
-	  --             --               -                             --       	 ( 2-3 17-18 34-34 64-65 )
-	                   -          --                     --                  	 ( 19-19 30-31 53-54 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	         --                               --           -                 	 ( 9-10 42-43 55-55 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                         -             -                      --    -    	 ( 25-25 39-39 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	           --                                       -        --          	 ( 11-12 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677025	12.6134230
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4676966	12.6134330
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	           --                                       -        --          	 ( 11-12 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((..{{)))..{{..((((([[[.[[.))))).))}}((((]].]]].)))).)))))).}}.. + RIN106 + RIN146 + RIN156 + RIN205 + RIN255 + RIN3 + RIN305 + RIN5 + RIN69 + RIN71	13.9132567	13.3521140
-	       -                                 --    --                        	 ( 7-7 41-42 47-48 )
-	   --                                                 --        -        	 ( 3-4 54-55 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	           --               --                   -       --              	 ( 11-12 28-29 49-49 57-58 )
-	--               --    -                                          --     	 ( 0-1 17-18 23-23 66-67 )
-	         --    --                 -                                      	 ( 9-10 15-16 34-34 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	                          --         --                                 -	 ( 26-27 37-38 72-72 )
-	                               -                     -        --    -    	 ( 31-31 53-53 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((..{{)))..{{..((((([[[.[[.))))).))}}((((]].]]].)))).)))))).}}.. + RIN106 + RIN146 + RIN156 + RIN205 + RIN255 + RIN3 + RIN305 + RIN5 + RIN69 + RIN71	13.9132495	13.3521240
-	       -                                 --    --                        	 ( 7-7 41-42 47-48 )
-	   --                                                 --        -        	 ( 3-4 54-55 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	           --                     --             -       --              	 ( 11-12 34-35 49-49 57-58 )
-	--               --    -                                          --     	 ( 0-1 17-18 23-23 66-67 )
-	         --    --           -                                            	 ( 9-10 15-16 28-28 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	                          --         --                                 -	 ( 26-27 37-38 72-72 )
-	                               -                     -        --    -    	 ( 31-31 53-53 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((..{{)))..{{..((((([[[.[[.))))).))}}((((]].]]].)))).)))))).}}.. + RIN106 + RIN146 + RIN156 + RIN205 + RIN255 + RIN3 + RIN305 + RIN5 + RIN69 + RIN71	13.9132184	13.3521340
-	       -                                 --    --                        	 ( 7-7 41-42 47-48 )
-	   --                                                 --        -        	 ( 3-4 54-55 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	           --               --                   -       --              	 ( 11-12 28-29 49-49 57-58 )
-	--               --               -                               --     	 ( 0-1 17-18 34-34 66-67 )
-	         --    --      -                                                 	 ( 9-10 15-16 23-23 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	                          --         --                                 -	 ( 26-27 37-38 72-72 )
-	                               -                     -        --    -    	 ( 31-31 53-53 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804576	14.2250007
-	          -                              --    --                        	 ( 10-10 41-42 47-48 )
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	           --                     --             -       --              	 ( 11-12 34-35 49-49 57-58 )
-	                       -      --                     --                  	 ( 23-23 30-31 53-54 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	                          --         --                -                 	 ( 26-27 37-38 55-55 )
-	       -       -                                              --    -    	 ( 7-7 15-15 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804521	14.2250107
-	          -                              --    --                        	 ( 10-10 41-42 47-48 )
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	                  --              --             -       --              	 ( 18-19 34-35 49-49 57-58 )
-	                       -      --                     --                  	 ( 23-23 30-31 53-54 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	                          --         --                -                 	 ( 26-27 37-38 55-55 )
-	       -       -                                              --    -    	 ( 7-7 15-15 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.(({{...))((..[[[))((((.[[.<<.))))]]}}.(((((>>.....))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.8748703
-	       --     --                                      --                 	 ( 7-8 14-15 54-55 )
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --         -                                     --     	 ( 0-1 17-18 28-28 66-67 )
-	                   -          --        --                               	 ( 19-19 30-31 40-41 )
-	                     --                      --             --       --  	 ( 21-22 45-46 60-61 69-70 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --         -    	 ( 48-49 57-58 68-68 )
-	                         -             -                      --        -	 ( 25-25 39-39 62-63 72-72 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.(({{...))((..[[[))((((.[[.<<.))))]]}}.(((((>>.....))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.8748703
-	       --     --                                      --                 	 ( 7-8 14-15 54-55 )
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --               -                               --     	 ( 0-1 17-18 34-34 66-67 )
-	                   -          --        --                               	 ( 19-19 30-31 40-41 )
-	                     --                      --             --       --  	 ( 21-22 45-46 60-61 69-70 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --             -	 ( 48-49 57-58 72-72 )
-	                         -             -                      --    -    	 ( 25-25 39-39 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.(({{...))((..[[[))((((.[[.<<.))))]]}}.(((((>>.....))))))))))).]]]. + RIN13 + RIN146 + RIN156 + RIN196 + RIN255 + RIN263 + RIN305 + RIN69 + RIN69 + RIN71	13.6489863	14.8748703
-	       --     --                                      --                 	 ( 7-8 14-15 54-55 )
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --               -                               --     	 ( 0-1 17-18 34-34 66-67 )
-	                   -          --        --                               	 ( 19-19 30-31 40-41 )
-	                     --                      --             --       --  	 ( 21-22 45-46 60-61 69-70 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --         -    	 ( 48-49 57-58 68-68 )
-	                         -             -                      --        -	 ( 25-25 39-39 62-63 72-72 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804465	14.2250207
-	          -                              --    --                        	 ( 10-10 41-42 47-48 )
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	                  --        --                   -       --              	 ( 18-19 28-29 49-49 57-58 )
-	                       -      --                     --                  	 ( 23-23 30-31 53-54 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	                          --         --                -                 	 ( 26-27 37-38 55-55 )
-	       -       -                                              --    -    	 ( 7-7 15-15 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((((.{{..[[))...((..((((([[[.[[.))))).}}))((((]].]]].)))).)))))).]].. + RIN106 + RIN146 + RIN156 + RIN205 + RIN263 + RIN305 + RIN5 + RIN69 + RIN69 + RIN71	13.7804465	14.2250207
-	          -                              --    --                        	 ( 10-10 41-42 47-48 )
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	  -                     --             --                        -       	 ( 2-2 24-25 39-40 65-65 )
-	           --               --                   -       --              	 ( 11-12 28-29 49-49 57-58 )
-	                       -      --                     --                  	 ( 23-23 30-31 53-54 )
-	             --                              --             --       --  	 ( 13-14 45-46 60-61 69-70 )
-	     -               --                    --                            	 ( 5-5 21-22 43-44 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	                          --         --                -                 	 ( 26-27 37-38 55-55 )
-	       -       -                                              --    -    	 ( 7-7 15-15 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4676913	12.6134430
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
+	(((.(((.{{{..[[[.[.)}}<](]](([[[.[[.))[<)(A..}{{]{]]A]]])}>}}a))a))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904142	11.3313031
+	      -           --           --                                        	 ( 6-6 18-19 31-32 )
+	             -                                        --              -- 	 ( 13-13 54-55 70-71 )
+	  -                                  --         --               -       	 ( 2-2 37-38 48-49 65-65 )
+	                                  --      -                    --        	 ( 34-35 42-42 63-64 )
+	         --         --      -                                            	 ( 9-10 20-21 28-28 )
 	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
 	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
 	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
+	               --       --                     -                         	 ( 15-16 24-25 47-47 )
+	              -           -                --               -            	 ( 14-14 26-26 43-44 60-60 )
 	           --                                       -        --          	 ( 11-12 52-52 61-62 )
+	    -                                  --                --              	 ( 4-4 39-40 57-58 )
 
 
 	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
+	(((.(((.{{{..[[[.[.)}}<](]](([[[.[[.))[<)(A..}{{]{]]A]]])}>}}a))a))).>].. + RIN106 + RIN148 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904136	11.3313131
+	      -           --           --                                        	 ( 6-6 18-19 31-32 )
+	             -                                        --              -- 	 ( 13-13 54-55 70-71 )
+	  -                                  --         --               -       	 ( 2-2 37-38 48-49 65-65 )
+	                            --            -                    --        	 ( 28-29 42-42 63-64 )
+	         --         --                         -                         	 ( 9-10 20-21 47-47 )
 	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
+	    -                 --                                            --   	 ( 4-4 22-23 68-69 )
 	--                                                                --    -	 ( 0-1 66-67 72-72 )
 	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
+	              -           -                --               -            	 ( 14-14 26-26 43-44 60-60 )
 	           --                                       -        --          	 ( 11-12 52-52 61-62 )
+	                 -                     --                --              	 ( 17-17 39-40 57-58 )
 
 
 	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
+	(((.(((.{{{..[[[.[.)}}<](]](([[[.[[.))[<)(A..}{{]{]]A]]])}>}}a))a))).>].. + RIN106 + RIN15 + RIN156 + RIN196 + RIN3 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN8 + RIN95	16.1904133	11.3313131
+	      -           --           --                                        	 ( 6-6 18-19 31-32 )
+	             -                                        --              -- 	 ( 13-13 54-55 70-71 )
+	  -                                  --         --               -       	 ( 2-2 37-38 48-49 65-65 )
+	                            --            -                    --        	 ( 28-29 42-42 63-64 )
+	         --         --                         -                         	 ( 9-10 20-21 47-47 )
 	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
+	    -                 --                                            --   	 ( 4-4 22-23 68-69 )
 	--                                                                --    -	 ( 0-1 66-67 72-72 )
 	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
+	              -           -                --               -            	 ( 14-14 26-26 43-44 60-60 )
 	           --                                       -        --          	 ( 11-12 52-52 61-62 )
+	                 -                     --                --              	 ( 17-17 39-40 57-58 )
 
 
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	           --                                       -        --          	 ( 11-12 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	           --                                       -        --          	 ( 11-12 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --      -                   	 ( 7-8 45-46 53-53 )
-	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((.((((.....((..[[[))((((.[[.{{.))))]])).))(((}}[[...)))]])))))).]]]. + RIN146 + RIN148 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN69 + RIN8	14.4677080	12.6134130
-	   --      --                                                   -        	 ( 3-4 11-12 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	                 -    --                                            --   	 ( 17-17 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	                  --                                -        --          	 ( 18-19 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771234	12.5145336
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	           --               --                   -       --              	 ( 11-12 28-29 49-49 57-58 )
-	--               --               -                               --     	 ( 0-1 17-18 34-34 66-67 )
-	                   -          --                     --                  	 ( 19-19 30-31 53-54 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	         --                               --           -                 	 ( 9-10 42-43 55-55 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	  --                                                            --      -	 ( 2-3 64-65 72-72 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                         -             -                      --    -    	 ( 25-25 39-39 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((.....((..[[[))(((([[[.[[.)))){{)).)).((]].]]].))}}))))))).]]]. + RIN160 + RIN196 + RIN205 + RIN255 + RIN263 + RIN263 + RIN3 + RIN3 + RIN69 + RIN69 + RIN71	14.7771256	12.5145336
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	           --                     --             -       --              	 ( 11-12 34-35 49-49 57-58 )
-	--               --         -                                     --     	 ( 0-1 17-18 28-28 66-67 )
-	                   -          --                     --                  	 ( 19-19 30-31 53-54 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	         --                               --           -                 	 ( 9-10 42-43 55-55 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	  --                                                            --      -	 ( 2-3 64-65 72-72 )
-	                          --         --        -                         	 ( 26-27 37-38 47-47 )
-	                         -             -                      --    -    	 ( 25-25 39-39 62-63 68-68 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	((((((([[[[...[[))..{{{..]](({{[[{{.)).]].]].]](((}}[[}}.)))]].))))).}}}. + RIN146 + RIN15 + RIN156 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN69 + RIN71 + RIN8	14.8983800	11.7338630
-	   --             --                                            -        	 ( 3-4 18-19 64-64 )
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	     -                        --        --                               	 ( 5-5 30-31 40-41 )
-	       --                                    --             -            	 ( 7-8 45-46 60-60 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--                                                                --    -	 ( 0-1 66-67 72-72 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                                                --       --    -         	 ( 48-49 57-58 63-63 )
-	              -           -          --     -                            	 ( 14-14 26-26 37-38 44-44 )
-	           --                                       -        --          	 ( 11-12 52-52 61-62 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997027	8.6296624
-	   --                                                 --        -        	 ( 3-4 54-55 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --         -                                     --     	 ( 0-1 17-18 28-28 66-67 )
-	                         -              --                 --            	 ( 25-25 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	                          --                             --             -	 ( 26-27 57-58 72-72 )
-	                               -                     -        --    -    	 ( 31-31 53-53 62-63 68-68 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	                   -                  --       --                        	 ( 19-19 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN146 + RIN156 + RIN160 + RIN196 + RIN255 + RIN263 + RIN3 + RIN69 + RIN71 + RIN8 + RIN94	14.8997095	8.6296624
-	   --                                                 --        -        	 ( 3-4 54-55 64-64 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	             --      --                                              --  	 ( 13-14 21-22 69-70 )
-	     --         -      --                                                	 ( 5-6 16-16 23-24 )
-	--               --         -                                     --     	 ( 0-1 17-18 28-28 66-67 )
-	                         -              --                 --            	 ( 25-25 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	                          --                             --         -    	 ( 26-27 57-58 68-68 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	                   -                  --       --                        	 ( 19-19 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN148 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997036	8.6296624
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  -      --                               --                     -       	 ( 2-2 9-10 42-43 65-65 )
-	                   --     --                             --              	 ( 19-20 26-27 57-58 )
-	--               --         -                                     --     	 ( 0-1 17-18 28-28 66-67 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	(((((((((((....(((..[[[)))[[[[[[.[[..[[.{{)).)).]]]].]]]]]]}}))))))).]]]. + RIN15 + RIN156 + RIN160 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN71 + RIN8 + RIN94	14.8997021	8.6296624
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	 -       --                               --                      -      	 ( 1-1 9-10 42-43 66-66 )
-	                   --     --                             --              	 ( 19-20 26-27 57-58 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	-                                       --                 --            	 ( 0-0 40-41 59-60 )
-	       --                                    --              -           	 ( 7-8 45-46 61-61 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-	GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGAGGUCGAGGUUCGAAUCCUCGUACCCCAGCCA
-	[[(((((<<]]...[[))..{{{..]](((((.((..((.[[[..>>.)))).)))))]]]..)))...}}}. + RIN148 + RIN255 + RIN263 + RIN3 + RIN55 + RIN69 + RIN69 + RIN71 + RIN71 + RIN8 + RIN94	15.2064735	6.6333610
-	                     -                                --              -- 	 ( 21-21 54-55 70-71 )
-	  --             --         -                                   --       	 ( 2-3 17-18 28-28 64-65 )
-	    -                                   --                 --            	 ( 4-4 40-41 59-60 )
-	       --                                    --                    -     	 ( 7-8 45-46 67-67 )
-	      -               --                                            --   	 ( 6-6 22-23 68-69 )
-	--       --        -                                                     	 ( 0-1 9-10 19-19 )
-	               --       --        -                                      	 ( 15-16 24-25 34-34 )
-	                               -                     -        --        -	 ( 31-31 53-53 62-63 72-72 )
-	              -           -                --                -           	 ( 14-14 26-26 43-44 61-61 )
-	           --                        -           --                      	 ( 11-12 37-37 49-50 )
-	     -                                --       --                        	 ( 5-5 38-39 47-48 )
-
-
-4481 candidate insertion sites, 43 solutions kept.
-Best value for Motif insertion objective: 15.20647861
-Best value for structure expected accuracy: 16.82505538
+4481 candidate insertion sites, 3 solutions kept.
+Best value for Motif insertion objective: 16.1904142
+Best value for structure expected accuracy: 16.90389015
