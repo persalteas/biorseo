@@ -195,7 +195,7 @@ def launch_JAR3D(seq_, basename):
     # Scanning loop subsequences against motif database
     if not path.exists(basename):
         makedirs(basename)
-    p = multiprocessing.Pool(processes=cpu_count())
+    p = MyPool(processes=cpu_count())
     insertion_sites = [x for y in p.map(launch_JAR3D_worker, loops) for x in y]
     p.close()
     p.join()
@@ -1047,7 +1047,7 @@ if __name__ == '__main__':
             print("using", n, "processes:")
 
             # execute jobs of priority i that should be processed n by n:
-            p = MyPool(processes=n, maxtasksperchild=10)
+            p = multiprocessing.Pool(processes=n, maxtasksperchild=10)
             raw_results = p.map(execute_job, bunch)
             p.close()
             p.join()
