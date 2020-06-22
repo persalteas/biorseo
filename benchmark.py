@@ -66,8 +66,8 @@ class NoDaemonProcess(multiprocessing.Process):
 
 # We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
 # because the latter is only a wrapper function, not a proper class.
-#class MyPool(multiprocessing.pool.Pool):
-#    Process = NoDaemonProcess
+class MyPool(multiprocessing.pool.Pool):
+    Process = NoDaemonProcess
 
 class Job:
     def __init__(self, results, command=[], function=None, args=[], how_many_in_parallel=0, priority=1, timeout=None, checkFunc=None, checkArgs=[], label=""):
@@ -1047,7 +1047,7 @@ if __name__ == '__main__':
             print("using", n, "processes:")
 
             # execute jobs of priority i that should be processed n by n:
-            p = multiprocessing.Pool(processes=n, maxtasksperchild=10)
+            p = MyPool(processes=n, maxtasksperchild=10)
             raw_results = p.map(execute_job, bunch)
             p.close()
             p.join()
