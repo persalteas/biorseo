@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.8
 #coding=utf-8
 
 # typical usage : ./benchmark.py data/sec_structs/verified_secondary_structures_database.dbn data/sec_structs/pseudoknots.dbn data/sec_structs/applications.dbn
@@ -248,7 +248,7 @@ def launch_JAR3D(seq_, basename):
 
 def launch_BayesPairing(module_type, seq_, header_, basename):
 
-    cmd = ["python3","parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
+    cmd = ["python3.8","parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
 
     logfile = open(runDir + "/log_of_the_run.sh", 'a')
     logfile.write(" ".join(cmd))
