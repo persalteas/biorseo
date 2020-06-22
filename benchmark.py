@@ -1047,7 +1047,7 @@ if __name__ == '__main__':
             print("using", n, "processes:")
 
             # execute jobs of priority i that should be processed n by n:
-            p = multiprocessing.Pool(processes=n, maxtasksperchild=10)
+            p = MyPool(processes=n, maxtasksperchild=10)
             raw_results = p.map(execute_job, bunch)
             p.close()
             p.join()
