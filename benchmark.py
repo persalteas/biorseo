@@ -26,10 +26,14 @@ import ast, time
 # ================== DEFINITION OF THE PATHS ==============================
 
 biorseoDir = path.realpath(".")
-jar3dexec = "/nhome/siniac/lbecquey/Software/jar3dbin/jar3d_2014-12-11.jar"
-bypdir = biorseoDir + "/BayesPairing/bayespairing/src"
-moipdir = "/nhome/siniac/lbecquey/Software/RNAMoIP/Src/RNAMoIP.py"
-biokopdir = "/nhome/siniac/lbecquey/Software/biokop/biokop"
+#jar3dexec = "/nhome/siniac/lbecquey/Software/jar3dbin/jar3d_2014-12-11.jar"
+jar3dexec = "/opt/jar3d_2014-12-11.jar"
+#bypdir = biorseoDir + "/BayesPairing/bayespairing/src"
+bypdir = "/opt/BayesPairing/bayespairing/src"
+#moipdir = "/nhome/siniac/lbecquey/Software/RNAMoIP/Src/RNAMoIP.py"
+moipdir = "/opt/RNAMoIP/Src/RNAMoIP.py"
+#biokopdir = "/nhome/siniac/lbecquey/Software/biokop/biokop"
+biokopdir = "/opt/biokop"
 runDir = path.dirname(path.realpath(__file__))
 RNAStrandFile = argv[1]
 PseudobaseFile = argv[2]
@@ -62,7 +66,7 @@ class NoDaemonProcess(multiprocessing.Process):
 
 # We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
 # because the latter is only a wrapper function, not a proper class.
-class MyPool(multiprocessing.pool.Pool):
+class MyPool(multiprocessing.Pool):
     Process = NoDaemonProcess
 
 class Job:
@@ -750,7 +754,7 @@ class RNA:
                 m.n_pred = len(m.predictions)
 
                 # List unique solutions
-                sec_structs = [] 
+                sec_structs = []
                 for p in m.predictions:
                     if not ')' in p: # ignore flat solutions
                         m.n_pred -= 1
@@ -1158,7 +1162,7 @@ if __name__ == '__main__':
             [ rna.get_results("BGSU-ByP-D").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D").n_pred]
         ]
 
-        # We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
+        # We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
         x_PK_fully = [
             [ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_PK],
             [ rna.get_results("DESC-D.P.-A").max_mcc for rna in RNAs_fully_predicted_PK],
@@ -1247,7 +1251,7 @@ if __name__ == '__main__':
             [ rna.get_results("BGSU-ByP-D").max_mcc  for rna in PseudobaseContainer if rna.get_results("BGSU-ByP-D").n_pred]
         ]
 
-        # We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
+        # We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
         x_pseudobase_fully = [
             [ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
             [ rna.get_results("RNAsubopt").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
@@ -1621,7 +1625,7 @@ if __name__ == '__main__':
         x = [
             [ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in RNAStrandContainer ],
             [ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in RNAStrandContainer ],
-            [ rna.get_results("RNAsubopt").max_mcc for rna in RNAStrandContainer ]            
+            [ rna.get_results("RNAsubopt").max_mcc for rna in RNAStrandContainer ]
         ]
         diffs = [
             [ x[1][i] - x[0][i] for i in range(len(x[0])) ], # 1by1 - chunk
@@ -1653,4 +1657,3 @@ if __name__ == '__main__':
     plot_more_info()
     compare_subopt_MoIP()
     plt.show()
-    
