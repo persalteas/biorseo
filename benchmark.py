@@ -18,7 +18,7 @@ from os import path, makedirs, getcwd, chdir, devnull
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from math import sqrt
+from math import sqrt, ceil
 from multiprocessing import Pool, cpu_count, Manager
 import multiprocessing
 import ast, time
@@ -109,6 +109,7 @@ class Job:
             self.nthreads = cpu_count() - 1
         else:
             self.nthreads = how_many_in_parallel
+        self.nthreads = ceil(self.nthreads/2)
         self.useless_bool = False
 
     def __str__(self):
