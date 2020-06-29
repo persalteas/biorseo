@@ -262,7 +262,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 		idx += 1
 		l = BypLog[idx]
 	insertion_sites = [ x for x in ast.literal_eval(l.split(":")[1][1:])]
-	if module_type=="CaRNAval":
+	if module_type=="carnaval":
 		rna = open(outputDir + basename + ".rin_byp.csv", "w")
 	elif module_type=="rna3dmotif":
 		rna = open(outputDir + basename + ".desc_byp.csv", "w")
@@ -713,8 +713,16 @@ class Method:
 		if self.placement_method == "Jar3d":
 			self.joblist.append(Job(function=launch_JAR3D, args=[instance.seq_, basename],
 								priority=3, how_many_in_parallel=1, results = outputDir + basename + ".bgsu_jar3d.csv", label=f"{basename} BGSU-Jar3d"))
+			
 		if self.placement_method == "ByP":
-			self.joblist.append(Job(function=launch_BayesPairing, args=["rna3dmotif" if self.data_source == "DESC" else "3dmotifatlas", instance.seq_, instance.header_, basename],
+			if self.data_source == "DESC" :
+				module_type_arg = "rna3dmotif"
+			elif self.data_source == "RIN" :
+				module_type_arg = "carnaval"
+			else:
+				module_type_arg = "3dmotifatlas"
+
+			self.joblist.append(Job(function=launch_BayesPairing, args=[module_type_arg, instance.seq_, instance.header_, basename],
 								how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp.csv", label=f"{basename} {self.data_source}-ByP"))
 
 		if self.tool == "biorseo":
