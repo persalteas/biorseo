@@ -38,7 +38,7 @@ outputDir = biorseoDir + "/benchmark_results/"
 HLmotifDir = biorseoDir + "/data/modules/BGSU/HL/3.2/lib"
 ILmotifDir = biorseoDir + "/data/modules/BGSU/IL/3.2/lib"
 descfolder = biorseoDir + "/data/modules/DESC"
-rinfolder = biorseoDir + "/data/modules/RIN/"
+rinfolder = biorseoDir + "/data/modules/CaRNAval/Subfiles/"
 
 # Create some folders to store the results
 subprocess.call(["mkdir", "-p", outputDir])
