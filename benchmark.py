@@ -713,7 +713,7 @@ class Method:
 		if self.placement_method == "Jar3d":
 			self.joblist.append(Job(function=launch_JAR3D, args=[instance.seq_, basename],
 								priority=3, how_many_in_parallel=1, results = outputDir + basename + ".bgsu_jar3d.csv", label=f"{basename} BGSU-Jar3d"))
-			
+
 		if self.placement_method == "ByP":
 			if self.data_source == "DESC" :
 				module_type_arg = "rna3dmotif"
@@ -729,7 +729,7 @@ class Method:
 			c = [ biorseoDir+"/bin/biorseo", "-s", fasta ]
 			if self.placement_method == "D.P.":
 				if self.data_source == "RIN" :
-					results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_desc_raw_{self.func}"
+					results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_rin_raw_{self.func}"
 					c += [ "-x", rinfolder]
 				else:
 					results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_desc_raw_{self.func}"
