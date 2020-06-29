@@ -248,7 +248,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 
 	cmd = ["python3.8","parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
 
-    logfile = open(runDir + "/log_of_the_run.sh", 'a')
+	logfile = open(runDir + "/log_of_the_run.sh", 'a')
     logfile.write(" ".join(cmd))
     logfile.write("\n")
     logfile.close()
