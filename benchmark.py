@@ -1115,16 +1115,21 @@ if __name__ == '__main__':
 			if not len(bunch): continue # ignore if no jobs should be processed n by n
 			print("using", n, "processes:")
 
-			# execute jobs of priority i that should be processed n by n:
-			p = MyPool(processes=n, maxtasksperchild=10)
-			raw_results = p.map(execute_job, bunch)
-			p.close()
-			p.join()
+			try :
+				# execute jobs of priority i that should be processed n by n:
+				p = MyPool(processes=n, maxtasksperchild=10)
+				raw_results = p.map(execute_job, bunch)
+				p.close()
+				p.join()
 
-			# extract computation times
-			times = [ r[0] for r in raw_results ]
-			for j, t in zip(bunch, times):
-				j.comp_time = t
+				# extract computation times
+				times = [ r[0] for r in raw_results ]
+				for j, t in zip(bunch, times):
+					j.comp_time = t
+
+			except (subprocess.TimeoutExpired, TimeoutExpired) :
+				print("Skipping, took more than 3600s")
+				pass
 
 
 	# ================= Statistics ========================
