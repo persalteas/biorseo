@@ -1127,7 +1127,7 @@ if __name__ == '__main__':
 				for j, t in zip(bunch, times):
 					j.comp_time = t
 
-			except (subprocess.TimeoutExpired, TimeoutExpired) :
+			except (subprocess.TimeoutExpired) :
 				print("Skipping, took more than 3600s")
 				pass
 
