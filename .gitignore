@@ -41,3 +41,4 @@ data/modules/BGSU/IL/3.2/lib/*
 data/modules/DESC/*.desc
 data/modules/CaRNAval/Subfiles
 data/modules/CaRNAval/__pycache__
+data/*
