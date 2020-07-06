@@ -980,17 +980,17 @@ if __name__ == '__main__':
 	print("loading files...")
 	RNAStrandContainer, RNAStrand_pk_counter = load_from_dbn(RNAStrandFile)
 	PseudobaseContainer, Pseudobase_pk_counter = load_from_dbn(PseudobaseFile)
-	StudycaseContainer, StudyCase_pk_counter = load_from_dbn(StudyCaseFile)
+	#StudycaseContainer, StudyCase_pk_counter = load_from_dbn(StudyCaseFile)
 
 	for nt, number in ignored_nt_dict.items():
 		print("ignored %d sequences because of char %c" % (number, nt))
 
 	RNAStrand_tot = len(RNAStrandContainer)
 	Pseudobase_tot = len(PseudobaseContainer)
-	StudyCase_tot = len(StudycaseContainer)
+	#StudyCase_tot = len(StudycaseContainer)
 	print("Loaded %d RNAs of length between 10 and 100 from RNA Strand. %d of them contain pseudoknots." % (RNAStrand_tot, RNAStrand_pk_counter))
 	print("Loaded %d RNAs of length between 10 and 100 from Pseudobase. %d of them contain pseudoknots." % (Pseudobase_tot, Pseudobase_pk_counter))
-	print("Loaded %d RNAs of length between 10 and 100 from study case. %d of them contain pseudoknots." % (StudyCase_tot, StudyCase_pk_counter))
+	#print("Loaded %d RNAs of length between 10 and 100 from study case. %d of them contain pseudoknots." % (StudyCase_tot, StudyCase_pk_counter))
 
 	#================= PREDICTION OF STRUCTURES ===============================
 
@@ -1060,6 +1060,7 @@ if __name__ == '__main__':
 					index = joblabel_list.index(j.label)
 					method.joblist[i] = fulljoblist[index] # point to the previous occurrence
 
+	"""
 	for instance in StudycaseContainer: # We need to define these separately because we do not want concurrency, to measure proper run times.
 		instance.add_method_evaluation(instance, "RNAsubopt", flat=True)
 		instance.add_method_evaluation(instance, "Biokop", flat=True)
@@ -1092,6 +1093,7 @@ if __name__ == '__main__':
 				else:
 					index = joblabel_list.index(j.label)
 					method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+	"""
 
 	# sort jobs in a tree structure
 	jobs = {}
@@ -1419,6 +1421,7 @@ if __name__ == '__main__':
 		print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value = ", test.pvalue)
 		return x_pseudobase_fully
 
+	"""
 	def print_StudyCase_results():
 		print("\nLoading study case results from files...")
 
@@ -1426,10 +1429,11 @@ if __name__ == '__main__':
 		for instance in StudycaseContainer:
 			instance.load_results()
 			instance.evaluate(verbose=True)
+	"""
 
 	x_noPK_fully, x_PK_fully = get_RNAStrand_statistics()
 	x_pseudobase_fully = get_Pseudobase_statistics()
-	print_StudyCase_results()
+	#print_StudyCase_results()
 
 	nbetter = [
 			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
