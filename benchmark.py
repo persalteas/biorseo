@@ -1772,7 +1772,10 @@ if __name__ == '__main__':
 		plt.xticks([1,2,3], ["MoIP '1by1'\n-\nMoIP 'chunk'", "MoIP '1by1'\n-\nRNAsubopt", "MoIP 'chunk'\n-\nRNAsubopt"])
 		plt.subplots_adjust(wspace=0.25, bottom=0.2, left=0.1, right=0.99)
 
+	# savefig() rajoutés par Louis Samedi soir
 	plot_best_MCCs(x_noPK_fully, x_PK_fully, x_pseudobase_fully)
+	plt.savefig("best_MCCs.png")
 	plot_more_info()
+	plt.savefig("detailed_stats.png")
 	compare_subopt_MoIP()
-	plt.show()
+	plt.savefig("compare_subopt_MOIP.png")
