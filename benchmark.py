@@ -1527,7 +1527,8 @@ if __name__ == '__main__':
 		# bplot = axes[0].boxplot([[]] + x_noPK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97], medianprops=dict(color="white"))
 		# for patch, color in zip(bplot['boxes'], colors):
 		#     patch.set_facecolor(color)
-		xpos = [ x for x in range(2,19) ]
+		#xpos = [ x for x in range(2,19) ]
+		xpos = [ x for x in range(19) ]
 		print(len(x_noPK_fully), len(xpos))
 		vplot = axes[0].violinplot(x_noPK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_noPK_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], colors[1:]):
