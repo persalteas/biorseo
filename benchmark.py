@@ -1681,6 +1681,7 @@ if __name__ == '__main__':
 			else:
 				tick.label2.set_fontsize(12)
 		xpos = [ x for x in range(1,19) ]
+		print(len(n), len(xpos))
 		plt.yticks([ 20*x for x in range(3) ])
 		plt.ylim((0,40))
 		for y in [ 10*x for x in range(8) ]:
@@ -1720,6 +1721,7 @@ if __name__ == '__main__':
 
 		# Figure : max inserted
 		xpos = [ x for x in range(1,17) ]
+		print(len(max_i), len(xpos))
 		axes[0].set_yticks([ 5*x for x in range(3) ])
 		for y in [ 2*x for x in range(7) ]:
 			axes[0].axhline(y=y, color="grey", linestyle="-", linewidth=0.5)
@@ -1733,6 +1735,7 @@ if __name__ == '__main__':
 
 		# Figure : insertion ratio
 		xpos = [1] + [ x for x in range(3,17) ]
+		print(len(r), len(xpos))
 		axes[1].set_ylim((-0.01, 1.01))
 		yticks = [ 0, 0.5, 1.0 ]
 		axes[1].set_yticks(yticks)
