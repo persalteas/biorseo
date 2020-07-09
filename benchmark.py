@@ -1529,7 +1529,7 @@ if __name__ == '__main__':
 		#     patch.set_facecolor(color)
 		#xpos = [ x for x in range(2,19) ]
 		xpos = [ x for x in range(19) ]
-		print(len(x_noPK_fully), len(xpos))
+		#print(len(x_noPK_fully), len(xpos))
 		vplot = axes[0].violinplot(x_noPK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_noPK_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], colors[1:]):
 			patch.set_facecolor(color)
@@ -1551,7 +1551,7 @@ if __name__ == '__main__':
 		#     patch.set_facecolor(color)
 		#xpos = [1] + [ i for i in range(5,19) ]
 		xpos = [ i for i in range(2,19) ]
-		print(len(x_PK_fully), len(xpos))
+		#print(len(x_PK_fully), len(xpos))
 		vplot = axes[1].violinplot(x_PK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_PK_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], [colors[0]] + colors[4:]):
 			patch.set_facecolor(color)
@@ -1573,7 +1573,7 @@ if __name__ == '__main__':
 		#     patch.set_facecolor(color)
 		#xpos = [ x for x in range(1,19) ]
 		xpos = [ x for x in range(20) ]
-		print(len(x_pseudobase_fully), len(xpos))
+		#print(len(x_pseudobase_fully), len(xpos))
 		vplot = axes[2].violinplot(x_pseudobase_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_pseudobase_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], colors):
 			patch.set_facecolor(color)
@@ -1682,7 +1682,7 @@ if __name__ == '__main__':
 				tick.label2.set_fontsize(12)
 		#xpos = [ x for x in range(1,19) ]
 		xpos = [ x for x in range(20) ]
-		print(len(n), len(xpos))
+		#print(len(n), len(xpos))
 		plt.yticks([ 20*x for x in range(3) ])
 		plt.ylim((0,40))
 		for y in [ 10*x for x in range(8) ]:
@@ -1721,8 +1721,9 @@ if __name__ == '__main__':
 				tick.label2.set_fontsize(12)
 
 		# Figure : max inserted
-		xpos = [ x for x in range(1,17) ]
-		print(len(max_i), len(xpos))
+		#xpos = [ x for x in range(1,17) ]
+		xpos = [ x for x in range(18) ]
+		#print(len(max_i), len(xpos))
 		axes[0].set_yticks([ 5*x for x in range(3) ])
 		for y in [ 2*x for x in range(7) ]:
 			axes[0].axhline(y=y, color="grey", linestyle="-", linewidth=0.5)
@@ -1735,8 +1736,9 @@ if __name__ == '__main__':
 		axes[0].set_ylabel("(A)", fontsize=12)
 
 		# Figure : insertion ratio
-		xpos = [1] + [ x for x in range(3,17) ]
-		print(len(r), len(xpos))
+		#xpos = [1] + [ x for x in range(3,17) ]
+		xpos = [ x for x in range(len(r)) ]
+		#print(len(r), len(xpos))
 		axes[1].set_ylim((-0.01, 1.01))
 		yticks = [ 0, 0.5, 1.0 ]
 		axes[1].set_yticks(yticks)
