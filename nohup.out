@@ -155,3 +155,9 @@ Number of RNAs that are better predicted by BiORSEO than Biokop on RNAStrand:
 [326, 326, 312, 312, 309, 305, 316, 306, 314, 304, 264, 258, 285, 285, 179, 179] / 344
 Number of RNAs that are better predicted by BiORSEO than Biokop on Pseudobase:
 [211, 211, 228, 219, 219, 220, 222, 217, 212, 210, 182, 177, 193, 189, 169, 169] / 264
+Traceback (most recent call last):
+  File "benchmark.py", line 1797, in <module>
+    plot_best_MCCs(x_noPK_fully, x_PK_fully, x_pseudobase_fully)
+  File "benchmark.py", line 1510, in plot_best_MCCs
+    for ax in axes:
+TypeError: 'AxesSubplot' object is not iterable
