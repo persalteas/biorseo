@@ -1523,6 +1523,7 @@ if __name__ == '__main__':
 			else:
 				tick.label2.set_fontsize(12)
 
+		"""
 		# Line 1 : no Pseudoknots
 		# bplot = axes[0].boxplot([[]] + x_noPK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97], medianprops=dict(color="white"))
 		# for patch, color in zip(bplot['boxes'], colors):
@@ -1566,6 +1567,7 @@ if __name__ == '__main__':
 			axes[1].add_line(bar1)
 			axes[1].add_line(bar2)
 		axes[1].set_ylabel("(B)\nmax MCC\n(%d RNAs)" % (len(x_PK_fully[0])), fontsize=12)
+		"""
 
 		# Line 3 : all methods on pseudoknotted dataset
 		# bplot = axes[2].boxplot(x_pseudobase_fully, vert=True, patch_artist=True, notch=False, whis=[3,97], medianprops=dict(color="white"))
