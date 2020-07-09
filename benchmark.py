@@ -1550,7 +1550,7 @@ if __name__ == '__main__':
 		# for patch, color in zip(bplot['boxes'], colors):
 		#     patch.set_facecolor(color)
 		#xpos = [1] + [ i for i in range(5,19) ]
-		xpos = [1] + [ i for i in range(19) ]
+		xpos = [ i for i in range(2,19) ]
 		print(len(x_PK_fully), len(xpos))
 		vplot = axes[1].violinplot(x_PK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_PK_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], [colors[0]] + colors[4:]):
