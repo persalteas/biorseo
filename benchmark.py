@@ -1233,7 +1233,8 @@ if __name__ == '__main__':
 		RNAs_fully_predicted_PK = [ x for x in RNAStrandContainer if x.has_complete_results(True)]
 
 		x_PK = [
-			[ rna.get_results("Biokop").max_mcc for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred],
+			#[ rna.get_results("Biokop").max_mcc for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred],
+			[],
 			[ rna.get_results("DESC-D.P.-A").max_mcc for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").n_pred],
 			[ rna.get_results("DESC-D.P.-B").max_mcc for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B").n_pred],
 			[ rna.get_results("DESC-ByP-A").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").n_pred],
@@ -1255,7 +1256,8 @@ if __name__ == '__main__':
 
 		# We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
 		x_PK_fully = [
-			[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_PK],
+			#[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_PK],
+			[],
 			[ rna.get_results("DESC-D.P.-A").max_mcc for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("DESC-D.P.-B").max_mcc for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("DESC-ByP-A").max_mcc  for rna in RNAs_fully_predicted_PK],
@@ -1329,7 +1331,8 @@ if __name__ == '__main__':
 		RNAs_fully_predicted_Pseudobase = [ x for x in PseudobaseContainer if x.has_complete_results(True)]
 
 		x_pseudobase = [
-			[ rna.get_results("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred],
+			#[ rna.get_results("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred],
+			[],
 			[ rna.get_results("RNAsubopt").max_mcc for rna in PseudobaseContainer if rna.get_results("RNAsubopt").n_pred],
 			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in PseudobaseContainer if rna.get_results("RNA-MoIP (1by1)").n_pred],
 			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in PseudobaseContainer if rna.get_results("RNA-MoIP (chunk)").n_pred],
@@ -1354,7 +1357,8 @@ if __name__ == '__main__':
 
 		# We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
 		x_pseudobase_fully = [
-			[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
+			#[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
+			[],
 			[ rna.get_results("RNAsubopt").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
@@ -1509,7 +1513,7 @@ if __name__ == '__main__':
 
 		for ax in axes:
 			ax.set_ylim((0.5, 1.01))
-			ax.set_xlim((0,20))
+			ax.set_xlim((0,19))
 			yticks = [ i/10 for i in range(5,11) ]
 			ax.set_yticks(yticks)
 			for y in yticks:
@@ -1594,7 +1598,7 @@ if __name__ == '__main__':
 		# ======= number of solutions, insertion ratio, etc ========================
 
 		n = [
-			[ rna.get_results("Biokop").n_pred for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred ],
+			#[ rna.get_results("Biokop").n_pred for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred ],
 			[ rna.get_results("RNAsubopt").n_pred for rna in RNAStrandContainer if rna.get_results("RNAsubopt").n_pred ],
 			[ rna.get_results("RNA-MoIP (1by1)").n_pred for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (1by1)").n_pred ],
 			[ rna.get_results("RNA-MoIP (chunk)").n_pred for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (chunk)").n_pred ],
@@ -1665,7 +1669,8 @@ if __name__ == '__main__':
 		plt.suptitle(" \n ")
 		plt.subplots_adjust(left=0.05, right=0.99, top=0.5, bottom=0.05)
 		labels = [
-			"Biokop","RNAsubopt","RNA-MoIP\n1by1", "RNA-MoIP\nchunk",
+			#"Biokop",
+			"RNAsubopt","RNA-MoIP\n1by1", "RNA-MoIP\nchunk",
 			"$f_{1A}$", "$f_{1B}$",
 			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
 			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
@@ -1682,7 +1687,7 @@ if __name__ == '__main__':
 			else:
 				tick.label2.set_fontsize(12)
 		#xpos = [ x for x in range(1,19) ]
-		xpos = [ x for x in range(len(n)) ]
+		xpos = [ x for x in range(20) ]
 		#print(len(n), len(xpos))
 		plt.yticks([ 20*x for x in range(3) ])
 		plt.ylim((0,40))
@@ -1723,7 +1728,7 @@ if __name__ == '__main__':
 
 		# Figure : max inserted
 		#xpos = [ x for x in range(1,17) ]
-		xpos = [ x for x in range(len(max_i)) ]
+		xpos = [ x for x in range(18) ]
 		#print(len(max_i), len(xpos))
 		axes[0].set_yticks([ 5*x for x in range(3) ])
 		for y in [ 2*x for x in range(7) ]:
