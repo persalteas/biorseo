@@ -1685,7 +1685,7 @@ if __name__ == '__main__':
 			else:
 				tick.label2.set_fontsize(12)
 		#xpos = [ x for x in range(1,19) ]
-		xpos = [ x for x in range(20) ]
+		xpos = [ x for x in range(len(n)) ]
 		#print(len(n), len(xpos))
 		plt.yticks([ 20*x for x in range(3) ])
 		plt.ylim((0,40))
