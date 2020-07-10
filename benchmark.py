@@ -888,7 +888,7 @@ class RNA:
 	def load_results(self, include_noPK=False):
 		self.load_RNAsubopt_results()
 		self.load_RNAMoIP_results()
-		self.load_biokop_results()
+		#self.load_biokop_results()
 		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A", self.get_results("DESC-D.P.-A"))
 		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B", self.get_results("DESC-D.P.-B"))
 		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A", self.get_results("DESC-ByP-A"))
@@ -952,7 +952,7 @@ class RNA:
 
 			return True
 		else:
-			if not path.isfile(outputDir + "PK/" + self.basename + ".biok"): return False
+			#if not path.isfile(outputDir + "PK/" + self.basename + ".biok"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A"): return False
@@ -1000,7 +1000,7 @@ if __name__ == '__main__':
 
 	for instance in PseudobaseContainer + RNAStrandContainer:
 		instance.add_method_evaluation(instance, "RNAsubopt")
-		instance.add_method_evaluation(instance, "Biokop")
+		#instance.add_method_evaluation(instance, "Biokop")
 		instance.add_method_evaluation(instance, "RNA-MoIP (1by1)")
 		instance.add_method_evaluation(instance, "RNA-MoIP (chunk)")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="A")
@@ -1063,7 +1063,7 @@ if __name__ == '__main__':
 	
 	for instance in StudycaseContainer: # We need to define these separately because we do not want concurrency, to measure proper run times.
 		instance.add_method_evaluation(instance, "RNAsubopt", flat=True)
-		instance.add_method_evaluation(instance, "Biokop", flat=True)
+		#instance.add_method_evaluation(instance, "Biokop", flat=True)
 		instance.add_method_evaluation(instance, "RNA-MoIP (1by1)", flat=True)
 		instance.add_method_evaluation(instance, "RNA-MoIP (chunk)", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="A", flat=True)
