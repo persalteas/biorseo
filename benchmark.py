@@ -1566,8 +1566,8 @@ if __name__ == '__main__':
 		quartile1, medians, quartile3 = np.percentile(x_PK_fully, [25, 50, 75], axis=1)
 		print(len(medians), len(xpos))
 		axes[1].scatter(xpos, medians[3:], marker='o', color='k', s=30, zorder=3)
-		axes[1].vlines(xpos[3:], quartile1, quartile3, color='k', linestyle='-', lw=1)
-		for x, y1, y2 in zip(xpos[:3], quartile1, quartile3):
+		axes[1].vlines(xpos, quartile1, quartile3, color='k', linestyle='-', lw=1)
+		for x, y1, y2 in zip(xpos[3:], quartile1, quartile3):
 			bar1 = Line2D([x-0.1, x+0.1], [y1, y1], color="k", lw=1)
 			bar2 = Line2D([x-0.1, x+0.1], [y2, y2], color="k", lw=1)
 			axes[1].add_line(bar1)
