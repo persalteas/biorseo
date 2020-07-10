@@ -36,7 +36,6 @@ Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and 
 Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawB are equal', p-value =  3.5353095584231497e-09
 
 With PK:
-[91m5[0m/344 Biokop predictions
 [32m344[0m/344 biorseo + DESC + Patternmatch + f1A predictions
 [32m344[0m/344 biorseo + DESC + Patternmatch + f1B predictions
 [32m344[0m/344 biorseo + DESC + BayesPairing + f1A predictions
@@ -54,7 +53,7 @@ With PK:
 [91m189[0m/344 biorseo + RIN + Patternmatch + f1A predictions
 [91m183[0m/344 biorseo + RIN + Patternmatch + f1B predictions
 ==> [91m1[0m/344 ARN were predicted with all methods successful.
-Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  0.4529608094869941
+Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  0.45141721122572465
 Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  1.0
 Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  1.0
 Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  1.0
@@ -65,7 +64,6 @@ Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Ja
 Loading Pseudobase results from files...
 
 With PK:
-[91m69[0m/264 Biokop predictions
 [32m264[0m/264 RNAsubopt predictions
 [91m211[0m/264 RNA-MoIP 1 by 1 predictions
 [32m264[0m/264 RNA-MoIP chunk predictions
@@ -86,13 +84,13 @@ With PK:
 [91m224[0m/264 biorseo + RIN + Patternmatch + f1A predictions
 [91m215[0m/264 biorseo + RIN + Patternmatch + f1B predictions
 ==> [91m59[0m/264 ARN were predicted with all methods successful.
-Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  4.2264426425810605e-35
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  0.004196282094818923
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  0.00070231004917522
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  3.714206377756481e-05
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  2.0242813459841215e-05
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  2.9065817204277694e-06
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  2.066939749452736e-07
+Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  9.573076420950266e-33
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  8.982890514404488e-07
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  5.967035429782897e-07
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  2.4048743461135568e-05
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  0.0007542938584198017
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  0.005976377417615062
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  2.29820585224383e-05
 
 Loading study case results from files...
 True 2D                 ((((((..(((.........)))((((((((...))))))))...(((((.......))))))))))).....
