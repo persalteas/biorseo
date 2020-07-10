@@ -52,14 +52,14 @@ With PK:
 [91m343[0m/344 biorseo + BGSU + BayesPairing + f1D predictions
 [91m189[0m/344 biorseo + RIN + Patternmatch + f1A predictions
 [91m183[0m/344 biorseo + RIN + Patternmatch + f1B predictions
-==> [91m1[0m/344 ARN were predicted with all methods successful.
-Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  0.45141721122572465
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  1.0
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  1.0
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  1.0
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  1.0
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  1.0
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  1.0
+==> [91m156[0m/344 ARN were predicted with all methods successful.
+Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  3.043824319550827e-42
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  0.07391983350941586
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  0.0001658212207935636
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  0.06631715826422059
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  0.02299481506059676
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  0.03856521853962708
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  0.00025869850334587135
 
 Loading Pseudobase results from files...
 
@@ -83,14 +83,14 @@ With PK:
 [32m264[0m/264 biorseo + BGSU + BayesPairing + f1D predictions
 [91m224[0m/264 biorseo + RIN + Patternmatch + f1A predictions
 [91m215[0m/264 biorseo + RIN + Patternmatch + f1B predictions
-==> [91m59[0m/264 ARN were predicted with all methods successful.
-Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  9.573076420950266e-33
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  8.982890514404488e-07
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  5.967035429782897e-07
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  2.4048743461135568e-05
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  0.0007542938584198017
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  0.005976377417615062
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  2.29820585224383e-05
+==> [91m187[0m/264 ARN were predicted with all methods successful.
+Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  4.120306642398156e-151
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  1.1607040271044848e-19
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  1.7352839307410563e-15
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  6.658643627355719e-19
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  1.078145277587371e-15
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  3.381706651701195e-13
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  1.9061105432914547e-13
 
 Loading study case results from files...
 True 2D                 ((((((..(((.........)))((((((((...))))))))...(((((.......))))))))))).....
@@ -149,7 +149,3 @@ BGSU-Jar3d-A         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.
 BGSU-Jar3d-B         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-C         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-D         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
-Number of RNAs that are better predicted by BiORSEO than Biokop on RNAStrand:
-[326, 326, 312, 312, 309, 305, 316, 306, 314, 304, 264, 258, 285, 285, 179, 179] / 344
-Number of RNAs that are better predicted by BiORSEO than Biokop on Pseudobase:
-[211, 211, 228, 219, 219, 220, 222, 217, 212, 210, 182, 177, 193, 189, 169, 169] / 264
