@@ -1499,7 +1499,8 @@ if __name__ == '__main__':
 			"$f_{1A}$", "$f_{1B}$",
 			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
 			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
-			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$"
+			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
+			"$f_{1A}$", "$f_{1B}$"
 		]
 
 		fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10,3.5), dpi=80)
@@ -1508,7 +1509,7 @@ if __name__ == '__main__':
 
 		for ax in axes:
 			ax.set_ylim((0.5, 1.01))
-			ax.set_xlim((0,19))
+			ax.set_xlim((0,20))
 			yticks = [ i/10 for i in range(5,11) ]
 			ax.set_yticks(yticks)
 			for y in yticks:
@@ -1523,13 +1524,12 @@ if __name__ == '__main__':
 			else:
 				tick.label2.set_fontsize(12)
 
-		"""
 		# Line 1 : no Pseudoknots
 		# bplot = axes[0].boxplot([[]] + x_noPK_fully, vert=True, patch_artist=True, notch=False, whis=[3,97], medianprops=dict(color="white"))
 		# for patch, color in zip(bplot['boxes'], colors):
 		#     patch.set_facecolor(color)
 		#xpos = [ x for x in range(2,19) ]
-		xpos = [ x for x in range(19) ]
+		xpos = [ x for x in range(len(x_noPK_fully)) ]
 		#print(len(x_noPK_fully), len(xpos))
 		vplot = axes[0].violinplot(x_noPK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_noPK_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], colors[1:]):
@@ -1551,7 +1551,7 @@ if __name__ == '__main__':
 		# for patch, color in zip(bplot['boxes'], colors):
 		#     patch.set_facecolor(color)
 		#xpos = [1] + [ i for i in range(5,19) ]
-		xpos = [ i for i in range(2,19) ]
+		xpos = [ i for i in range(len(x_PK_fully)) ]
 		#print(len(x_PK_fully), len(xpos))
 		vplot = axes[1].violinplot(x_PK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_PK_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], [colors[0]] + colors[4:]):
@@ -1567,14 +1567,13 @@ if __name__ == '__main__':
 			axes[1].add_line(bar1)
 			axes[1].add_line(bar2)
 		axes[1].set_ylabel("(B)\nmax MCC\n(%d RNAs)" % (len(x_PK_fully[0])), fontsize=12)
-		"""
 
 		# Line 3 : all methods on pseudoknotted dataset
 		# bplot = axes[2].boxplot(x_pseudobase_fully, vert=True, patch_artist=True, notch=False, whis=[3,97], medianprops=dict(color="white"))
 		# for patch, color in zip(bplot['boxes'], colors):
 		#     patch.set_facecolor(color)
 		#xpos = [ x for x in range(1,19) ]
-		xpos = [ x for x in range(20) ]
+		xpos = [ x for x in range(len(x_pseudobase_fully)) ]
 		#print(len(x_pseudobase_fully), len(xpos))
 		vplot = axes[2].violinplot(x_pseudobase_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_pseudobase_fully[0]), positions=xpos)
 		for patch, color in zip(vplot['bodies'], colors):
@@ -1683,7 +1682,7 @@ if __name__ == '__main__':
 			else:
 				tick.label2.set_fontsize(12)
 		#xpos = [ x for x in range(1,19) ]
-		xpos = [ x for x in range(20) ]
+		xpos = [ x for x in range(len(n)) ]
 		#print(len(n), len(xpos))
 		plt.yticks([ 20*x for x in range(3) ])
 		plt.ylim((0,40))
@@ -1724,7 +1723,7 @@ if __name__ == '__main__':
 
 		# Figure : max inserted
 		#xpos = [ x for x in range(1,17) ]
-		xpos = [ x for x in range(18) ]
+		xpos = [ x for x in range(len(max_i)) ]
 		#print(len(max_i), len(xpos))
 		axes[0].set_yticks([ 5*x for x in range(3) ])
 		for y in [ 2*x for x in range(7) ]:
