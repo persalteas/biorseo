@@ -1438,7 +1438,7 @@ if __name__ == '__main__':
 	x_noPK_fully, x_PK_fully = get_RNAStrand_statistics()
 	x_pseudobase_fully = get_Pseudobase_statistics()
 	print_StudyCase_results()
-"""
+	"""
 	nbetter = [
 			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
 			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
@@ -1482,7 +1482,7 @@ if __name__ == '__main__':
 		]
 	print("Number of RNAs that are better predicted by BiORSEO than Biokop on Pseudobase:")
 	print(nbetter, "/", len(PseudobaseContainer))
-"""
+	"""
 
 	# ================= PLOTS OF RESULTS =======================================
 	colors = [
