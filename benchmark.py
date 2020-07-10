@@ -1234,6 +1234,7 @@ if __name__ == '__main__':
 
 		x_PK = [
 			#[ rna.get_results("Biokop").max_mcc for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred],
+			[],
 			[ rna.get_results("DESC-D.P.-A").max_mcc for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").n_pred],
 			[ rna.get_results("DESC-D.P.-B").max_mcc for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B").n_pred],
 			[ rna.get_results("DESC-ByP-A").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").n_pred],
@@ -1280,7 +1281,6 @@ if __name__ == '__main__':
 		print()
 		print("With PK:")
 		#print("%s Biokop predictions" % is_all(len(x_PK[0]), RNAStrand_tot))
-		x_PK = [] + x_PK
 		print("%s biorseo + DESC + Patternmatch + f1A predictions" % is_all(len(x_PK[1]), RNAStrand_tot))
 		print("%s biorseo + DESC + Patternmatch + f1B predictions" % is_all(len(x_PK[2]), RNAStrand_tot))
 		print("%s biorseo + DESC + BayesPairing + f1A predictions" % is_all(len(x_PK[3]), RNAStrand_tot))
@@ -1331,6 +1331,7 @@ if __name__ == '__main__':
 
 		x_pseudobase = [
 			#[ rna.get_results("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred],
+			[],
 			[ rna.get_results("RNAsubopt").max_mcc for rna in PseudobaseContainer if rna.get_results("RNAsubopt").n_pred],
 			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in PseudobaseContainer if rna.get_results("RNA-MoIP (1by1)").n_pred],
 			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in PseudobaseContainer if rna.get_results("RNA-MoIP (chunk)").n_pred],
@@ -1382,7 +1383,6 @@ if __name__ == '__main__':
 		print()
 		print("With PK:")
 		#print("%s Biokop predictions" % is_all(len(x_pseudobase[0]), Pseudobase_tot))
-		x_pseudobase = [] + x_pseudobase
 		print("%s RNAsubopt predictions" % is_all(len(x_pseudobase[1]), Pseudobase_tot))
 		print("%s RNA-MoIP 1 by 1 predictions" % is_all(len(x_pseudobase[2]), Pseudobase_tot))
 		print("%s RNA-MoIP chunk predictions" % is_all(len(x_pseudobase[3]), Pseudobase_tot))
