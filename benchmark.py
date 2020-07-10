@@ -1559,12 +1559,15 @@ if __name__ == '__main__':
 		xpos = [ i for i in range(3,len(x_PK_fully)) ]
 		#print(len(x_PK_fully), len(xpos))
 		vplot = axes[1].violinplot(x_PK_fully[3:], showmeans=False, showmedians=False, showextrema=False, points=len(x_PK_fully[0]), positions=xpos)
-		print(len(vplot['bodies']), len(xpos))
+		#print(len(vplot['bodies']), len(xpos))
 		for patch, color in zip(vplot['bodies'], colors[4:]):
 			patch.set_facecolor(color)
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
-		quartile1, medians, quartile3 = np.percentile(x_PK_fully, [25, 50, 75], axis=1)[3:]
+		quartile1, medians, quartile3 = np.percentile(x_PK_fully, [25, 50, 75], axis=1)
+		quartile1 = quartile1[3:]
+		medians = medians[3:]
+		quartile3 = quartile3[3:]
 		print(len(medians), len(xpos))
 		axes[1].scatter(xpos, medians, marker='o', color='k', s=30, zorder=3)
 		axes[1].vlines(xpos, quartile1, quartile3, color='k', linestyle='-', lw=1)
