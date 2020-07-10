@@ -1502,8 +1502,7 @@ if __name__ == '__main__':
 			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$"
 		]
 
-		#fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10,3.5), dpi=80)
-		fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(10,3.5), dpi=80)
+		fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10,3.5), dpi=80)
 		fig.suptitle(" \n ")
 		fig.subplots_adjust(left=0.1, right=0.99, top=0.83, bottom=0.02)
 
