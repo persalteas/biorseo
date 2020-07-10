@@ -1556,10 +1556,10 @@ if __name__ == '__main__':
 		# for patch, color in zip(bplot['boxes'], colors):
 		#     patch.set_facecolor(color)
 		#xpos = [1] + [ i for i in range(5,19) ]
-		xpos = [ i for i in range(len(x_PK_fully)) ]
+		xpos = [ i for i in range(3,len(x_PK_fully)) ]
 		#print(len(x_PK_fully), len(xpos))
 		vplot = axes[1].violinplot(x_PK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_PK_fully[0]), positions=xpos)
-		for patch, color in zip(vplot['bodies'], [colors[0]] + colors[4:]):
+		for patch, color in zip(vplot['bodies'], colors[4:]):
 			patch.set_facecolor(color)
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
@@ -1581,7 +1581,7 @@ if __name__ == '__main__':
 		xpos = [ x for x in range(len(x_pseudobase_fully)) ]
 		#print(len(x_pseudobase_fully), len(xpos))
 		vplot = axes[2].violinplot(x_pseudobase_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_pseudobase_fully[0]), positions=xpos)
-		for patch, color in zip(vplot['bodies'], colors):
+		for patch, color in zip(vplot['bodies'], colors[1:]):
 			patch.set_facecolor(color)
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
