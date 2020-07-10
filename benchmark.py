@@ -1536,7 +1536,7 @@ if __name__ == '__main__':
 		xpos = [ x for x in range(len(x_noPK_fully)) ]
 		#print(len(x_noPK_fully), len(xpos))
 		vplot = axes[0].violinplot(x_noPK_fully, showmeans=False, showmedians=False, showextrema=False, points=len(x_noPK_fully[0]), positions=xpos)
-		for patch, color in zip(vplot['bodies'], colors[1:]):
+		for patch, color in zip(vplot['bodies'][1:], colors[2:]):
 			patch.set_facecolor(color)
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
