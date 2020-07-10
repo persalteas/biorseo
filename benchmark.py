@@ -1497,8 +1497,8 @@ if __name__ == '__main__':
 
 	def plot_best_MCCs(x_noPK_fully, x_PK_fully, x_pseudobase_fully):
 
+		#"Biokop\n", 
 		labels = [
-			#"Biokop\n", 
 			"RNA\nsubopt", "RNA-\nMoIP\n1by1", "RNA-\nMoIP\nchunk",
 			"$f_{1A}$", "$f_{1B}$",
 			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
