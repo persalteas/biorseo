@@ -531,6 +531,57 @@ class BiorseoInstance:
                     rna.write('\n')
         rna.close()
 
+
+    def launch_BayesPairing2(module_type, seq_, header_, basename):
+
+        cmd = ["python3.7", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
+
+        logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
+        logfile.write(" ".join(cmd))
+        logfile.write("\n")
+        logfile.close()
+
+        chdir(self.bypdir)
+        out = subprocess.check_output(cmd).decode('utf-8')
+        Byp2Log = out.split('\n')
+
+        #remove the 2 first lines of output, and the last one
+        Byp2Log.pop(0)
+        Byp2Log.pop(0)
+        Byp2Log.pop()
+
+        lines = []
+        for i in range(len(Byp2Log)):
+            line = Byp2Log[i].split()
+
+            #remove "|",  ",", "-", and the sequence
+            while "|" in line:
+                line.remove("|")
+            while "," in line:
+                line.remove(",")
+            while "-" in line:
+                line.remove("-")
+            line.pop()
+
+            lines.append(line)
+
+
+        if module_type=="rna3dmotif":
+            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp2.csv", "w")
+        else:
+            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp2.csv", "w")
+        rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
+
+        for line in lines:
+            rna.write(module_type)
+            for i in range(len(line)-1):
+                rna.write(line[i] + ",")
+            rna.write(line[-1] + "\n")
+
+        rna.close()
+
+
+
     def execute_job(self, j):
         
         running_stats[0] += 1
@@ -639,16 +690,29 @@ class BiorseoInstance:
                 self.joblist.append(Job(function=self.launch_JAR3D, args=[instance.seq_, instance.header], priority=3, how_many_in_parallel=1))
                 priority = 4
             if self.type == "byp":
+
                 method_type = "--bayespaircsv"
+
                 if self.modules == "desc":
                     ext = ".byp"
                     csv = self.tempDir + instance.header + ".byp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+
+                    ext = ".byp2"
+                    csv = self.tempDir + instance.header + ".byp2.csv"
+                    self.joblist.append(Job(function=self.launch_BayesPairing2, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp"
                     csv = self.tempDir + instance.header + ".bgsubyp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+
+                    ext = ".bgsubyp2"
+                    csv = self.tempDir + instance.header + ".bgsubyp2.csv"
+                    self.joblist.append(Job(function=self.launch_BayesPairing2, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+
                 priority = 2
+
             if self.type == "dpm":
                 method_type = "--descfolder"
                 csv = self.descfolder

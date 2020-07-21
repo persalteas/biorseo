@@ -28,6 +28,7 @@ import ast, time
 biorseoDir = path.realpath(".")
 jar3dexec = "/opt/jar3d_2014-12-11.jar"
 bypdir = "/opt/BayesPairing/bayespairing/src"
+byp2dir = "/opt/rnabayespairing2.git/bayespairing/src"
 moipdir = "/opt/RNAMoIP/Src/RNAMoIP.py"
 biokopdir = "/opt/biokop/biokop"
 runDir = path.dirname(path.realpath(__file__))
@@ -286,6 +287,60 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 						rna.write(','+str(p)+','+str(q))
 				rna.write('\n')
 	rna.close()
+
+
+
+def launch_BayesPairing2(module_type, seq_, header_, basename):
+
+	cmd = ["python3.7", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", 1000, "-d", module_type]
+
+	logfile = open(runDir + "/log_of_the_run.sh", 'a')
+	logfile.write(" ".join(cmd))
+	logfile.write("\n")
+	logfile.close()
+
+	chdir(byp2dir)
+	out = subprocess.check_output(cmd).decode('utf-8')
+	Byp2Log = out.split('\n')
+
+	#remove the 2 first lines of output, and the last one
+	Byp2Log.pop(0)
+	Byp2Log.pop(0)
+	Byp2Log.pop()
+
+	lines = []
+	for i in range(len(Byp2Log)):
+		line = Byp2Log[i].split()
+
+		#remove "|",  ",", "-", and the sequence
+		while "|" in line:
+			line.remove("|")
+		while "," in line:
+			line.remove(",")
+		while "-" in line:
+			line.remove("-")
+		line.pop()
+
+		lines.append(line)
+
+
+	if module_type=="rna3dmotif":
+		rna = open(outputDir + basename + ".desc_byp2.csv", "w")
+	else:
+		rna = open(outputDir + basename + ".bgsu_byp2.csv", "w")
+	rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
+
+	for line in lines:
+		rna.write(module_type)
+		for i in range(len(line)-1):
+			rna.write(line[i] + ",")
+		rna.write(line[-1] + "\n")
+
+	rna.close()
+
+
+
+
 
 def launch_RNAMoIP_worker(c):
 	# launch gurobi
@@ -724,6 +779,10 @@ class Method:
 
 			self.joblist.append(Job(function=launch_BayesPairing, args=[module_type_arg, instance.seq_, instance.header_, basename],
 								how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp.csv", label=f"{basename} {self.data_source}-ByP"))
+
+			if module_type_arg != "carnaval":
+				self.joblist.append(Job(function=launch_BayesPairing2, args=[module_type_arg, instance.seq_, instance.header_, basename],
+								how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp2.csv", label=f"{basename} {self.data_source}-ByP"))
 
 		if self.tool == "biorseo":
 			c = [ biorseoDir+"/bin/biorseo", "-s", fasta ]
