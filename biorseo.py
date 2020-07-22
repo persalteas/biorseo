@@ -290,7 +290,7 @@ class BiorseoInstance:
                             continue
                         remove(dst_file)
                     move(src_file, dst_dir)
-        subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
+        #subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
 
     def enumerate_loops(self, s):
         def resort(unclosedLoops):
