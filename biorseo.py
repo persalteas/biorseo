@@ -572,7 +572,6 @@ class BiorseoInstance:
 
             if line != []:
                 if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
-                    print("AAAAAAAAAAAAAAAAAH")
                     break
                 line.pop() #remove the sequence
 
@@ -634,6 +633,7 @@ class BiorseoInstance:
         nprio = max(jobs.keys())
 
         for i in range(1,nprio+1):
+            print(len(jobs), i)
             if not len(jobs[i].keys()): continue
 
             # check the thread numbers
