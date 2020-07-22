@@ -542,7 +542,8 @@ class BiorseoInstance:
         logfile.write("\n")
         logfile.close()
 
-        chdir(self.bypdir)
+        #chdir(self.bypdir)
+        chdir("/opt/rnabayespairing2.git/bayespairing/src")
         out = subprocess.check_output(cmd).decode('utf-8')
         Byp2Log = out.split('\n')
 
@@ -570,7 +571,9 @@ class BiorseoInstance:
         if module_type=="rna3dmotif":
             rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp2.csv", "w")
         else:
+            print("eh")
             rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp2.csv", "w")
+            print("oh")
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
 
         for line in lines:
