@@ -555,6 +555,7 @@ class BiorseoInstance:
         out = subprocess.check_output(cmd).decode('utf-8')
         #Byp2Log = out.split('\n')
         Byp2Log = out.splitlines()
+        print(Byp2Log)
 
         #remove the 2 first lines of output, and the last one
         Byp2Log.pop(0)
@@ -563,7 +564,7 @@ class BiorseoInstance:
 
         lines = []
         for i in range(len(Byp2Log)):
-            print(Byp2Log[i])
+            #print(Byp2Log[i])
             line = Byp2Log[i].split()
 
             #remove "|",  ",", "-", and the sequence
