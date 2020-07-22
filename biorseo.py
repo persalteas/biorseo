@@ -156,7 +156,8 @@ class BiorseoInstance:
         self.forward_options = []
         self.jar3dexec = "/jar3d_2014-12-11.jar"
         self.bypdir = "/byp/src"
-        self.biorseoDir = "/biorseo"
+        #self.biorseoDir = "/biorseo"
+        self.biorseoDir = "./"
         self.HLmotifDir = "/modules/BGSU/HL/3.2/lib"
         self.ILmotifDir = "/modules/BGSU/IL/3.2/lib"
         self.descfolder = "/modules/DESC"
