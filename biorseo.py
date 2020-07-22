@@ -553,7 +553,8 @@ class BiorseoInstance:
         #chdir(self.bypdir)
         chdir("/opt/rnabayespairing2.git/bayespairing/src")
         out = subprocess.check_output(cmd).decode('utf-8')
-        Byp2Log = out.split('\n')
+        #Byp2Log = out.split('\n')
+        Byp2Log = out.splitlines()
 
         #remove the 2 first lines of output, and the last one
         Byp2Log.pop(0)
