@@ -290,7 +290,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 
 
 
-def launch_BayesPairing2(module_type, seq_, header_, basename):
+	def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	if module_type=="rna3dmotif":
 		BP2_type = "rna3dmotif"
@@ -308,16 +308,16 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	out = subprocess.check_output(cmd).decode('utf-8')
 	Byp2Log = out.splitlines()
 
-    #remove what is not in the original input
-    Byp2Log.pop(0)
-    Byp2Log.pop(0)
-    Byp2Log.pop()
-    Byp2Log.pop()
+	#remove what is not in the original input
+	Byp2Log.pop(0)
+	Byp2Log.pop(0)
+	Byp2Log.pop()
+	Byp2Log.pop()
 
-    #remove the 2 first lines of output
-    Byp2Log.pop(0)
-    Byp2Log.pop(0)
-    
+	#remove the 2 first lines of output
+	Byp2Log.pop(0)
+	Byp2Log.pop(0)
+
 	lines = []
 	for i in range(len(Byp2Log)):
 		line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
