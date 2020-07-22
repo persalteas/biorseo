@@ -575,11 +575,10 @@ class BiorseoInstance:
             
             if line != []:
                 line.pop() #remove the sequence
-                print(Byp2Log[i])
-                print(line)
 
                 if line != []:
                     lines.append(line)
+                    print(line)
 
 
         if module_type=="rna3dmotif":
