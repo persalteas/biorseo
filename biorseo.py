@@ -561,6 +561,7 @@ class BiorseoInstance:
         Byp2Log.pop(0)
         Byp2Log.pop()
         Byp2Log.pop()
+        Byp2Log.pop()
 
         #remove the 2 first lines of output, and the last one
         Byp2Log.pop(0)
