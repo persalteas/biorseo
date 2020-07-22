@@ -292,7 +292,12 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 
 def launch_BayesPairing2(module_type, seq_, header_, basename):
 
-	cmd = ["python3.7", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", 1000, "-d", module_type]
+	if module_type=="rna3dmotif":
+        BP2_type = "rna3dmotif"
+    else:
+        BP2_type = "3DmotifAtlas_ALL"
+
+    cmd = ["python3.7", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
@@ -301,27 +306,30 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	chdir(byp2dir)
 	out = subprocess.check_output(cmd).decode('utf-8')
-	Byp2Log = out.split('\n')
+    Byp2Log = out.splitlines()
 
-	#remove the 2 first lines of output, and the last one
-	Byp2Log.pop(0)
-	Byp2Log.pop(0)
-	Byp2Log.pop()
+    #remove what is not in the original input
+    Byp2Log.pop(0)
+    Byp2Log.pop(0)
+    Byp2Log.pop()
+    Byp2Log.pop()
+
+    #remove the 2 first lines of output
+    Byp2Log.pop(0)
+    Byp2Log.pop(0)
 
 	lines = []
-	for i in range(len(Byp2Log)):
-		line = Byp2Log[i].split()
+    for i in range(len(Byp2Log)):
+        line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
 
-		#remove "|",  ",", "-", and the sequence
-		while "|" in line:
-			line.remove("|")
-		while "," in line:
-			line.remove(",")
-		while "-" in line:
-			line.remove("-")
-		line.pop()
+        if line != []:
+            if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
+                break
+            line.pop() #remove the sequence
 
-		lines.append(line)
+            if line != []:
+                lines.append(line)
+                #print(line)
 
 
 	if module_type=="rna3dmotif":
@@ -337,8 +345,6 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		rna.write(line[-1] + "\n")
 
 	rna.close()
-
-
 
 
 
