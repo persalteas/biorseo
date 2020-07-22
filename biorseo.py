@@ -632,21 +632,21 @@ class BiorseoInstance:
             jobs[job.priority_][job.nthreads].append(job)
         nprio = max(jobs.keys())
 
-        for i in range(1,nprio+1):
-            print(len(jobs), i)
-            if not len(jobs[i].keys()): continue
+        if len(jobs) > 1 :
+            for i in range(1,nprio+1):
+                if not len(jobs[i].keys()): continue
 
-            # check the thread numbers
-            different_thread_numbers = [n for n in jobs[i].keys()]
-            different_thread_numbers.sort()
+                # check the thread numbers
+                different_thread_numbers = [n for n in jobs[i].keys()]
+                different_thread_numbers.sort()
 
-            for n in different_thread_numbers:
-                bunch = jobs[i][n]
-                if not len(bunch): continue
-                pool = MyPool(processes=n)
-                pool.map(self.execute_job, bunch)
-                pool.close()
-                pool.join()
+                for n in different_thread_numbers:
+                    bunch = jobs[i][n]
+                    if not len(bunch): continue
+                    pool = MyPool(processes=n)
+                    pool.map(self.execute_job, bunch)
+                    pool.close()
+                    pool.join()
 
     def list_jobs(self):
 
