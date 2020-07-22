@@ -577,7 +577,7 @@ class BiorseoInstance:
 
                 if line != []:
                     lines.append(line)
-                    print(line)
+                    #print(line)
 
 
         if module_type=="rna3dmotif":
