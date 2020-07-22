@@ -291,7 +291,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 
 
 def launch_BayesPairing2(module_type, seq_, header_, basename):
-	
+
 	if module_type=="rna3dmotif":
 		BP2_type = "rna3dmotif"
 	else:
@@ -306,7 +306,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	chdir(byp2dir)
 	out = subprocess.check_output(cmd).decode('utf-8')
-    Byp2Log = out.splitlines()
+	Byp2Log = out.splitlines()
 
     #remove what is not in the original input
     Byp2Log.pop(0)
@@ -317,19 +317,19 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
     #remove the 2 first lines of output
     Byp2Log.pop(0)
     Byp2Log.pop(0)
-
+    
 	lines = []
-    for i in range(len(Byp2Log)):
-        line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+	for i in range(len(Byp2Log)):
+		line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
 
-        if line != []:
-            if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
-                break
-            line.pop() #remove the sequence
+		if line != []:
+			if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
+				break
+			line.pop() #remove the sequence
 
-            if line != []:
-                lines.append(line)
-                #print(line)
+			if line != []:
+				lines.append(line)
+				#print(line)
 
 
 	if module_type=="rna3dmotif":
