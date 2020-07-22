@@ -494,7 +494,7 @@ class BiorseoInstance:
 
     def launch_BayesPairing(self, module_type, seq_, header_):
         #cmd = ["python3.8", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
-        cmd = ["python3.8", "parse_sequences.py", "-seq", '~/biorseo/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
+        cmd = ["python3.8", "parse_sequences.py", "-seq", '$HOME/biorseo/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
 
         logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
@@ -536,8 +536,8 @@ class BiorseoInstance:
 
     def launch_BayesPairing2(self, module_type, seq_, header_):
         #cmd = ["python3.7", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
-        cmd = ["python3.7", "parse_sequences.py", "-seq", '~/biorseo/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
-        
+        cmd = ["python3.7", "parse_sequences.py", "-seq", '$HOME/biorseo/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
+
         logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
         logfile.write("\n")
