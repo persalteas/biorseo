@@ -565,18 +565,21 @@ class BiorseoInstance:
         #remove the 2 first lines of output, and the last one
         Byp2Log.pop(0)
         Byp2Log.pop(0)
-        Byp2Log.pop()
 
         lines = []
         for i in range(len(Byp2Log)):
             line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+
+            if "=" in line: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
+                break
             
             if line != []:
                 line.pop() #remove the sequence
                 print(Byp2Log[i])
                 print(line)
 
-                lines.append(line)
+                if line != []:
+                    lines.append(line)
 
 
         if module_type=="rna3dmotif":
