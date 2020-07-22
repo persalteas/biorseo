@@ -569,18 +569,10 @@ class BiorseoInstance:
 
         lines = []
         for i in range(len(Byp2Log)):
-            print(Byp2Log[i])
-            line = Byp2Log[i].split()
+            line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+            
+            line.pop() #remove the sequence
             print(line)
-
-            #remove "|",  ",", "-", and the sequence
-            while "|" in line:
-                line.remove("|")
-            while "," in line:
-                line.remove(",")
-            while "-" in line:
-                line.remove("-")
-            line.pop()
 
             lines.append(line)
 
