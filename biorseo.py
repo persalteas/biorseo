@@ -533,7 +533,7 @@ class BiorseoInstance:
         rna.close()
 
 
-    def launch_BayesPairing2(module_type, seq_, header_, basename):
+    def launch_BayesPairing2(self, module_type, seq_, header_):
 
         cmd = ["python3.7", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
 
@@ -702,13 +702,13 @@ class BiorseoInstance:
                     ext = ".byp"
                     csv = self.tempDir + instance.header + ".byp.csv"
                     #self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
-                    launch_BayesPairing("rna3dmotif", instance.seq_, instance.header)
+                    self.launch_BayesPairing("rna3dmotif", instance.seq_, instance.header)
 
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp"
                     csv = self.tempDir + instance.header + ".bgsubyp.csv"
                     #self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
-                    launch_BayesPairing("3dmotifatlas", instance.seq_, instance.header)
+                    self.launch_BayesPairing("3dmotifatlas", instance.seq_, instance.header)
 
                 priority = 2
 
@@ -733,13 +733,13 @@ class BiorseoInstance:
                     ext = ".byp2"
                     csv = self.tempDir + instance.header + ".byp2.csv"
                     #self.joblist.append(Job(function=self.launch_BayesPairing2, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
-                    launch_BayesPairing2("rna3dmotif", instance.seq_, instance.header)
+                    self.launch_BayesPairing2("rna3dmotif", instance.seq_, instance.header)
 
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp2"
                     csv = self.tempDir + instance.header + ".bgsubyp2.csv"
                     #self.joblist.append(Job(function=self.launch_BayesPairing2, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
-                    launch_BayesPairing2("3dmotifatlas", instance.seq_, instance.header)
+                    self.launch_BayesPairing2("3dmotifatlas", instance.seq_, instance.header)
 
                 priority = 2
 
