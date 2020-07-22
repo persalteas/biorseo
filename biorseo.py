@@ -511,9 +511,11 @@ class BiorseoInstance:
             l = BypLog[idx]
         insertion_sites = [x for x in ast.literal_eval(l.split(":")[1][1:])]
         if module_type == "rna3dmotif":
-            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp.csv", "w")
+            #rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp.csv", "w")
+            rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".byp.csv", "w")
         else:
-            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp.csv", "w")
+            #rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp.csv", "w")
+            rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".bgsubyp.csv", "w")
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
         for i, module in enumerate(insertion_sites):
             if len(module):
@@ -570,11 +572,12 @@ class BiorseoInstance:
 
 
         if module_type=="rna3dmotif":
-            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp2.csv", "w")
+            #rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp2.csv", "w")
+            rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".byp2.csv", "w")
         else:
-            print("eh")
-            rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp2.csv", "w")
-            print("oh")
+            #rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp2.csv", "w")
+            rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".bgsubyp2.csv", "w")
+
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
 
         for line in lines:
