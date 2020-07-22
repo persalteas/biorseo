@@ -562,7 +562,7 @@ class BiorseoInstance:
         Byp2Log.pop()
         Byp2Log.pop()
 
-        #remove the 2 first lines of output, and the last one
+        #remove the 2 first lines of output
         Byp2Log.pop(0)
         Byp2Log.pop(0)
 
@@ -570,10 +570,10 @@ class BiorseoInstance:
         for i in range(len(Byp2Log)):
             line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
 
-            if "=" in line: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
-                break
-            
             if line != []:
+                if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
+                    print("AAAAAAAAAAAAAAAAAH")
+                    break
                 line.pop() #remove the sequence
 
                 if line != []:
