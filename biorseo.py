@@ -496,7 +496,7 @@ class BiorseoInstance:
         #cmd = ["python3.8", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
         cmd = ["python3.8", "parse_sequences.py", "-seq", '/home/ldurand/biorseo/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
 
-        logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
+        logfile = open('/home/ldurand/biorseo/' + self.tempDir + "log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
         logfile.write("\n")
         logfile.close()
@@ -540,7 +540,7 @@ class BiorseoInstance:
         #cmd = ["python3.7", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
         cmd = ["python3.7", "parse_sequences.py", "-seq", '/home/ldurand/biorseo/' + self.tempDir + header_ + ".fa", "-samplesize", 1000, "-d", module_type]
 
-        logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
+        logfile = open('/home/ldurand/biorseo/' + self.tempDir + "log_of_the_run.sh", 'a')
         logfile.write(" ".join(cmd))
         logfile.write("\n")
         logfile.close()
