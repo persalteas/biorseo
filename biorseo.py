@@ -562,6 +562,7 @@ class BiorseoInstance:
 
         lines = []
         for i in range(len(Byp2Log)):
+            print(Byp2Log[i])
             line = Byp2Log[i].split()
 
             #remove "|",  ",", "-", and the sequence
