@@ -157,7 +157,7 @@ class BiorseoInstance:
         self.jar3dexec = "/jar3d_2014-12-11.jar"
         self.bypdir = "/byp/src"
         #self.biorseoDir = "/biorseo"
-        self.biorseoDir = "./"
+        self.biorseoDir = "."
         self.HLmotifDir = "/modules/BGSU/HL/3.2/lib"
         self.ILmotifDir = "/modules/BGSU/IL/3.2/lib"
         self.descfolder = "/modules/DESC"
@@ -492,7 +492,7 @@ class BiorseoInstance:
         resultsfile.close()
 
     def launch_BayesPairing(self, module_type, seq_, header_):
-        cmd = ["python3", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir +
+        cmd = ["python3.8", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir +
                header_ + ".fa", "-d", module_type, "-interm", "1"]
 
         logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
@@ -693,6 +693,7 @@ class BiorseoInstance:
                 # JAR3D
                 self.joblist.append(Job(function=self.launch_JAR3D, args=[instance.seq_, instance.header], priority=3, how_many_in_parallel=1))
                 priority = 4
+
             if self.type == "byp":
 
                 method_type = "--bayespaircsv"
@@ -702,24 +703,17 @@ class BiorseoInstance:
                     csv = self.tempDir + instance.header + ".byp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
 
-                    ext = ".byp2"
-                    csv = self.tempDir + instance.header + ".byp2.csv"
-                    self.joblist.append(Job(function=self.launch_BayesPairing2, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
-
                 elif self.modules == "bgsu":
                     ext = ".bgsubyp"
                     csv = self.tempDir + instance.header + ".bgsubyp.csv"
                     self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
-
-                    ext = ".bgsubyp2"
-                    csv = self.tempDir + instance.header + ".bgsubyp2.csv"
-                    self.joblist.append(Job(function=self.launch_BayesPairing2, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
 
                 priority = 2
 
             if self.type == "dpm":
                 method_type = "--descfolder"
                 csv = self.descfolder
+
             command = [executable, "-s", fastafile ]
             if method_type:
                 command += [ method_type, csv ]
@@ -727,6 +721,31 @@ class BiorseoInstance:
             command += [ "-o", self.finalname, "--function", self.func ]
             command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
+
+
+            if self.type == "byp":
+
+                method_type = "--bayespaircsv"
+
+                if self.modules == "desc":
+                    ext = ".byp2"
+                    csv = self.tempDir + instance.header + ".byp2.csv"
+                    self.joblist.append(Job(function=self.launch_BayesPairing2, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+
+                elif self.modules == "bgsu":
+                    ext = ".bgsubyp2"
+                    csv = self.tempDir + instance.header + ".bgsubyp2.csv"
+                    self.joblist.append(Job(function=self.launch_BayesPairing2, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+
+                priority = 2
+
+                command = [executable, "-s", fastafile ]
+                if method_type:
+                    command += [ method_type, csv ]
+                self.finalname =  self.tempDir + instance.header + ext + self.func
+                command += [ "-o", self.finalname, "--function", self.func ]
+                command += self.forward_options
+                self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
             
 
 BiorseoInstance(opts)
