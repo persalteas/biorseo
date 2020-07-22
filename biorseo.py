@@ -561,7 +561,6 @@ class BiorseoInstance:
         Byp2Log.pop(0)
         Byp2Log.pop()
         Byp2Log.pop()
-        Byp2Log.pop()
 
         #remove the 2 first lines of output, and the last one
         Byp2Log.pop(0)
@@ -572,10 +571,12 @@ class BiorseoInstance:
         for i in range(len(Byp2Log)):
             line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
             
-            line.pop() #remove the sequence
-            print(line)
+            if line != []:
+                line.pop() #remove the sequence
+                print(Byp2Log[i])
+                print(line)
 
-            lines.append(line)
+                lines.append(line)
 
 
         if module_type=="rna3dmotif":
