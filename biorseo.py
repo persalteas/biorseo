@@ -155,7 +155,8 @@ class BiorseoInstance:
         self.mode = 0 # default is single sequence mode
         self.forward_options = []
         self.jar3dexec = "/jar3d_2014-12-11.jar"
-        self.bypdir = "/byp/src"
+        #self.bypdir = "/byp/src"
+        self.bypdir = "/opt/BayesPairing/bayespairing/src"
         #self.biorseoDir = "/biorseo"
         self.biorseoDir = "."
         self.HLmotifDir = "/modules/BGSU/HL/3.2/lib"
