@@ -290,7 +290,7 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 
 
 
-	def launch_BayesPairing2(module_type, seq_, header_, basename):
+def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	if module_type=="rna3dmotif":
 		BP2_type = "rna3dmotif"
