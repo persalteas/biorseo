@@ -307,6 +307,9 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	print(getcwd())
 	chdir(byp2dir)
+	print(getcwd())
+
+	"""
 	out = subprocess.check_output(cmd).decode('utf-8')
 	Byp2Log = out.splitlines()
 
@@ -347,6 +350,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		rna.write(line[-1] + "\n")
 
 	rna.close()
+	"""
 
 
 
