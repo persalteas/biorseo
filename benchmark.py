@@ -247,7 +247,7 @@ def launch_JAR3D(seq_, basename):
 
 def launch_BayesPairing(module_type, seq_, header_, basename):
 
-	cmd = ["python3.8","parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
+	cmd = ["python3.8", "-W", "ignore", "parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
@@ -297,7 +297,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	else:
 		BP2_type = "3DmotifAtlas_ALL"
 
-	cmd = ["python3.7", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
+	cmd = ["python3.7", "-W", "ignore", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
@@ -783,8 +783,8 @@ class Method:
 			else:
 				module_type_arg = "3dmotifatlas"
 
-			self.joblist.append(Job(function=launch_BayesPairing, args=[module_type_arg, instance.seq_, instance.header_, basename],
-								how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp.csv", label=f"{basename} {self.data_source}-ByP"))
+			#self.joblist.append(Job(function=launch_BayesPairing, args=[module_type_arg, instance.seq_, instance.header_, basename],
+			#					how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp.csv", label=f"{basename} {self.data_source}-ByP"))
 
 			if module_type_arg != "carnaval":
 				self.joblist.append(Job(function=launch_BayesPairing2, args=[module_type_arg, instance.seq_, instance.header_, basename],
