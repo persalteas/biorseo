@@ -801,7 +801,7 @@ class Method:
 					c += [ "-d", descfolder]
 			else:
 				results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_{self.data_source.lower()}_{self.placement_method.lower()}_{self.func}"
-				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}.csv"]
+				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}2.csv"]
 			c += ["-o", results_file, "--func", self.func]
 			if not self.allow_pk:
 				c += ["-n"]
