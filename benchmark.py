@@ -305,7 +305,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	logfile.write("\n")
 	logfile.close()
 
-	print(os.getcwd())
+	print(getcwd())
 	chdir(byp2dir)
 	out = subprocess.check_output(cmd).decode('utf-8')
 	Byp2Log = out.splitlines()
