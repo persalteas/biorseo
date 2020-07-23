@@ -111,7 +111,8 @@ class Job:
 			self.nthreads = cpu_count() - 1
 		else:
 			self.nthreads = how_many_in_parallel
-		self.nthreads = ceil(self.nthreads/2)
+		#self.nthreads = ceil(self.nthreads/2)
+		self.nthreads = 1
 		self.useless_bool = False
 
 	def __str__(self):
@@ -305,11 +306,8 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	logfile.write("\n")
 	logfile.close()
 
-	print(getcwd())
 	chdir(byp2dir)
-	print(getcwd())
 
-	"""
 	out = subprocess.check_output(cmd).decode('utf-8')
 	Byp2Log = out.splitlines()
 
@@ -350,7 +348,6 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		rna.write(line[-1] + "\n")
 
 	rna.close()
-	"""
 
 
 
