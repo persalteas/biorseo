@@ -295,7 +295,8 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	if module_type=="rna3dmotif":
 		BP2_type = "rna3dmotif"
 	else:
-		BP2_type = "3DmotifAtlas_ALL"
+		#BP2_type = "3DmotifAtlas_ALL"
+		BP2_type = "3dmotifAtlas_RELIABLE"
 
 	cmd = ["python3.7", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
 
