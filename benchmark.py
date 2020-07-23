@@ -111,8 +111,8 @@ class Job:
 			self.nthreads = cpu_count() - 1
 		else:
 			self.nthreads = how_many_in_parallel
-		#self.nthreads = ceil(self.nthreads/2)
-		self.nthreads = 1
+		self.nthreads = ceil(self.nthreads/2)
+		#self.nthreads = 1
 		self.useless_bool = False
 
 	def __str__(self):
@@ -296,10 +296,10 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	if module_type=="rna3dmotif":
 		BP2_type = "rna3dmotif"
 	else:
-		#BP2_type = "3DmotifAtlas_ALL"
-		BP2_type = "3dmotifAtlas_RELIABLE"
+		BP2_type = "3DmotifAtlas_ALL"
+		#BP2_type = "3dmotifAtlas_RELIABLE"
 
-	cmd = ["python3.7", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
+	cmd = ["python3.7", "-W", "ignore", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
