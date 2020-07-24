@@ -790,8 +790,9 @@ class Method:
 			#					how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp.csv", label=f"{basename} {self.data_source}-ByP"))
 
 			if module_type_arg != "carnaval":
-				self.joblist.append(Job(function=launch_BayesPairing2, args=[module_type_arg, instance.seq_, instance.header_, basename],
-								how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp2.csv", label=f"{basename} {self.data_source}-ByP"))
+				#self.joblist.append(Job(function=launch_BayesPairing2, args=[module_type_arg, instance.seq_, instance.header_, basename],
+				#				how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp2.csv", label=f"{basename} {self.data_source}-ByP"))
+				launch_BayesPairing2(module_type_arg, instance.seq_, instance.header_, basename)
 
 		if self.tool == "biorseo":
 			c = [ biorseoDir+"/bin/biorseo", "-s", fasta ]
