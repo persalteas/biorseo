@@ -112,7 +112,7 @@ class Job:
 		else:
 			self.nthreads = how_many_in_parallel
 		self.nthreads = ceil(self.nthreads/2)
-		self.nthreads = 1
+		#self.nthreads = 1
 		self.useless_bool = False
 
 	def __str__(self):
