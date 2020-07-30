@@ -1595,14 +1595,14 @@ if __name__ == '__main__':
 
 		for ax in axes:
 			ax.set_ylim((0.5, 1.01))
-			ax.set_xlim((-1,20))
+			ax.set_xlim((-1,19))
 			yticks = [ i/10 for i in range(5,11) ]
 			ax.set_yticks(yticks)
 			for y in yticks:
 				ax.axhline(y=y, color="grey", linestyle="--", linewidth=1)
 			ax.tick_params(top=False, bottom=False, labeltop=False, labelbottom=False)
 			#ax.set_xticks([ 1.0+i for i in range(18)])
-			ax.set_xticks([ 1.0+i for i in range(19)])
+			ax.set_xticks([i for i in range(19)])
 		axes[0].tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
 		axes[0].set_xticklabels(labels)
 		for i, tick in enumerate(axes[0].xaxis.get_major_ticks()):
