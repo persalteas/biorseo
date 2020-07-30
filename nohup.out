@@ -1,4 +1,3 @@
-nohup: ignoring input
 loading files...
 ignored 21 sequences because of char T
 ignored 29 sequences because of char P
@@ -16,50 +15,50 @@ Without PK:
 [91m341[0m/344 RNA-MoIP chunk predictions
 [32m344[0m/344 biorseo + DESC + Patternmatch + f1A predictions
 [32m344[0m/344 biorseo + DESC + Patternmatch + f1B predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1A predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1B predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1C predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1D predictions
+[91m96[0m/344 biorseo + DESC + BayesPairing + f1A predictions
+[91m93[0m/344 biorseo + DESC + BayesPairing + f1B predictions
+[91m104[0m/344 biorseo + DESC + BayesPairing + f1C predictions
+[91m104[0m/344 biorseo + DESC + BayesPairing + f1D predictions
 [91m283[0m/344 biorseo + BGSU + JAR3D + f1A predictions
 [91m285[0m/344 biorseo + BGSU + JAR3D + f1B predictions
 [91m332[0m/344 biorseo + BGSU + JAR3D + f1C predictions
 [91m332[0m/344 biorseo + BGSU + JAR3D + f1D predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1A predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1B predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1C predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1D predictions
-[91m199[0m/344 biorseo + RIN + Patternmatch + f1A predictions
-[91m194[0m/344 biorseo + RIN + Patternmatch + f1B predictions
-==> [91m163[0m/344 ARN were predicted with all methods successful.
-Friedman test without PK: H0 = 'The position parameter of all distributions is equal', p-value =  9.834911853433475e-35
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawA are equal', p-value =  1.6203837399214692e-09
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawB are equal', p-value =  3.5353095584231497e-09
+[91m23[0m/344 biorseo + BGSU + BayesPairing + f1A predictions
+[91m23[0m/344 biorseo + BGSU + BayesPairing + f1B predictions
+[91m23[0m/344 biorseo + BGSU + BayesPairing + f1C predictions
+[91m23[0m/344 biorseo + BGSU + BayesPairing + f1D predictions
+[91m306[0m/344 biorseo + RIN + Patternmatch + f1A predictions
+[91m294[0m/344 biorseo + RIN + Patternmatch + f1B predictions
+==> [91m6[0m/344 ARN were predicted with all methods successful.
+Friedman test without PK: H0 = 'The position parameter of all distributions is equal', p-value =  0.05799959106551954
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawA are equal', p-value =  0.6844698210251553
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawB are equal', p-value =  0.6844698210251553
 
 With PK:
 [32m344[0m/344 biorseo + DESC + Patternmatch + f1A predictions
 [32m344[0m/344 biorseo + DESC + Patternmatch + f1B predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1A predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1B predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1C predictions
-[32m344[0m/344 biorseo + DESC + BayesPairing + f1D predictions
+[91m156[0m/344 biorseo + DESC + BayesPairing + f1A predictions
+[91m152[0m/344 biorseo + DESC + BayesPairing + f1B predictions
+[91m159[0m/344 biorseo + DESC + BayesPairing + f1C predictions
+[91m159[0m/344 biorseo + DESC + BayesPairing + f1D predictions
 [91m289[0m/344 biorseo + BGSU + JAR3D + f1A predictions
 [91m283[0m/344 biorseo + BGSU + JAR3D + f1B predictions
 [91m332[0m/344 biorseo + BGSU + JAR3D + f1C predictions
 [91m332[0m/344 biorseo + BGSU + JAR3D + f1D predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1A predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1B predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1C predictions
-[91m343[0m/344 biorseo + BGSU + BayesPairing + f1D predictions
-[91m189[0m/344 biorseo + RIN + Patternmatch + f1A predictions
-[91m183[0m/344 biorseo + RIN + Patternmatch + f1B predictions
-==> [91m156[0m/344 ARN were predicted with all methods successful.
-Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  3.043824319550827e-42
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  0.07391983350941586
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  0.0001658212207935636
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  0.06631715826422059
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  0.02299481506059676
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  0.03856521853962708
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  0.00025869850334587135
+[91m27[0m/344 biorseo + BGSU + BayesPairing + f1A predictions
+[91m27[0m/344 biorseo + BGSU + BayesPairing + f1B predictions
+[91m27[0m/344 biorseo + BGSU + BayesPairing + f1C predictions
+[91m27[0m/344 biorseo + BGSU + BayesPairing + f1D predictions
+[91m305[0m/344 biorseo + RIN + Patternmatch + f1A predictions
+[91m297[0m/344 biorseo + RIN + Patternmatch + f1B predictions
+==> [91m6[0m/344 ARN were predicted with all methods successful.
+Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  0.08896359893704761
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  0.31731050786291415
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  0.892250486903652
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  0.17971249487899976
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  0.17971249487899976
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  0.17971249487899976
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  0.34302782731118187
 
 Loading Pseudobase results from files...
 
@@ -69,28 +68,28 @@ With PK:
 [32m264[0m/264 RNA-MoIP chunk predictions
 [32m264[0m/264 biorseo + DESC + Patternmatch + f1A predictions
 [32m264[0m/264 biorseo + DESC + Patternmatch + f1B predictions
-[32m264[0m/264 biorseo + DESC + BayesPairing + f1A predictions
-[32m264[0m/264 biorseo + DESC + BayesPairing + f1B predictions
-[32m264[0m/264 biorseo + DESC + BayesPairing + f1C predictions
-[32m264[0m/264 biorseo + DESC + BayesPairing + f1D predictions
+[91m112[0m/264 biorseo + DESC + BayesPairing + f1A predictions
+[91m112[0m/264 biorseo + DESC + BayesPairing + f1B predictions
+[91m113[0m/264 biorseo + DESC + BayesPairing + f1C predictions
+[91m113[0m/264 biorseo + DESC + BayesPairing + f1D predictions
 [91m233[0m/264 biorseo + BGSU + JAR3D + f1A predictions
 [91m230[0m/264 biorseo + BGSU + JAR3D + f1B predictions
 [91m248[0m/264 biorseo + BGSU + JAR3D + f1C predictions
 [91m248[0m/264 biorseo + BGSU + JAR3D + f1D predictions
-[32m264[0m/264 biorseo + BGSU + BayesPairing + f1A predictions
-[32m264[0m/264 biorseo + BGSU + BayesPairing + f1B predictions
-[32m264[0m/264 biorseo + BGSU + BayesPairing + f1C predictions
-[32m264[0m/264 biorseo + BGSU + BayesPairing + f1D predictions
-[91m224[0m/264 biorseo + RIN + Patternmatch + f1A predictions
-[91m215[0m/264 biorseo + RIN + Patternmatch + f1B predictions
-==> [91m187[0m/264 ARN were predicted with all methods successful.
-Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  4.120306642398156e-151
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  1.1607040271044848e-19
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  1.7352839307410563e-15
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  6.658643627355719e-19
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  1.078145277587371e-15
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  3.381706651701195e-13
-Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  1.9061105432914547e-13
+[91m29[0m/264 biorseo + BGSU + BayesPairing + f1A predictions
+[91m25[0m/264 biorseo + BGSU + BayesPairing + f1B predictions
+[91m30[0m/264 biorseo + BGSU + BayesPairing + f1C predictions
+[91m30[0m/264 biorseo + BGSU + BayesPairing + f1D predictions
+[91m262[0m/264 biorseo + RIN + Patternmatch + f1A predictions
+[91m244[0m/264 biorseo + RIN + Patternmatch + f1B predictions
+==> [91m9[0m/264 ARN were predicted with all methods successful.
+Friedman test with PK: H0 = 'The position parameter of all distributions is equal', p-value =  1.5150770948543214e-11
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawA are equal', p-value =  0.00390625
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and RawB are equal', p-value =  0.00390625
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dA are equal', p-value =  0.00390625
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dB are equal', p-value =  0.00390625
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dC are equal', p-value =  0.00390625
+Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value =  0.07421875
 
 Loading study case results from files...
 True 2D                 ((((((..(((.........)))((((((((...))))))))...(((((.......))))))))))).....
@@ -99,32 +98,22 @@ RNA-MoIP (1by1)      	(((((...((......))...((.(((((.......)))))..)).(((.........
 RNA-MoIP (chunk)     	(((((...((......))...((.(((((.......)))))..)).(((.........)))..))))).....	0.67	1	-1.0 + -1.0 + -1.0
 DESC-D.P.-A          	(((((((.((...)).))...((.((((.........))))..))((((.........)))).))))).....	0.63	2	-1.0
 DESC-D.P.-B          	((((((((((...))))...[[[.((((([[[.[[.)))))....(((((]].]]].))))))))))).]]].	0.64	5	-1.0
-DESC-ByP-A           	((((((..((...........)).((((.........)))).[[.(((((.......)))))))))))..]].	0.83	7	-1.0 + -1.0
-DESC-ByP-B           	((((((((.......))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.74	14	-1.0 + -1.0
-DESC-ByP-C           	((((((.((((....))...[[[....((.......))((.....))((.........)))))))))).]]].	0.49	2	-1.0 + -1.0
-DESC-ByP-D           	(((((((((((....)))..[[[.(((((.......))))).)).(((((.......))))))))))).]]].	0.69	4	-1.0 + -1.0
-BGSU-ByP-A           	((((((((((...))))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.71	6	-1.0 + -1.0
-BGSU-ByP-B           	((((((((((...))))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.71	8	-1.0 + -1.0
-BGSU-ByP-C           	((((((((((...))))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.71	3	-1.0 + -1.0
-BGSU-ByP-D           	(((((((((((....)))..[[[.(((((.......))))).)).(((((.......))))))))))).]]].	0.69	1	-1.0 + -1.0
+DESC-ByP-A           	((((((..((......))...((.((((.........))))..))((.((.......)).)))))))).....	0.70	1	-1.0 + -1.0
+DESC-ByP-B           	((((((((((...))))...[[[.(((((([[..)).))))....(((((...]]..))))))))))).]]].	0.62	11	-1.0 + -1.0
+DESC-ByP-C           	(((((((.((...)).))...((.((((.........))))..))((.((.......)).)).))))).....	0.63	9	-1.0 + -1.0
+DESC-ByP-D           	(((((((.((...)).))...((.((.(([[[.[[.)).))..))((.((]].]]].)).)).))))).....	0.56	1	-1.0 + -1.0
 BGSU-Jar3d-A         	(((((((((((....)))..[[[.(((((.......))))).)).(((((.......))))))))))).]]].	0.69	1	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-B         	((((((((((...))))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.71	2	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-C         	((((((((((...))))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.71	3	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-D         	((((((((((...))))...[[[.(((((.......)))))....(((((.......))))))))))).]]].	0.71	3	-1.0 + -1.0 + -1.0 + -1.0
+RIN-D.P.-A           	(.(.(((((({..))))(..A[[)(((.([[[.<<.).))](}..a.{{{>>.<]])}}}>))))..).]]..	0.36	1	-1.0
+RIN-D.P.-B           	((((((((<<...[[).[.){>{]((((({{{.{{.)))))(]..>[[[[}}<}}})]]]]>)))))).}]}.	0.61	3	-1.0
 True 2D                 (((((((...(((((((.[[..[[)))))))........((((((]]...]]))))))..))))))).
 RNAsubopt            	(((((((.....(((((.......)))))..........((((((.......))))))..))))))).	0.86	3	-1.0 + -1.0
 RNA-MoIP (1by1)      	(((((((.....(((((.......)))))..........(((((.........)))))..))))))).	0.84	3	-1.0 + -1.0 + -1.0
 RNA-MoIP (chunk)     	(((((((........((.......)).....((....)).((((.........))))...))))))).	0.68	1	-1.0 + -1.0 + -1.0
 DESC-D.P.-A          	(((..((.....((.((.......)).)).((...))..((.((.........)).))..))..))).	0.68	1	-1.0
 DESC-D.P.-B          	((((.((.....((.((.......)).)).((...))..((.((.........)).))..)).)))).	0.71	10	-1.0
-DESC-ByP-A           	((((((((....(((([[[[[[[[.))))..((.........))...))..))))))..]]]]]]]].	0.17	4	-1.0 + -1.0
-DESC-ByP-B           	((((((((....(((([[[[[[[[.))))..((.........))...))..))))))..]]]]]]]].	0.17	5	-1.0 + -1.0
-DESC-ByP-C           	((((((((.((.(((([[[[[[[[.))))..))...(((.[[)))]]))..))))))..]]]]]]]].	0.15	2	-1.0 + -1.0
-DESC-ByP-D           	[[[[[[[[.......(((((((((.((....))...(((.[[)))]]]]..]]]]]]..)))))))))	-0.01	1	-1.0 + -1.0
-BGSU-ByP-A           	(((((((.....(((...........))).((...))..((((((.......))))))..))))))).	0.77	6	-1.0 + -1.0
-BGSU-ByP-B           	(((((((.....(((...........))).((...))..((((((.......))))))..))))))).	0.77	5	-1.0 + -1.0
-BGSU-ByP-C           	(((......((.(((([[[[[[[[.))))..))(((....)))((.......)))))..]]]]]]]].	0.25	4	-1.0 + -1.0
-BGSU-ByP-D           	.[[.........[[[[((((((((.]]]].((...))..((..((.......))]])).)))))))).	0.36	5	-1.0 + -1.0
 BGSU-Jar3d-A         	(((((((.....(((((.......)))))..((....))((((((.......))))))..))))))).	0.82	5	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-B         	(((((((.....(((((.......)))))..((....))((((((.......))))))..))))))).	0.82	4	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-C         	(((((((.....(((((.......)))))..((....))((((((.......))))))..))))))).	0.82	1	-1.0 + -1.0 + -1.0 + -1.0
@@ -137,16 +126,10 @@ RNA-MoIP (1by1)      	..............(((((((((..............))))))))).	0.77	3	-1.
 RNA-MoIP (chunk)     	((..........))(((((((((..............))))))))).	0.70	1	-1.0 + -1.0 + -1.0
 DESC-D.P.-A          	..............((.(((.((..............)).))).)).	0.68	1	-1.0
 DESC-D.P.-B          	[[[[[[........((((((.((]]]]]]........)).)))))).	0.97	4	-1.0
-DESC-ByP-A           	[[[[[[........(((.(((((]]]]]]........))))).))).	0.97	3	-1.0 + -1.0
-DESC-ByP-B           	[[[[[[........(((.(((((]]]]]]........))))).))).	0.97	2	-1.0 + -1.0
-DESC-ByP-C           	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0
-DESC-ByP-D           	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0
-BGSU-ByP-A           	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0
-BGSU-ByP-B           	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0
-BGSU-ByP-C           	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0
-BGSU-ByP-D           	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0
 BGSU-Jar3d-A         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-B         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-C         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
 BGSU-Jar3d-D         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	-1.0 + -1.0 + -1.0 + -1.0
+RIN-D.P.-A           	[[[[[[......(.(((((((((]]]]]]........))))))))))	0.97	2	-1.0
+RIN-D.P.-B           	[[[[[[......(.(((((((((]]]]]]........))))))))))	0.97	1	-1.0
 16 16
