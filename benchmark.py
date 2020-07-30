@@ -323,7 +323,8 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	lines = []
 	for i in range(len(Byp2Log)):
-		line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+		#line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+		line = Byp2Log[i].replace("|", ' ').replace(",", ' ').split()
 
 		if line != []:
 			if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
@@ -331,7 +332,17 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 			line.pop() #remove the sequence
 
 			if line != []:
-				lines.append(line)
+				new_line = [line[0], line[1]]
+				for j in range(2,len(line)): #skip module and score
+					if "-" not in line[j]: #position of length 1
+						new_line.append(line[j])
+						new_line.append(line[j])
+					else:
+						element = line.split("-")
+						new_line.append(element[0])
+						new_line.append(element[1])
+
+				lines.append(new_line)
 				#print(line)
 
 
@@ -802,9 +813,12 @@ class Method:
 				else:
 					results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_desc_raw_{self.func}"
 					c += [ "-d", descfolder]
-			else:
+			elif self.placement_method == "ByP":
 				results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_{self.data_source.lower()}_{self.placement_method.lower()}_{self.func}"
 				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}2.csv"]
+			else:
+				results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_{self.data_source.lower()}_{self.placement_method.lower()}_{self.func}"
+				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}.csv"]
 			c += ["-o", results_file, "--func", self.func]
 			if not self.allow_pk:
 				c += ["-n"]
@@ -1164,7 +1178,7 @@ if __name__ == '__main__':
 	
 
 	# sort jobs in a tree structure
-	
+	"""
 	jobs = {}
 	jobcount = len(fulljoblist)
 	for job in fulljoblist:
@@ -1201,7 +1215,7 @@ if __name__ == '__main__':
 			except (subprocess.TimeoutExpired) :
 				print("Skipping, took more than 3600s")
 				pass
-	
+	"""
 
 
 	# ================= Statistics ========================
@@ -1587,7 +1601,8 @@ if __name__ == '__main__':
 			for y in yticks:
 				ax.axhline(y=y, color="grey", linestyle="--", linewidth=1)
 			ax.tick_params(top=False, bottom=False, labeltop=False, labelbottom=False)
-			ax.set_xticks([ 1.0+i for i in range(18)])
+			#ax.set_xticks([ 1.0+i for i in range(18)])
+			ax.set_xticks([ 1.0+i for i in range(19)])
 		axes[0].tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
 		axes[0].set_xticklabels(labels)
 		for i, tick in enumerate(axes[0].xaxis.get_major_ticks()):

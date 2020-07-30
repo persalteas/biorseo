@@ -554,7 +554,7 @@ class BiorseoInstance:
         chdir("/opt/rnabayespairing2.git/bayespairing/src")
         out = subprocess.check_output(cmd).decode('utf-8')
         #Byp2Log = out.split('\n')
-        Byp2Log = out.splitlines()
+            Byp2Log = out.splitlines()
 
         #remove what is not in the original input
         Byp2Log.pop(0)
@@ -568,7 +568,8 @@ class BiorseoInstance:
 
         lines = []
         for i in range(len(Byp2Log)):
-            line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+            #line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
+            line = Byp2Log[i].replace("|", ' ').replace(",", ' ').split()
 
             if line != []:
                 if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
@@ -576,7 +577,17 @@ class BiorseoInstance:
                 line.pop() #remove the sequence
 
                 if line != []:
-                    lines.append(line)
+                    new_line = [line[0], line[1]]
+                    for j in range(2,len(line)): #skip module and score
+                        if "-" not in line[j]: #position of length 1
+                            new_line.append(line[j])
+                            new_line.append(line[j])
+                        else:
+                            element = line.split("-")
+                            new_line.append(element[0])
+                            new_line.append(element[1])
+
+                    lines.append(new_line)
                     #print(line)
 
 
