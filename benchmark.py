@@ -1765,7 +1765,8 @@ if __name__ == '__main__':
 		]
 		plt.xlim((0,19))
 		plt.tick_params(top=False, bottom=False, labeltop=False, labelbottom=False)
-		plt.xticks([ 1.0+i for i in range(18)], labels)
+		#plt.xticks([ 1.0+i for i in range(18)], labels)
+		plt.xticks([ 1.0+i for i in range(19)], labels)
 		plt.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
 		for i, tick in enumerate(plt.gca().xaxis.get_major_ticks()):
 			if i<4: # Reduce size of RNA-MoIP labels to stay readable
