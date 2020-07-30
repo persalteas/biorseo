@@ -1595,7 +1595,7 @@ if __name__ == '__main__':
 
 		for ax in axes:
 			ax.set_ylim((0.5, 1.01))
-			ax.set_xlim((-1,19))
+			ax.set_xlim((-1,20))
 			yticks = [ i/10 for i in range(5,11) ]
 			ax.set_yticks(yticks)
 			for y in yticks:
