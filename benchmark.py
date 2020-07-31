@@ -1178,7 +1178,6 @@ if __name__ == '__main__':
 	
 
 	# sort jobs in a tree structure
-	"""
 	jobs = {}
 	jobcount = len(fulljoblist)
 	for job in fulljoblist:
@@ -1215,7 +1214,6 @@ if __name__ == '__main__':
 			except (subprocess.TimeoutExpired) :
 				print("Skipping, took more than 3600s")
 				pass
-	"""
 
 
 	# ================= Statistics ========================
