@@ -338,7 +338,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 						new_line.append(line[j])
 						new_line.append(line[j])
 					else:
-						element = line.split("-")
+						element = line[j].split("-")
 						new_line.append(element[0])
 						new_line.append(element[1])
 
