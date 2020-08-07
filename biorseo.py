@@ -614,21 +614,21 @@ class BiorseoInstance:
                     if new_line != [] :
                         lines.append(new_line)
 
-                """
-                if line != []:
-                    new_line = [line[0], line[1]]
-                    for j in range(2,len(line)): #skip module and score
-                        if "-" not in line[j]: #position of length 1
-                            new_line.append(line[j])
-                            new_line.append(line[j])
-                        else:
-                            element = line[j].split("-")
-                            new_line.append(element[0])
-                            new_line.append(element[1])
+            """
+            if line != []:
+                new_line = [line[0], line[1]]
+                for j in range(2,len(line)): #skip module and score
+                    if "-" not in line[j]: #position of length 1
+                        new_line.append(line[j])
+                        new_line.append(line[j])
+                    else:
+                        element = line[j].split("-")
+                        new_line.append(element[0])
+                        new_line.append(element[1])
 
-                    lines.append(new_line)
-                    #print(line)
-                """
+                lines.append(new_line)
+                #print(line)
+            """
 
 
         if module_type=="rna3dmotif":
