@@ -574,8 +574,47 @@ class BiorseoInstance:
             if line != []:
                 if "=" in line[0]: #skip the "| MODULE  N HITS  PERCENTAGE  |" part
                     break
-                line.pop() #remove the sequence
 
+                module_sequence = line.pop().split("&") #remove the sequence
+
+                if line != []:
+                    new_line = [line[0], line[1]]
+
+                    num_comp = 0
+                    position_index = 2
+
+                    while num_comp < len(module_sequence):
+
+                        len_comp = 0
+                        comp = module_sequence[num_comp]
+
+                        element = line[position_index].split("-")
+                        new_line.append(element[0])
+
+                        if position_index >= len(line):
+                            print("!!! Skipped one BP2 result : positions not matching sequence length\n")
+                            new_line = []
+                            break
+
+                        while len_comp < len(comp):
+
+                            element = line[position_index].split("-")
+
+                            if len(element)==1:
+                                len_comp += 1
+
+                            else:
+                                len_comp += int(element[1]) - int(element[0]) + 1
+
+                            position_index += 1
+
+                        new_line.append(element[-1])
+                        num_comp += 1
+
+                    if new_line != [] :
+                        lines.append(new_line)
+
+                """
                 if line != []:
                     new_line = [line[0], line[1]]
                     for j in range(2,len(line)): #skip module and score
@@ -589,6 +628,7 @@ class BiorseoInstance:
 
                     lines.append(new_line)
                     #print(line)
+                """
 
 
         if module_type=="rna3dmotif":
