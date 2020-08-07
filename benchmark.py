@@ -338,24 +338,27 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 				num_comp = 0
 				position_index = 2
+				match_error = False
 
-				while num_comp < len(module_sequence):
+				while num_comp < len(module_sequence) and match_error==False :
 
 					len_comp = 0
 					comp = module_sequence[num_comp]
 
 					if position_index >= len(line):
 							print("!!! Skipped one BP2 result : positions not matching sequence length\n")
-							return
+							match_error = True
+							break
 
 					element = line[position_index].split("-")
 					new_line.append(element[0])
 
-					while len_comp < len(comp):
+					while len_comp < len(comp) and match_error==False :
 
 						if position_index >= len(line):
 							print("!!! Skipped one BP2 result : positions not matching sequence length\n")
-							return
+							match_error = True
+							break
 
 						element = line[position_index].split("-")
 
@@ -370,7 +373,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 					new_line.append(element[-1])
 					num_comp += 1
 
-				if new_line != [] :
+				if new_line != [] and match_error==False :
 					lines.append(new_line)
 
 		"""
