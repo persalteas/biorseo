@@ -350,6 +350,8 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 					if position_index >= len(line):
 						print("!!! Skipped one BP2 result : positions not matching sequence length\n")
 						new_line = []
+						len_comp = len(comp)
+						num_comp = len(module_sequence)
 						break
 
 					while len_comp < len(comp):
