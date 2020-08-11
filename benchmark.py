@@ -328,7 +328,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		rna = open(outputDir + basename + ".bgsu_byp2.csv", "w")
 	rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
 
-	for i in range(len(objects[0][list(objects[0].keys())[0]][0])):
+	for i in objects[0][list(objects[0].keys())[0]][0]:
 		for line in objects[0][list(objects[0].keys())[0]][0][i]:
 			if abs(line[2]) <= 2.3 : #default treshold of BP2
 				str_line = module_type + str(i) + "," + str(round(line[2],3))
