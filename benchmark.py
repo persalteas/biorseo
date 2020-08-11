@@ -309,7 +309,8 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	chdir(byp2dir)
 
-	subprocess.run(cmd)
+	#subprocess.run(cmd)
+	subprocess.check_output(cmd)
 	filename = "../output/output.pickle"
 
 	objects = []
