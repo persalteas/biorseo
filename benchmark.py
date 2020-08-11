@@ -22,6 +22,7 @@ from math import sqrt, ceil
 from multiprocessing import Pool, cpu_count, Manager
 import multiprocessing
 import ast, time
+import pickle
 
 # ================== DEFINITION OF THE PATHS ==============================
 
@@ -299,7 +300,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		BP2_type = "3dMotifAtlas_ALL"
 		#BP2_type = "3dMotifAtlas_RELIABLE"
 
-	cmd = ["python3.7", "-W", "ignore", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type]
+	cmd = ["python3.7", "-W", "ignore", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type, "-o", "output"]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
@@ -308,6 +309,35 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	chdir(byp2dir)
 
+	subprocess.run(cmd)
+	filename = "../output/output.pickle"
+
+	objects = []
+	with (open(filename, "rb")) as openfile:
+		while True:
+			try:
+				objects.append(pickle.load(openfile))
+			except EOFError:
+				print("EOFError while opening ../output/output.pickle for BP2")
+				break
+
+	if module_type=="rna3dmotif":
+		rna = open(outputDir + basename + ".desc_byp2.csv", "w")
+	else:
+		rna = open(outputDir + basename + ".bgsu_byp2.csv", "w")
+	rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
+
+	for i in range(len(objects[0][list(objects[0].keys())[0]][0])):
+		for line in objects[0][list(objects[0].keys())[0]][0][i]:
+			if abs(line[2]) <= 2.3 : #default treshold of BP2
+				str_line = module_type + str(i) + "," + str(round(line[2],3))
+				for pos in line[3]:
+					str_line += "," + str(pos[0]) + "," + str(pos[-1])
+
+				rna.write(str_line + "\n")
+
+
+	"""
 	out = subprocess.check_output(cmd).decode('utf-8')
 	Byp2Log = out.splitlines()
 
@@ -320,7 +350,6 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 	#remove the 2 first lines of output
 	Byp2Log.pop(0)
 	Byp2Log.pop(0)
-
 
 	lines = []
 	for i in range(len(Byp2Log)):
@@ -346,7 +375,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 					comp = module_sequence[num_comp]
 
 					if position_index >= len(line):
-							print("!!! Skipped one BP2 result : positions not matching sequence length\n")
+							#print("!!! Skipped one BP2 result : positions not matching sequence length")
 							match_error = True
 							break
 
@@ -356,7 +385,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 					while len_comp < len(comp) and match_error==False :
 
 						if position_index >= len(line):
-							print("!!! Skipped one BP2 result : positions not matching sequence length\n")
+							#print("!!! Skipped one BP2 result : positions not matching sequence length")
 							match_error = True
 							break
 
@@ -375,6 +404,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 				if new_line != [] and match_error==False :
 					lines.append(new_line)
+		"""
 
 		"""
 		if line != []:
@@ -398,19 +428,15 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		"""
 
 
-	if module_type=="rna3dmotif":
-		rna = open(outputDir + basename + ".desc_byp2.csv", "w")
-	else:
-		rna = open(outputDir + basename + ".bgsu_byp2.csv", "w")
-	rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
+	
 
+	'''
 	for line in lines:
 		rna.write(module_type)
 		for i in range(len(line)-1):
 			rna.write(line[i] + ",")
-		rna.write(line[-1] + "\n")
-
-	rna.close()
+		rna.write(line[-1])
+	'''
 
 
 
