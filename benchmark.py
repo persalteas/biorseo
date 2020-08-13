@@ -319,7 +319,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 			try:
 				objects.append(pickle.load(openfile))
 			except EOFError:
-				print("EOFError while opening ../output/output.pickle for BP2")
+				#print("EOFError while opening ../output/output.pickle for BP2")
 				break
 
 	if module_type=="rna3dmotif":
