@@ -76,10 +76,10 @@ RNA::RNA(string name, string seq, bool verbose)
 		}*/
 
 		int count = 1 ;
-		for (vrna_ep_t* pointer = results; *pointer; pointer++)
+		for (auto res = results.begin(); res != results.end(); ++res)
 		{
-			if (verbose_) cout << '\t' << '\t' << count << '\t' << pointer.i << '\t' << pointer.j << '\t' << pointer.p << endl ;
-			pij_(pointer.i,pointer.j) = pointer.p ;
+			if (verbose_) cout << '\t' << '\t' << count << '\t' << res.i << '\t' << res.j << '\t' << res.p << endl ;
+			pij_(res.i,res.j) = res.p ;
 			count++;
 		}
 
