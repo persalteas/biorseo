@@ -63,14 +63,20 @@ RNA::RNA(string name, string seq, bool verbose)
 	int max_bp_span = 150;
 	float cutoff = 500.0;
 	vrna_ep_t* results = vrna_pfl_fold(cseq, window_size, max_bp_span, cutoff);
-	int size_res = 500;
-	cout << "size_res : " << size_res << endl ;
 
-	for (int k=0; k<size_res; k++)
+	if (results != NULL)
 	{
-		if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << endl ;
-		pij_(results[k].i,results[k].j) = results[k].p ;
+		int size_res = 500;
+		cout << "size_res : " << size_res << endl ;
+
+		for (int k=0; k<size_res; k++)
+		{
+			if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << endl ;
+			pij_(results[k].i,results[k].j) = results[k].p ;
+		}
 	}
+
+	else cout << "NULL result returned by vrna_pfl_fold" << endl;
 
 	free(results);
 
