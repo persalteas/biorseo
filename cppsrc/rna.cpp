@@ -84,7 +84,6 @@ RNA::RNA(string name, string seq, bool verbose)
 			count++;
 		}
 
-		free(results);
 	}
 
 	else cout << "NULL result returned by vrna_pfl_fold" << endl;
