@@ -76,7 +76,7 @@ RNA::RNA(string name, string seq, bool verbose)
 		}*/
 
 		int count = 1 ;
-		while (results != NULL)
+		while (results->i != 0  &&  results->j != 0)
 		{
 			if (verbose_) cout << '\t' << '\t' << count << '\t' << results->i << '\t' << results->j << '\t' << results->p << endl ;
 			//pij_(results->i,results->j) = results->p ;
@@ -84,7 +84,7 @@ RNA::RNA(string name, string seq, bool verbose)
 			count++;
 		}
 
-		//free(results);
+		free(results);
 	}
 
 	else cout << "NULL result returned by vrna_pfl_fold" << endl;
