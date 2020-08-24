@@ -76,7 +76,7 @@ RNA::RNA(string name, string seq, bool verbose)
 		}*/
 
 		int count = 1 ;
-		for (auto res = results.begin(); res != results.end(); ++res)
+		for (auto res = results->begin(); res != results->end(); ++res)
 		{
 			if (verbose_) cout << '\t' << '\t' << count << '\t' << res.i << '\t' << res.j << '\t' << res.p << endl ;
 			pij_(res.i,res.j) = res.p ;
