@@ -66,13 +66,21 @@ RNA::RNA(string name, string seq, bool verbose)
 
 	if (results != NULL)
 	{
-		int size_res = 555500;
+		/*int size_res = 555500;
 		cout << "size_res : " << size_res << endl ;
 
 		for (int k=0; k<size_res; k++)
 		{
 			if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << k << endl ;
 			pij_(results[k].i,results[k].j) = results[k].p ;
+		}*/
+
+		int count = 1 ;
+		for (pointer = results; *pointer; pointer++)
+		{
+			if (verbose_) cout << '\t\t' << count << '\t' << pointer.i << '\t' << pointer.j << '\t' << pointer.p << endl ;
+			pij_(pointer.i,pointer.j) = pointer.p ;
+			count++;
 		}
 
 		free(results);
