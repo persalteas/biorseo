@@ -71,7 +71,7 @@ RNA::RNA(string name, string seq, bool verbose)
 
 		for (int k=0; k<size_res; k++)
 		{
-			if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << endl ;
+			if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << k << endl ;
 			pij_(results[k].i,results[k].j) = results[k].p ;
 		}
 
