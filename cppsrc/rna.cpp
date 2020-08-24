@@ -61,7 +61,7 @@ RNA::RNA(string name, string seq, bool verbose)
 	const char      *cseq = seq.c_str();
 	int window_size = 100;
 	int max_bp_span = 150;
-	float cutoff = 0;
+	float cutoff = 0.00001;
 	vrna_ep_t* results = vrna_pfl_fold(cseq, window_size, max_bp_span, cutoff);
 
 	if (results != NULL)
