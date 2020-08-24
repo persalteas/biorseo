@@ -66,7 +66,7 @@ RNA::RNA(string name, string seq, bool verbose)
 
 	if (results != NULL)
 	{
-		int size_res = 500;
+		int size_res = 555500;
 		cout << "size_res : " << size_res << endl ;
 
 		for (int k=0; k<size_res; k++)
@@ -74,11 +74,11 @@ RNA::RNA(string name, string seq, bool verbose)
 			if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << endl ;
 			pij_(results[k].i,results[k].j) = results[k].p ;
 		}
+
+		free(results);
 	}
 
 	else cout << "NULL result returned by vrna_pfl_fold" << endl;
-
-	free(results);
 
 
 	// vrna_fold_compound_t  *vc = vrna_fold_compound(cseq, NULL, VRNA_OPTION_PF);
