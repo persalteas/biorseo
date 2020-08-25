@@ -30,7 +30,7 @@ while step < len(seq)+50:
 	fasta.write(">__'ZDFS33 : 0-" + str(len(sub_seq)) + "'\n" + sub_seq)
 	fasta.close()
 
-	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v"]
+	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v", "2>&1"]
 
 	old_time = time.time()
 	output = subprocess.check_output(cmd).decode("utf-8").split("\n")[-5:]
@@ -43,22 +43,6 @@ while step < len(seq)+50:
 		elif "solutions kept" in line :
 			nb_sol = line.split(",")[1].split()[0]
 
-	print(nb_sol, run_time)
-
-	#print("aaaah " + "\n" + output[-1] + "\n\n")
-
-	"""
-	if "Quitting because combinatorial issues" in output :
-		#blaaaa
-
-	else:
-	"""
-
-
-
-
-
-
-
+	print(len(sub_seq), "first nucleotides" :, nb_sol, "solutions in", run_time, "seconds")
 
 	step += 50
