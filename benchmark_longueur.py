@@ -36,7 +36,7 @@ while step < len(seq)+50:
 	output = subprocess.check_output(cmd).decode("utf-8")
 	run_time = time.time() - old_time
 
-	print("aaaah " + "\n" + str(output) + "\n\n")
+	print("aaaah " + "\n" + output[-1] + "\n\n")
 
 	"""
 	if "Quitting because combinatorial issues" in output :
