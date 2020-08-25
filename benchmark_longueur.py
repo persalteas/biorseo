@@ -1,20 +1,7 @@
 # ============================ IMPORTS ====================================
-from os import path, getcwd
-from sys import argv
 import subprocess
 import time
-
-
-
-# ================== DEFINITION OF THE PATHS ==============================
-biorseoDir = path.realpath(".")
-jar3dexec = "/opt/jar3d_2014-12-11.jar"
-bypdir = "/opt/BayesPairing/bayespairing/src"
-byp2dir = "/opt/rnabayespairing2.git/bayespairing/src"
-moipdir = "/opt/RNAMoIP/Src/RNAMoIP.py"
-biokopdir = "/opt/biokop"
-
-
+import ressource
 
 
 
@@ -30,13 +17,13 @@ while step < len(seq)+50:
 	fasta.write(">__'ZDFS33 : 0-" + str(len(sub_seq)) + "'\n" + sub_seq)
 	fasta.close()
 
-	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v", "2>&1"]
+	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v"]
 
 	old_time = time.time()
 	output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
+	print(resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss)
 	run_time = time.time() - old_time
 
-	print(output)
 	for line in output :
 		if "Quitting because combinatorial issues" in line :
 			nb_sol = -1
