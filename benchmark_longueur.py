@@ -1,7 +1,7 @@
 # ============================ IMPORTS ====================================
 import subprocess
 import time
-import ressource
+import resource
 
 
 
