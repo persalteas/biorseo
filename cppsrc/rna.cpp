@@ -28,7 +28,7 @@ using std::vector;
 
 RNA::RNA(void) {}
 
-RNA::RNA(string name, string seq, bool verbose)
+RNA::RNA(string name, string seq, bool verbose, float theta)
 : verbose_{verbose}, name_(name), seq_(seq), n_(seq.size()),
   pij_(MatrixXf::Zero(n_, n_))    // pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)),
 {
@@ -61,7 +61,7 @@ RNA::RNA(string name, string seq, bool verbose)
 	const char      *cseq = seq.c_str();
 	int window_size = 100;
 	int max_bp_span = 150;
-	float cutoff = 0.1;
+	float cutoff = theta;
 	vrna_ep_t* results = vrna_pfl_fold(cseq, window_size, max_bp_span, cutoff);
 
 	if (results != NULL)

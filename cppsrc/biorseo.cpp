@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
     Fasta::load(f, inputName.c_str());
     list<Fasta>::iterator fa = f.begin();
     if (verbose) cout << "loading " << fa->name() << "..." << endl;
-    myRNA = RNA(fa->name(), fa->seq(), verbose);
+    myRNA = RNA(fa->name(), fa->seq(), verbose, theta_p_threshold);
     if (verbose) cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
     // load CSV file
