@@ -27,7 +27,7 @@ while step < len(seq)+50:
 	sub_seq = seq[0:(min(step,n))]
 
 	fasta = open("ZDFS33.fa", 'w')
-	fasta.write("ZDFS33 : 0-" + str(len(sub_seq)) + "\n" + sub_seq)
+	fasta.write(">__'ZDFS33 : 0-" + str(len(sub_seq)) + "'\n" + sub_seq)
 	fasta.close()
 
 	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v"]
