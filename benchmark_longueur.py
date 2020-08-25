@@ -43,6 +43,6 @@ while step < len(seq)+50:
 		elif "solutions kept" in line :
 			nb_sol = line.split(",")[1].split()[0]
 
-	print(len(sub_seq), "first nucleotides" :, nb_sol, "solutions in", run_time, "seconds")
+	print(len(sub_seq), "first nucleotides :", nb_sol, "solutions in", run_time, "seconds")
 
 	step += 50
