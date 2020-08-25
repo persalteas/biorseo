@@ -33,10 +33,18 @@ while step < len(seq)+50:
 	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v"]
 
 	old_time = time.time()
-	output = subprocess.check_output(cmd).decode("utf-8")
+	output = subprocess.check_output(cmd).decode("utf-8")[-5:]
 	run_time = time.time() - old_time
 
-	print("aaaah " + "\n" + output[-1] + "\n\n")
+	for line in output :
+		if "Quitting because combinatorial issues" in line :
+			nb_sol = -1
+		else if "solutions kept" in line :
+			nb_sol = line.split(",")[1].split()[0]
+
+		print(nb_sol)
+
+	#print("aaaah " + "\n" + output[-1] + "\n\n")
 
 	"""
 	if "Quitting because combinatorial issues" in output :
