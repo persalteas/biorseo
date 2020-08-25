@@ -42,7 +42,7 @@ while step < len(seq)+50:
 		elif "solutions kept" in line :
 			nb_sol = line.split(",")[1].split()[0]
 
-		print(nb_sol)
+	print(nb_sol, run_time)
 
 	#print("aaaah " + "\n" + output[-1] + "\n\n")
 
