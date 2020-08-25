@@ -39,7 +39,7 @@ while step < len(seq)+50:
 	for line in output :
 		if "Quitting because combinatorial issues" in line :
 			nb_sol = -1
-		else if "solutions kept" in line :
+		elif "solutions kept" in line :
 			nb_sol = line.split(",")[1].split()[0]
 
 		print(nb_sol)
