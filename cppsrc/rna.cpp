@@ -1,22 +1,11 @@
 #include <iostream>
 extern "C"
 {
-	//#include <ViennaRNA/fold.h>
-	//#include <ViennaRNA/part_func.h>
-	//#include <ViennaRNA/utils/basic.h>
 	#include <ViennaRNA/part_func_window.h>
 }
 
-// Import NUPACK energy computation
-/*extern "C" {
-#include "nupack/shared.h"
-#include "nupack/thermo/core.h"
-}*/
 #include "rna.h"
 
-/*extern DBL_TYPE* pairPrPbg;    // for pseudoknots
-extern DBL_TYPE* pairPrPb;     // for pseudoknots
-extern double    CUTOFF;*/
 
 using namespace Eigen;
 using std::cerr;
@@ -30,7 +19,7 @@ RNA::RNA(void) {}
 
 RNA::RNA(string name, string seq, bool verbose, float theta)
 : verbose_{verbose}, name_(name), seq_(seq), n_(seq.size()),
-  pij_(MatrixXf::Zero(n_, n_))    // pair_map(Matrix<pair_t, 5, 5>::Constant(PAIR_OTHER)),
+  pij_(MatrixXf::Zero(n_, n_))
 {
 	vector<char> unknown_chars;
 	bool         contains_T = false;
@@ -66,15 +55,6 @@ RNA::RNA(string name, string seq, bool verbose, float theta)
 
 	if (results != NULL)
 	{
-		/*int size_res = 555500;
-		cout << "size_res : " << size_res << endl ;
-
-		for (int k=0; k<size_res; k++)
-		{
-			if (verbose_) cout << results[k].i << '\t' << results[k].j << '\t' << results[k].p << k << endl ;
-			pij_(results[k].i,results[k].j) = results[k].p ;
-		}*/
-
 		int count = 1 ;
 		while (results->i != 0  &&  results->j != 0)
 		{
@@ -87,81 +67,6 @@ RNA::RNA(string name, string seq, bool verbose, float theta)
 	}
 
 	else cout << "NULL result returned by vrna_pfl_fold" << endl;
-
-
-	// vrna_fold_compound_t  *vc = vrna_fold_compound(cseq, NULL, VRNA_OPTION_PF);
-	// char      *propensity = (char *)vrna_alloc(sizeof(char) * (strlen(cseq) + 1));
-	// vrna_ep_t *ptr, *pair_probabilities = NULL;
-	// float     en = vrna_pf_fold(cseq, propensity, &pair_probabilities);
-	// printf("%s\n%s [ %6.2f ]\n", cseq, propensity, en);
-	// for (ptr = pair_probabilities; ptr->i != 0; ptr++)
-	// {
-	//     if (verbose_) cout << ptr->i << '\t' << ptr->j << '\t' << ptr->p << endl;
-	//     if (ptr->j <= int(n_)) pij_(ptr->i,ptr->j) = ptr->p;
-	// }
-	// free(pair_probabilities);
-	// free(propensity);
-	// vrna_fold_compound_free(vc);
-
-
-
-
-
-
-	// Compute using Nupack
-	/*
-	if (verbose_) cout << "\t>computing pairing probabilities..." << endl;
-	DBL_TYPE pf;
-	int      length, tmpLength;
-	int      i, j, q, r;
-	char     seqChar[MAXSEQLENGTH];    // Complete sequence
-	int      seqNum[MAXSEQLENGTH + 1];
-
-	// Init parameters
-	DANGLETYPE                         = 1;
-	TEMP_K                             = 37.0 + ZERO_C_IN_KELVIN;
-	SODIUM_CONC                        = 1.0;
-	MAGNESIUM_CONC                     = 0.0;
-	USE_LONG_HELIX_FOR_SALT_CORRECTION = 0;
-
-	// Init seqChar
-	strcpy(seqChar, seq.c_str());
-	tmpLength = length = strlen(seqChar);
-	convertSeq(seqChar, seqNum, tmpLength);
-	int ns1, ns2;
-	getSequenceLength(seqChar, &ns1);
-	getSequenceLengthInt(seqNum, &ns2);
-
-	pairPr    = (DBL_TYPE*)calloc((length + 1) * (length + 1), sizeof(DBL_TYPE));
-	pairPrPbg = (DBL_TYPE*)calloc((length + 1) * (length + 1), sizeof(DBL_TYPE));
-	pairPrPb  = (DBL_TYPE*)calloc((length + 1) * (length + 1), sizeof(DBL_TYPE));
-
-	pf = pfuncFullWithSym(seqNum, 5, RNA37, DANGLETYPE, TEMP_K - ZERO_C_IN_KELVIN, 1, 1, SODIUM_CONC, MAGNESIUM_CONC, USE_LONG_HELIX_FOR_SALT_CORRECTION);
-	if (verbose_) printf("\t\t>Free energy: %.14Lf kcal/mol\n", -kB * TEMP_K * logl(pf));
-
-	// if (verbose_) cout << "\t\t>Base pair probabilities:" << endl;
-	for (i = 0; i < length; i++) {
-		for (j = i + 1; j < length; j++) {    // upper diagonal
-			pij_(i, j) = pairPr[(length + 1) * i + j];
-			// printf("\t\t%d %d\t%.4Le + %.4Le = %.4Le\t%s\n",i + 1,j + 1, pairPrPb[(length + 1) * i + j], pairPrPbg[(length
-			// + 1) * i + j], pairPr[(length + 1) * i + j], pairPrPb[(length + 1) * i + j]+ pairPrPbg[(length + 1) * i + j] == pairPr[(length + 1) * i + j] ? "CHECK" : "ERROR");
-		}
-	}
-	if (verbose_) {
-		cout << endl << "\t\t>Fast checking..." << endl;
-		vector<double> p_unpaired = vector<double>(n_, 0.0);
-		for (i = 0; i < length; i++) {
-			p_unpaired[i] = pairPr[(length + 1) * i + j];
-			double sum    = 0.0;
-			for (j = 0; j < length; j++) sum += i < j ? pij_(i, j) : pij_(j, i);
-			printf("\t\t%d\tunpaired: %.4e\tpaired(pK+noPK): %.4e\tTotal: %f\n", i + 1, p_unpaired[i], sum, p_unpaired[i] + sum);
-		}
-		cout << "\t\t>pairing probabilities defined" << endl;
-	}
-	free(pairPr);
-	free(pairPrPbg);
-	free(pairPrPb);
-	*/
 }
 
 
