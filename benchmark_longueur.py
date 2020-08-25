@@ -21,8 +21,8 @@ while step < len(seq)+50:
 
 	old_time = time.time()
 	output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
-	print(resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss)
 	run_time = time.time() - old_time
+	max_ram = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
 
 	for line in output :
 		if "Quitting because combinatorial issues" in line :
@@ -30,6 +30,6 @@ while step < len(seq)+50:
 		elif "solutions kept" in line :
 			nb_sol = line.split(",")[1].split()[0]
 
-	print(len(sub_seq), "first nucleotides :", nb_sol, "solutions in", run_time, "seconds")
+	print(len(sub_seq), "first nucleotides :", nb_sol, "solutions in", run_time, "seconds, using", max_ram, "kb of RAM")
 
 	step += 50
