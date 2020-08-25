@@ -33,7 +33,7 @@ while step < len(seq)+50:
 	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v"]
 
 	old_time = time.time()
-	output = subprocess.check_output(cmd)
+	output = subprocess.check_output(cmd).decode("utf-8")
 	run_time = time.time() - old_time
 
 	print("aaaah " + "\n" + str(output) + "\n\n")
