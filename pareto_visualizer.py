@@ -282,8 +282,7 @@ def prettify_biorseo(code):
 # Parse options
 try:
     opts, args = getopt.getopt( sys.argv[1:], "", 
-                             [  "biokop", 
-                                "biorseo_desc_byp_A",
+                             [  "biorseo_desc_byp_A",
                                 "biorseo_desc_byp_B",
                                 "biorseo_desc_byp_C",
                                 "biorseo_desc_byp_D",
@@ -297,6 +296,8 @@ try:
                                 "biorseo_bgsu_jar3d_B",
                                 "biorseo_bgsu_jar3d_C",
                                 "biorseo_bgsu_jar3d_D",
+                                "biorseo_rin_raw_A",
+                                "biorseo_rin_raw_B",
                                 "folder=",
                                 "database=",
                                 "output="

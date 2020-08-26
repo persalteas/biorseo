@@ -32,6 +32,7 @@ log_of_the_run.sh
 logBadDesc.txt
 gurobi.log
 temp/*
+biorseo_results/*
 
 # data 
 data/modules/BGSU/HL/3.2/diagnostic/*

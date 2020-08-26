@@ -17763,3 +17763,22 @@ BGSU-Jar3d-D         	[[[[[[........((((((((.]]]]]].........)))))))).	0.97	1	0.0
 RIN-D.P.-A           	[[[[[[......(.(((((((((]]]]]]........))))))))))	0.97	2	-1.0
 RIN-D.P.-B           	[[[[[[......(.(((((((((]]]]]]........))))))))))	0.97	1	-1.0
 16 16
+Traceback (most recent call last):
+  File "benchmark_longueur.py", line 23, in <module>
+    output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
+  File "/usr/local/lib/python3.8/subprocess.py", line 411, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "/usr/local/lib/python3.8/subprocess.py", line 491, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/usr/local/lib/python3.8/subprocess.py", line 1011, in communicate
+    stdout = self.stdout.read()
+KeyboardInterrupt
+100 first nucleotides : 8 solutions in 13.534491062164307 seconds, using 178272 kb of RAM
+Traceback (most recent call last):
+  File "benchmark_longueur.py", line 23, in <module>
+    output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
+  File "/usr/local/lib/python3.8/subprocess.py", line 411, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+  File "/usr/local/lib/python3.8/subprocess.py", line 512, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['./bin/biorseo', '-d', './data/modules/DESC', '-s', './ZDFS33.fa', '-v']' died with <Signals.SIGTERM: 15>.
