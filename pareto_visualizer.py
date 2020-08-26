@@ -388,7 +388,7 @@ if extension == "all":
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace = 0.05)
-    plt.show()
+    plt.savefig("pareto_visualizerA.png")
 
     fig, ax = plt.subplots(1,4,figsize=(10,3),sharey=True)
     ax = ax.flatten()
@@ -399,7 +399,7 @@ if extension == "all":
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace = 0.05)
-    plt.show()
+    plt.savefig("pareto_visualizerB.png")
 
     fig, ax = plt.subplots(1,4,figsize=(10,3),sharey=True)
     ax = ax.flatten()
@@ -410,7 +410,7 @@ if extension == "all":
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace = 0.05)
-    plt.show()
+    plt.savefig("pareto_visualizerC.png")
 
     fig, ax = plt.subplots(1,4,figsize=(10,3),sharey=True)
     ax = ax.flatten()
@@ -421,7 +421,7 @@ if extension == "all":
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace = 0.05)
-    plt.show()
+    plt.savefig("pareto_visualizerD.png")
     
 
     
@@ -432,4 +432,4 @@ else:
         process_extension(ax, 0, extension, nsolutions=True, xlabel="Normalized MFE", ylabel="Normalized MEA")
     else:
         process_extension(ax, 0, extension, nsolutions=True)
-    plt.show()
+    plt.savefig("pareto_visualizer_biokop.png")
