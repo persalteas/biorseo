@@ -431,5 +431,5 @@ else:
     if extension == ".biok":
         process_extension(ax, 0, extension, nsolutions=True, xlabel="Normalized MFE", ylabel="Normalized MEA")
     else:
-        process_extension(ax, 0, extension, nsolutions=True)
-    plt.savefig("pareto_visualizer_biokop.png")
+        process_extension(ax, 0, extension, nsolutions=False)
+    plt.savefig("pareto_visualizer_ext.png")
