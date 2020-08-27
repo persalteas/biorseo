@@ -51,8 +51,8 @@ MOIP::MOIP() {}
 MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string, float theta, bool verbose)
 : verbose_{verbose}, rna_(rna)
 {
-	if (!exists(path))
-		cerr << "!!! Hmh, i can't find that folder: " << path << endl;
+	if (!exists(source_path))
+		cerr << "!!! Hmh, i can't find that folder: " << source_path << endl;
 
 	if (verbose_) cout << "Summary of basepair probabilities:" << endl;
 	if (verbose_) rna_.print_basepair_p_matrix(theta);
@@ -123,7 +123,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 	else if (source == "txtfolder")
 	{
 		vector<Motif> motifs;
-		string valid_path = path ;
+		string valid_path = source_path ;
 
 		string reversed_rna = rna_string ;
 		std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
@@ -135,7 +135,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 
 		if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
 
-		size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{path}, std::filesystem::directory_iterator{});
+		size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{source_path}, std::filesystem::directory_iterator{});
 		if (verbose) std::cout << "Number of files : " << number_of_files << std::endl ;
 
 		for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
