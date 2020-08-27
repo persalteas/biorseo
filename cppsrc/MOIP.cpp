@@ -11,6 +11,15 @@
 #include <utility>
 #include <vector>
 
+//includes from Motif.cpp
+#include "Motif.h"
+#include "Pool.h"
+#include <boost/algorithm/string.hpp>
+//#include <iostream>
+#include <regex>
+#include <sstream>
+#include <thread>
+
 using std::abs;
 using std::cerr;
 using std::cout;
