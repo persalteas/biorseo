@@ -19,6 +19,7 @@
 #include <regex>
 #include <sstream>
 #include <thread>
+using namespace boost::filesystem;
 
 using std::abs;
 using std::cerr;
