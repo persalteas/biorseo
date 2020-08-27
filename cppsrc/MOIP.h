@@ -14,7 +14,7 @@ class MOIP
 {
 	public:
 	MOIP(void);
-	MOIP(const RNA& rna, string source, string source_path, float theta, bool verbose);
+	MOIP(const RNA& rna, string source, string source_path, string rna, float theta, bool verbose);
 	~MOIP(void);
 	SecondaryStructure        solve_objective(int o, double min, double max);
 	SecondaryStructure        solve_objective(int o);

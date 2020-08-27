@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 	else
 		source = "descfolder";
 
-	MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), theta_p_threshold, verbose);
+	MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), fa->seq(), theta_p_threshold, verbose);
 	double             min, max;
 	IloConstraintArray F(myMOIP.get_env());
 

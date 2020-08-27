@@ -39,9 +39,11 @@ MOIP::MOIP() {}
 
 
 
-MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool verbose)
+MOIP::MOIP(const RNA& rna, string source, string source_path, string rna, float theta, bool verbose)
 : verbose_{verbose}, rna_(rna)
 {
+	if (!exists(path))
+		cerr << "!!! Hmh, i can't find that folder: " << path << endl;
 
 	if (verbose_) cout << "Summary of basepair probabilities:" << endl;
 	if (verbose_) rna_.print_basepair_p_matrix(theta);
@@ -76,6 +78,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 	//Look for insertions sites
 	insertion_sites_ = {}; //empty vector
 
+
 	if (verbose_) cout << "\t>Looking for insertion sites..." << endl;
 
 	if (source == "jar3dcsv" or source == "bayespaircsv")
@@ -108,6 +111,167 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 		}
 	}
 	
+	else if (source == "txtfolder")
+	{
+		vector<Motif> motifs;
+		string valid_path = path ;
+
+		string reversed_rna = rna ;
+		std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
+
+		bool verified ;
+		
+
+		if (valid_path.back() != '/') valid_path.push_back('/') ;
+
+		if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
+
+		size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{path}, std::filesystem::directory_iterator{});
+		if (verbose) std::cout << "Number of files : " << number_of_files << std::endl ;
+
+		for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
+		{
+			motifs.push_back(Motif()) ;
+			motifs.back().load_from_txt(valid_path, i);
+
+
+			vector<string> vc;
+			string motif_seq = "" ;
+
+			for (Component component : motifs.back().comp)
+			{
+				vc.push_back(component.seq_) ;
+				motif_seq += component.seq_ ;
+			}
+
+			if (motif_seq.length() < 5)
+			{
+				if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be considered." << std::endl ;
+				motifs.pop_back();
+				continue ;
+			}
+
+			if (motifs.back().links_.size() == 0)
+			{
+				if (verbose) std::cout << "RIN n°" << i+1 << " is not considered for not constraining the secondary structure." << std::endl ;
+				motifs.pop_back();
+				continue ;
+			}
+
+
+			vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
+			vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
+
+			motifs.pop_back() ;
+
+			for (vector<Component> occ : occurrences)
+			{
+				motifs.push_back(Motif()) ;
+				motifs.back().load_from_txt(valid_path, i);
+				motifs.back().comp = occ ;
+				motifs.back().reversed_ = false ;
+
+				bool to_keep = true;
+
+				if (!(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+					to_keep = false;
+
+				else if (motifs.back().comp.size() != 1)
+					for (size_t j = 0; j < motifs.back().comp.size() - 1; j++)
+						if ( !(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+						{
+							to_keep = false;
+							j = motifs.back().comp.size();
+						}
+
+				if (to_keep == false)
+					motifs.pop_back();
+			}
+
+			for (vector<Component> occ : r_occurrences)
+			{
+				motifs.push_back(Motif()) ;
+				motifs.back().load_from_txt(valid_path, i);
+				motifs.back().comp = occ ;
+				motifs.back().reversed_ = true ;
+
+				bool to_keep = true;
+
+				if (!(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+					to_keep = false;
+
+				else if (motifs.back().comp.size() != 1)
+					for (size_t j = 0; j < motifs.back().comp.size() - 1; j++)
+						if ( !(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+						{
+							to_keep = false;
+							j = motifs.back().comp.size();
+						}
+
+				if (to_keep == false)
+					motifs.pop_back();
+			}
+		}
+
+		if (verbose) cout << "Done : parsed " << number_of_files << " files." << endl;
+		
+		insertion_sites_ = motifs ;
+	}
+
+	else if (source == "descfolder") //TODO pour l'instant c'est juste une copie de load_desc_folder
+	{
+		/*mutex         posInsertionSites_access;
+		Pool          pool;
+		int           errors   = 0;
+		int           accepted = 0;
+		int           inserted = 0;
+		// int           num_threads = thread::hardware_concurrency();
+		int            num_threads = 2;
+		vector<thread> thread_pool;
+
+		if (verbose) cout << "loading DESC motifs from " << path << "..." << endl;
+
+		for (int i = 0; i < num_threads; i++) thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
+
+		char error;
+		for (auto it : recursive_directory_range(path))
+		{    // Add every .desc file to the queue (iff valid)
+			if ((error = Motif::is_valid_DESC(it.path().string())))
+			{
+				if (verbose)
+				{
+					cerr << "\t>Ignoring motif " << it.path().stem();
+					switch (error)
+					{
+						case '-': cerr << ", some nucleotides have a negative number..."; break;
+						case 'l': cerr << ", hairpin (terminal) loops must be at least of size 3 !"; break;
+						case 'b': cerr << ", backbone link between non-consecutive residues ?"; break;
+						default: cerr << ", use of an unknown nucleotide " << error;
+					}
+					cerr << endl;
+				}
+				errors++;
+				continue;
+			}
+			accepted++;
+			if (is_desc_insertible(it.path().string(), rna, verbose))
+			{
+				args_of_parallel_func args(it.path(), rna, insertion_sites_, posInsertionSites_access);
+				inserted++;
+				pool.push(bind(Motif::build_from_desc, args));
+				// Motif::build_from_desc(it.path(), rna, insertion_sites_);
+			}
+		}
+		pool.done();
+		for (unsigned int i = 0; i < thread_pool.size(); i++) thread_pool.at(i).join();
+		if (verbose)
+			cout << "Inserted " << inserted << " motifs on " << accepted + errors << " (" << errors << " ignored motifs)" << endl;*/
+	}
+
+	else
+	{
+		cout << "!!! Problem with the source" << endl;
+	}
 
 	//END OF TO DO----------
 
