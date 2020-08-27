@@ -115,8 +115,8 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
 	// Add the Cx,i,p decision variables
 	if (verbose_) cout << "\t>Allowed candidate insertion sites:" << endl;
-	index_of_first_components.reserve(insertionSites.size());
-	index_of_Cxip_.reserve(insertionSites.size());
+	index_of_first_components.reserve(insertion_sites_.size());
+	index_of_Cxip_.reserve(insertion_sites_.size());
 	size_t i = 0;
 	for (uint p = 0; p < insertion_sites_.size(); ++p) {
 		const Motif& m = insertion_sites_[p];
