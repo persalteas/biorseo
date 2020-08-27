@@ -39,7 +39,7 @@ MOIP::MOIP() {}
 
 
 
-MOIP::MOIP(const RNA& rna, string source, string source_path, string rna, float theta, bool verbose)
+MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string, float theta, bool verbose)
 : verbose_{verbose}, rna_(rna)
 {
 	if (!exists(path))
@@ -116,7 +116,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna, float 
 		vector<Motif> motifs;
 		string valid_path = path ;
 
-		string reversed_rna = rna ;
+		string reversed_rna = rna_string ;
 		std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
 
 		bool verified ;
@@ -159,7 +159,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna, float 
 			}
 
 
-			vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
+			vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna_string, 0, vc) ;
 			vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
 
 			motifs.pop_back() ;
