@@ -320,7 +320,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 	}
 
 
-	cout << "Number of insertion sites : " << insertion_sites_.length() << endl ;
+	cout << "Number of insertion sites : " << insertion_sites_.size() << endl ;
 
 	//END OF TO DO----------
 
