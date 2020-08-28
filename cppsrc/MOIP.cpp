@@ -230,7 +230,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 
 	else if (source == "descfolder") //TODO pour l'instant c'est juste une copie de load_desc_folder
 	{
-		/*mutex         posInsertionSites_access;
+		mutex         posInsertionSites_access;
 		Pool          pool;
 		int           errors   = 0;
 		int           accepted = 0;
@@ -270,6 +270,22 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
 				// Motif::build_from_desc(it.path(), rna, insertion_sites_);
+
+				bool to_keep = true;
+
+				if (!(allowed_basepair(insertion_sites_.back().comp[0].pos.first, insertion_sites_.back().comp.back().pos.second)))
+					to_keep = false;
+
+				else if (insertion_sites_.back().comp.size() != 1)
+					for (size_t j = 0; j < insertion_sites_.back().comp.size() - 1; j++)
+						if ( !(allowed_basepair(insertion_sites_.back().comp[0].pos.first, insertion_sites_.back().comp.back().pos.second)))
+						{
+							to_keep = false;
+							j = insertion_sites_.back().comp.size();
+						}
+
+				if (to_keep == false)
+					insertion_sites_.pop_back();
 			}
 		}
 		pool.done();
