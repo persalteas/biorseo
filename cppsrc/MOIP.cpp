@@ -281,36 +281,43 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 			accepted++;
 			if (is_desc_insertible(it.path().string(), rna_string, verbose))
 			{
-				cout << "Check 1" << endl;
 				args_of_parallel_func args(it.path(), rna_string, insertion_sites_, posInsertionSites_access);
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
-				cout << "Check 2" << endl;
 				// Motif::build_from_desc(it.source_path(), rna, insertion_sites_);
-
-				bool to_keep = true;
-
-				if (!(allowed_basepair(insertion_sites_.back().comp[0].pos.first, insertion_sites_.back().comp.back().pos.second)))
-					to_keep = false;
-
-				else if (insertion_sites_.back().comp.size() != 1)
-					for (size_t j = 0; j < insertion_sites_.back().comp.size() - 1; j++)
-						if ( !(allowed_basepair(insertion_sites_.back().comp[0].pos.first, insertion_sites_.back().comp.back().pos.second)))
-						{
-							to_keep = false;
-							j = insertion_sites_.back().comp.size();
-						}
-
-				cout << "Check 3" << endl;
-
-				if (to_keep == false)
-					insertion_sites_.pop_back();
-
-				cout << "Check 4" << endl;
 			}
 		}
 		pool.done();
-		for (unsigned int i = 0; i < thread_pool.size(); i++) thread_pool.at(i).join();
+
+		cout << "Check 1" << endl;
+
+		for (unsigned int i = 0; i < thread_pool.size(); i++)
+		{
+			thread_pool.at(i).join();
+			
+			cout << "Check 2" << endl;
+
+			bool to_keep = true;
+
+			if (!(allowed_basepair(insertion_sites_.back().comp[0].pos.first, insertion_sites_.back().comp.back().pos.second)))
+				to_keep = false;
+
+			else if (insertion_sites_.back().comp.size() != 1)
+				for (size_t j = 0; j < insertion_sites_.back().comp.size() - 1; j++)
+					if ( !(allowed_basepair(insertion_sites_.back().comp[0].pos.first, insertion_sites_.back().comp.back().pos.second)))
+					{
+						to_keep = false;
+						j = insertion_sites_.back().comp.size();
+					}
+
+			cout << "Check 3" << endl;
+
+			if (to_keep == false)
+				insertion_sites_.pop_back();
+
+			cout << "Check 4" << endl;
+		}
+
 		if (verbose)
 			cout << "Inserted " << inserted << " motifs on " << accepted + errors << " (" << errors << " ignored motifs)" << endl;
 	}
