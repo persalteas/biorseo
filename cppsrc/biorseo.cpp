@@ -178,6 +178,7 @@ int main(int argc, char* argv[])
 	double             min, max;
 	IloConstraintArray F(myMOIP.get_env());
 
+	cout << "Solving..." << endl;
 	try {
 		bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
 		bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
