@@ -1,8 +1,4 @@
-100 first nucleotides : 8 solutions in 13.1584153175354 seconds, using 181200 kb of RAM
-150 first nucleotides : 6 solutions in 35.88266658782959 seconds, using 916704 kb of RAM
-200 first nucleotides : 26 solutions in 459.4271981716156 seconds, using 9592732 kb of RAM
-250 first nucleotides : 22 solutions in 764.5611720085144 seconds, using 15984576 kb of RAM
-300 first nucleotides : 36 solutions in 2082.976690530777 seconds, using 31073992 kb of RAM
+100 first nucleotides : 8 solutions in 18.908212661743164 seconds, using 622568 kb of RAM
 Traceback (most recent call last):
   File "benchmark_longueur.py", line 23, in <module>
     output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
