@@ -319,6 +319,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 		cout << "!!! Problem with the source" << endl;
 	}
 
+
+	cout << "Number of insertion sites : " << insertion_sites_.length() << endl ;
+
 	//END OF TO DO----------
 
 
