@@ -289,13 +289,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 		}
 		pool.done();
 
-		cout << "Check 1" << endl;
-
 		for (unsigned int i = 0; i < thread_pool.size(); i++)
 		{
 			thread_pool.at(i).join();
-			
-			cout << "Check 2" << endl;
 
 			bool to_keep = true;
 
@@ -310,12 +306,8 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 						j = insertion_sites_.back().comp.size();
 					}
 
-			cout << "Check 3" << endl;
-
 			if (to_keep == false)
 				insertion_sites_.pop_back();
-
-			cout << "Check 4" << endl;
 		}
 
 		if (verbose)
