@@ -20,8 +20,7 @@
 #include <sstream>
 #include <thread>
 using namespace boost::filesystem;
-
-#include <mutex>
+using namespace std;
 
 using std::abs;
 using std::cerr;
@@ -293,7 +292,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 		pool.done();
 		for (unsigned int i = 0; i < thread_pool.size(); i++) thread_pool.at(i).join();
 		if (verbose)
-			cout << "Inserted " << inserted << " motifs on " << accepted + errors << " (" << errors << " ignored motifs)" << endl;*/
+			cout << "Inserted " << inserted << " motifs on " << accepted + errors << " (" << errors << " ignored motifs)" << endl;
 	}
 
 	else
