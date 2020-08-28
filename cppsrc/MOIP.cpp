@@ -21,6 +21,8 @@
 #include <thread>
 using namespace boost::filesystem;
 
+#include <mutex>
+
 using std::abs;
 using std::cerr;
 using std::cout;
@@ -239,18 +241,18 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 		int            num_threads = 2;
 		vector<thread> thread_pool;
 
-		if (verbose) cout << "loading DESC motifs from " << path << "..." << endl;
+		if (verbose) cout << "loading DESC motifs from " << source_path << "..." << endl;
 
 		for (int i = 0; i < num_threads; i++) thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
 
 		char error;
-		for (auto it : recursive_directory_range(path))
+		for (auto it : recursive_directory_range(source_path))
 		{    // Add every .desc file to the queue (iff valid)
-			if ((error = Motif::is_valid_DESC(it.path().string())))
+			if ((error = Motif::is_valid_DESC(it.source_path().string())))
 			{
 				if (verbose)
 				{
-					cerr << "\t>Ignoring motif " << it.path().stem();
+					cerr << "\t>Ignoring motif " << it.source_path().stem();
 					switch (error)
 					{
 						case '-': cerr << ", some nucleotides have a negative number..."; break;
@@ -264,12 +266,12 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 				continue;
 			}
 			accepted++;
-			if (is_desc_insertible(it.path().string(), rna, verbose))
+			if (is_desc_insertible(it.source_path().string(), rna, verbose))
 			{
-				args_of_parallel_func args(it.path(), rna, insertion_sites_, posInsertionSites_access);
+				args_of_parallel_func args(it.source_path(), rna, insertion_sites_, posInsertionSites_access);
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
-				// Motif::build_from_desc(it.path(), rna, insertion_sites_);
+				// Motif::build_from_desc(it.source_path(), rna, insertion_sites_);
 
 				bool to_keep = true;
 
