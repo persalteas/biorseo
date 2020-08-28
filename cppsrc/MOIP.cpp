@@ -279,9 +279,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 				continue;
 			}
 			accepted++;
-			if (is_desc_insertible(it.path().string(), rna, verbose))
+			if (is_desc_insertible(it.path().string(), rna_string, verbose))
 			{
-				args_of_parallel_func args(it.path(), rna, insertion_sites_, posInsertionSites_access);
+				args_of_parallel_func args(it.path(), rna_string, insertion_sites_, posInsertionSites_access);
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
 				// Motif::build_from_desc(it.source_path(), rna, insertion_sites_);
