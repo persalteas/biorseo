@@ -261,11 +261,11 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 		char error;
 		for (auto it : recursive_directory_range(source_path))
 		{    // Add every .desc file to the queue (iff valid)
-			if ((error = Motif::is_valid_DESC(it.source_path().string())))
+			if ((error = Motif::is_valid_DESC(it.path().string())))
 			{
 				if (verbose)
 				{
-					cerr << "\t>Ignoring motif " << it.source_path().stem();
+					cerr << "\t>Ignoring motif " << it.path().stem();
 					switch (error)
 					{
 						case '-': cerr << ", some nucleotides have a negative number..."; break;
@@ -279,9 +279,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 				continue;
 			}
 			accepted++;
-			if (is_desc_insertible(it.source_path().string(), rna, verbose))
+			if (is_desc_insertible(it.path().string(), rna, verbose))
 			{
-				args_of_parallel_func args(it.source_path(), rna, insertion_sites_, posInsertionSites_access);
+				args_of_parallel_func args(it.path(), rna, insertion_sites_, posInsertionSites_access);
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
 				// Motif::build_from_desc(it.source_path(), rna, insertion_sites_);
