@@ -281,9 +281,11 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 			accepted++;
 			if (is_desc_insertible(it.path().string(), rna_string, verbose))
 			{
+				cout << "Check 1" << endl;
 				args_of_parallel_func args(it.path(), rna_string, insertion_sites_, posInsertionSites_access);
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
+				cout << "Check 2" << endl;
 				// Motif::build_from_desc(it.source_path(), rna, insertion_sites_);
 
 				bool to_keep = true;
@@ -299,8 +301,12 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 							j = insertion_sites_.back().comp.size();
 						}
 
+				cout << "Check 3" << endl;
+
 				if (to_keep == false)
 					insertion_sites_.pop_back();
+
+				cout << "Check 4" << endl;
 			}
 		}
 		pool.done();
