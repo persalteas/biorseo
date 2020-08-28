@@ -35,6 +35,20 @@ double MOIP::precision_        = 1e-5;
 bool   MOIP::allow_pk_         = true;
 uint   MOIP::max_sol_nbr_      = 500;
 
+
+
+struct recursive_directory_range {
+	typedef recursive_directory_iterator iterator;
+	recursive_directory_range(path p) : p_(p) {}
+
+	iterator begin() { return recursive_directory_iterator(p_); }
+	iterator end() { return recursive_directory_iterator(); }
+
+	path p_;
+};
+
+
+
 unsigned getNumConstraints(IloModel& m)
 {
 	unsigned           count = 0;
