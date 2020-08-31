@@ -2,7 +2,7 @@
 #ifndef DEF_RNA
 #define DEF_RNA
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 #include <map>
 #include <sstream>
 #include <string>

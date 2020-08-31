@@ -64,7 +64,7 @@ Option 2 : Compile and Install from source (without docker, Linux only)
 ==================================
 
 ### CLONING
-* Clone this git repository : `git clone ssh://git@forge.ibisc.univ-evry.fr/lbecquey/biorseo.git` and `cd biorseo`.
+* Clone this git repository : `git clone https://forge.ibisc.univ-evry.fr/lbecquey/biorseo.git` (from the IBISC forge) or `git clone https://github.com/persalteas/biorseo.git` (from my personal GitHub, only while i am the current developer !) and `cd biorseo`.
 
 * Create folders for the modules you will use: `mkdir -p data/modules/`. If you plan to use several module sources, add subdirectories :
 ```bash
@@ -90,42 +90,45 @@ python3 transform_CaRNAval_pickle.py
 ```
 
 ### DEPENDENCIES
-- Make sure you have Python 3.7+, Cmake, and a C++ compiler installed on your distribution. Use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example.
-- Install automake, libeigen3-dev, libboost-program-options and libboost-filesystem, or equivalent packages in your distribution (Eigen 3 headers, and Boost libraries).
-- Download and install [IBM ILOG Cplex optimization studio](https://www.ibm.com/analytics/cplex-optimizer), through their academic initiative. The Student and the Community Edition versions are fine, but the free version is too limited. registering as academic is free.
+- Make sure you have Python 3.7+ and a C++ compiler (tested with GCC and clang) installed on your distribution. Use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example.
+- Install automake, libeigen3-dev, libboost-program-options-dev and libboost-filesystem-dev, or equivalent packages in your distribution (Eigen 3 and Boost headers).
+- Download and install the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/). We are interested in the libRNA library to build Biorseo first, and then, Jar3D and BayesPairing may use some of the executables (RNAsubopt, RNAfold). 
+    - If you use the pre-complied packages, you need both the "Core" package and the development files. 
+    - If you compile it from source, extract the archive (`tar -xvzf ViennaRNA-2.4.15.tar.gz`), go into the folder (`cd ViennaRNA-2.4.15`), configure and build it (`./configure` and then `make -j 4`) and finally install it with root permissions (`sudo make install`). Everything should be fine. This takes ~15 min. Optionnally, you may want to install optional libraries GSL and MPFR before (libgsl-dev and libmpfr-dev on Ubuntu), for better performance.
+- Download and install [IBM ILOG Cplex optimization studio](https://www.ibm.com/analytics/cplex-optimizer), through their [academic initiative](https://www.ibm.com/academic/home). The Student and the Community Edition versions are fine, but the free version is too limited. Registering as academic is free. We actually don't use the Studio, but we use the development files to compile Biorseo.
 
 
 ### OPTIONAL DEPENDENCIES FOR USE OF JAR3D
-- Download and install RNAsubopt from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/).
-- Download and install Java runtime (Tested with Java 10)
+- Download and install Java runtime (Tested with Java 14)
 - Download the latest JAR3D executable "*jar3d_releasedate.jar*" from [the BGSU website](http://rna.bgsu.edu/data/jar3d/models/). 
   
 
 ### OPTIONAL DEPENDENCIES FOR USE OF BAYESPAIRING
-- Download and install RNAfold from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/) (if not already done at the previous step).
-- Make sure libRNA.so is in your $PYTHONPATH (so than you can `import RNA` in your favorite python3.X).
-- Make sure you have Python 3.6+ with packages networkx, numpy, anytree, weblogo, wrapt and biopython. You can install them with pip, you will need the python3-dev package to build them.
+- Make sure you can `import RNA` in your favorite python3.X. Otherwise, there might be a ViennaRNA installation issue.
+    - Depending on your distribution, this might require that you add the site-packages/RNA folder, or the libRNA.so library to your $PYTHONPATH variable.
+    - On Ubuntu/Debian distros, which have stupid conventions and ignore the site-packages/ folder, you need to move the python package to the dist-packages/ folder. E.g., if you compiled ViennaRNA from source, `sudo mv /usr/local/lib/python3.X/site-packages/RNA /usr/local/lib/python3.X/dist-packages/`.
+
+- Make sure you have Python 3.6+ with pip (packages python3-pip and python3-dev on most distros)
 - Clone the latest BayesPairing 2 Git repo, and install it : 
 ```
 git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing2.git BayesPairing2
 cd BayesPairing2
-pip install .
+python3 -m pip install .
+cd ..
 ```
 
 ### BUILDING
-* You might want to edit `Makefile`:
-    - if you are not using clang as compiler. For example, if you use g++, replace clang++ by g++.
-    - if you did not install CPLEX in the default location. Please update the top variables $ICONCERT, $ICPLEX, $LCONCERT, and $LCPLEX with the correct locations.
+* You might want to edit `Makefile` if you did not install CPLEX or the libRNA in the default location. Please update the top variables $ICONCERT, $ICPLEX, $LCONCERT, and $LCPLEX with the correct locations.
 * Build it: `make -j4`
 * Check if the executable file exists: `./bin/biorseo --version`.
 
 ### BAYESPAIRING USERS: PREPARE BAYESIAN NETWORKS
 We run an example job for it to build the bayesian networks of our modules.
 ```
-cd BayesPairing2/src
+cd BayesPairing2/bayespairing/src
 python3 parse_sequences.py -seq "UUUUUUAAGGAAGAUCUGGCCUUCCCACAAGGGAAGGCCAAAGAAUUUCCUU" -t 4 -d rna3dmotif -ss "......(((((((.((((((((((((....)))))))))..))).)))))))"
 ```
-Use `-d rna3dmotif`, `-d 3DmotifAtlas_ALL`, or `-d 3DmotifAtlas_RELIABLE` depending on the module source you are planning to use.
+Use `-d rna3dmotif`, `-d 3dMotifAtlas_ALL` depending on the module source you are planning to use.
 This is a quite long step, but the bayesian networks will be ready for all the future uses.
 
 ### RUN BIORSEO

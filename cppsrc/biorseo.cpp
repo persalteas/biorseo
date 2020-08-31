@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 			return EXIT_SUCCESS;
 		}
 		if (vm.count("version")) {
-			cout << "Biorseo v1.5, dockerized, November 2019" << endl;
+			cout << "Biorseo v2.0, dockerized, August 2020" << endl;
 			return EXIT_SUCCESS;
 		}
 		if (vm.count("verbose")) verbose = true;

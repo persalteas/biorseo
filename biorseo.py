@@ -155,9 +155,8 @@ class BiorseoInstance:
 		self.mode = 0 # default is single sequence mode
 		self.forward_options = []
 		self.jar3dexec = "/jar3d_2014-12-11.jar"
-		#self.bypdir = "/byp/src"
-		self.bypdir = "/opt/BayesPairing/bayespairing/src"
-		#self.biorseoDir = "/biorseo"
+		self.bypdir = "/byp/src"
+		self.biorseoDir = "/biorseo"
 		self.biorseoDir = "."
 		self.HLmotifDir = "/modules/BGSU/HL/3.2/lib"
 		self.ILmotifDir = "/modules/BGSU/IL/3.2/lib"
@@ -291,7 +290,7 @@ class BiorseoInstance:
 							continue
 						remove(dst_file)
 					move(src_file, dst_dir)
-		#subprocess.call(["rm", "-rf", self.tempDir])  # remove the temp folder  
+		subprocess.run(["rm", "-rf", self.tempDir])  # remove the temp folder  
 
 	def enumerate_loops(self, s):
 		def resort(unclosedLoops):
@@ -493,10 +492,9 @@ class BiorseoInstance:
 		resultsfile.close()
 
 	def launch_BayesPairing(self, module_type, seq_, header_):
-		#cmd = ["python3.8", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
-		cmd = ["python3.8", "parse_sequences.py", "-seq", '/home/ldurand/biorseo/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
+		cmd = ["python3", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-d", module_type, "-interm", "1"]
 
-		logfile = open('/home/ldurand/biorseo/' + self.tempDir + "log_of_the_run.sh", 'a')
+		logfile = open(self.biorseoDir + "/" + self.tempDir + "log_of_the_run.sh", 'a')
 		logfile.write(" ".join(cmd))
 		logfile.write("\n")
 		logfile.close()
@@ -511,11 +509,9 @@ class BiorseoInstance:
 			l = BypLog[idx]
 		insertion_sites = [x for x in ast.literal_eval(l.split(":")[1][1:])]
 		if module_type == "rna3dmotif":
-			#rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp.csv", "w")
-			rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".byp.csv", "w")
+			rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp.csv", "w")
 		else:
-			#rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp.csv", "w")
-			rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".bgsubyp.csv", "w")
+			rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp.csv", "w")
 		rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
 		for i, module in enumerate(insertion_sites):
 			if len(module):
@@ -535,40 +531,35 @@ class BiorseoInstance:
 					rna.write('\n')
 		rna.close()
 
-
 	def launch_BayesPairing2(self, module_type, seq_, header_):
-		#cmd = ["python3.7", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-samplesize", "1000", "-d", module_type]
+
 		if module_type=="rna3dmotif":
 			BP2_type = "rna3dmotif"
 		else:
-			BP2_type = "3DmotifAtlas_ALL"
+			BP2_type = "3dMotifAtlas_ALL"
 
-		cmd = ["python3.7", "parse_sequences.py", "-seq", '/home/ldurand/biorseo/' + self.tempDir + header_ + ".fa", "-samplesize", "1000", "-d", BP2_type]
-
-		logfile = open('/home/ldurand/biorseo/' + self.tempDir + "log_of_the_run.sh", 'a')
+		cmd = ["python3", "parse_sequences.py", "-seq", self.biorseoDir + '/' + self.tempDir + header_ + ".fa", "-samplesize", "1000", "-d", BP2_type ]
+		logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
 		logfile.write(" ".join(cmd))
 		logfile.write("\n")
 		logfile.close()
 
-		#chdir(self.bypdir)
-		chdir("/opt/rnabayespairing2.git/bayespairing/src")
+		chdir(self.bypdir)
 		out = subprocess.check_output(cmd).decode('utf-8')
-		#Byp2Log = out.split('\n')
-			Byp2Log = out.splitlines()
+		Byp2Log = out.splitlines()
 
-		#remove what is not in the original input
+		# remove what is not in the original input
 		Byp2Log.pop(0)
 		Byp2Log.pop(0)
 		Byp2Log.pop()
 		Byp2Log.pop()
 
-		#remove the 2 first lines of output
+		# remove the 2 first lines of output
 		Byp2Log.pop(0)
 		Byp2Log.pop(0)
 
 		lines = []
 		for i in range(len(Byp2Log)):
-			#line = Byp2Log[i].replace("|", ' ').replace(",", ' ').replace("-", ' ').split()
 			line = Byp2Log[i].replace("|", ' ').replace(",", ' ').split()
 
 			if line != []:
@@ -614,29 +605,10 @@ class BiorseoInstance:
 					if new_line != [] :
 						lines.append(new_line)
 
-			"""
-			if line != []:
-				new_line = [line[0], line[1]]
-				for j in range(2,len(line)): #skip module and score
-					if "-" not in line[j]: #position of length 1
-						new_line.append(line[j])
-						new_line.append(line[j])
-					else:
-						element = line[j].split("-")
-						new_line.append(element[0])
-						new_line.append(element[1])
-
-				lines.append(new_line)
-				#print(line)
-			"""
-
-
 		if module_type=="rna3dmotif":
-			#rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp2.csv", "w")
-			rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".byp2.csv", "w")
+			rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".byp2.csv", "w")
 		else:
-			#rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp2.csv", "w")
-			rna = open('/home/ldurand/biorseo/' +  self.tempDir + header_ + ".bgsubyp2.csv", "w")
+			rna = open(self.biorseoDir + "/" + self.tempDir + header_ + ".bgsubyp2.csv", "w")
 
 		rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
 
@@ -648,13 +620,11 @@ class BiorseoInstance:
 
 		rna.close()
 
-
-
 	def execute_job(self, j):
 		
 		running_stats[0] += 1
 		if len(j.cmd_):
-			logfile = open(self.tempDir + "log_of_the_run.sh", 'a')
+			logfile = open(self.biorseoDir + "/" + self.tempDir + "log_of_the_run.sh", 'a')
 			logfile.write(" ".join(j.cmd_))
 			logfile.write("\n")
 			logfile.close()
@@ -704,8 +674,8 @@ class BiorseoInstance:
 		# Read fasta file, which can contain one or several RNAs
 		RNAcontainer = []
 		if self.outputf != "":
-			subprocess.call(["mkdir", "-p", self.outputf])  # Create the output folder
-		subprocess.call(["mkdir", "-p", self.tempDir])  # Create the temp folder
+			subprocess.run(["mkdir", "-p", self.outputf])  # Create the output folder
+		subprocess.run(["mkdir", "-p", self.tempDir])  # Create the temp folder
 		print("loading file %s..." % self.inputfile)
 		db = open(self.inputfile, "r")
 		c = 0
@@ -766,12 +736,14 @@ class BiorseoInstance:
 				if self.modules == "desc":
 					ext = ".byp"
 					csv = self.tempDir + instance.header + ".byp.csv"
-					#self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
+					# For now, BayesPairing 2 cannot be launched in parallel !
+					# self.joblist.append(Job(function=self.launch_BayesPairing, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
 					self.launch_BayesPairing("rna3dmotif", instance.seq_, instance.header)
 
 				elif self.modules == "bgsu":
 					ext = ".bgsubyp"
 					csv = self.tempDir + instance.header + ".bgsubyp.csv"
+					# For now, BayesPairing 2 cannot be launched in parallel !
 					#self.joblist.append(Job(function=self.launch_BayesPairing, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
 					self.launch_BayesPairing("3dmotifatlas", instance.seq_, instance.header)
 
@@ -797,12 +769,14 @@ class BiorseoInstance:
 				if self.modules == "desc":
 					ext = ".byp2"
 					csv = self.tempDir + instance.header + ".byp2.csv"
+					# For now, BayesPairing 2 cannot be launched in parallel !
 					#self.joblist.append(Job(function=self.launch_BayesPairing2, args=["rna3dmotif", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
 					self.launch_BayesPairing2("rna3dmotif", instance.seq_, instance.header)
 
 				elif self.modules == "bgsu":
 					ext = ".bgsubyp2"
 					csv = self.tempDir + instance.header + ".bgsubyp2.csv"
+					# For now, BayesPairing 2 cannot be launched in parallel !
 					#self.joblist.append(Job(function=self.launch_BayesPairing2, args=["3dmotifatlas", instance.seq_, instance.header], how_many_in_parallel=-1, priority=1))
 					self.launch_BayesPairing2("3dmotifatlas", instance.seq_, instance.header)
 

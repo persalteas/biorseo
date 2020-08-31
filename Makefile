@@ -1,7 +1,5 @@
 ICONCERT=/opt/ibm/ILOG/CPLEX_Studio1210/concert/include
 ICPLEX=/opt/ibm/ILOG/CPLEX_Studio1210/cplex/include
-INUPACK=/usr/local/include/nupack
-IEIGEN=/usr/local/include/eigen3
 LCONCERT=/opt/ibm/ILOG/CPLEX_Studio1210/concert/lib/x86-64_linux/static_pic/
 LCPLEX=/opt/ibm/ILOG/CPLEX_Studio1210/cplex/lib/x86-64_linux/static_pic/
 
@@ -10,14 +8,12 @@ TARGET   = biorseo
 
 CC	   = g++
 # compiling flags here
-CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -I$(INUPACK) -I$(IEIGEN) -O3
+CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -O3
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable -Wno-deprecated-copy -Wno-maybe-uninitialized
 
 LINKER   = g++
 # linking flags here
 LDFLAGS   = -L$(LCONCERT) -L$(LCPLEX) -lboost_system -lboost_filesystem -lboost_program_options -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm -lstdc++fs
-#LDFLAGS   = -L$(LCONCERT) -L$(LCPLEX) -lboost_system -lboost_filesystem -lboost_program_options -lconcert -lilocplex -lcplex -lpthread -ldl -lnupackpfunc -lnupackutils -lstdc++fs
-
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc
