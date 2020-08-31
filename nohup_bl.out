@@ -1,9 +1,0 @@
-100 first nucleotides : 8 solutions in 18.908212661743164 seconds, using 622568 kb of RAM
-Traceback (most recent call last):
-  File "benchmark_longueur.py", line 23, in <module>
-    output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
-  File "/usr/local/lib/python3.8/subprocess.py", line 411, in check_output
-    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
-  File "/usr/local/lib/python3.8/subprocess.py", line 512, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['./bin/biorseo', '-d', './data/modules/DESC', '-s', './ZDFS33.fa', '-v']' died with <Signals.SIGKILL: 9>.
