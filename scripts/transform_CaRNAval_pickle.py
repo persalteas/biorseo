@@ -10,7 +10,7 @@ import networkx, os, pickle, sys
 if __name__=="__main__":
 
     
-    rin_DIR = os.getcwd() + "/../data/modules/CaRNAval/"
+    rin_DIR = os.getcwd() + "/../data/modules/RIN/"
     filename = "CaRNAval_1_as_dictionnary.nxpickled"
 
     # Check that we can find CaRNAval RINs, and load the dataset

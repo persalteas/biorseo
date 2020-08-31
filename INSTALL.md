@@ -64,12 +64,13 @@ Option 2 : Compile and Install from source (without docker, Linux only)
 ==================================
 
 ### CLONING
-* Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` and `cd biorseo`.
+* Clone this git repository : `git clone ssh://git@forge.ibisc.univ-evry.fr/lbecquey/biorseo.git` and `cd biorseo`.
 
 * Create folders for the modules you will use: `mkdir -p data/modules/`. If you plan to use several module sources, add subdirectories :
 ```bash
 mkdir -p data/modules/DESC
 mkdir -p data/modules/BGSU
+mkdir -p data/modules/RIN
 ```
 
 ### RNA3DMOTIFS DATA
@@ -82,41 +83,18 @@ Get the latest version of the HL and IL module models from the [BGSU website](ht
 
 ### CARNAVAL DATA
 
-You first need to have the 'networkx' installed for Python. Then just run the script `./transform_pickle.py` :
+You first need to have the 'networkx' package installed for Python 3. Then just run the script `./scripts/transform_CaRNAval_pickle.py`, this will create files into `./data/modules/RIN/Subfiles` :
 ```bash
-python3 transform_pickle.py
+cd scripts
+python3 transform_CaRNAval_pickle.py
 ```
-
 
 ### DEPENDENCIES
-- Make sure you have Python 3.5+, Cmake, and a C++ compiler installed on your distribution. Please, it's 2019, use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example. Tested with libstdc++-dev >= 6.0, so use GCC >=6.0 or Clang >= 6.0.
-- Install automake, libboost-program-options and libboost-filesystem.
+- Make sure you have Python 3.7+, Cmake, and a C++ compiler installed on your distribution. Use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example.
+- Install automake, libeigen3-dev, libboost-program-options and libboost-filesystem, or equivalent packages in your distribution (Eigen 3 headers, and Boost libraries).
 - Download and install [IBM ILOG Cplex optimization studio](https://www.ibm.com/analytics/cplex-optimizer), through their academic initiative. The Student and the Community Edition versions are fine, but the free version is too limited. registering as academic is free.
-- Download and install Eigen: Get the latest Eigen archive from http://eigen.tuxfamily.org. Unpack it, and install it.
-```bash
-wget http://bitbucket.org/eigen/eigen/get/3.3.7.tar.gz -O eigen_src.tar.gz
-tar -xf eigen_src.tar.gz
-cd eigen-eigen-323c052e1731
-mkdir build
-cd build
-cmake ..
-sudo make install
-```
-- Download and install NUPACK: Register on [Nupack's website](http://www.nupack.org/downloads/source), download the source, unpack it, build it, and install it:
-```bash
-wget http://www.nupack.org/downloads/serve_file/nupack3.2.2.tar.gz
-tar -xf nupack3.2.2.tar.gz
-cd nupack3.2.2
-mkdir build
-cd build
-cmake ..
-make -j4
-sudo make install
-```
-You will notice that the installation process is not complete, some of the headers are not well copied to /usr/local. Solve it manually:
-```
-sudo cp nupack3.2.2/src/thermo/*.h /usr/local/include/nupack/thermo/
-```
+
+
 ### OPTIONAL DEPENDENCIES FOR USE OF JAR3D
 - Download and install RNAsubopt from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/).
 - Download and install Java runtime (Tested with Java 10)
@@ -125,28 +103,29 @@ sudo cp nupack3.2.2/src/thermo/*.h /usr/local/include/nupack/thermo/
 
 ### OPTIONAL DEPENDENCIES FOR USE OF BAYESPAIRING
 - Download and install RNAfold from the [ViennaRNA package](https://www.tbi.univie.ac.at/RNA/) (if not already done at the previous step).
-- Make sure you have Python 3.5+ with packages networkx, numpy, regex, wrapt and biopython. You can install them with pip, you will need the python3-dev package to build them.
-- Clone the latest BayesPairing Git repo, and install it : 
+- Make sure libRNA.so is in your $PYTHONPATH (so than you can `import RNA` in your favorite python3.X).
+- Make sure you have Python 3.6+ with packages networkx, numpy, anytree, weblogo, wrapt and biopython. You can install them with pip, you will need the python3-dev package to build them.
+- Clone the latest BayesPairing 2 Git repo, and install it : 
 ```
-git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing.git BayesPairing
-cd BayesPairing
+git clone http://jwgitlab.cs.mcgill.ca/sarrazin/rnabayespairing2.git BayesPairing2
+cd BayesPairing2
 pip install .
 ```
 
 ### BUILDING
 * You might want to edit `Makefile`:
     - if you are not using clang as compiler. For example, if you use g++, replace clang++ by g++.
-    - if you did not install CPLEX, Eigen or Nupack in the default locations. Please update the top variables $ICONCERT, $ICPLEX, $INUPACK, $IEIGEN, $LCONCERT, and $LCPLEX with the correct locations.
+    - if you did not install CPLEX in the default location. Please update the top variables $ICONCERT, $ICPLEX, $LCONCERT, and $LCPLEX with the correct locations.
 * Build it: `make -j4`
 * Check if the executable file exists: `./bin/biorseo --version`.
 
 ### BAYESPAIRING USERS: PREPARE BAYESIAN NETWORKS
 We run an example job for it to build the bayesian networks of our modules.
 ```
-cd rnabayespairing/src
-python3 parse_sequences.py -d rna3dmotif -seq ACACGGGGUAAGAGCUGAACGCAUCUAAGCUCGAAACCCACUUGGAAAAGAGACACCGCCGAGGUCCCGCGUACAAGACGCGGUCGAUAGACUCGGGGUGUGCGCGUCGAGGUAACGAGACGUUAAGCCCACGAGCACUAACAGACCAAAGCCAUCAU -ss ".................................................................((...............)xxxx(...................................................)xxx).............."
+cd BayesPairing2/src
+python3 parse_sequences.py -seq "UUUUUUAAGGAAGAUCUGGCCUUCCCACAAGGGAAGGCCAAAGAAUUUCCUU" -t 4 -d rna3dmotif -ss "......(((((((.((((((((((((....)))))))))..))).)))))))"
 ```
-Use `-d rna3dmotif` or `-d 3dmotifatlas` depending on the module source you are planning to use.
+Use `-d rna3dmotif`, `-d 3DmotifAtlas_ALL`, or `-d 3DmotifAtlas_RELIABLE` depending on the module source you are planning to use.
 This is a quite long step, but the bayesian networks will be ready for all the future uses.
 
 ### RUN BIORSEO
@@ -158,5 +137,5 @@ $ ./biorseo.py
 --rna3dmotifs --patternmatch --func B 
 --biorseodir /FULL/path/to/the/root/biorseo/dir
 --modules-path=./data/modules/DESC 
---jar3dexec=./jar3d_releasedate.jar OR --bypdir=./BayesPairing/bayespairing/src
+--jar3dexec=./jar3d_releasedate.jar OR --bypdir=./BayesPairing2/bayespairing/src
 ```

@@ -35,6 +35,8 @@ temp/*
 biorseo_results/*
 
 # data 
+data/modules/BGSU
+data/modules/DESC
 data/modules/BGSU/HL/3.2/diagnostic/*
 data/modules/BGSU/HL/3.2/lib/*
 data/modules/BGSU/IL/3.2/diagnostic/*
@@ -42,4 +44,4 @@ data/modules/BGSU/IL/3.2/lib/*
 data/modules/DESC/*.desc
 data/modules/CaRNAval/Subfiles
 data/modules/CaRNAval/__pycache__
-data/*
+
