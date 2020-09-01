@@ -97,7 +97,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 
 	// Look for insertions sites, then create the appropriate Cxip variables
 	vector<Motif> insertion_sites_ = {};
-
 	if (verbose_) cout << "\t>Looking for insertion sites..." << endl;
 
 	if (source == "jar3dcsv" or source == "bayespaircsv")
@@ -131,10 +130,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 			insertion_sites_.push_back(this_motif);
 		}
 	}
-	else if (source == "descfolder") //TODO pour l'instant c'est juste une copie de load_desc_folder
+	else if (source == "descfolder") 
 	{
 		if (verbose) cout << "loading DESC motifs from " << source_path << "..." << endl;
-
 
 		mutex         posInsertionSites_access;
 		Pool          pool;
@@ -917,6 +915,10 @@ void MOIP::remove_solution(uint i) { pareto_.erase(pareto_.begin() + i); }
 
 void Motif::build_from_desc(args_of_parallel_func arg_struct)
 {
+	/*
+		Searches where to place some DESC module in the RNA
+		Too short components are extended in all possible directions.
+	*/
 	path           descfile                 = arg_struct.descfile;
 	string&        rna                      = arg_struct.rna;
 	vector<Motif>& final_results            = arg_struct.final_results;
@@ -965,7 +967,7 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
 	component_sequences.push_back(seq);
 	// Now component_sequences is a vector of sequences like {AGCGC, CGU..GUUU}
 
-	// identify components of length 1 or 2 to extend them to length 3
+	// identify components of length 1 or 2, then extend them to length 3
 	vector<uint> comp_of_size_1;
 	vector<uint> comp_of_size_2;
 	for (uint p = 0; p < component_sequences.size(); ++p) {
@@ -973,7 +975,10 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
 		if (component_sequences[p].length() == 2) comp_of_size_2.push_back(p);
 	}
 	if (comp_of_size_1.size() or comp_of_size_2.size()) {
-		vector<vector<string>> motif_variants;    // Will contain several component_sequences vectors according to the size where you extend too short components
+		// We have short components to extend.
+		// We will look at all the possible extensions of the motifs for which all 
+		// components have length 3 or more, and store the variants in motif_variants:
+		vector<vector<string>> motif_variants;
 
 		component_sequences.clear();    // rebuild from scratch
 		motif_variants.push_back(component_sequences);
@@ -1057,7 +1062,9 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
 			vresults.insert(vresults.end(), new_results.begin(), new_results.end());
 		}
 
-	} else {
+	} 
+	else 
+	{
 		// No multiple motif variants : we serach in a single vector component_sequences
 		// We need to search for the different positions where to insert the first component
 		vresults = find_next_ones_in(rna, 0, component_sequences);
@@ -1065,8 +1072,14 @@ void Motif::build_from_desc(args_of_parallel_func arg_struct)
 
 	// Now create proper motifs with Motif class
 	for (vector<Component>& v : vresults) {
+		Motif temp_motif = Motif(v, path(descfile).stem().string());
+
+		// Check if the probabilities allow to keep this Motif:
+		if (!allowed_basepair()) continue;
+
+		// Add it to the results vector
 		unique_lock<mutex> lock(posInsertionSites_access);
-		final_results.push_back(Motif(v, path(descfile).stem().string()));
+		final_results.push_back();
 		lock.unlock();
 	}
 }
