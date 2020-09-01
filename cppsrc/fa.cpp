@@ -6,7 +6,6 @@
  * This file comes from Ipknot.
  */
 
-
 #include "fa.h"
 #include <iostream>
 #include <fstream>

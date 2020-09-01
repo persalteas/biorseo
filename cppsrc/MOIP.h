@@ -68,4 +68,5 @@ inline IloNumExprArg&            MOIP::y(size_t u, size_t v) { return basepair_d
 inline IloNumExprArg&            MOIP::C(size_t x, size_t i) { return insertion_dv_[get_Cpxi_index(x, i)]; }
 inline SecondaryStructure        MOIP::solve_objective(int o) { return solve_objective(o, 0, rna_.get_RNA_length()); }
 inline IloEnv&                   MOIP::get_env(void) { return env_; }
+
 #endif    // MOIP_H_

@@ -1,5 +1,6 @@
 /***
-		Biorseo, Louis Becquey, nov 2018
+		Biorseo, Louis Becquey, nov 2018-August 2020
+		Special thanks to Lénaic Durand for working a lot on version 2.0
 		louis.becquey@univ-evry.fr
 ***/
 
@@ -58,7 +59,7 @@ int main(int argc, char* argv[])
 	string             inputName, outputName, motifs_path_name, basename;
 	bool               verbose = false;
 	float              theta_p_threshold;
-	char               obj_function_nbr = 'A';
+	char               obj_function_nbr = 'B';
 	list<Fasta>        f;
 	vector<Motif>      posInsertionSites;
 	ofstream           outfile;
@@ -73,9 +74,9 @@ int main(int argc, char* argv[])
 	("version", "Print the program version")
 	("seq,s", po::value<string>(&inputName)->required(), "Fasta file containing the RNA sequence")
 	("descfolder,d", po::value<string>(&motifs_path_name), "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")
-	("rinfolder,x", po::value<string>(&motifs_path_name), "A folder containing CaRNAval's RIN in .txt format, as produced by transform_json.py")
-	("jar3dcsv,j", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
-	("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by test_on_RNAstrand.py")
+	("rinfolder,x", po::value<string>(&motifs_path_name), "A folder containing CaRNAval's RINs in .txt format, as produced by script transform_caRNAval_pickle.py")
+	("jar3dcsv,j", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by biorseo.py")
+	("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by biorseo.py")
 	("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
 	("output,o", po::value<string>(&outputName), "A file to summarize the computation results")
 	("theta,t", po::value<float>(&theta_p_threshold)->default_value(0.001), "Pairing probability threshold to consider or not the possibility of pairing")
@@ -95,7 +96,7 @@ int main(int argc, char* argv[])
 			cout << "Biorseo, bio-objective integer linear programming framework to predict RNA secondary "
 					"structures by including known RNA modules."
 				 << endl
-				 << "developped by Louis Becquey (louis.becquey@univ-evry.fr), 2019" << endl
+				 << "developped by Louis Becquey (louis.becquey@univ-evry.fr), 2018-2020" << endl
 				 << endl
 				 << desc << endl;
 			return EXIT_SUCCESS;
@@ -107,18 +108,16 @@ int main(int argc, char* argv[])
 		if (vm.count("verbose")) verbose = true;
 		if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
 
-		if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder") and !vm.count("txtfolder")) {
-			cerr << "\033[31mYou must provide at least one of --descfolder, --txtfolder, --jar3dcsv or --bayespaircsv.\033[0m See --help "
-					"for more "
-					"information."
+		if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder") and !vm.count("rinfolder")) {
+			cerr << "\033[31mYou must provide at least one of --descfolder, --rinfolder, --jar3dcsv or --bayespaircsv.\033[0m See --help "
+					"for more information."
 				 << endl;
 			return EXIT_FAILURE;
 		}
 
-		if (vm.count("-d") and (obj_function_nbr == 'C' or obj_function_nbr == 'D')) {
+		if ((vm.count("-d") or vm.count("-x")) and (obj_function_nbr == 'C' or obj_function_nbr == 'D')) {
 			cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --function C or --function D.\033[0m See "
-					"--help for more "
-					"information."
+					"--help for more information."
 				 << endl;
 			return EXIT_FAILURE;
 		}
@@ -155,22 +154,12 @@ int main(int argc, char* argv[])
 
 	/*  FIND PARETO SET  */
 	string source;
-
-	/*if (vm.count("jar3dcsv"))
-		posInsertionSites = load_csv(motifs_path_name.c_str());
-	else if (vm.count("bayespaircsv"))
-		posInsertionSites = load_csv(motifs_path_name.c_str());
-	else if (vm.count("txtfolder"))
-		posInsertionSites = load_txt_folder(motifs_path_name.c_str(), fa->seq(), verbose) ;
-	else
-		posInsertionSites = load_desc_folder(motifs_path_name.c_str(), fa->seq(), verbose);*/
-
 	if (vm.count("jar3dcsv"))
 		source = "jar3dcsv";
 	else if (vm.count("bayespaircsv"))
 		source = "bayespaircsv";
-	else if (vm.count("txtfolder"))
-		source = "txtfolder";
+	else if (vm.count("rinfolder"))
+		source = "rinfolder";
 	else
 		source = "descfolder";
 

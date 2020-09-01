@@ -34,165 +34,6 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 
 
 
-void Motif::build_from_desc(args_of_parallel_func arg_struct)
-// void Motif::build_from_desc(path descfile, string rna, vector<Motif>& final_results)
-{
-	path           descfile                 = arg_struct.descfile;
-	string&        rna                      = arg_struct.rna;
-	vector<Motif>& final_results            = arg_struct.final_results;
-	mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
-
-	std::ifstream             motif;
-	vector<vector<Component>> vresults;
-	string                    line;
-	string                    seq;
-	vector<string>            component_sequences;
-	vector<string>            bases;
-	int                       last;
-	char                      c    = 'a';
-	char*                     prev = &c;
-
-	motif = std::ifstream(descfile.string());
-	getline(motif, line);    // ignore "id: number"
-	getline(motif, line);    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
-	boost::split(bases, line, [prev](char c) {
-		bool res = (*prev == ' ' or *prev == ':');
-		*prev    = c;
-		return (c == ' ' and res);
-	});    // get a vector of 866_G, 867_G, etc...
-
-	seq  = "";
-	last = stoi(bases[1].substr(0, bases[1].find('_')));
-	for (vector<string>::iterator b = bases.begin() + 1; b != bases.end() - 1; b++) {
-		char nt  = b->substr(b->find('_') + 1, 1).back();
-		int  pos = stoi(b->substr(0, b->find('_')));
-
-		if (pos - last > 5) {    // finish this component and start a new one
-			component_sequences.push_back(seq);
-			seq = "";
-		} else if (pos - last == 2) {
-			seq += '.';
-		} else if (pos - last == 3) {
-			seq += "..";
-		} else if (pos - last == 4) {
-			seq += "...";
-		} else if (pos - last == 5) {
-			seq += "....";
-		}
-		seq += nt;
-		last = pos;
-	}
-	component_sequences.push_back(seq);
-	// Now component_sequences is a vector of sequences like {AGCGC, CGU..GUUU}
-
-	// identify components of length 1 or 2 to extend them to length 3
-	vector<uint> comp_of_size_1;
-	vector<uint> comp_of_size_2;
-	for (uint p = 0; p < component_sequences.size(); ++p) {
-		if (component_sequences[p].length() == 1) comp_of_size_1.push_back(p);
-		if (component_sequences[p].length() == 2) comp_of_size_2.push_back(p);
-	}
-	if (comp_of_size_1.size() or comp_of_size_2.size()) {
-		vector<vector<string>> motif_variants;    // Will contain several component_sequences vectors according to the size where you extend too short components
-
-		component_sequences.clear();    // rebuild from scratch
-		motif_variants.push_back(component_sequences);
-		uint actual_comp = 0;
-
-		seq  = "";
-		last = stoi(bases[1].substr(0, bases[1].find('_')));
-		for (vector<string>::iterator b = bases.begin() + 1; b < bases.end() - 1; b++) {
-			int  pos = stoi(b->substr(0, b->find('_')));
-			char nt  = b->substr(b->find('_') + 1, 1).back();
-			if (comp_of_size_1.size() and actual_comp == comp_of_size_1[0])    // we are on the first component of size 1
-			{
-				b--;
-				nt          = b->substr(b->find('_') + 1, 1).back();
-				string seq1 = "";
-				seq1 += nt;
-				seq1 += "..";
-				string seq2 = ".";
-				seq2 += nt;
-				seq2 += ".";
-				string seq3 = "..";
-				seq3 += nt;
-				uint end = motif_variants.size();    // before to add the new ones
-				for (uint u = 0; u < end; ++u) {
-					motif_variants.push_back(motif_variants[u]);    // copy 1 for seq2
-					motif_variants.back().push_back(seq2);
-					motif_variants.push_back(motif_variants[u]);    // copy 2 for seq3
-					motif_variants.back().push_back(seq3);
-					motif_variants[u].push_back(seq1);
-				}
-				seq = "";
-				actual_comp++;
-				comp_of_size_1.erase(comp_of_size_1.begin());    // the first element has been processed, remove it
-				last = pos;
-			} else if (comp_of_size_2.size() and actual_comp == comp_of_size_2[0]) {    // we are on the first component of size 2
-				b--;
-				nt = b->substr(b->find('_') + 1, 1).back();
-				b++;    // skip the next nucleotide
-				char next   = b->substr(b->find('_') + 1, 1).back();
-				last        = stoi(b->substr(0, b->find('_')));
-				string seq1 = "";
-				seq1 += nt;
-				seq1 += next;
-				seq1 += ".";
-				string seq2 = ".";
-				seq2 += nt;
-				seq2 += next;
-				uint end = motif_variants.size();    // before to add the new one
-				for (uint u = 0; u < end; ++u) {
-					motif_variants.push_back(motif_variants[u]);    // copy 1 for seq2
-					motif_variants.back().push_back(seq2);
-					motif_variants[u].push_back(seq1);
-				}
-				seq = "";
-				actual_comp++;
-				comp_of_size_2.erase(comp_of_size_2.begin());    // the first element has been processed, remove it
-			} else {                                             // we are on a longer component
-				if (pos - last > 5) {                            // finish this component and start a new one
-					actual_comp++;
-					for (vector<string>& c_s : motif_variants) c_s.push_back(seq);
-					seq = "";
-				} else if (pos - last == 2) {
-					seq += '.';
-				} else if (pos - last == 3) {
-					seq += "..";
-				} else if (pos - last == 4) {
-					seq += "...";
-				} else if (pos - last == 5) {
-					seq += "....";
-				}
-				seq += nt;
-				last = pos;
-			}
-		}
-		for (auto c_s : motif_variants)
-			if (seq.length()) c_s.push_back(seq);    // pushing the last one after iterating over the bases
-
-		// We need to search for the different positions where to insert the first component
-		for (auto c_s : motif_variants) {
-			vector<vector<Component>> new_results = find_next_ones_in(rna, 0, c_s);
-			vresults.insert(vresults.end(), new_results.begin(), new_results.end());
-		}
-
-	} else {
-		// No multiple motif variants : we serach in a single vector component_sequences
-		// We need to search for the different positions where to insert the first component
-		vresults = find_next_ones_in(rna, 0, component_sequences);
-	}
-
-	// Now create proper motifs with Motif class
-	for (vector<Component>& v : vresults) {
-		unique_lock<mutex> lock(posInsertionSites_access);
-		final_results.push_back(Motif(v, path(descfile).stem().string()));
-		lock.unlock();
-	}
-}
-
-
-
 void Motif::load_from_csv(string csv_line)
 {
 	vector<string> tokens;
@@ -543,193 +384,122 @@ bool Motif::is_valid(const string& rna, bool reversed) //renvoyer un vecteur de 
 
 
 
-vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbose)
-{
-	vector<Motif> motifs;
-	string valid_path = path ;
+// vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbose)
+// {
+// 	vector<Motif> motifs;
+// 	string valid_path = path ;
 
-	string reversed_rna = rna ;
-	std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
+// 	string reversed_rna = rna ;
+// 	std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
 
-	bool verified ;
+// 	bool verified ;
 	
 
-	if (valid_path.back() != '/') valid_path.push_back('/') ;
+// 	if (valid_path.back() != '/') valid_path.push_back('/') ;
 
-	if (!exists(valid_path))
-	{
-		cerr << "Hmh, i can't find that folder: " << valid_path << endl;
-		return motifs;
-	}
-	else if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
+// 	if (!exists(valid_path))
+// 	{
+// 		cerr << "Hmh, i can't find that folder: " << valid_path << endl;
+// 		return motifs;
+// 	}
+// 	else if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
 
-	size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{path}, std::filesystem::directory_iterator{});
-	if (verbose) std::cout << "Number of files : " << number_of_files << std::endl ;
+// 	size_t number_of_files = (std::size_t)std::distance(std::filesystem::directory_iterator{path}, std::filesystem::directory_iterator{});
+// 	if (verbose) std::cout << "Number of files : " << number_of_files << std::endl ;
 
-	for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
-	{
-		motifs.push_back(Motif()) ;
-		motifs.back().load_from_txt(valid_path, i);
-
-
-		vector<string> vc;
-		string motif_seq = "" ;
-
-		for (Component component : motifs.back().comp)
-		{
-			vc.push_back(component.seq_) ;
-			motif_seq += component.seq_ ;
-		}
-
-		if (motif_seq.length() < 5)
-		{
-			if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be considered." << std::endl ;
-			motifs.pop_back();
-			continue ;
-		}
-
-		if (motifs.back().links_.size() == 0)
-		{
-			if (verbose) std::cout << "RIN n°" << i+1 << " is not considered for not constraining the secondary structure." << std::endl ;
-			motifs.pop_back();
-			continue ;
-		}
-
-		/*if (verbose)
-		{
-			cout << "RIN n°" << i+1 << " has " << vc.size() << " components : " ;
-			for (string s : vc)
-				cout << s+" " ;
-			cout << endl ;
-		}
-		*/
+// 	for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
+// 	{
+// 		motifs.push_back(Motif()) ;
+// 		motifs.back().load_from_txt(valid_path, i);
 
 
-		vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
-		vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
+// 		vector<string> vc;
+// 		string motif_seq = "" ;
 
-		//debug
-		/*if (verbose)
-		{
-			cout << "Before find_next_ones_in -> RIN n°" << i+1 << " : " ;
-			for (Component& component : motifs.back().comp)
-				cout << component.pos.first << "-" << component.pos.second << " " ;
-			cout << endl ;
-		}*/
-		motifs.pop_back() ;
+// 		for (Component component : motifs.back().comp)
+// 		{
+// 			vc.push_back(component.seq_) ;
+// 			motif_seq += component.seq_ ;
+// 		}
 
-		for (vector<Component> occ : occurrences)
-		{
-			motifs.push_back(Motif()) ;
-			motifs.back().load_from_txt(valid_path, i);
-			motifs.back().comp = occ ;
-			motifs.back().reversed_ = false ;
+// 		if (motif_seq.length() < 5)
+// 		{
+// 			if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be considered." << std::endl ;
+// 			motifs.pop_back();
+// 			continue ;
+// 		}
 
-			//debug
-			/*if (verbose)
-			{
-				cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
-				for (Component& component : motifs.back().comp)
-					cout << component.pos.first << "-" << component.pos.second << " " ;
-				cout << endl ;
-			}*/
-		}
+// 		if (motifs.back().links_.size() == 0)
+// 		{
+// 			if (verbose) std::cout << "RIN n°" << i+1 << " is not considered for not constraining the secondary structure." << std::endl ;
+// 			motifs.pop_back();
+// 			continue ;
+// 		}
 
-		for (vector<Component> occ : r_occurrences)
-		{
-			motifs.push_back(Motif()) ;
-			motifs.back().load_from_txt(valid_path, i);
-			motifs.back().comp = occ ;
-			motifs.back().reversed_ = true ;
+// 		/*if (verbose)
+// 		{
+// 			cout << "RIN n°" << i+1 << " has " << vc.size() << " components : " ;
+// 			for (string s : vc)
+// 				cout << s+" " ;
+// 			cout << endl ;
+// 		}
+// 		*/
 
-			//debug
-			/*if (verbose)
-			{
-				cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
-				for (Component& component : motifs.back().comp)
-					cout << component.pos.first << "-" << component.pos.second << " " ;
-				cout << endl ;
-			}*/
-		}
 
-		//if (verbose) cout << endl ;
-	}
+// 		vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna, 0, vc) ;
+// 		vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
 
-	if (verbose) cout << "Done : parsed " << number_of_files << " files." << endl;
+// 		//debug
+// 		/*if (verbose)
+// 		{
+// 			cout << "Before find_next_ones_in -> RIN n°" << i+1 << " : " ;
+// 			for (Component& component : motifs.back().comp)
+// 				cout << component.pos.first << "-" << component.pos.second << " " ;
+// 			cout << endl ;
+// 		}*/
+// 		motifs.pop_back() ;
+
+// 		for (vector<Component> occ : occurrences)
+// 		{
+// 			motifs.push_back(Motif()) ;
+// 			motifs.back().load_from_txt(valid_path, i);
+// 			motifs.back().comp = occ ;
+// 			motifs.back().reversed_ = false ;
+
+// 			//debug
+// 			/*if (verbose)
+// 			{
+// 				cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
+// 				for (Component& component : motifs.back().comp)
+// 					cout << component.pos.first << "-" << component.pos.second << " " ;
+// 				cout << endl ;
+// 			}*/
+// 		}
+
+// 		for (vector<Component> occ : r_occurrences)
+// 		{
+// 			motifs.push_back(Motif()) ;
+// 			motifs.back().load_from_txt(valid_path, i);
+// 			motifs.back().comp = occ ;
+// 			motifs.back().reversed_ = true ;
+
+// 			//debug
+// 			/*if (verbose)
+// 			{
+// 				cout << "After find_next_ones_in -> RIN n°" << i+1 << " : " ;
+// 				for (Component& component : motifs.back().comp)
+// 					cout << component.pos.first << "-" << component.pos.second << " " ;
+// 				cout << endl ;
+// 			}*/
+// 		}
+
+// 		//if (verbose) cout << endl ;
+// 	}
+
+// 	if (verbose) cout << "Done : parsed " << number_of_files << " files." << endl;
 	
-	return motifs ;
-}
-
-
-
-vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose)
-{
-	vector<Motif> posInsertionSites;
-	mutex         posInsertionSites_access;
-	Pool          pool;
-	int           errors   = 0;
-	int           accepted = 0;
-	int           inserted = 0;
-	// int           num_threads = thread::hardware_concurrency();
-	int            num_threads = 2;
-	vector<thread> thread_pool;
-
-	if (!exists(path)) {
-		cerr << "Hmh, i can't find that folder: " << path << endl;
-		return posInsertionSites;
-	} else {
-		if (verbose) cout << "loading DESC motifs from " << path << "..." << endl;
-	}
-
-	for (int i = 0; i < num_threads; i++) thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
-
-	char error;
-	for (auto it : recursive_directory_range(path)) {    // Add every .desc file to the queue (iff valid)
-		if ((error = Motif::is_valid_DESC(it.path().string()))) {
-			if (verbose) {
-				cerr << "\t>Ignoring motif " << it.path().stem();
-				switch (error) {
-				case '-': cerr << ", some nucleotides have a negative number..."; break;
-				case 'l': cerr << ", hairpin (terminal) loops must be at least of size 3 !"; break;
-				case 'b': cerr << ", backbone link between non-consecutive residues ?"; break;
-				default: cerr << ", use of an unknown nucleotide " << error;
-				}
-				cerr << endl;
-			}
-			errors++;
-			continue;
-		}
-		accepted++;
-		if (is_desc_insertible(it.path().string(), rna, verbose)) {
-			args_of_parallel_func args(it.path(), rna, posInsertionSites, posInsertionSites_access);
-			inserted++;
-			pool.push(bind(Motif::build_from_desc, args));
-			// Motif::build_from_desc(it.path(), rna, posInsertionSites);
-		}
-	}
-	pool.done();
-	for (unsigned int i = 0; i < thread_pool.size(); i++) thread_pool.at(i).join();
-	if (verbose)
-		cout << "Inserted " << inserted << " motifs on " << accepted + errors << " (" << errors << " ignored motifs)" << endl;
-	return posInsertionSites;
-}
-
-
-
-vector<Motif> load_csv(const string& path)
-{
-	vector<Motif> posInsertionSites;
-	std::ifstream motifs;
-	string        line;
-
-	motifs = std::ifstream(path);
-	getline(motifs, line);    // skip header
-	while (getline(motifs, line)) {
-		posInsertionSites.push_back(Motif());
-		posInsertionSites.back().load_from_csv(line);
-	}
-	return posInsertionSites;
-}
+// 	return motifs ;
+// }
 
 
 
