@@ -3,7 +3,7 @@
 #include "Motif.h"
 #include <algorithm>
 #include <boost/format.hpp>
-// #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp>
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
@@ -62,7 +62,7 @@ MOIP::MOIP() {}
 
 
 
-MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string, float theta, bool verbose)
+MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool verbose)
 : verbose_{verbose}, rna_(rna) 
 {
 	if (!exists(source_path))
@@ -96,7 +96,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 
 
 	// Look for insertions sites, then create the appropriate Cxip variables
-	vector<Motif> insertion_sites_ = {};
+	vector<Motif> insertion_sites_ = vector<Motif>();
 
 	if (verbose_) cout << "\t>Looking for insertion sites..." << endl;
 
@@ -110,8 +110,8 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 		while (getline(motifs, line))
 		{
 
-			Motif this_motif = Motif()
-			this_motif.load_from_csv(line)
+			Motif this_motif = Motif();
+			this_motif.load_from_csv(line);
 			bool to_keep = true;
 
 			if (!(allowed_basepair(this_motif.comp[0].pos.first, this_motif.comp.back().pos.second)))
@@ -170,9 +170,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 				continue;
 			}
 			accepted++;
-			if (is_desc_insertible(it.path().string(), rna_string, verbose))
+			if (is_desc_insertible(it.path().string(), rna_.get_seq(), verbose))
 			{
-				args_of_parallel_func args(it.path(), rna_string, insertion_sites_, posInsertionSites_access);
+				args_of_parallel_func args(it.path(), rna_, insertion_sites_, posInsertionSites_access);
 				inserted++;
 				pool.push(bind(Motif::build_from_desc, args));
 			}
@@ -208,7 +208,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 	{
 		vector<Motif> motifs;
 		string valid_path = source_path;
-		string reversed_rna = rna_string;
+		string reversed_rna = rna_.get_seq();
 		std::reverse(reversed_rna.begin(), reversed_rna.end());
 
 		if (valid_path.back() != '/') valid_path.push_back('/');
@@ -247,7 +247,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, string rna_string,
 			}
 
 
-			vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna_string, 0, vc) ;
+			vector<vector<Component>> occurrences = motifs.back().find_next_ones_in(rna_.get_seq(), 0, vc) ;
 			vector<vector<Component>> r_occurrences = motifs.back().find_next_ones_in(reversed_rna, 0, vc) ;
 
 			motifs.pop_back() ;

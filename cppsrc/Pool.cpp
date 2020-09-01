@@ -1,21 +1,23 @@
 #include "Pool.h"
 
-Pool::Pool() : m_function_queue(), m_lock(), m_data_condition(), m_accept_functions(true)
-{
-}
+Pool::Pool() : m_function_queue(), m_lock(), m_data_condition(), m_accept_functions(true){}
 
-Pool::~Pool()
-{
-}
+
+
+Pool::~Pool(){}
+
+
 
 void Pool::push(std::function<void()> func)
 {
     std::unique_lock<std::mutex> lock(m_lock);
     m_function_queue.push(func);
-    // when we send the notification immediately, the consumer will try to get the lock , so unlock asap
+    // when we send the notification immediately, the consumer will try to get the lock, so unlock asap
     lock.unlock();
     m_data_condition.notify_one();
 }
+
+
 
 void Pool::done()
 {
@@ -26,6 +28,8 @@ void Pool::done()
     m_data_condition.notify_all();
     //notify all waiting threads.
 }
+
+
 
 void Pool::infinite_loop_func()
 {
