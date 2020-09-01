@@ -6,20 +6,22 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <rna.h>
 
 using boost::filesystem::path;
 using std::pair;
 using std::string;
 using std::vector;
+using std::mutex;
 
 class Motif;    // forward declaration
 
 typedef struct args_ {
     path           descfile;
-    string         rna;
+    RNA&           rna;
     vector<Motif>& final_results;
     std::mutex&    posInsertionSites_mutex;
-    args_(path descfile_, string rna_, vector<Motif>& vector_, std::mutex& mutex_)
+    args_(path descfile_, RNA& rna_, vector<Motif>& vector_, mutex& mutex_)
     : descfile(descfile_), rna(rna_), final_results(vector_), posInsertionSites_mutex(mutex_)
     {
     }

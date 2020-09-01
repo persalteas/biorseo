@@ -20,6 +20,7 @@ ViennaRNA-2.4.13
 # Compiled Object files
 obj/*
 doc/*.pdf
+data/modules/RIN/__pycache__
 
 # Executables
 bin/*
@@ -37,6 +38,7 @@ biorseo_results/*
 # data 
 data/modules/BGSU
 data/modules/DESC
+data/modules/RIN/Subfiles/
 data/modules/BGSU/HL/3.2/diagnostic/*
 data/modules/BGSU/HL/3.2/lib/*
 data/modules/BGSU/IL/3.2/diagnostic/*
