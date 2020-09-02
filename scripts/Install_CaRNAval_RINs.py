@@ -5,7 +5,7 @@
 # We do this because the official JSON file is hard to understand, and Antoine Soulé
 # recommended the pickle.
 
-import networkx, os, pickle, sys
+import networkx, os, pickle, subprocess, sys
 
 if __name__=="__main__":
 
@@ -17,9 +17,14 @@ if __name__=="__main__":
     try:
         sys.path.append(os.path.abspath(rin_DIR))
         import RIN
-    except:
-        print("File not found:" + rin_DIR + "RIN.py")
-        exit(1)
+    except ImportError:
+        # We have to download it
+        subprocess.run(["wget", '-O', '../data/modules/carnaval_dataset.zip', "http://carnaval.lri.fr/carnaval_dataset.zip"])
+        subprocess.run(["unzip", '-ou', '../data/modules/carnaval_dataset.zip', "carnaval_dataset/CaRNAval_1_as_dictionnary.nxpickled", "carnaval_dataset/RIN.py"])
+        subprocess.run(["rm", "-f", "../data/modules/RIN/", "../data/modules/carnaval_dataset.zip"])
+        subprocess.run(["mv", "carnaval_dataset/", "../data/modules/RIN/"])
+        sys.path.append(os.path.abspath(rin_DIR))
+        import RIN
 
     try:
         objects = []

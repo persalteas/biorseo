@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
-#include <rna.h>
+#include "rna.h"
 
 using boost::filesystem::path;
 using std::pair;
@@ -15,17 +15,6 @@ using std::vector;
 using std::mutex;
 
 class Motif;    // forward declaration
-
-typedef struct args_ {
-    path           descfile;
-    RNA&           rna;
-    vector<Motif>& final_results;
-    std::mutex&    posInsertionSites_mutex;
-    args_(path descfile_, RNA& rna_, vector<Motif>& vector_, mutex& mutex_)
-    : descfile(descfile_), rna(rna_), final_results(vector_), posInsertionSites_mutex(mutex_)
-    {
-    }
-} args_of_parallel_func;
 
 typedef struct Comp_ {
     pair<uint, uint> pos;
@@ -52,14 +41,12 @@ typedef struct Link
 class Motif
 {
     public:
-    Motif();
+    Motif(void);
+    Motif(string csv_line);
     Motif(const vector<Component>& v, string PDB);
-    void              load_from_txt(string path, int id); //full path to biorseo/data/modules/CaRNAval/Subfiles/
+    Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
     bool              is_valid(const string& rna, bool reversed);
     vector<Motif>     RIN_list(const string& rna, bool reversed);
-    void              load_from_csv(string csv_line);
-    // static void       build_from_desc(path descfile, string rna, vector<Motif>& final_results);
-    static void       build_from_desc(args_of_parallel_func args);
     static char       is_valid_DESC(const string& descfile);
     string            pos_string(void) const;
     string            get_origin(void) const;
@@ -69,8 +56,6 @@ class Motif
     double            score_;
     bool              reversed_;
 
-    static vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string> vc);
-
     private:
     string carnaval_id;  // if source = CARNAVAL
     string atlas_id;     // if source = RNAMOTIFATLAS
@@ -79,10 +64,11 @@ class Motif
     enum { RNA3DMOTIF = 1, RNAMOTIFATLAS = 2, CARNAVAL = 3 } source_;
 };
 
-bool          is_desc_insertible(const string& descfile, const string& rna, bool verbose);
-vector<Motif> load_txt_folder(const string& path, const string& rna, bool verbose);
-vector<Motif> load_desc_folder(const string& path, const string& rna, bool verbose);
-vector<Motif> load_csv(const string& path);
+bool                        is_desc_insertible(const string& descfile, const string& rna);
+vector<Motif>               load_txt_folder(const string& path, const string& rna, bool verbose);
+vector<Motif>               load_desc_folder(const string& path, const string& rna, bool verbose);
+vector<Motif>               load_csv(const string& path);
+vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string>& vc);
 
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);

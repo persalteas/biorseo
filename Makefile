@@ -1,19 +1,15 @@
-ICONCERT=/opt/ibm/ILOG/CPLEX_Studio1210/concert/include
-ICPLEX=/opt/ibm/ILOG/CPLEX_Studio1210/cplex/include
-LCONCERT=/opt/ibm/ILOG/CPLEX_Studio1210/concert/lib/x86-64_linux/static_pic/
-LCPLEX=/opt/ibm/ILOG/CPLEX_Studio1210/cplex/lib/x86-64_linux/static_pic/
+# CHANGE HERE IF YOU INSTALLED CPLEX IN A NON-DEFAULT LOCATION
+# (OR INSTALLED ANOTHER VERSION) :
+# ---> CPLEX=/path/to/your/CPLEX/folder
+CPLEX=/opt/ibm/ILOG/CPLEX_Studio1210
 
 # project name (generate executable with this name)
 TARGET   = biorseo
-
 CC	   = g++
-# compiling flags here
-CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(ICONCERT) -I$(ICPLEX) -O3
-CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-ignored-attributes -Wno-unused-variable -Wno-deprecated-copy -Wno-maybe-uninitialized
-
+CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(CPLEX)/concert/include -I$(CPLEX)/cplex/include -g -O3
+CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-deprecated-copy -Wno-ignored-attributes
 LINKER   = g++
-# linking flags here
-LDFLAGS   = -L$(LCONCERT) -L$(LCPLEX) -lboost_system -lboost_filesystem -lboost_program_options -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm -lstdc++fs
+LDFLAGS  = -L$(CPLEX)/concert/lib/x86-64_linux/static_pic/ -L$(CPLEX)/cplex/lib/x86-64_linux/static_pic/ -lboost_system -lboost_filesystem -lboost_program_options -lgomp -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc

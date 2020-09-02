@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # coding=utf-8
-import ast, getopt, multiprocessing, subprocess, sys
+import getopt, multiprocessing, subprocess, sys
 import matplotlib.pyplot as plt
 from scipy import stats
 from os import path, makedirs, getcwd, chdir, devnull, remove, walk
@@ -8,15 +8,14 @@ from matplotlib import colors
 from math import sqrt
 from multiprocessing import cpu_count, Manager
 from shutil import move
-
-# ================== DEFINITION OF THE PATHS ==============================
+from ast import literal_eval
 
 # Parse options
 try:
     cmd_opts, cmd_args = getopt.getopt( sys.argv[1:],
                                 "bc:f:hi:jl:no:O:pt:v",
-                             [  "verbose","rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=",
-                                "help","version","seq=","modules-path=", "jar3d_exec=", "bypdir=", "biorseo_dir=", "first-objective=","output=","theta=",
+                             [  "verbose","rna3dmotifs","3dmotifatlas","carnaval","jar3d","bayespairing","patternmatch","func=",
+                                "help","version","seq=","modules-path=", "jar3d-exec=", "bypdir=", "biorseo-dir=", "first-objective=","output=","theta=",
                                 "interrupt-limit=", "outputf="])
 except getopt.GetoptError as err:
     print(err)
@@ -28,7 +27,6 @@ running_stats.append(0) # n_launched
 running_stats.append(0) # n_finished
 running_stats.append(0) # n_skipped
 
-# ================== CLASSES AND FUNCTIONS ================================
 
 ignored_nt_dict = {}
 def is_canonical_nts(seq):
@@ -43,6 +41,37 @@ def is_canonical_nts(seq):
                 ignored_nt_dict[c] = 1
             return False
     return True
+
+
+def absolutize_path(p, directory=False):
+    if p[0] != '/':
+        p = getcwd() + '/' + p
+    if directory and p[-1] != '/':
+        p = p + '/'
+    return p
+
+
+
+class NoDaemonProcess(multiprocessing.Process):
+    @property
+    def daemon(self):
+        return False
+
+    @daemon.setter
+    def daemon(self, value):
+        pass
+
+
+class NoDaemonContext(type(multiprocessing.get_context())):
+    Process = NoDaemonProcess
+
+
+class MyPool(multiprocessing.pool.Pool):
+    # We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
+    # because the latter is only a wrapper function, not a proper class.
+    def __init__(self, *args, **kwargs):
+        kwargs['context'] = NoDaemonContext()
+        super(MyPool, self).__init__(*args, **kwargs)
 
 
 class Loop:
@@ -111,6 +140,7 @@ class RNA:
         self.header = header
         self.length = len(seq)
 
+
 class BiorseoInstance:
     """A run of the biorseo tool, to predict one or several RNA sequences' folding(s),
     including all the necessary previous run of other tools."""
@@ -151,7 +181,7 @@ class BiorseoInstance:
                         "Developped by Louis Becquey (louis.becquey@univ-evry.fr), 2018-2020\n\n")
                 print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs, --carnaval or --3dmotifatlas"
                       "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
-                      "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo_dir and (--jar3d_exec or --bypdir)")
+                      "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
                 print()
                 print("Options:")
                 print("-h [ --help ]\t\t\tPrint this help message")
@@ -179,11 +209,11 @@ class BiorseoInstance:
                 print("--modules-path=…\t\tPath to the modules data.\n\t\t\t\t  The folder should contain modules in the DESC format as output by Djelloul & Denise's"
                       "\n\t\t\t\t  'catalog' program for use with --rna3dmotifs, or the IL/ and HL/ folders\n\t\t\t\t  from a release of the RNA 3D Motif Atlas "
                       "for use with --3dmotifatlas, or the\n\t\t\t\t  data/modules/RIN/Subfiles/ folder for use with --carnaval.\n\t\t\t\t  Consider placing these files on a fast I/O device (NVMe SSD, ...)")
-                print("--jar3d_exec=…\t\t\tPath to the jar3d executable.\n\t\t\t\t  Default is /jar3d_2014-12-11.jar, you should use this option if you run"
+                print("--jar3d-exec=…\t\t\tPath to the jar3d executable.\n\t\t\t\t  Default is /jar3d_2014-12-11.jar, you should use this option if you run"
                       "\n\t\t\t\t  BiORSEO from outside the docker image.")
                 print("--bypdir=…\t\t\tPath to the BayesParing src folder.\n\t\t\t\t  Default is /byp/src, you should use this option if you run"
                       "\n\t\t\t\t  BiORSEO from outside the docker image.")
-                print("--biorseo_dir=…\t\t\tPath to the BiORSEO root directory.\n\t\t\t\t  Default is /biorseo, you should use this option if you run"
+                print("--biorseo-dir=…\t\t\tPath to the BiORSEO root directory.\n\t\t\t\t  Default is /biorseo, you should use this option if you run"
                       "\n\t\t\t\t  BiORSEO from outside the docker image. Use the FULL path.")
                 print("\nExamples:")
                 print("biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B")
@@ -198,15 +228,9 @@ class BiorseoInstance:
             elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg
             elif opt == "-O" or opt == "--outputf":
-                self.outputf = arg # output folder
-                if self.outputf[0] != '/':
-                    self.outputf = getcwd() + '/' + self.outputf
-                if self.outputf[-1] != '/':
-                    self.outputf = self.outputf + '/'
+                self.outputf = absolutize_path(arg, directory=True) # output folder
             elif opt == "-o" or opt == "--output":
-                self.output = arg # output file
-                if self.output[0] != '/':
-                    self.output = getcwd() + self.output
+                self.output = absolutize_path(arg) # output file
             elif opt == "-f" or opt == "--func":
                 if arg in ['A', 'B', 'C', 'D']:
                     self.func = arg
@@ -218,28 +242,28 @@ class BiorseoInstance:
                 self.type = "jar3d"
             elif opt == "-b" or opt == "--bayespairing":
                 self.type = "byp"
-            elif opt == "--rin":
+            elif opt == "--carnaval":
                 self.modules = "rin"
             elif opt == "--rna3dmotifs":
                 self.modules = "desc"
             elif opt == "--3dmotifatlas":
                 self.modules = "bgsu"
             elif opt == "--modules-path":
-                self.HL_motif_dir = arg + "/HL/3.2/lib"
-                self.IL_motif_dir = arg + "/IL/3.2/lib"
-                self.desc_folder = arg
-                self.rin_folder = arg
+                self.HL_motif_dir = absolutize_path(arg, directory=True) + "HL/3.2/lib"
+                self.IL_motif_dir = absolutize_path(arg, directory=True) + "IL/3.2/lib"
+                self.desc_folder = absolutize_path(arg, directory=True)
+                self.rin_folder = absolutize_path(arg, directory=True)
                 print("Looking for modules in", arg)
-            elif opt == "--jar3d_exec":
-                self.jar3d_exec = arg
+            elif opt == "--jar3d-exec":
+                self.jar3d_exec = absolutize_path(arg)
                 print("Using ", arg)
             elif opt == "--bypdir":
-                self.bypdir = arg
+                self.bypdir = absolutize_path(arg, directory=True)
                 print("Using trained BayesPairing in", arg)
-            elif opt == "--biorseo_dir":
-                self.biorseo_dir = arg
+            elif opt == "--biorseo-dir":
+                self.biorseo_dir = absolutize_path(arg, directory=True)
             elif opt == "--version":
-                subprocess.run([self.biorseo_dir+"/bin/biorseo", "--version"])
+                subprocess.run([self.biorseo_dir+"bin/biorseo", "--version"])
                 exit(0)
             elif opt == "-l" or opt == "--interrupt-limit":
                 self.forward_options.append("-l")
@@ -294,20 +318,20 @@ class BiorseoInstance:
         if self.modules == "desc" and self.type == "jar3d":
             issues = True
             print(warning)
-            print("/!\ Using jar3d requires the 3D Motif Atlas modules. Use --3dmotifatlas instead of --rna3dmotifs or --carnaval.")
+            print("/!\\ Using jar3d requires the 3D Motif Atlas modules. Use --3dmotifatlas instead of --rna3dmotifs or --carnaval.")
         if self.modules == "rin" and self.type != "dpm":
             issues = True
             print(warning)
-            print("/!\ CaRNAval does not support placement tools (yet). Please use it with --patternmatch, not --jar3d nor --bayespairing.")
+            print("/!\\ CaRNAval does not support placement tools (yet). Please use it with --patternmatch, not --jar3d nor --bayespairing.")
         if self.modules == "bgsu" and self.type == "dpm":
             issues = True
             print(warning)
-            print("/!\ Cannot place the Atlas loops by direct pattern matching. Please use a dedicated tool --jar3d or --bayespairing to do so.")
+            print("/!\\ Cannot place the Atlas loops by direct pattern matching. Please use a dedicated tool --jar3d or --bayespairing to do so.")
 
         if issues:
             print("\nUsage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) one module type in { --rna3dmotifs, --carnaval, --3dmotifatlas }"
                   "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
-                  "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo_dir and (--jar3d_exec or --bypdir)")
+                  "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
             print("\nThe allowed module/placement-method/function combinations are:\n")
             print("                --patternmatch  --bayespairing    --jar3d")
             print("--rna3dmotifs     A. B.           A. B. C. D.")
@@ -444,15 +468,16 @@ class BiorseoInstance:
         else:
             cmd = ["java", "-jar", self.jar3d_exec, loop.header[1:]+".fasta", self.IL_motif_dir+"/all.txt",
                    loop.header[1:]+".ILloop.csv", loop.header[1:]+".ILseq.csv"]
-        nowhere = open(devnull, 'w')
-        logfile = open(self.temp_dir + "log_of_the_run.sh", 'a')
-        logfile.write(' '.join(cmd))
-        logfile.write("\n")
-        logfile.close()
+
+        with open(self.temp_dir + "log_of_the_run.sh", 'a') as logfile:
+            logfile.write(' '.join(cmd) + '\n')
+
         chdir(modulefolder)
-        subprocess.run(cmd, stdout=nowhere)
+
+        with open(devnull, 'w') as nowhere:
+            subprocess.run(cmd, stdout=nowhere)
+
         chdir(self.biorseo_dir)
-        nowhere.close()
 
         # Retrieve results
         insertion_sites = []
@@ -475,7 +500,7 @@ class BiorseoInstance:
         for 3D motif Atlas modules to place on it using jar3d."""
 
         rnasubopt_preds = []
-
+        
         # Extracting probable loops from RNA-subopt structures
         rna = open(self.temp_dir + basename + ".subopt", "r")
         lines = rna.readlines()
@@ -502,8 +527,10 @@ class BiorseoInstance:
             loops.append(Loop(">IL%d" % (i+1), seq_[l[0][0]-1:l[0][1]]+'*'+seq_[l[1][0]-1:l[1][1]], "i", l))
 
         # Scanning loop subsequences against motif database
-        pool = multiprocessing.Pool(processes=cpu_count())
+        pool = MyPool(processes=cpu_count())
         insertion_sites = [ x for y in pool.map(self.launch_JAR3D_worker, loops) for x in y ]
+        pool.close()
+        pool.join()
         insertion_sites.sort(reverse=True)
 
         # Writing results to CSV file
@@ -546,7 +573,7 @@ class BiorseoInstance:
         while l[:3] != "PUR":
             idx += 1
             l = BypLog[idx]
-        insertion_sites = [x for x in ast.literal_eval(l.split(":")[1][1:])]
+        insertion_sites = [x for x in literal_eval(l.split(":")[1][1:])]
         if module_type == "rna3dmotif":
             rna = open(self.biorseo_dir + "/" + self.temp_dir + header_ + ".byp.csv", "w")
         else:
@@ -554,7 +581,7 @@ class BiorseoInstance:
         rna.write("Motif,Score,Start1,End1,Start2,End2...\n")
         for i, module in enumerate(insertion_sites):
             if len(module):
-                for (score, positions, sequence) in zip(*[iter(module)]*3):
+                for (score, positions, _) in zip(*[iter(module)]*3):
                     pos = []
                     q = -2
                     for p in positions:
@@ -682,8 +709,9 @@ class BiorseoInstance:
                     r = j.func_(*j.args_)
                 else:
                     r = j.func_()
-            except:
+            except Exception as e:
                 r = 1
+                print("\033[31m", e, "\033[0m")
                 pass
         running_stats[1] += 1
         return r
@@ -707,9 +735,8 @@ class BiorseoInstance:
                 if not len(jobs[i].keys()): continue
 
                 # check the thread numbers
-                different_thread_numbers = [n for n in jobs[i].keys()]
+                different_thread_numbers = [ n for n in jobs[i].keys() ] 
                 different_thread_numbers.sort()
-
                 for n in different_thread_numbers:
                     bunch = jobs[i][n]
                     if not len(bunch): continue
@@ -717,6 +744,8 @@ class BiorseoInstance:
                     pool.map(self.execute_job, bunch)
                     pool.close()
                     pool.join()
+        else:
+            self.execute_job(self.joblist[0])
 
     def list_jobs(self):
         """Determines the required tool runs we need before running the C++ Biorseo,
@@ -763,7 +792,7 @@ class BiorseoInstance:
         # define job list
         for instance in RNAcontainer:
 
-            executable = self.biorseo_dir + "/bin/biorseo"
+            executable = self.biorseo_dir + "bin/biorseo"
             fastafile = self.temp_dir+instance.header+".fa"
             method_type = ""
             priority = 1
@@ -815,5 +844,6 @@ class BiorseoInstance:
             command += [ "-o", self.finalname, "--function", self.func ]
             command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
+
 
 BiorseoInstance(cmd_opts)

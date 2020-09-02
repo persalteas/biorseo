@@ -21,6 +21,7 @@ struct recursive_directory_range {
 };
 
 
+
 Motif::Motif(void) {}
 
 
@@ -34,7 +35,7 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 
 
 
-void Motif::load_from_csv(string csv_line)
+Motif::Motif(string csv_line)
 {
 	vector<string> tokens;
 	split(tokens, csv_line, boost::is_any_of(","));
@@ -87,106 +88,91 @@ void Motif::load_from_csv(string csv_line)
 
 
 
-void Motif::load_from_txt(string path, int id)
+Motif::Motif(string path, int id)
 {
-	carnaval_id = to_string(1 + id) ; // Start counting at 1 to be consistant with the website numbering
-	atlas_id = "" ;
-	PDBID = "" ;
-	is_model_ = false ;
-	source_ = CARNAVAL ;
+	// Loads a motif from the RIN file of Carnaval
 
+	carnaval_id = to_string(1 + id); // Start counting at 1 to be consistant with the website numbering
+	atlas_id = "";
+	PDBID = "";
+	is_model_ = false;
+	source_ = CARNAVAL;
 
 	/*-----comp-----*/
-	std::ifstream file(path + to_string(id) + ".txt") ;
+	std::ifstream file(path + to_string(id) + ".txt");
 
 	if (file.is_open())
 	{
-		string line ;
+		string line;
 
-		std::getline(file,line) ; //skip the header_link line
-
-
-		std::getline(file,line) ; //get the links line
-		string link_str ;
-		size_t index = 0 ;
-			string nt_str ;
-			size_t sub_index = 0 ;
+		std::getline(file,line); //skip the header_link line
+		std::getline(file,line); //get the links line
+		string link_str;
+		size_t index = 0;
+		string nt_str;
+		size_t sub_index = 0;
 
 		while (line != "")
 		{
-			Link link ;
+			Link link;
 
 			//link.nts
-			index = line.find(";") ;
-			link_str = line.substr(0, index) ;
-			//std::cout << "link_str :" << link_str << std::endl ;
-			line.erase(0, index+1) ;
+			index = line.find(";");
+			link_str = line.substr(0, index);
+			line.erase(0, index+1);
 
-				sub_index = link_str.find(",") ;
-				nt_str = link_str.substr(0, sub_index) ;
-				//std::cout << "nt_str :" << nt_str << std::endl ;
-				link_str.erase(0, sub_index+1) ;
-				link.nts.first = std::stoi(nt_str) ;
+			sub_index = link_str.find(",");
+			nt_str = link_str.substr(0, sub_index);
+			link_str.erase(0, sub_index+1);
+			link.nts.first = std::stoi(nt_str);
 
-				sub_index = link_str.find(",") ;
-				nt_str = link_str.substr(0, sub_index) ;
-				//std::cout << "nt_str :" << nt_str << std::endl ;
-				link_str.erase(0, sub_index+1) ;
-				link.nts.second = std::stoi(nt_str) ;
+			sub_index = link_str.find(",");
+			nt_str = link_str.substr(0, sub_index);
+			link_str.erase(0, sub_index+1);
+			link.nts.second = std::stoi(nt_str);
 
 			//link.long_range
-			//std::cout << "link_str :" << link_str << std::endl << std::endl ;
-			link.long_range = (link_str == "True") ;
+			link.long_range = (link_str == "True");
 
-			links_.push_back(link) ;
+			links_.push_back(link);
 		}
 
 
-		std::getline(file,line) ; //skip the header_comp line
-
-		string pos_str ;
-			string sub_pos_str ;
-
-		string k_str ;
-
-		string seq ;
+		std::getline(file,line); //skip the header_comp line
+		string pos_str, sub_pos_str, k_str, seq;
 
 		while ( std::getline(file,line) )
 		{
-			if (line == "\n") break ; //skip last line (empty)
+			if (line == "\n") break; //skip last line (empty)
 
-			Component c(0,0) ;
+			Component c(0,0);
 
 			//c.pos
-			index = line.find(";") ;
-			pos_str = line.substr(0, index) ;
-			line.erase(0, index+1) ;
+			index = line.find(";");
+			pos_str = line.substr(0, index);
+			line.erase(0, index+1);
 
-				sub_index = pos_str.find(",") ;
-				sub_pos_str = pos_str.substr(0, sub_index) ;
-				//std::cout << sub_pos_str << " ";
-				pos_str.erase(0, sub_index+1) ;
-				c.pos.first = std::stoi(sub_pos_str) ;
-				//std::cout << pos_str << " ";
-				c.pos.second = std::stoi(pos_str) ;
+				sub_index = pos_str.find(",");
+				sub_pos_str = pos_str.substr(0, sub_index);
+				pos_str.erase(0, sub_index+1);
+				c.pos.first = std::stoi(sub_pos_str);
+				c.pos.second = std::stoi(pos_str);
 
 			//c.k
-			index = line.find(";") ;
-			k_str = line.substr(0, index) ;
-			//std::cout << k_str << " ";
-			line.erase(0, index+1) ;
-			c.k = std::stoi(k_str) ;
+			index = line.find(";");
+			k_str = line.substr(0, index);
+			line.erase(0, index+1);
+			c.k = std::stoi(k_str);
 
 			//c.seq_
-			seq = line ;
-			//std::cout << line << "\n" ;
-			c.seq_ = seq ;
+			seq = line;
+			c.seq_ = seq;
 
-			comp.push_back(c) ;
+			comp.push_back(c);
 		}
 	}
 
-	else std::cout << "Motif::load_from_txt -> File not found : " + path + carnaval_id + ".txt" << std::endl ;
+	else cout << "RIN file not found : " + path + carnaval_id + ".txt" << endl;
 }
 
 
@@ -209,70 +195,6 @@ string Motif::get_identifier(void) const
 	case CARNAVAL: return string("RIN") + carnaval_id; break;
 	default: return PDBID;
 	}
-}
-
-
-
-vector<vector<Component>> Motif::find_next_ones_in(string rna, uint offset, vector<string> vc)
-{
-	pair<uint, uint>          pos;
-	vector<vector<Component>> results;
-	vector<vector<Component>> next_ones;
-	vector<string>            next_seqs;
-	regex                     c(vc[0]);
-
-	//cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
-
-	if (vc.size() > 1) {
-		if (regex_search(rna, c)) {
-			if (vc.size() > 2)
-				next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
-
-			else
-				next_seqs = vector<string>(1, vc.back());
-
-			// Pour chacun des matches
-			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
-				smatch match = *i;
-				pos.first    = match.position() + offset;
-				pos.second   = pos.first + match.length() - 1;
-				// cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-				if (pos.second - offset + 5 >= rna.length()) {
-					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
-					continue;
-				}
-				next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
-				if (!next_ones.size()) {
-					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
-					continue;
-				}
-				// cout  << endl;
-				for (vector<Component> v : next_ones)    // Pour chacune des combinaisons suivantes
-				{
-					// Combiner le match et la combinaison suivante
-					vector<Component> r;
-					r.push_back(Component(pos));
-					for (Component& c : v) r.push_back(c);
-					results.push_back(r);
-				}
-			}
-		}
-	} else {
-		if (regex_search(rna, c)) {
-			// Pour chacun des matches
-			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
-				smatch match = *i;
-				pos.first    = match.position() + offset;
-				pos.second   = pos.first + match.length() - 1;
-				// cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-				// Combiner le match et la combinaison suivante
-				vector<Component> r;
-				r.push_back(Component(pos));
-				results.push_back(r);
-			}
-		}
-	}
-	return results;
 }
 
 
@@ -326,65 +248,65 @@ char Motif::is_valid_DESC(const string& descfile)
 
 vector<Motif> Motif::RIN_list(const string& rna, bool reversed)
 {
-	string used_rna = rna ;
-	if (reversed) std::reverse(used_rna.begin(), used_rna.end()) ;
+	string used_rna = rna;
+	if (reversed) std::reverse(used_rna.begin(), used_rna.end());
 
 	vector<Motif> res;
-	vector< vector<int> > comps_starts ; //list of beginning indexes by components
+	vector< vector<int> > comps_starts; //list of beginning indexes by components
 	vector<int> ks;
-	size_t index ;
+	size_t index;
 
 	for (Component& component : comp)
 	{
-		index = 0 ;
-		vector<int> starts ;
+		index = 0;
+		vector<int> starts;
 
 		while (index != string::npos)
 		{
-			index = used_rna.find(component.seq_, index) ;
+			index = used_rna.find(component.seq_, index);
 			starts.push_back(index);
 		}
 
-		comps_starts.push_back(starts) ;
-		ks.push_back(component.k) ;
+		comps_starts.push_back(starts);
+		ks.push_back(component.k);
 	}
 
 
-	return res ;
+	return res;
 }
 
 
 
 bool Motif::is_valid(const string& rna, bool reversed) //renvoyer un vecteur de motifs
 {
-	size_t index = 0 ;
-	reversed_ = reversed ;
+	size_t index = 0;
+	reversed_ = reversed;
 
 	for (Component& component : comp)
 	{
-		index = rna.find(component.seq_, index) ;
+		index = rna.find(component.seq_, index);
 
 		if (index == string::npos) //seq_ not found
 		{
-			if (reversed) return false ; //searched through rna and reversed rna, still nothing
+			if (reversed) return false; //searched through rna and reversed rna, still nothing
 			else //try to look through the reversed sequence
 			{
-				string reversed_rna(rna) ;
-				std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
-				return is_valid(reversed_rna, true) ;
+				string reversed_rna(rna);
+				std::reverse(reversed_rna.begin(), reversed_rna.end());
+				return is_valid(reversed_rna, true);
 			}
 		}
 
-		component.pos.first = index ;
-		component.pos.second = index + component.k - 1 ;
+		component.pos.first = index;
+		component.pos.second = index + component.k - 1;
 	}
 
-	return true ;
+	return true;
 }
 
 
 
-bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
+bool is_desc_insertible(const string& descfile, const string& rna)
 {
 	std::ifstream  motif;
 	string         line;
@@ -425,14 +347,76 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
 	}
 	smatch m;
 	regex  e(seq);
-	if (regex_search(rna, m, e)) {
-		if (verbose)
-			cout << "\t>Motif " << boost::filesystem::path(descfile).stem() << "   \t" << seq << "\tcan be inserted " << endl;
-		return true;
+
+	return regex_search(rna, m, e);
+
+}
+
+
+
+vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc)
+{
+	pair<uint, uint>          pos;
+	vector<vector<Component>> results;
+	vector<vector<Component>> next_ones;
+	vector<string>            next_seqs;
+	regex                     c(vc[0]);
+
+	//cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
+
+	if (vc.size() > 1) {
+		if (regex_search(rna, c)) {
+			if (vc.size() > 2)
+				next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
+
+			else
+				next_seqs = vector<string>(1, vc.back());
+
+			// For every regexp match
+			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+				smatch match = *i;
+				pos.first    = match.position() + offset;
+				pos.second   = pos.first + match.length() - 1;
+				// cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+				if (pos.second - offset + 5 >= rna.length()) {
+					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+					continue;
+				}
+				next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
+				if (!next_ones.size()) {
+					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+					continue;
+				}
+				// cout  << endl;
+				for (vector<Component> v : next_ones)    // For every combination of the next components
+				{
+					// Combine the match for this component pos with the combination
+					// of next_ones as a whole solution
+					vector<Component> r;
+					r.push_back(Component(pos));
+					for (Component& c : v) r.push_back(c);
+					results.push_back(r);
+				}
+			}
+		}
 	} else {
-		// if (verbose) cout << "Ignoring motif " << descfile.substr(0, descfile.find(".desc")) << "   \t" << seq << endl;
-		return false;
+		// Only one more component to find
+
+		if (regex_search(rna, c)) {
+			// For each regexp match
+			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+				smatch match = *i;
+				pos.first    = match.position() + offset;
+				pos.second   = pos.first + match.length() - 1;
+
+				// Create a vector of component with one component for that match
+				vector<Component> r;
+				r.push_back(Component(pos));
+				results.push_back(r);
+			}
+		}
 	}
+	return results;
 }
 
 
