@@ -7,8 +7,6 @@ using std::abs;
 using std::cout;
 using std::endl;
 
-static const double PRECISION(0.0001);
-
 
 SecondaryStructure::SecondaryStructure() {}
 

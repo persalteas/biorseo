@@ -61,7 +61,6 @@ int main(int argc, char* argv[])
 	float              theta_p_threshold;
 	char               obj_function_nbr = 'B';
 	list<Fasta>        f;
-	vector<Motif>      posInsertionSites;
 	ofstream           outfile;
 	SecondaryStructure bestSSO1, bestSSO2;
 	RNA                myRNA;
@@ -142,8 +141,8 @@ int main(int argc, char* argv[])
 	Fasta::load(f, inputName.c_str());
 	list<Fasta>::iterator fa = f.begin();
 	if (verbose) cout << "loading " << fa->name() << "..." << endl;
-	myRNA = RNA(fa->name(), fa->seq(), verbose, theta_p_threshold);
-	if (verbose) cout << "\t>" << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
+	myRNA = RNA(fa->name(), fa->seq(), verbose);
+	if (verbose) cout << "\t> " << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
 	// load CSV file
 	if (access(motifs_path_name.c_str(), F_OK) == -1) {
@@ -163,13 +162,15 @@ int main(int argc, char* argv[])
 	else
 		source = "descfolder";
 
-	MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), fa->seq(), theta_p_threshold, verbose);
+	MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), theta_p_threshold, verbose);
 	double             min, max;
 	IloConstraintArray F(myMOIP.get_env());
 
-	cout << "Solving..." << endl;
+	if (verbose)
+		cout << "Solving..." << endl;
 	try {
 		bestSSO1 = myMOIP.solve_objective(1, -__DBL_MAX__, __DBL_MAX__);
+		if (verbose) cout << endl;
 		bestSSO2 = myMOIP.solve_objective(2, -__DBL_MAX__, __DBL_MAX__);
 		if (verbose) {
 			cout << endl << "Best solution according to objective 1 :" << bestSSO1.to_string() << endl;
@@ -209,7 +210,7 @@ int main(int argc, char* argv[])
 			cout << setprecision(-log10(MOIP::precision_) + 4) << "\nSolving objective function " << MOIP::obj_to_solve_
 				 << ", below (or eq. to) " << max << ": Obj" << 3 - MOIP::obj_to_solve_ << "  being in [" << min << ", "
 				 << max << "]..." << endl
-				 << "\t>forbidding " << F.getSize() << " solutions found in [" << setprecision(10)
+				 << "\t> Forbidding " << F.getSize() << " solutions found in [" << setprecision(10)
 				 << min - MOIP::precision_ << ", " << max + MOIP::precision_ << ']' << endl;
 		myMOIP.search_between(min, max);
 
@@ -226,7 +227,7 @@ int main(int argc, char* argv[])
 		cout << "Whole Pareto Set:" << endl;
 		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) myMOIP.solution(i).print();
 		cout << endl;
-		cout << posInsertionSites.size() << " candidate insertion sites, " << myMOIP.get_n_solutions() << " solutions kept." << endl;
+		cout << myMOIP.get_n_candidates() << " candidate insertion sites, " << myMOIP.get_n_solutions() << " solutions kept." << endl;
 		cout << "Best value for Motif insertion objective: " << bestSSO1.get_objective_score(1) << endl;
 		cout << "Best value for structure expected accuracy: " << bestSSO2.get_objective_score(2) << endl;
 	}

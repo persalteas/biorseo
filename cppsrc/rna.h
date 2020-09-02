@@ -25,7 +25,7 @@ class RNA
 {
     public:
     RNA(void);
-    RNA(string name, string seq, bool verbose, float theta);
+    RNA(string name, string seq, bool verbose);
 
     float  get_pij(int i, int j);
     string get_seq(void) const;

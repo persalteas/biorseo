@@ -21,6 +21,7 @@ struct recursive_directory_range {
 };
 
 
+
 Motif::Motif(void) {}
 
 
@@ -34,7 +35,7 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 
 
 
-void Motif::load_from_csv(string csv_line)
+Motif::Motif(string csv_line)
 {
 	vector<string> tokens;
 	split(tokens, csv_line, boost::is_any_of(","));
@@ -213,70 +214,6 @@ string Motif::get_identifier(void) const
 
 
 
-vector<vector<Component>> Motif::find_next_ones_in(string rna, uint offset, vector<string> vc)
-{
-	pair<uint, uint>          pos;
-	vector<vector<Component>> results;
-	vector<vector<Component>> next_ones;
-	vector<string>            next_seqs;
-	regex                     c(vc[0]);
-
-	//cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
-
-	if (vc.size() > 1) {
-		if (regex_search(rna, c)) {
-			if (vc.size() > 2)
-				next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
-
-			else
-				next_seqs = vector<string>(1, vc.back());
-
-			// Pour chacun des matches
-			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
-				smatch match = *i;
-				pos.first    = match.position() + offset;
-				pos.second   = pos.first + match.length() - 1;
-				// cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-				if (pos.second - offset + 5 >= rna.length()) {
-					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
-					continue;
-				}
-				next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
-				if (!next_ones.size()) {
-					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
-					continue;
-				}
-				// cout  << endl;
-				for (vector<Component> v : next_ones)    // Pour chacune des combinaisons suivantes
-				{
-					// Combiner le match et la combinaison suivante
-					vector<Component> r;
-					r.push_back(Component(pos));
-					for (Component& c : v) r.push_back(c);
-					results.push_back(r);
-				}
-			}
-		}
-	} else {
-		if (regex_search(rna, c)) {
-			// Pour chacun des matches
-			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
-				smatch match = *i;
-				pos.first    = match.position() + offset;
-				pos.second   = pos.first + match.length() - 1;
-				// cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-				// Combiner le match et la combinaison suivante
-				vector<Component> r;
-				r.push_back(Component(pos));
-				results.push_back(r);
-			}
-		}
-	}
-	return results;
-}
-
-
-
 char Motif::is_valid_DESC(const string& descfile)
 {
 	// /!\ returns 0 iff no errors
@@ -384,7 +321,7 @@ bool Motif::is_valid(const string& rna, bool reversed) //renvoyer un vecteur de 
 
 
 
-bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
+bool is_desc_insertible(const string& descfile, const string& rna)
 {
 	std::ifstream  motif;
 	string         line;
@@ -425,14 +362,77 @@ bool is_desc_insertible(const string& descfile, const string& rna, bool verbose)
 	}
 	smatch m;
 	regex  e(seq);
-	if (regex_search(rna, m, e)) {
-		if (verbose)
-			cout << "\t>Motif " << boost::filesystem::path(descfile).stem() << "   \t" << seq << "\tcan be inserted " << endl;
-		return true;
+
+	return regex_search(rna, m, e);
+
+}
+
+
+
+
+vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc)
+{
+	pair<uint, uint>          pos;
+	vector<vector<Component>> results;
+	vector<vector<Component>> next_ones;
+	vector<string>            next_seqs;
+	regex                     c(vc[0]);
+
+	//cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
+
+	if (vc.size() > 1) {
+		if (regex_search(rna, c)) {
+			if (vc.size() > 2)
+				next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
+
+			else
+				next_seqs = vector<string>(1, vc.back());
+
+			// For every regexp match
+			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+				smatch match = *i;
+				pos.first    = match.position() + offset;
+				pos.second   = pos.first + match.length() - 1;
+				// cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+				if (pos.second - offset + 5 >= rna.length()) {
+					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+					continue;
+				}
+				next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
+				if (!next_ones.size()) {
+					// cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+					continue;
+				}
+				// cout  << endl;
+				for (vector<Component> v : next_ones)    // For every combination of the next components
+				{
+					// Combine the match for this component pos with the combination
+					// of next_ones as a whole solution
+					vector<Component> r;
+					r.push_back(Component(pos));
+					for (Component& c : v) r.push_back(c);
+					results.push_back(r);
+				}
+			}
+		}
 	} else {
-		// if (verbose) cout << "Ignoring motif " << descfile.substr(0, descfile.find(".desc")) << "   \t" << seq << endl;
-		return false;
+		// Only one more component to find
+
+		if (regex_search(rna, c)) {
+			// For each regexp match
+			for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+				smatch match = *i;
+				pos.first    = match.position() + offset;
+				pos.second   = pos.first + match.length() - 1;
+
+				// Create a vector of component with one component for that match
+				vector<Component> r;
+				r.push_back(Component(pos));
+				results.push_back(r);
+			}
+		}
 	}
+	return results;
 }
 
 

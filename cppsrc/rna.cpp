@@ -17,7 +17,7 @@ using std::vector;
 
 RNA::RNA(void) {}
 
-RNA::RNA(string name, string seq, bool verbose, float theta)
+RNA::RNA(string name, string seq, bool verbose)
 : verbose_{verbose}, name_(name), seq_(seq), n_(seq.size()),
   pij_(MatrixXf::Zero(n_, n_))
 {
@@ -40,30 +40,24 @@ RNA::RNA(string name, string seq, bool verbose, float theta)
 			if (verbose_) cout << c << " ";
 		if (verbose_) cout << endl;
 	}
-	if (verbose_) cout << "\t>sequence formatted" << endl;
-
-
+	if (verbose_) cout << "\t> Sequence formatted" << endl;
 
 	// Compute using ViennaRNA
-	if (verbose_) cout << "\t>computing pairing probabilities (ViennaRNA's algorithm)..." << endl;
+	if (verbose_) cout << "\t> Computing pairing probabilities (ViennaRNA's pfl_fold)..." << endl;
 	
 	const char      *cseq = seq.c_str();
 	int window_size = 100;
 	int max_bp_span = 150;
-	float cutoff = theta;
+	float cutoff = 1e-6;
 	vrna_ep_t* results = vrna_pfl_fold(cseq, window_size, max_bp_span, cutoff);
 
 	if (results != NULL)
 	{
-		int count = 1 ;
 		while (results->i != 0  &&  results->j != 0)
 		{
-			if (verbose_) cout << '\t' << '\t' << count << '\t' << results->i << '\t' << results->j << '\t' << results->p << endl ;
-			if (results->i < int(n_)  &&  results->j < int(n_)) pij_(results->i,results->j) = results->p ;
+			pij_(results->i,results->j) = results->p;
 			results++;
-			count++;
 		}
-
 	}
 
 	else cout << "NULL result returned by vrna_pfl_fold" << endl;
@@ -75,7 +69,7 @@ RNA::RNA(string name, string seq, bool verbose, float theta)
 
 void RNA::print_basepair_p_matrix(float theta) const
 {
-	cout << endl << endl;
+	cout << endl;
 	cout << "\t=== -log10(p(i,j)) for each pair (i,j) of nucleotides: ===" << endl << endl;
 	cout << "\t" << seq_ << endl;
 	uint i = 0;
