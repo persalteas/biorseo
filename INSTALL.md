@@ -105,7 +105,7 @@ python3 transform_CaRNAval_pickle.py
 
 ### OPTIONAL DEPENDENCIES FOR USE OF BAYESPAIRING
 - Make sure you can `import RNA` in your favorite python3.X. Otherwise, there might be a ViennaRNA installation issue.
-    - Depending on your distribution, this might require that you add the site-packages/RNA folder, or the libRNA.so library to your $PYTHONPATH variable.
+    - Depending on your distribution, this might require that you add the /usr/local/lib/python3.X/site-packages/ folder, or the libRNA.so library, to your $PYTHONPATH variable. To do so, edit your `~/.bashrc` file and write `export PYTHONPATH="$PYTHONPATH:/usr/local/lib/python3.X/site-packages"` at the end of the file, replacing 3.X by your actual version of Python. Then close and re-open the terminal.
     - On Ubuntu/Debian distros, which have stupid conventions and ignore the site-packages/ folder, you need to move the python package to the dist-packages/ folder. E.g., if you compiled ViennaRNA from source, `sudo mv /usr/local/lib/python3.X/site-packages/RNA /usr/local/lib/python3.X/dist-packages/`.
 
 - Make sure you have Python 3.6+ with pip (packages python3-pip and python3-dev on most distros)
