@@ -88,106 +88,91 @@ Motif::Motif(string csv_line)
 
 
 
-void Motif::load_from_txt(string path, int id)
+Motif::Motif(string path, int id)
 {
-	carnaval_id = to_string(1 + id) ; // Start counting at 1 to be consistant with the website numbering
-	atlas_id = "" ;
-	PDBID = "" ;
-	is_model_ = false ;
-	source_ = CARNAVAL ;
+	// Loads a motif from the RIN file of Carnaval
 
+	carnaval_id = to_string(1 + id); // Start counting at 1 to be consistant with the website numbering
+	atlas_id = "";
+	PDBID = "";
+	is_model_ = false;
+	source_ = CARNAVAL;
 
 	/*-----comp-----*/
-	std::ifstream file(path + to_string(id) + ".txt") ;
+	std::ifstream file(path + to_string(id) + ".txt");
 
 	if (file.is_open())
 	{
-		string line ;
+		string line;
 
-		std::getline(file,line) ; //skip the header_link line
-
-
-		std::getline(file,line) ; //get the links line
-		string link_str ;
-		size_t index = 0 ;
-			string nt_str ;
-			size_t sub_index = 0 ;
+		std::getline(file,line); //skip the header_link line
+		std::getline(file,line); //get the links line
+		string link_str;
+		size_t index = 0;
+		string nt_str;
+		size_t sub_index = 0;
 
 		while (line != "")
 		{
-			Link link ;
+			Link link;
 
 			//link.nts
-			index = line.find(";") ;
-			link_str = line.substr(0, index) ;
-			//std::cout << "link_str :" << link_str << std::endl ;
-			line.erase(0, index+1) ;
+			index = line.find(";");
+			link_str = line.substr(0, index);
+			line.erase(0, index+1);
 
-				sub_index = link_str.find(",") ;
-				nt_str = link_str.substr(0, sub_index) ;
-				//std::cout << "nt_str :" << nt_str << std::endl ;
-				link_str.erase(0, sub_index+1) ;
-				link.nts.first = std::stoi(nt_str) ;
+			sub_index = link_str.find(",");
+			nt_str = link_str.substr(0, sub_index);
+			link_str.erase(0, sub_index+1);
+			link.nts.first = std::stoi(nt_str);
 
-				sub_index = link_str.find(",") ;
-				nt_str = link_str.substr(0, sub_index) ;
-				//std::cout << "nt_str :" << nt_str << std::endl ;
-				link_str.erase(0, sub_index+1) ;
-				link.nts.second = std::stoi(nt_str) ;
+			sub_index = link_str.find(",");
+			nt_str = link_str.substr(0, sub_index);
+			link_str.erase(0, sub_index+1);
+			link.nts.second = std::stoi(nt_str);
 
 			//link.long_range
-			//std::cout << "link_str :" << link_str << std::endl << std::endl ;
-			link.long_range = (link_str == "True") ;
+			link.long_range = (link_str == "True");
 
-			links_.push_back(link) ;
+			links_.push_back(link);
 		}
 
 
-		std::getline(file,line) ; //skip the header_comp line
-
-		string pos_str ;
-			string sub_pos_str ;
-
-		string k_str ;
-
-		string seq ;
+		std::getline(file,line); //skip the header_comp line
+		string pos_str, sub_pos_str, k_str, seq;
 
 		while ( std::getline(file,line) )
 		{
-			if (line == "\n") break ; //skip last line (empty)
+			if (line == "\n") break; //skip last line (empty)
 
-			Component c(0,0) ;
+			Component c(0,0);
 
 			//c.pos
-			index = line.find(";") ;
-			pos_str = line.substr(0, index) ;
-			line.erase(0, index+1) ;
+			index = line.find(";");
+			pos_str = line.substr(0, index);
+			line.erase(0, index+1);
 
-				sub_index = pos_str.find(",") ;
-				sub_pos_str = pos_str.substr(0, sub_index) ;
-				//std::cout << sub_pos_str << " ";
-				pos_str.erase(0, sub_index+1) ;
-				c.pos.first = std::stoi(sub_pos_str) ;
-				//std::cout << pos_str << " ";
-				c.pos.second = std::stoi(pos_str) ;
+				sub_index = pos_str.find(",");
+				sub_pos_str = pos_str.substr(0, sub_index);
+				pos_str.erase(0, sub_index+1);
+				c.pos.first = std::stoi(sub_pos_str);
+				c.pos.second = std::stoi(pos_str);
 
 			//c.k
-			index = line.find(";") ;
-			k_str = line.substr(0, index) ;
-			//std::cout << k_str << " ";
-			line.erase(0, index+1) ;
-			c.k = std::stoi(k_str) ;
+			index = line.find(";");
+			k_str = line.substr(0, index);
+			line.erase(0, index+1);
+			c.k = std::stoi(k_str);
 
 			//c.seq_
-			seq = line ;
-			//std::cout << line << "\n" ;
-			c.seq_ = seq ;
+			seq = line;
+			c.seq_ = seq;
 
-			comp.push_back(c) ;
+			comp.push_back(c);
 		}
 	}
 
-	else std::cout << "Motif::load_from_txt -> File not found : " + path + carnaval_id + ".txt" << std::endl ;
+	else cout << "RIN file not found : " + path + carnaval_id + ".txt" << endl;
 }
 
 
@@ -263,60 +248,60 @@ char Motif::is_valid_DESC(const string& descfile)
 
 vector<Motif> Motif::RIN_list(const string& rna, bool reversed)
 {
-	string used_rna = rna ;
-	if (reversed) std::reverse(used_rna.begin(), used_rna.end()) ;
+	string used_rna = rna;
+	if (reversed) std::reverse(used_rna.begin(), used_rna.end());
 
 	vector<Motif> res;
-	vector< vector<int> > comps_starts ; //list of beginning indexes by components
+	vector< vector<int> > comps_starts; //list of beginning indexes by components
 	vector<int> ks;
-	size_t index ;
+	size_t index;
 
 	for (Component& component : comp)
 	{
-		index = 0 ;
-		vector<int> starts ;
+		index = 0;
+		vector<int> starts;
 
 		while (index != string::npos)
 		{
-			index = used_rna.find(component.seq_, index) ;
+			index = used_rna.find(component.seq_, index);
 			starts.push_back(index);
 		}
 
-		comps_starts.push_back(starts) ;
-		ks.push_back(component.k) ;
+		comps_starts.push_back(starts);
+		ks.push_back(component.k);
 	}
 
 
-	return res ;
+	return res;
 }
 
 
 
 bool Motif::is_valid(const string& rna, bool reversed) //renvoyer un vecteur de motifs
 {
-	size_t index = 0 ;
-	reversed_ = reversed ;
+	size_t index = 0;
+	reversed_ = reversed;
 
 	for (Component& component : comp)
 	{
-		index = rna.find(component.seq_, index) ;
+		index = rna.find(component.seq_, index);
 
 		if (index == string::npos) //seq_ not found
 		{
-			if (reversed) return false ; //searched through rna and reversed rna, still nothing
+			if (reversed) return false; //searched through rna and reversed rna, still nothing
 			else //try to look through the reversed sequence
 			{
-				string reversed_rna(rna) ;
-				std::reverse(reversed_rna.begin(), reversed_rna.end()) ;
-				return is_valid(reversed_rna, true) ;
+				string reversed_rna(rna);
+				std::reverse(reversed_rna.begin(), reversed_rna.end());
+				return is_valid(reversed_rna, true);
 			}
 		}
 
-		component.pos.first = index ;
-		component.pos.second = index + component.k - 1 ;
+		component.pos.first = index;
+		component.pos.second = index + component.k - 1;
 	}
 
-	return true ;
+	return true;
 }
 
 
@@ -366,7 +351,6 @@ bool is_desc_insertible(const string& descfile, const string& rna)
 	return regex_search(rna, m, e);
 
 }
-
 
 
 

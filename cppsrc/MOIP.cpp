@@ -20,13 +20,6 @@
 using namespace boost::filesystem;
 using namespace std;
 
-using std::abs;
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::make_pair;
-using std::vector;
-
 char   MOIP::obj_function_nbr_ = 'A';
 uint   MOIP::obj_to_solve_     = 1;
 double MOIP::precision_        = 1e-5;
@@ -207,70 +200,61 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 	}
 	else if (source == "rinfolder")
 	{
-		vector<Motif> motifs;
-		string valid_path = source_path;
 		string reversed_rna = rna_.get_seq();
 		std::reverse(reversed_rna.begin(), reversed_rna.end());
 
-		if (valid_path.back() != '/') valid_path.push_back('/');
-		if (verbose) cout << "loading RIN motifs from " << valid_path << "..." << endl;
-
-		size_t number_of_files = (size_t) std::distance(std::filesystem::directory_iterator{source_path}, std::filesystem::directory_iterator{});
-		if (verbose) cout << "Number of files : " << number_of_files << endl;
+		size_t number_of_files = (size_t) distance(directory_iterator{source_path}, directory_iterator{});
+		if (verbose) cout << "\t> Number of files : " << number_of_files << endl;
 
 		for (size_t i=0; i<number_of_files; i++) //337 is the number of RINs in CaRNAval
 		{
-			motifs.push_back(Motif()) ;
-			motifs.back().load_from_txt(valid_path, i);
-
+			Motif m = Motif(source_path, i)
 
 			vector<string> vc;
-			string motif_seq = "" ;
+			string motif_seq = "";
 
-			for (Component component : motifs.back().comp)
+			for (Component component : m.comp)
 			{
-				vc.push_back(component.seq_) ;
-				motif_seq += component.seq_ ;
+				vc.push_back(component.seq_);
+				motif_seq += component.seq_;
 			}
 
 			if (motif_seq.length() < 5)
 			{
-				if (verbose) std::cout << "RIN n°" << i+1 << " is too short to be considered." << std::endl ;
-				motifs.pop_back();
-				continue ;
+				if (verbose) cout << "RIN n°" << i+1 << " is too short to be considered." << endl;
+				continue;
 			}
 
-			if (motifs.back().links_.size() == 0)
+			if (m.links_.size() == 0)
 			{
-				if (verbose) std::cout << "RIN n°" << i+1 << " is not considered for not constraining the secondary structure." << std::endl ;
-				motifs.pop_back();
-				continue ;
+				if (verbose) cout << "RIN n°" << i+1 << " is not considered, because not constraining the secondary structure." << endl;
+				continue;
 			}
 
 
-			vector<vector<Component>> occurrences   = find_next_ones_in(rna_.get_seq(), 0, vc) ;
-			vector<vector<Component>> r_occurrences = find_next_ones_in(reversed_rna, 0, vc) ;
+			vector<vector<Component>> occurrences   = find_next_ones_in(rna_.get_seq(), 0, vc);
+			vector<vector<Component>> r_occurrences = find_next_ones_in(reversed_rna, 0, vc);
 
-			motifs.pop_back() ;
+			motifs.pop_back();
 
 			for (vector<Component> occ : occurrences)
 			{
-				motifs.push_back(Motif()) ;
-				motifs.back().load_from_txt(valid_path, i);
-				motifs.back().comp = occ ;
-				motifs.back().reversed_ = false ;
+				motifs.push_back(Motif());
+				m.load_from_txt(source_path, i);
+				m.comp = occ;
+				m.reversed_ = false;
 
 				bool to_keep = true;
 
-				if (!(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+				if (!(allowed_basepair(m.comp[0].pos.first, m.comp.back().pos.second)))
 					to_keep = false;
 
-				else if (motifs.back().comp.size() != 1)
-					for (size_t j = 0; j < motifs.back().comp.size() - 1; j++)
-						if ( !(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+				else if (m.comp.size() != 1)
+					for (size_t j = 0; j < m.comp.size() - 1; j++)
+						if ( !(allowed_basepair(m.comp[0].pos.first, m.comp.back().pos.second)))
 						{
 							to_keep = false;
-							j = motifs.back().comp.size();
+							j = m.comp.size();
 						}
 
 				if (to_keep == false)
@@ -279,22 +263,22 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
 			for (vector<Component> occ : r_occurrences)
 			{
-				motifs.push_back(Motif()) ;
-				motifs.back().load_from_txt(valid_path, i);
-				motifs.back().comp = occ ;
-				motifs.back().reversed_ = true ;
+				motifs.push_back(Motif());
+				m.load_from_txt(source_path, i);
+				m.comp = occ;
+				m.reversed_ = true;
 
 				bool to_keep = true;
 
-				if (!(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+				if (!(allowed_basepair(m.comp[0].pos.first, m.comp.back().pos.second)))
 					to_keep = false;
 
-				else if (motifs.back().comp.size() != 1)
-					for (size_t j = 0; j < motifs.back().comp.size() - 1; j++)
-						if ( !(allowed_basepair(motifs.back().comp[0].pos.first, motifs.back().comp.back().pos.second)))
+				else if (m.comp.size() != 1)
+					for (size_t j = 0; j < m.comp.size() - 1; j++)
+						if ( !(allowed_basepair(m.comp[0].pos.first, m.comp.back().pos.second)))
 						{
 							to_keep = false;
-							j = motifs.back().comp.size();
+							j = m.comp.size();
 						}
 
 				if (to_keep == false)
@@ -304,7 +288,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
 		if (verbose) cout << "Done : parsed " << number_of_files << " files." << endl;
 		
-		insertion_sites_ = motifs ;
+		insertion_sites_ = motifs;
 	}
 	else
 	{
@@ -479,12 +463,12 @@ void MOIP::define_problem_constraints(string& source)
 
 						else
 						{
-							bool is_link = false ;
+							bool is_link = false;
 							for (Link link : x.links_)
 								if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
 								{
-									is_link = true ;
-									break ;
+									is_link = true;
+									break;
 								}
 
 							if (!is_link)
@@ -550,29 +534,29 @@ void MOIP::define_problem_constraints(string& source)
 			Motif&  x   = insertion_sites_[i];
 			//IloExpr c6p = IloExpr(env_);
 
-			vector<size_t> weights(x.comp.size(), 0) ;
+			vector<size_t> weights(x.comp.size(), 0);
 			vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
 
-			size_t sum_comp_size = 0 ;
+			size_t sum_comp_size = 0;
 
 			for (size_t j=0; j < x.comp.size(); j++)
 			{
 				IloExpr c6 = IloExpr(env_);
-				bool to_insert = false ;
-				size_t jj ;
+				bool to_insert = false;
+				size_t jj;
 
 				for (size_t k=0; k < x.links_.size(); k++)
 				{
-					size_t ntA = x.links_[k].nts.first ;
-					size_t ntB = x.links_[k].nts.second ;
+					size_t ntA = x.links_[k].nts.first;
+					size_t ntB = x.links_[k].nts.second;
 
 					//check if the j component is the first to be linked in the k link
 					if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
 					{
-						size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size ;
-						size_t ntB_location = -1 ;
+						size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size;
+						size_t ntB_location = -1;
 
-						size_t sum_next_comp_size = sum_comp_size ;
+						size_t sum_next_comp_size = sum_comp_size;
 
 						//look for the location of the other linked nucleotide
 						for (jj=j; jj < x.comp.size(); jj++)
@@ -580,48 +564,48 @@ void MOIP::define_problem_constraints(string& source)
 							//check if the jj component is the second to be linked in the k link
 							if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
 							{
-								ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size ;
-								break ;
+								ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size;
+								break;
 							}
 
-							sum_next_comp_size += x.comp[jj].k ;
+							sum_next_comp_size += x.comp[jj].k;
 						}
 
 						if (allowed_basepair(ntA_location, ntB_location))
 						{
-							c6 += y(ntA_location, ntB_location) ;
-							to_insert = true ;
+							c6 += y(ntA_location, ntB_location);
+							to_insert = true;
 						}
 
 						else //a link is unauthorized, the component cannot be inserted
 						{
-							to_insert = false ;
-							break ;
+							to_insert = false;
+							break;
 						}
 					}
 				}
 
-				sum_comp_size += x.comp[j].k ;
+				sum_comp_size += x.comp[j].k;
 
 				if (to_insert)
 				{
 					if (j==jj)
 					{
-						//model_.add(C(i,j) <= c6) ;
-						//weights[j] += 2 ;
-						weights[j] += 1 ;
-						expressions[j].push_back(c6) ;
+						//model_.add(C(i,j) <= c6);
+						//weights[j] += 2;
+						weights[j] += 1;
+						expressions[j].push_back(c6);
 						//if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
 					}
 					else
 					{
-						//model_.add(C(i,j) <= c6) ;
-						weights[j] += 1 ;
-						expressions[j].push_back(c6) ;
+						//model_.add(C(i,j) <= c6);
+						weights[j] += 1;
+						expressions[j].push_back(c6);
 						//if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
-						//model_.add(C(i,jj) <= c6) ;
-						weights[jj] += 1 ;
-						expressions[jj].push_back(c6) ;
+						//model_.add(C(i,jj) <= c6);
+						weights[jj] += 1;
+						expressions[jj].push_back(c6);
 						//if (verbose_) cout << "\t\t" << (C(i, jj) <= c6) << endl;
 					}
 				}
@@ -632,7 +616,7 @@ void MOIP::define_problem_constraints(string& source)
 					if (expressions[j].size() != 0)
 						for (size_t k=0; k<expressions[j].size(); k++)
 						{
-							model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] ) ;
+							model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
 							if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
 						}
 		}

@@ -14,7 +14,7 @@ from ast import literal_eval
 try:
     cmd_opts, cmd_args = getopt.getopt( sys.argv[1:],
                                 "bc:f:hi:jl:no:O:pt:v",
-                             [  "verbose","rna3dmotifs","3dmotifatlas","jar3d","bayespairing","patternmatch","func=",
+                             [  "verbose","rna3dmotifs","3dmotifatlas","carnaval","jar3d","bayespairing","patternmatch","func=",
                                 "help","version","seq=","modules-path=", "jar3d-exec=", "bypdir=", "biorseo-dir=", "first-objective=","output=","theta=",
                                 "interrupt-limit=", "outputf="])
 except getopt.GetoptError as err:
@@ -242,7 +242,7 @@ class BiorseoInstance:
                 self.type = "jar3d"
             elif opt == "-b" or opt == "--bayespairing":
                 self.type = "byp"
-            elif opt == "--rin":
+            elif opt == "--carnaval":
                 self.modules = "rin"
             elif opt == "--rna3dmotifs":
                 self.modules = "desc"
@@ -792,7 +792,7 @@ class BiorseoInstance:
         # define job list
         for instance in RNAcontainer:
 
-            executable = self.biorseo_dir + "/bin/biorseo"
+            executable = self.biorseo_dir + "bin/biorseo"
             fastafile = self.temp_dir+instance.header+".fa"
             method_type = ""
             priority = 1

@@ -83,11 +83,13 @@ Get the latest version of the HL and IL module models from the [BGSU website](ht
 
 ### CARNAVAL DATA
 
-You first need to have the 'networkx' package installed for Python 3. Then just run the script `./scripts/transform_CaRNAval_pickle.py`, this will create files into `./data/modules/RIN/Subfiles` :
+You first need to have the `unzip` command installed on your machine and the `networkx` package installed for Python 3. Then just run the script `Install_CaRNAval_RINs.py`, this will create files into `./data/modules/RIN/Subfiles` :
 ```bash
 cd scripts
-python3 transform_CaRNAval_pickle.py
+python3 Install_CaRNAval_RINs.py
 ```
+
+If you do not have the unzip command, download and extract manually the [CaRNAval dataset](http://carnaval.lri.fr/carnaval_dataset.zip) and place the files `RIN.py` and `CaRNAval_1_as_dictionnary.nxpickled` in the folder `data/modules/RIN/`, and run the python script.
 
 ### DEPENDENCIES
 - Make sure you have Python 3.7+ and a C++ compiler (tested with GCC and clang) installed on your distribution. Use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example.
