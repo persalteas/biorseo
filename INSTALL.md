@@ -140,7 +140,7 @@ $ ./biorseo.py
 -i ./data/fasta/applications.fa 
 -O ./results/
 --rna3dmotifs --patternmatch --func B 
---biorseodir /FULL/path/to/the/root/biorseo/dir
+--biorseo-dir /FULL/path/to/the/root/biorseo/dir
 --modules-path=./data/modules/DESC 
---jar3dexec=./jar3d_releasedate.jar OR --bypdir=./BayesPairing2/bayespairing/src
+--jar3d-exec=./jar3d_releasedate.jar OR --bypdir=./BayesPairing2/bayespairing/src
 ```

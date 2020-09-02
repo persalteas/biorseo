@@ -14,7 +14,7 @@ using std::string;
 using std::vector;
 using std::mutex;
 
-class Motif;    // forward declaration
+
 
 typedef struct Comp_ {
     pair<uint, uint> pos;
@@ -44,9 +44,9 @@ class Motif
     Motif(void);
     Motif(string csv_line);
     Motif(const vector<Component>& v, string PDB);
+    Motif(const vector<Component>& v, path rinfile, uint id, bool reversed);
     Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
-    bool              is_valid(const string& rna, bool reversed);
-    vector<Motif>     RIN_list(const string& rna, bool reversed);
+    static char       is_valid_RIN(const string& rinfile);
     static char       is_valid_DESC(const string& descfile);
     string            pos_string(void) const;
     string            get_origin(void) const;
@@ -65,6 +65,7 @@ class Motif
 };
 
 bool                        is_desc_insertible(const string& descfile, const string& rna);
+bool                        is_rin_insertible(const string& rinfile, const string& rna);
 vector<Motif>               load_txt_folder(const string& path, const string& rna, bool verbose);
 vector<Motif>               load_desc_folder(const string& path, const string& rna, bool verbose);
 vector<Motif>               load_csv(const string& path);

@@ -11,9 +11,9 @@
 using std::vector;
 
 typedef struct args_ {
-						path           descfile;
+						path           motif_file;
 						std::mutex&    posInsertionSites_mutex;
-						args_(path descfile_, mutex& mutex_) : descfile(descfile_), posInsertionSites_mutex(mutex_) {}
+						args_(path motif_file_, mutex& mutex_) : motif_file(motif_file_), posInsertionSites_mutex(mutex_) {}
 					  } args_of_parallel_func;
 
 
@@ -50,6 +50,7 @@ class MOIP
 	bool   						exists_vertical_outdated_labels(const SecondaryStructure& s) const;
 	bool   						exists_horizontal_outdated_labels(const SecondaryStructure& s) const;
 	void   						allowed_motifs_from_desc(args_of_parallel_func arg_struct);
+	void   						allowed_motifs_from_rin(args_of_parallel_func arg_struct);
 	
 	bool verbose_;    // Should we print things ?
 
