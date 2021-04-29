@@ -1,4 +1,4 @@
-#!/usr/bin/python3.8
+#!/usr/bin/python3
 #coding=utf-8
 
 # typical usage : ./benchmark.py data/sec_structs/verified_secondary_structures_database.dbn data/sec_structs/pseudoknots.dbn data/sec_structs/applications.dbn
@@ -13,63 +13,54 @@
 
 from sys import argv
 from scipy import stats
+from tqdm import tqdm
 import subprocess
 from os import path, makedirs, getcwd, chdir, devnull
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from math import sqrt, ceil
-from multiprocessing import Pool, cpu_count, Manager
+from multiprocessing import Pool, cpu_count, Manager, Value
 import multiprocessing
+import multiprocessing.pool
 import ast, time
 import pickle
 
 # ================== DEFINITION OF THE PATHS ==============================
 
 biorseoDir = path.realpath(".")
-jar3dexec = "/opt/jar3d_2014-12-11.jar"
-bypdir = "/opt/BayesPairing/bayespairing/src"
-byp2dir = "/opt/rnabayespairing2.git/bayespairing/src"
-moipdir = "/opt/RNAMoIP/Src/RNAMoIP.py"
-biokopdir = "/opt/biokop/biokop"
+jar3dexec = "/home/persalteas/Software/jar3dbin/jar3d_2014-12-11.jar"
+bypdir = biorseoDir + "/BayesPairing/bayespairing/src"
+byp2dir = biorseoDir + "/BayesPairing2/bayespairing/src"
+moipdir = "/home/persalteas/Software/RNAMoIP/Src/RNAMoIP.py"
+biokopdir = "/home/persalteas/Software/biokop/biokop"
 runDir = path.dirname(path.realpath(__file__))
-RNAStrandFile = argv[1]
+bpRNAFile = argv[1]
 PseudobaseFile = argv[2]
 StudyCaseFile = argv[3]
 outputDir = biorseoDir + "/benchmark_results/"
 HLmotifDir = biorseoDir + "/data/modules/BGSU/HL/3.2/lib"
 ILmotifDir = biorseoDir + "/data/modules/BGSU/IL/3.2/lib"
 descfolder = biorseoDir + "/data/modules/DESC"
-rinfolder = biorseoDir + "/data/modules/CaRNAval/Subfiles/"
+rinfolder = biorseoDir + "/data/modules/RIN/Subfiles/"
 
 # Create some folders to store the results
 subprocess.call(["mkdir", "-p", outputDir])
 subprocess.call(["mkdir", "-p", outputDir + "PK/"])
 subprocess.call(["mkdir", "-p", outputDir + "noPK/"])
 
-m = Manager()
-running_stats = m.list()
-running_stats.append(0) # n_launched
-running_stats.append(0) # n_finished
-running_stats.append(0) # n_skipped
+	
+# m = Manager()
+# running_stats = m.list()
+# running_stats.append(0) # n_launched
+# running_stats.append(0) # n_finished
+# running_stats.append(0) # n_skipped
+n_launched = Value('i', 0)
+n_finished = Value('i', 0)
+n_skipped = Value('i', 0)
+ncores = cpu_count()
 
 # ================== CLASSES AND FUNCTIONS ================================
-
-"""
-class NoDaemonProcess(multiprocessing.Process):
-	# make 'daemon' attribute always return False
-	def _get_daemon(self):
-		return False
-	def _set_daemon(self, value):
-		pass
-	daemon = property(_get_daemon, _set_daemon)
-
-# We sub-class multiprocessing.pool.Pool instead of multiprocessing.Pool
-# because the latter is only a wrapper function, not a proper class.
-class MyPool(multiprocessing.pool.Pool):
-	Process = NoDaemonProcess
-"""
-
 
 class NoDaemonProcess(multiprocessing.Process):
 	@property
@@ -91,9 +82,6 @@ class MyPool(multiprocessing.pool.Pool):
 		kwargs['context'] = NoDaemonContext()
 		super(MyPool, self).__init__(*args, **kwargs)
 
-
-
-
 class Job:
 	def __init__(self, results, command=[], function=None, args=[], how_many_in_parallel=0, priority=1, timeout=None, checkFunc=None, checkArgs=[], label=""):
 		self.cmd_ = command
@@ -107,13 +95,11 @@ class Job:
 		self.comp_time = -1 # -1 is not executed yet
 		self.label = label
 		if not how_many_in_parallel:
-			self.nthreads = cpu_count()
+			self.nthreads = ncores
 		elif how_many_in_parallel == -1:
-			self.nthreads = cpu_count() - 1
+			self.nthreads = ncores - 1
 		else:
 			self.nthreads = how_many_in_parallel
-		self.nthreads = ceil(self.nthreads/2)
-		self.nthreads = 1
 		self.useless_bool = False
 
 	def __str__(self):
@@ -123,14 +109,25 @@ class Job:
 			s = f"{self.priority_}({self.nthreads}) [{self.comp_time}]\t{j.label:25}{self.func_.__name__}(" + " ".join([str(a) for a in self.args_]) + ")"
 		return s
 
+def init(arg1, arg2, arg3):
+	global n_launched, n_finished, n_skipped
+	n_launched = arg1
+	n_finished = arg2
+	n_skipped = arg3
+
 def execute_job(j):
+	global n_launched, n_skipped, n_finished
+
 	# Check if you really need to execute it
 	if path.isfile(j.results_file) or ((j.checkFunc_ is not None) and j.checkFunc_(*j.checkArgs_)):
-		running_stats[2] += 1
-		print(f"[{running_stats[0]+running_stats[2]}/{jobcount}]\tSkipping {j.label} (already finished)")
+		# skip it
+		with n_skipped.get_lock():
+			n_skipped.value += 1
+			n_finished.value += 1
+		print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\tSkipping {j.label} (already finished)")
 		return (0, 0)
-
-	running_stats[0] += 1
+	with n_launched.get_lock():
+		n_launched.value += 1
 
 	# Add the job to log file and run
 	if len(j.cmd_):
@@ -138,18 +135,19 @@ def execute_job(j):
 		logfile.write(" ".join(j.cmd_))
 		logfile.write("\n")
 		logfile.close()
-		print(f"[{running_stats[0]+running_stats[2]}/{jobcount}]\t{j.label}")
+		print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\t{j.label}")
 		start_time = time.time()
 		r = subprocess.call(j.cmd_, timeout=j.timeout_)
 		end_time = time.time()
 	elif j.func_ is not None:
-		print(f"[{running_stats[0]+running_stats[2]}/{jobcount}]\t{j.func_.__name__}({', '.join([str(a) for a in j.args_])})")
+		print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\t{j.func_.__name__}({', '.join([str(a) for a in j.args_])})")
 		start_time = time.time()
 		r = j.func_(*j.args_)
 		end_time = time.time()
 
 	# Job is finished
-	running_stats[1] += 1
+	with n_finished.get_lock():
+		n_finished.value += 1
 	t = end_time - start_time
 	return (t,r)
 
@@ -222,7 +220,7 @@ def launch_JAR3D(seq_, basename):
 	# Scanning loop subsequences against motif database
 	if not path.exists(basename):
 		makedirs(basename)
-	p = MyPool(processes=cpu_count())
+	p = Pool(processes=ncores)
 	insertion_sites = [x for y in p.map(launch_JAR3D_worker, loops) for x in y]
 	p.close()
 	p.join()
@@ -249,7 +247,7 @@ def launch_JAR3D(seq_, basename):
 
 def launch_BayesPairing(module_type, seq_, header_, basename):
 
-	cmd = ["python3.8", "-W", "ignore", "parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
+	cmd = ["python3", "-W", "ignore", "parse_sequences.py","-seq",outputDir + basename + ".fa", "-d", module_type, "-interm","1"]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
@@ -290,8 +288,6 @@ def launch_BayesPairing(module_type, seq_, header_, basename):
 				rna.write('\n')
 	rna.close()
 
-
-
 def launch_BayesPairing2(module_type, seq_, header_, basename):
 
 	if module_type=="rna3dmotif":
@@ -300,7 +296,7 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 		BP2_type = "3dMotifAtlas_ALL"
 		#BP2_type = "3dMotifAtlas_RELIABLE"
 
-	cmd = ["python3.7", "-W", "ignore", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type, "-o", "output"]
+	cmd = ["python3", "-W", "ignore", "parse_sequences.py", "-seq", outputDir+basename+".fa", "-samplesize", "1000", "-d", BP2_type, "-o", "output"]
 
 	logfile = open(runDir + "/log_of_the_run.sh", 'a')
 	logfile.write(" ".join(cmd))
@@ -338,8 +334,6 @@ def launch_BayesPairing2(module_type, seq_, header_, basename):
 				rna.write(str_line + "\n")
 
 	rna.close()
-
-
 
 def launch_RNAMoIP_worker(c):
 	# launch gurobi
@@ -643,7 +637,7 @@ def is_all(n, tot):
 	else:
 		return "\033[91m%d\033[0m/%d" % (n, tot)
 
-def load_from_dbn(file, header_style=1):
+def load_from_dbn(file, header_style=3):
 	container = []
 	counter = 0
 
@@ -671,6 +665,7 @@ def load_from_dbn(file, header_style=1):
 			if is_canonical_nts(seq) and is_canonical_bps(struct):
 				if header_style == 1: container.append(RNA(header.replace('/', '_').split('(')[-1][:-1], header, seq, struct))
 				if header_style == 2: container.append(RNA(header.replace('/', '_').split('[')[-1][:-41], header, seq, struct))
+				if header_style == 3: container.append(RNA(header[1:], header, seq, struct))
 				if '[' in struct: counter += 1
 	db.close()
 	return container, counter
@@ -760,13 +755,21 @@ class Method:
 
 		# Things that require RNAsubopt calculations
 		if self.tool in ["RNAsubopt", "RNA-MoIP (1by1)", "RNA-MoIP (chunk)"] or self.placement_method == "Jar3d":
-			self.joblist.append(Job(command=["RNAsubopt", "-i", fasta, "--outfile="+ basename + ".subopt"], priority=1, how_many_in_parallel=1 if self.flat else 0, results = outputDir + "noPK/" +  basename + ".subopt", label=f"{basename} RNAsubopt"))
-			self.joblist.append(Job(command=["mv", basename + ".subopt", outputDir + "noPK/"], priority=2, how_many_in_parallel=1 if self.flat else 0, results = outputDir + "noPK/" +  basename + ".subopt", label=f"{basename} mv"))
+			self.joblist.append(Job(command=["RNAsubopt", "-i", fasta, "--outfile="+ basename + ".subopt"], 
+									priority=1, how_many_in_parallel=1 if self.flat else 0, 
+									results = outputDir + "noPK/" +  basename + ".subopt", 
+									label=f"{basename} RNAsubopt"))
+			self.joblist.append(Job(command=["mv", basename + ".subopt", outputDir + "noPK/"], 
+									priority=2, how_many_in_parallel=1 if self.flat else 0, 
+									results = outputDir + "noPK/" +  basename + ".subopt", 
+									label=f"{basename} mv"))
 
 		# Find modules using Jar3d or BayesPairing:
 		if self.placement_method == "Jar3d":
 			self.joblist.append(Job(function=launch_JAR3D, args=[instance.seq_, basename],
-								priority=3, how_many_in_parallel=1, results = outputDir + basename + ".bgsu_jar3d.csv", label=f"{basename} BGSU-Jar3d"))
+									priority=3, how_many_in_parallel=1, 
+									results = outputDir + basename + ".bgsu_jar3d.csv", 
+									label=f"{basename} BGSU-Jar3d"))
 
 		if self.placement_method == "ByP":
 			if self.data_source == "DESC" :
@@ -781,7 +784,9 @@ class Method:
 
 			if module_type_arg != "carnaval":
 				self.joblist.append(Job(function=launch_BayesPairing2, args=[module_type_arg, instance.seq_, instance.header_, basename],
-								how_many_in_parallel=1 if self.flat else -1, priority=3, results = outputDir + basename + f".{self.data_source.lower()}_byp2.csv", label=f"{basename} {self.data_source}-ByP"))
+										how_many_in_parallel=1 if self.flat else -1, priority=3, 
+										results = outputDir + basename + f".{self.data_source.lower()}_byp2.csv", 
+										label=f"{basename} {self.data_source}-ByP"))
 
 		if self.tool == "biorseo":
 			c = [ biorseoDir+"/bin/biorseo", "-s", fasta ]
@@ -801,19 +806,30 @@ class Method:
 			c += ["-o", results_file, "--func", self.func]
 			if not self.allow_pk:
 				c += ["-n"]
-			self.joblist.append(Job(command=c, priority=4, timeout=3600, how_many_in_parallel=1 if self.flat else 3, results = results_file, label=f"{basename} {self.label}"))
+			self.joblist.append(Job(command=c, priority=4, timeout=3600, 
+									how_many_in_parallel=1 if self.flat else 3, 
+									results = results_file, 
+									label=f"{basename} {self.label}"))
 		
 		if self.tool == "RNA-MoIP (chunk)":
 			self.joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename, False],
-								priority=3, how_many_in_parallel=1 if self.flat else 0, timeout=3600, results = outputDir + f"noPK/{basename}.moipc", label=f"{basename} {self.label}"))
+									priority=3, how_many_in_parallel=1 if self.flat else 0, 
+									timeout=3600, results = outputDir + f"noPK/{basename}.moipc", 
+									label=f"{basename} {self.label}"))
 		
 		if self.tool == "RNA-MoIP (1by1)":
 			self.joblist.append(Job(function=launch_RNAMoIP, args=[instance.seq_, instance.header_, basename, True],
-								priority=3, how_many_in_parallel=1 if self.flat else 0, timeout=3600, results = outputDir + f"noPK/{basename}.moip", label=f"{basename} {self.label}"))
+									priority=3, how_many_in_parallel=1 if self.flat else 0, 
+									timeout=3600, 
+									results = outputDir + f"noPK/{basename}.moip", 
+									label=f"{basename} {self.label}"))
 		
 		if self.tool == "Biokop":
 			self.joblist.append(Job(command=[biokopdir, "-n1", "-i", fasta, "-o", outputDir + f"PK/{basename}.biok"],
-								priority=5, timeout=15000, how_many_in_parallel=1 if self.flat else 3, results = outputDir + f"PK/{basename}.biok", label=f"{basename} {self.label}"))
+									priority=5, timeout=3600, 
+									how_many_in_parallel=1 if self.flat else 3, 
+									results = outputDir + f"PK/{basename}.biok", 
+									label=f"{basename} {self.label}"))
 
 	def get_comp_times(self):
 		s = ""
@@ -949,7 +965,7 @@ class RNA:
 	def load_results(self, include_noPK=False):
 		self.load_RNAsubopt_results()
 		self.load_RNAMoIP_results()
-		#self.load_biokop_results()
+		self.load_biokop_results()
 		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A", self.get_results("DESC-D.P.-A"))
 		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B", self.get_results("DESC-D.P.-B"))
 		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A", self.get_results("DESC-ByP-A"))
@@ -987,7 +1003,6 @@ class RNA:
 			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_A", self.get_results("RIN-D.P.-A-noPK"))
 			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_B", self.get_results("RIN-D.P.-B-noPK"))
 
-
 	def has_complete_results(self, with_PK):
 		if not with_PK:
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".subopt"): return False
@@ -1007,13 +1022,12 @@ class RNA:
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_B"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_C"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_D"): return False
-
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_A"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_B"): return False
 
 			return True
 		else:
-			#if not path.isfile(outputDir + "PK/" + self.basename + ".biok"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biok"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A"): return False
@@ -1028,7 +1042,6 @@ class RNA:
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_B"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_C"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_D"): return False
-
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_rin_raw_A"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_rin_raw_B"): return False
 
@@ -1038,124 +1051,129 @@ class RNA:
 
 if __name__ == '__main__':
 
-	print("loading files...")
-	RNAStrandContainer, RNAStrand_pk_counter = load_from_dbn(RNAStrandFile)
+	print("> Loading files...", flush=True)
+	bpRNAContainer, bpRNA_pk_counter = load_from_dbn(bpRNAFile)
 	PseudobaseContainer, Pseudobase_pk_counter = load_from_dbn(PseudobaseFile)
-	StudycaseContainer, StudyCase_pk_counter = load_from_dbn(StudyCaseFile)
+	StudycaseContainer, StudyCase_pk_counter = load_from_dbn(StudyCaseFile, header_style=1)
 
 	for nt, number in ignored_nt_dict.items():
-		print("ignored %d sequences because of char %c" % (number, nt))
+		print("\t> ignored %d sequences because of char %c" % (number, nt))
 
-	RNAStrand_tot = len(RNAStrandContainer)
+	bpRNA_tot = len(bpRNAContainer)
 	Pseudobase_tot = len(PseudobaseContainer)
 	StudyCase_tot = len(StudycaseContainer)
-	print("Loaded %d RNAs of length between 10 and 100 from RNA Strand. %d of them contain pseudoknots." % (RNAStrand_tot, RNAStrand_pk_counter))
-	print("Loaded %d RNAs of length between 10 and 100 from Pseudobase. %d of them contain pseudoknots." % (Pseudobase_tot, Pseudobase_pk_counter))
-	print("Loaded %d RNAs of length between 10 and 100 from study case. %d of them contain pseudoknots." % (StudyCase_tot, StudyCase_pk_counter))
+	print("\t> Loaded %d RNAs of length between 10 and 100 from RNA Strand. %d of them contain pseudoknots." % (bpRNA_tot, bpRNA_pk_counter))
+	print("\t> Loaded %d RNAs of length between 10 and 100 from Pseudobase. %d of them contain pseudoknots." % (Pseudobase_tot, Pseudobase_pk_counter))
+	print("\t> Loaded %d RNAs of length between 10 and 100 from study case. %d of them contain pseudoknots." % (StudyCase_tot, StudyCase_pk_counter))
 
 	#================= PREDICTION OF STRUCTURES ===============================
 
 	#define job list
+	print("> Defining jobs...")
 	fulljoblist = []
-	joblabel_list = []
+	joblabel_list = set()
 
-	for instance in PseudobaseContainer + RNAStrandContainer:
-		instance.add_method_evaluation(instance, "RNAsubopt")
-		#instance.add_method_evaluation(instance, "Biokop")
-		instance.add_method_evaluation(instance, "RNA-MoIP (1by1)")
-		instance.add_method_evaluation(instance, "RNA-MoIP (chunk)")
+	for instance in tqdm(PseudobaseContainer + bpRNAContainer, desc="PK-ready jobs"):
+		instance.add_method_evaluation(instance, "RNAsubopt", flat=False)
+		instance.add_method_evaluation(instance, "Biokop")
+		# instance.add_method_evaluation(instance, "RNA-MoIP (1by1)")
+		# instance.add_method_evaluation(instance, "RNA-MoIP (chunk)")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="A")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="B")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C")
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C")
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="A")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="B")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="C")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="D")
-
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="A")
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="B")
 
 		for method in instance.methods:
 			for i in range(len(method.joblist)):
 				j = method.joblist[i]
-				if j.label not in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
-					fulljoblist.append(j)
-					joblabel_list.append(j.label)
+				if j.label in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
+					# for index, job in enumerate(fulljoblist):
+					# 	if job.label == j.label:
+					# 		method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+					# 		break
+					continue
 				else:
-					index = joblabel_list.index(j.label)
-					method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+					fulljoblist.append(j)
+					joblabel_list.add(j.label)
 
-	for instance in RNAStrandContainer:
+	for instance in tqdm(bpRNAContainer, desc="Non-PK jobs"):
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="A", PK=False)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C", PK=False)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D", PK=False)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="A", PK=False)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="B", PK=False)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="C", PK=False)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="D", PK=False)
-
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="A", PK=False)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="B", PK=False)
 
 		for method in instance.methods:
 			for i in range(len(method.joblist)):
 				j = method.joblist[i]
-				if j.label not in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
-					fulljoblist.append(j)
-					joblabel_list.append(j.label)
+				if j.label in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
+					# for index, job in enumerate(fulljoblist):
+					# 	if job.label == j.label:
+					# 		method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+					# 		break
+					continue
 				else:
-					index = joblabel_list.index(j.label)
-					method.joblist[i] = fulljoblist[index] # point to the previous occurrence
-
+					fulljoblist.append(j)
+					joblabel_list.add(j.label)
 	
 	for instance in StudycaseContainer: # We need to define these separately because we do not want concurrency, to measure proper run times.
 		instance.add_method_evaluation(instance, "RNAsubopt", flat=True)
-		#instance.add_method_evaluation(instance, "Biokop", flat=True)
-		instance.add_method_evaluation(instance, "RNA-MoIP (1by1)", flat=True)
-		instance.add_method_evaluation(instance, "RNA-MoIP (chunk)", flat=True)
+		instance.add_method_evaluation(instance, "Biokop", flat=True)
+		# instance.add_method_evaluation(instance, "RNA-MoIP (1by1)", flat=True)
+		# instance.add_method_evaluation(instance, "RNA-MoIP (chunk)", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="A", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="B", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C", flat=True)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C", flat=True)
+		# instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="A", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="B", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="C", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="D", flat=True)
-
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="A", flat=True)
 		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="B", flat=True)
 
 		for method in instance.methods:
 			for i in range(len(method.joblist)):
 				j = method.joblist[i]
-				if j.label not in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
-					fulljoblist.append(j)
-					joblabel_list.append(j.label)
+				if j.label in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
+					# for index, job in enumerate(fulljoblist):
+					# 	if job.label == j.label:
+					# 		method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+					# 		break
+					continue
 				else:
-					index = joblabel_list.index(j.label)
-					method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+					fulljoblist.append(j)
+					joblabel_list.add(j.label)
 	
-
 	# sort jobs in a tree structure
 	jobs = {}
 	jobcount = len(fulljoblist)
@@ -1163,6 +1181,7 @@ if __name__ == '__main__':
 		if job.priority_ not in jobs.keys():
 			jobs[job.priority_] = {}
 		if job.nthreads not in jobs[job.priority_].keys():
+			print(f"New job priority/concurrency: {job.priority_} {job.nthreads}")
 			jobs[job.priority_][job.nthreads] = []
 		jobs[job.priority_][job.nthreads].append(job)
 	nprio = max(jobs.keys())
@@ -1177,10 +1196,9 @@ if __name__ == '__main__':
 			bunch = jobs[i][n]
 			if not len(bunch): continue # ignore if no jobs should be processed n by n
 			print("using", n, "processes:")
-
 			try :
 				# execute jobs of priority i that should be processed n by n:
-				p = MyPool(processes=n, maxtasksperchild=10)
+				p = MyPool(initializer = init, initargs = (n_launched, n_finished, n_skipped), processes=n, maxtasksperchild=10)
 				raw_results = p.map(execute_job, bunch)
 				p.close()
 				p.join()
@@ -1197,36 +1215,35 @@ if __name__ == '__main__':
 
 	# ================= Statistics ========================
 
-	def get_RNAStrand_statistics(include_noPK=True):
+	def get_bpRNA_statistics(include_noPK=True):
 		print("\nLoading RNA Strand results from files...")
 		# load results in objects
-		for instance in RNAStrandContainer:
+		for instance in bpRNAContainer:
 			instance.load_results(include_noPK=True)
 			instance.evaluate()
 
-		RNAs_fully_predicted_noPK = [ x for x in RNAStrandContainer if x.has_complete_results(False)]
+		RNAs_fully_predicted_noPK = [ x for x in bpRNAContainer if x.has_complete_results(False) ]
 
 		x_noPK = [
-			[ rna.get_results("RNAsubopt").max_mcc for rna in RNAStrandContainer if rna.get_results("RNAsubopt").n_pred],
-			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (1by1)").n_pred],
-			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (chunk)").n_pred],
-			[ rna.get_results("DESC-D.P.-A-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A-noPK").n_pred],
-			[ rna.get_results("DESC-D.P.-B-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B-noPK").n_pred],
-			[ rna.get_results("DESC-ByP-A-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A-noPK").n_pred],
-			[ rna.get_results("DESC-ByP-B-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-B-noPK").n_pred],
-			[ rna.get_results("DESC-ByP-C-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-C-noPK").n_pred],
-			[ rna.get_results("DESC-ByP-D-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-D-noPK").n_pred],
-			[ rna.get_results("BGSU-Jar3d-A-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-A-noPK").n_pred],
-			[ rna.get_results("BGSU-Jar3d-B-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-B-noPK").n_pred],
-			[ rna.get_results("BGSU-Jar3d-C-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-C-noPK").n_pred],
-			[ rna.get_results("BGSU-Jar3d-D-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-D-noPK").n_pred],
-			[ rna.get_results("BGSU-ByP-A-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-A-noPK").n_pred],
-			[ rna.get_results("BGSU-ByP-B-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-B-noPK").n_pred],
-			[ rna.get_results("BGSU-ByP-C-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-C-noPK").n_pred],
-			[ rna.get_results("BGSU-ByP-D-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D-noPK").n_pred],
-
-			[ rna.get_results("RIN-D.P.-A-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A-noPK").n_pred],
-			[ rna.get_results("RIN-D.P.-B-noPK").max_mcc  for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-B-noPK").n_pred],
+			[ rna.get_results("RNAsubopt").max_mcc for rna in bpRNAContainer if rna.get_results("RNAsubopt").n_pred],
+			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in bpRNAContainer if rna.get_results("RNA-MoIP (1by1)").n_pred],
+			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in bpRNAContainer if rna.get_results("RNA-MoIP (chunk)").n_pred],
+			[ rna.get_results("DESC-D.P.-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A-noPK").n_pred],
+			[ rna.get_results("DESC-D.P.-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-D.P.-B-noPK").n_pred],
+			[ rna.get_results("DESC-ByP-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-A-noPK").n_pred],
+			[ rna.get_results("DESC-ByP-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-B-noPK").n_pred],
+			[ rna.get_results("DESC-ByP-C-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-C-noPK").n_pred],
+			[ rna.get_results("DESC-ByP-D-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-D-noPK").n_pred],
+			[ rna.get_results("BGSU-Jar3d-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-A-noPK").n_pred],
+			[ rna.get_results("BGSU-Jar3d-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-B-noPK").n_pred],
+			[ rna.get_results("BGSU-Jar3d-C-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-C-noPK").n_pred],
+			[ rna.get_results("BGSU-Jar3d-D-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-D-noPK").n_pred],
+			[ rna.get_results("BGSU-ByP-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-A-noPK").n_pred],
+			[ rna.get_results("BGSU-ByP-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-B-noPK").n_pred],
+			[ rna.get_results("BGSU-ByP-C-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-C-noPK").n_pred],
+			[ rna.get_results("BGSU-ByP-D-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-D-noPK").n_pred],
+			[ rna.get_results("RIN-D.P.-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A-noPK").n_pred],
+			[ rna.get_results("RIN-D.P.-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_results("RIN-D.P.-B-noPK").n_pred],
 		]
 
 		x_noPK_fully = [
@@ -1247,7 +1264,6 @@ if __name__ == '__main__':
 			[ rna.get_results("BGSU-ByP-B-noPK").max_mcc  for rna in RNAs_fully_predicted_noPK],
 			[ rna.get_results("BGSU-ByP-C-noPK").max_mcc  for rna in RNAs_fully_predicted_noPK],
 			[ rna.get_results("BGSU-ByP-D-noPK").max_mcc  for rna in RNAs_fully_predicted_noPK],
-
 			[ rna.get_results("RIN-D.P.-A-noPK").max_mcc for rna in RNAs_fully_predicted_noPK],
 			[ rna.get_results("RIN-D.P.-B-noPK").max_mcc for rna in RNAs_fully_predicted_noPK],
 		]  # We ensure having the same number of RNAs in every sample by discarding the ones for which computations did not ended/succeeded.
@@ -1255,28 +1271,27 @@ if __name__ == '__main__':
 
 		print()
 		print("Without PK:")
-		print("%s RNAsubopt predictions" % is_all(len(x_noPK[0]), RNAStrand_tot))
-		print("%s RNA-MoIP 1 by 1 predictions" % is_all(len(x_noPK[1]), RNAStrand_tot))
-		print("%s RNA-MoIP chunk predictions" % is_all(len(x_noPK[2]), RNAStrand_tot))
-		print("%s biorseo + DESC + Patternmatch + f1A predictions" % is_all(len(x_noPK[3]), RNAStrand_tot))
-		print("%s biorseo + DESC + Patternmatch + f1B predictions" % is_all(len(x_noPK[4]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1A predictions" % is_all(len(x_noPK[5]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1B predictions" % is_all(len(x_noPK[6]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1C predictions" % is_all(len(x_noPK[7]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1D predictions" % is_all(len(x_noPK[8]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1A predictions" % is_all(len(x_noPK[9]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1B predictions" % is_all(len(x_noPK[10]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1C predictions" % is_all(len(x_noPK[11]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1D predictions" % is_all(len(x_noPK[12]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1A predictions" % is_all(len(x_noPK[13]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1B predictions" % is_all(len(x_noPK[14]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1C predictions" % is_all(len(x_noPK[15]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1D predictions" % is_all(len(x_noPK[16]), RNAStrand_tot))
+		print("%s RNAsubopt predictions" % is_all(len(x_noPK[0]), bpRNA_tot))
+		print("%s RNA-MoIP 1 by 1 predictions" % is_all(len(x_noPK[1]), bpRNA_tot))
+		print("%s RNA-MoIP chunk predictions" % is_all(len(x_noPK[2]), bpRNA_tot))
+		print("%s biorseo + DESC + Patternmatch + f1A predictions" % is_all(len(x_noPK[3]), bpRNA_tot))
+		print("%s biorseo + DESC + Patternmatch + f1B predictions" % is_all(len(x_noPK[4]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1A predictions" % is_all(len(x_noPK[5]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1B predictions" % is_all(len(x_noPK[6]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1C predictions" % is_all(len(x_noPK[7]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1D predictions" % is_all(len(x_noPK[8]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1A predictions" % is_all(len(x_noPK[9]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1B predictions" % is_all(len(x_noPK[10]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1C predictions" % is_all(len(x_noPK[11]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1D predictions" % is_all(len(x_noPK[12]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1A predictions" % is_all(len(x_noPK[13]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1B predictions" % is_all(len(x_noPK[14]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1C predictions" % is_all(len(x_noPK[15]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1D predictions" % is_all(len(x_noPK[16]), bpRNA_tot))
+		print("%s biorseo + RIN + Patternmatch + f1A predictions" % is_all(len(x_noPK[17]), bpRNA_tot))
+		print("%s biorseo + RIN + Patternmatch + f1B predictions" % is_all(len(x_noPK[18]), bpRNA_tot))
 
-		print("%s biorseo + RIN + Patternmatch + f1A predictions" % is_all(len(x_noPK[17]), RNAStrand_tot))
-		print("%s biorseo + RIN + Patternmatch + f1B predictions" % is_all(len(x_noPK[18]), RNAStrand_tot))
-
-		print("==> %s ARN were predicted with all methods successful." % is_all(len(x_noPK_fully[0]), RNAStrand_tot) )
+		print("==> %s ARN were predicted with all methods successful." % is_all(len(x_noPK_fully[0]), bpRNA_tot) )
 
 		# stat tests
 		# Search if all methods are equal in positions with Friedman test:
@@ -1289,33 +1304,32 @@ if __name__ == '__main__':
 		print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of RNA-MoIP and RawB are equal', p-value = ", test.pvalue)
 
 
-		RNAs_fully_predicted_PK = [ x for x in RNAStrandContainer if x.has_complete_results(True)]
+		RNAs_fully_predicted_PK = [ x for x in bpRNAContainer if x.has_complete_results(True)]
 
 		x_PK = [
-			#[ rna.get_results("Biokop").max_mcc for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred],
+			[ rna.get_results("Biokop").max_mcc for rna in bpRNAContainer if rna.get_results("Biokop").n_pred],
 			[],
-			[ rna.get_results("DESC-D.P.-A").max_mcc for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").n_pred],
-			[ rna.get_results("DESC-D.P.-B").max_mcc for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B").n_pred],
-			[ rna.get_results("DESC-ByP-A").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").n_pred],
-			[ rna.get_results("DESC-ByP-B").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-B").n_pred],
-			[ rna.get_results("DESC-ByP-C").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-C").n_pred],
-			[ rna.get_results("DESC-ByP-D").max_mcc  for rna in RNAStrandContainer if rna.get_results("DESC-ByP-D").n_pred],
-			[ rna.get_results("BGSU-Jar3d-A").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-A").n_pred],
-			[ rna.get_results("BGSU-Jar3d-B").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-B").n_pred],
-			[ rna.get_results("BGSU-Jar3d-C").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-C").n_pred],
-			[ rna.get_results("BGSU-Jar3d-D").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-D").n_pred],
-			[ rna.get_results("BGSU-ByP-A").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-A").n_pred],
-			[ rna.get_results("BGSU-ByP-B").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-B").n_pred],
-			[ rna.get_results("BGSU-ByP-C").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-C").n_pred],
-			[ rna.get_results("BGSU-ByP-D").max_mcc  for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D").n_pred],
-
-			[ rna.get_results("RIN-D.P.-A").max_mcc for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A").n_pred],
-			[ rna.get_results("RIN-D.P.-B").max_mcc for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-B").n_pred],
+			[ rna.get_results("DESC-D.P.-A").max_mcc for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A").n_pred],
+			[ rna.get_results("DESC-D.P.-B").max_mcc for rna in bpRNAContainer if rna.get_results("DESC-D.P.-B").n_pred],
+			[ rna.get_results("DESC-ByP-A").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-A").n_pred],
+			[ rna.get_results("DESC-ByP-B").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-B").n_pred],
+			[ rna.get_results("DESC-ByP-C").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-C").n_pred],
+			[ rna.get_results("DESC-ByP-D").max_mcc  for rna in bpRNAContainer if rna.get_results("DESC-ByP-D").n_pred],
+			[ rna.get_results("BGSU-Jar3d-A").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-A").n_pred],
+			[ rna.get_results("BGSU-Jar3d-B").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-B").n_pred],
+			[ rna.get_results("BGSU-Jar3d-C").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-C").n_pred],
+			[ rna.get_results("BGSU-Jar3d-D").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-D").n_pred],
+			[ rna.get_results("BGSU-ByP-A").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-A").n_pred],
+			[ rna.get_results("BGSU-ByP-B").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-B").n_pred],
+			[ rna.get_results("BGSU-ByP-C").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-C").n_pred],
+			[ rna.get_results("BGSU-ByP-D").max_mcc  for rna in bpRNAContainer if rna.get_results("BGSU-ByP-D").n_pred],
+			[ rna.get_results("RIN-D.P.-A").max_mcc for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A").n_pred],
+			[ rna.get_results("RIN-D.P.-B").max_mcc for rna in bpRNAContainer if rna.get_results("RIN-D.P.-B").n_pred],
 		]
 
 		# We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
 		x_PK_fully = [
-			#[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_PK],
+			[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("DESC-D.P.-A").max_mcc for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("DESC-D.P.-B").max_mcc for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("DESC-ByP-A").max_mcc  for rna in RNAs_fully_predicted_PK],
@@ -1330,7 +1344,6 @@ if __name__ == '__main__':
 			[ rna.get_results("BGSU-ByP-B").max_mcc  for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("BGSU-ByP-C").max_mcc  for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("BGSU-ByP-D").max_mcc  for rna in RNAs_fully_predicted_PK],
-
 			[ rna.get_results("RIN-D.P.-A").max_mcc for rna in RNAs_fully_predicted_PK],
 			[ rna.get_results("RIN-D.P.-B").max_mcc for rna in RNAs_fully_predicted_PK],
 		]
@@ -1339,26 +1352,25 @@ if __name__ == '__main__':
 
 		print()
 		print("With PK:")
-		#print("%s Biokop predictions" % is_all(len(x_PK[0]), RNAStrand_tot))
-		print("%s biorseo + DESC + Patternmatch + f1A predictions" % is_all(len(x_PK[1]), RNAStrand_tot))
-		print("%s biorseo + DESC + Patternmatch + f1B predictions" % is_all(len(x_PK[2]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1A predictions" % is_all(len(x_PK[3]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1B predictions" % is_all(len(x_PK[4]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1C predictions" % is_all(len(x_PK[5]), RNAStrand_tot))
-		print("%s biorseo + DESC + BayesPairing + f1D predictions" % is_all(len(x_PK[6]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1A predictions" % is_all(len(x_PK[7]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1B predictions" % is_all(len(x_PK[8]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1C predictions" % is_all(len(x_PK[9]), RNAStrand_tot))
-		print("%s biorseo + BGSU + JAR3D + f1D predictions" % is_all(len(x_PK[10]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1A predictions" % is_all(len(x_PK[11]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1B predictions" % is_all(len(x_PK[12]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1C predictions" % is_all(len(x_PK[13]), RNAStrand_tot))
-		print("%s biorseo + BGSU + BayesPairing + f1D predictions" % is_all(len(x_PK[14]), RNAStrand_tot))
+		print("%s Biokop predictions" % is_all(len(x_PK[0]), bpRNA_tot))
+		print("%s biorseo + DESC + Patternmatch + f1A predictions" % is_all(len(x_PK[1]), bpRNA_tot))
+		print("%s biorseo + DESC + Patternmatch + f1B predictions" % is_all(len(x_PK[2]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1A predictions" % is_all(len(x_PK[3]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1B predictions" % is_all(len(x_PK[4]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1C predictions" % is_all(len(x_PK[5]), bpRNA_tot))
+		print("%s biorseo + DESC + BayesPairing + f1D predictions" % is_all(len(x_PK[6]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1A predictions" % is_all(len(x_PK[7]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1B predictions" % is_all(len(x_PK[8]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1C predictions" % is_all(len(x_PK[9]), bpRNA_tot))
+		print("%s biorseo + BGSU + JAR3D + f1D predictions" % is_all(len(x_PK[10]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1A predictions" % is_all(len(x_PK[11]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1B predictions" % is_all(len(x_PK[12]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1C predictions" % is_all(len(x_PK[13]), bpRNA_tot))
+		print("%s biorseo + BGSU + BayesPairing + f1D predictions" % is_all(len(x_PK[14]), bpRNA_tot))
+		print("%s biorseo + RIN + Patternmatch + f1A predictions" % is_all(len(x_PK[15]), bpRNA_tot))
+		print("%s biorseo + RIN + Patternmatch + f1B predictions" % is_all(len(x_PK[16]), bpRNA_tot))
 
-		print("%s biorseo + RIN + Patternmatch + f1A predictions" % is_all(len(x_PK[15]), RNAStrand_tot))
-		print("%s biorseo + RIN + Patternmatch + f1B predictions" % is_all(len(x_PK[16]), RNAStrand_tot))
-
-		print("==> %s ARN were predicted with all methods successful." % is_all(len(x_PK_fully[0]), RNAStrand_tot) )
+		print("==> %s ARN were predicted with all methods successful." % is_all(len(x_PK_fully[0]), bpRNA_tot) )
 
 		# stat tests
 		# First, search if all methods are equal in positions with Friedman test:
@@ -1389,7 +1401,7 @@ if __name__ == '__main__':
 		RNAs_fully_predicted_Pseudobase = [ x for x in PseudobaseContainer if x.has_complete_results(True)]
 
 		x_pseudobase = [
-			#[ rna.get_results("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred],
+			[ rna.get_results("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_results("Biokop").n_pred],
 			[],
 			[ rna.get_results("RNAsubopt").max_mcc for rna in PseudobaseContainer if rna.get_results("RNAsubopt").n_pred],
 			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in PseudobaseContainer if rna.get_results("RNA-MoIP (1by1)").n_pred],
@@ -1408,14 +1420,13 @@ if __name__ == '__main__':
 			[ rna.get_results("BGSU-ByP-B").max_mcc  for rna in PseudobaseContainer if rna.get_results("BGSU-ByP-B").n_pred],
 			[ rna.get_results("BGSU-ByP-C").max_mcc  for rna in PseudobaseContainer if rna.get_results("BGSU-ByP-C").n_pred],
 			[ rna.get_results("BGSU-ByP-D").max_mcc  for rna in PseudobaseContainer if rna.get_results("BGSU-ByP-D").n_pred],
-
 			[ rna.get_results("RIN-D.P.-A").max_mcc for rna in PseudobaseContainer if rna.get_results("RIN-D.P.-A").n_pred],
 			[ rna.get_results("RIN-D.P.-B").max_mcc for rna in PseudobaseContainer if rna.get_results("RIN-D.P.-B").n_pred],
 		]
 
 		# We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
 		x_pseudobase_fully = [
-			#[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
+			[ rna.get_results("Biokop").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("RNAsubopt").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
@@ -1433,7 +1444,6 @@ if __name__ == '__main__':
 			[ rna.get_results("BGSU-ByP-B").max_mcc  for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("BGSU-ByP-C").max_mcc  for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("BGSU-ByP-D").max_mcc  for rna in RNAs_fully_predicted_Pseudobase],
-
 			[ rna.get_results("RIN-D.P.-A").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 			[ rna.get_results("RIN-D.P.-B").max_mcc for rna in RNAs_fully_predicted_Pseudobase],
 		]
@@ -1441,7 +1451,7 @@ if __name__ == '__main__':
 
 		print()
 		print("With PK:")
-		#print("%s Biokop predictions" % is_all(len(x_pseudobase[0]), Pseudobase_tot))
+		print("%s Biokop predictions" % is_all(len(x_pseudobase[0]), Pseudobase_tot))
 		print("%s RNAsubopt predictions" % is_all(len(x_pseudobase[1]), Pseudobase_tot))
 		print("%s RNA-MoIP 1 by 1 predictions" % is_all(len(x_pseudobase[2]), Pseudobase_tot))
 		print("%s RNA-MoIP chunk predictions" % is_all(len(x_pseudobase[3]), Pseudobase_tot))
@@ -1459,7 +1469,6 @@ if __name__ == '__main__':
 		print("%s biorseo + BGSU + BayesPairing + f1B predictions" % is_all(len(x_pseudobase[15]), Pseudobase_tot))
 		print("%s biorseo + BGSU + BayesPairing + f1C predictions" % is_all(len(x_pseudobase[16]), Pseudobase_tot))
 		print("%s biorseo + BGSU + BayesPairing + f1D predictions" % is_all(len(x_pseudobase[17]), Pseudobase_tot))
-
 		print("%s biorseo + RIN + Patternmatch + f1A predictions" % is_all(len(x_pseudobase[18]), Pseudobase_tot))
 		print("%s biorseo + RIN + Patternmatch + f1B predictions" % is_all(len(x_pseudobase[19]), Pseudobase_tot))
 
@@ -1483,7 +1492,6 @@ if __name__ == '__main__':
 		test = stats.wilcoxon(x_pseudobase_fully[0], x_pseudobase_fully[13])
 		print("Wilcoxon signed rank test with PK: H0 = 'The position parameter of Biokop and Jar3dD are equal', p-value = ", test.pvalue)
 		return x_pseudobase_fully
-
 	
 	def print_StudyCase_results():
 		print("\nLoading study case results from files...")
@@ -1494,31 +1502,31 @@ if __name__ == '__main__':
 			instance.evaluate(verbose=True)
 	
 
-	x_noPK_fully, x_PK_fully = get_RNAStrand_statistics()
+	x_noPK_fully, x_PK_fully = get_bpRNA_statistics()
 	x_pseudobase_fully = get_Pseudobase_statistics()
 	print_StudyCase_results()
 	"""
 	nbetter = [
-			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-ByP-B").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-ByP-C").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("DESC-ByP-D").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-B").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-C").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-B").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-C").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-D").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("DESC-ByP-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("DESC-ByP-B").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("DESC-ByP-C").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("DESC-ByP-D").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-ByP-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-ByP-B").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-ByP-C").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-ByP-D").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-B").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-C").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-D").max_mcc > rna.get_results("Biokop").max_mcc ]),
 
-			len([ rna for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
-			len([ rna for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
+			len([ rna for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
 		]
-	print("Number of RNAs that are better predicted by BiORSEO than Biokop on RNAStrand:")
-	print(nbetter, "/", len(RNAStrandContainer))
+	print("Number of RNAs that are better predicted by BiORSEO than Biokop on bpRNA:")
+	print(nbetter, "/", len(bpRNAContainer))
 
 	nbetter = [
 			len([ rna for rna in PseudobaseContainer if rna.get_results("DESC-D.P.-A").max_mcc > rna.get_results("Biokop").max_mcc ]),
@@ -1661,70 +1669,70 @@ if __name__ == '__main__':
 		# ======= number of solutions, insertion ratio, etc ========================
 
 		n = [
-			#[ rna.get_results("Biokop").n_pred for rna in RNAStrandContainer if rna.get_results("Biokop").n_pred ],
-			[ rna.get_results("RNAsubopt").n_pred for rna in RNAStrandContainer if rna.get_results("RNAsubopt").n_pred ],
-			[ rna.get_results("RNA-MoIP (1by1)").n_pred for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (1by1)").n_pred ],
-			[ rna.get_results("RNA-MoIP (chunk)").n_pred for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (chunk)").n_pred ],
-			[ rna.get_results("DESC-D.P.-A").n_pred for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").n_pred ],
-			[ rna.get_results("DESC-D.P.-B").n_pred for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B").n_pred ],
-			[ rna.get_results("DESC-ByP-A").n_pred for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").n_pred ],
-			[ rna.get_results("DESC-ByP-B").n_pred for rna in RNAStrandContainer if rna.get_results("DESC-ByP-B").n_pred ],
-			[ rna.get_results("DESC-ByP-C").n_pred for rna in RNAStrandContainer if rna.get_results("DESC-ByP-C").n_pred ],
-			[ rna.get_results("DESC-ByP-D").n_pred for rna in RNAStrandContainer if rna.get_results("DESC-ByP-D").n_pred ],
-			[ rna.get_results("BGSU-Jar3d-A").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-A").n_pred ],
-			[ rna.get_results("BGSU-Jar3d-B").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-B").n_pred ],
-			[ rna.get_results("BGSU-Jar3d-C").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-C").n_pred ],
-			[ rna.get_results("BGSU-Jar3d-D").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-D").n_pred ],
-			[ rna.get_results("BGSU-ByP-A").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-A").n_pred ],
-			[ rna.get_results("BGSU-ByP-B").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-B").n_pred ],
-			[ rna.get_results("BGSU-ByP-C").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-C").n_pred ],
-			[ rna.get_results("BGSU-ByP-D").n_pred for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D").n_pred ],
+			#[ rna.get_results("Biokop").n_pred for rna in bpRNAContainer if rna.get_results("Biokop").n_pred ],
+			[ rna.get_results("RNAsubopt").n_pred for rna in bpRNAContainer if rna.get_results("RNAsubopt").n_pred ],
+			[ rna.get_results("RNA-MoIP (1by1)").n_pred for rna in bpRNAContainer if rna.get_results("RNA-MoIP (1by1)").n_pred ],
+			[ rna.get_results("RNA-MoIP (chunk)").n_pred for rna in bpRNAContainer if rna.get_results("RNA-MoIP (chunk)").n_pred ],
+			[ rna.get_results("DESC-D.P.-A").n_pred for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A").n_pred ],
+			[ rna.get_results("DESC-D.P.-B").n_pred for rna in bpRNAContainer if rna.get_results("DESC-D.P.-B").n_pred ],
+			[ rna.get_results("DESC-ByP-A").n_pred for rna in bpRNAContainer if rna.get_results("DESC-ByP-A").n_pred ],
+			[ rna.get_results("DESC-ByP-B").n_pred for rna in bpRNAContainer if rna.get_results("DESC-ByP-B").n_pred ],
+			[ rna.get_results("DESC-ByP-C").n_pred for rna in bpRNAContainer if rna.get_results("DESC-ByP-C").n_pred ],
+			[ rna.get_results("DESC-ByP-D").n_pred for rna in bpRNAContainer if rna.get_results("DESC-ByP-D").n_pred ],
+			[ rna.get_results("BGSU-Jar3d-A").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-A").n_pred ],
+			[ rna.get_results("BGSU-Jar3d-B").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-B").n_pred ],
+			[ rna.get_results("BGSU-Jar3d-C").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-C").n_pred ],
+			[ rna.get_results("BGSU-Jar3d-D").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-D").n_pred ],
+			[ rna.get_results("BGSU-ByP-A").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-ByP-A").n_pred ],
+			[ rna.get_results("BGSU-ByP-B").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-ByP-B").n_pred ],
+			[ rna.get_results("BGSU-ByP-C").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-ByP-C").n_pred ],
+			[ rna.get_results("BGSU-ByP-D").n_pred for rna in bpRNAContainer if rna.get_results("BGSU-ByP-D").n_pred ],
 
-			[ rna.get_results("RIN-D.P.-A").n_pred for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A").n_pred ],
-			[ rna.get_results("RIN-D.P.-B").n_pred for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-B").n_pred ],
+			[ rna.get_results("RIN-D.P.-A").n_pred for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A").n_pred ],
+			[ rna.get_results("RIN-D.P.-B").n_pred for rna in bpRNAContainer if rna.get_results("RIN-D.P.-B").n_pred ],
 		]
 
 		r = [
-			[ rna.get_results("RNA-MoIP (1by1)").ratio for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (1by1)").n_pred > 1 ],
-			[ rna.get_results("DESC-D.P.-A").ratio for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").n_pred > 1 ],
-			[ rna.get_results("DESC-D.P.-B").ratio for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B").n_pred > 1 ],
-			[ rna.get_results("DESC-ByP-A").ratio for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").n_pred > 1 ],
-			[ rna.get_results("DESC-ByP-B").ratio for rna in RNAStrandContainer if rna.get_results("DESC-ByP-B").n_pred > 1 ],
-			[ rna.get_results("DESC-ByP-C").ratio for rna in RNAStrandContainer if rna.get_results("DESC-ByP-C").n_pred > 1 ],
-			[ rna.get_results("DESC-ByP-D").ratio for rna in RNAStrandContainer if rna.get_results("DESC-ByP-D").n_pred > 1 ],
-			[ rna.get_results("BGSU-Jar3d-A").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-A").n_pred > 1 ],
-			[ rna.get_results("BGSU-Jar3d-B").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-B").n_pred > 1 ],
-			[ rna.get_results("BGSU-Jar3d-C").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-C").n_pred > 1 ],
-			[ rna.get_results("BGSU-Jar3d-D").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-D").n_pred > 1 ],
-			[ rna.get_results("BGSU-ByP-A").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-A").n_pred > 1 ],
-			[ rna.get_results("BGSU-ByP-B").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-B").n_pred > 1 ],
-			[ rna.get_results("BGSU-ByP-C").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-C").n_pred > 1 ],
-			[ rna.get_results("BGSU-ByP-D").ratio for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D").n_pred > 1 ],
+			[ rna.get_results("RNA-MoIP (1by1)").ratio for rna in bpRNAContainer if rna.get_results("RNA-MoIP (1by1)").n_pred > 1 ],
+			[ rna.get_results("DESC-D.P.-A").ratio for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A").n_pred > 1 ],
+			[ rna.get_results("DESC-D.P.-B").ratio for rna in bpRNAContainer if rna.get_results("DESC-D.P.-B").n_pred > 1 ],
+			[ rna.get_results("DESC-ByP-A").ratio for rna in bpRNAContainer if rna.get_results("DESC-ByP-A").n_pred > 1 ],
+			[ rna.get_results("DESC-ByP-B").ratio for rna in bpRNAContainer if rna.get_results("DESC-ByP-B").n_pred > 1 ],
+			[ rna.get_results("DESC-ByP-C").ratio for rna in bpRNAContainer if rna.get_results("DESC-ByP-C").n_pred > 1 ],
+			[ rna.get_results("DESC-ByP-D").ratio for rna in bpRNAContainer if rna.get_results("DESC-ByP-D").n_pred > 1 ],
+			[ rna.get_results("BGSU-Jar3d-A").ratio for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-A").n_pred > 1 ],
+			[ rna.get_results("BGSU-Jar3d-B").ratio for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-B").n_pred > 1 ],
+			[ rna.get_results("BGSU-Jar3d-C").ratio for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-C").n_pred > 1 ],
+			[ rna.get_results("BGSU-Jar3d-D").ratio for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-D").n_pred > 1 ],
+			[ rna.get_results("BGSU-ByP-A").ratio for rna in bpRNAContainer if rna.get_results("BGSU-ByP-A").n_pred > 1 ],
+			[ rna.get_results("BGSU-ByP-B").ratio for rna in bpRNAContainer if rna.get_results("BGSU-ByP-B").n_pred > 1 ],
+			[ rna.get_results("BGSU-ByP-C").ratio for rna in bpRNAContainer if rna.get_results("BGSU-ByP-C").n_pred > 1 ],
+			[ rna.get_results("BGSU-ByP-D").ratio for rna in bpRNAContainer if rna.get_results("BGSU-ByP-D").n_pred > 1 ],
 
-			[ rna.get_results("RIN-D.P.-A").ratio for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A").n_pred > 1 ],
-			[ rna.get_results("RIN-D.P.-B").ratio for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-B").n_pred > 1 ],
+			[ rna.get_results("RIN-D.P.-A").ratio for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A").n_pred > 1 ],
+			[ rna.get_results("RIN-D.P.-B").ratio for rna in bpRNAContainer if rna.get_results("RIN-D.P.-B").n_pred > 1 ],
 		]
 
 		max_i = [
-			[ max(rna.get_results("RNA-MoIP (1by1)").ninsertions) for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (1by1)").n_pred ],
-			[ max(rna.get_results("RNA-MoIP (chunk)").ninsertions) for rna in RNAStrandContainer if rna.get_results("RNA-MoIP (chunk)").n_pred ],
-			[ max(rna.get_results("DESC-D.P.-A").ninsertions) for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-A").n_pred ],
-			[ max(rna.get_results("DESC-D.P.-B").ninsertions) for rna in RNAStrandContainer if rna.get_results("DESC-D.P.-B").n_pred ],
-			[ max(rna.get_results("DESC-ByP-A").ninsertions) for rna in RNAStrandContainer if rna.get_results("DESC-ByP-A").n_pred ],
-			[ max(rna.get_results("DESC-ByP-B").ninsertions) for rna in RNAStrandContainer if rna.get_results("DESC-ByP-B").n_pred ],
-			[ max(rna.get_results("DESC-ByP-C").ninsertions) for rna in RNAStrandContainer if rna.get_results("DESC-ByP-C").n_pred ],
-			[ max(rna.get_results("DESC-ByP-D").ninsertions) for rna in RNAStrandContainer if rna.get_results("DESC-ByP-D").n_pred ],
-			[ max(rna.get_results("BGSU-Jar3d-A").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-A").n_pred ],
-			[ max(rna.get_results("BGSU-Jar3d-B").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-B").n_pred ],
-			[ max(rna.get_results("BGSU-Jar3d-C").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-C").n_pred ],
-			[ max(rna.get_results("BGSU-Jar3d-D").ninsertions )for rna in RNAStrandContainer if rna.get_results("BGSU-Jar3d-D").n_pred ],
-			[ max(rna.get_results("BGSU-ByP-A").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-A").n_pred ],
-			[ max(rna.get_results("BGSU-ByP-B").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-B").n_pred ],
-			[ max(rna.get_results("BGSU-ByP-C").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-C").n_pred ],
-			[ max(rna.get_results("BGSU-ByP-D").ninsertions) for rna in RNAStrandContainer if rna.get_results("BGSU-ByP-D").n_pred ],
+			[ max(rna.get_results("RNA-MoIP (1by1)").ninsertions) for rna in bpRNAContainer if rna.get_results("RNA-MoIP (1by1)").n_pred ],
+			[ max(rna.get_results("RNA-MoIP (chunk)").ninsertions) for rna in bpRNAContainer if rna.get_results("RNA-MoIP (chunk)").n_pred ],
+			[ max(rna.get_results("DESC-D.P.-A").ninsertions) for rna in bpRNAContainer if rna.get_results("DESC-D.P.-A").n_pred ],
+			[ max(rna.get_results("DESC-D.P.-B").ninsertions) for rna in bpRNAContainer if rna.get_results("DESC-D.P.-B").n_pred ],
+			[ max(rna.get_results("DESC-ByP-A").ninsertions) for rna in bpRNAContainer if rna.get_results("DESC-ByP-A").n_pred ],
+			[ max(rna.get_results("DESC-ByP-B").ninsertions) for rna in bpRNAContainer if rna.get_results("DESC-ByP-B").n_pred ],
+			[ max(rna.get_results("DESC-ByP-C").ninsertions) for rna in bpRNAContainer if rna.get_results("DESC-ByP-C").n_pred ],
+			[ max(rna.get_results("DESC-ByP-D").ninsertions) for rna in bpRNAContainer if rna.get_results("DESC-ByP-D").n_pred ],
+			[ max(rna.get_results("BGSU-Jar3d-A").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-A").n_pred ],
+			[ max(rna.get_results("BGSU-Jar3d-B").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-B").n_pred ],
+			[ max(rna.get_results("BGSU-Jar3d-C").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-C").n_pred ],
+			[ max(rna.get_results("BGSU-Jar3d-D").ninsertions )for rna in bpRNAContainer if rna.get_results("BGSU-Jar3d-D").n_pred ],
+			[ max(rna.get_results("BGSU-ByP-A").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-ByP-A").n_pred ],
+			[ max(rna.get_results("BGSU-ByP-B").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-ByP-B").n_pred ],
+			[ max(rna.get_results("BGSU-ByP-C").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-ByP-C").n_pred ],
+			[ max(rna.get_results("BGSU-ByP-D").ninsertions) for rna in bpRNAContainer if rna.get_results("BGSU-ByP-D").n_pred ],
 
-			[ max(rna.get_results("RIN-D.P.-A").ninsertions) for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-A").n_pred ],
-			[ max(rna.get_results("RIN-D.P.-B").ninsertions) for rna in RNAStrandContainer if rna.get_results("RIN-D.P.-B").n_pred ],
+			[ max(rna.get_results("RIN-D.P.-A").ninsertions) for rna in bpRNAContainer if rna.get_results("RIN-D.P.-A").n_pred ],
+			[ max(rna.get_results("RIN-D.P.-B").ninsertions) for rna in bpRNAContainer if rna.get_results("RIN-D.P.-B").n_pred ],
 		]
 
 		# Figure : number of solutions
@@ -1828,12 +1836,12 @@ if __name__ == '__main__':
 		# ================== MCC performance ====================================
 
 		plt.figure(figsize=(10,4), dpi=80)
-		RNAStrandContainer.sort(key=lambda x: x.get_results("RNA-MoIP (chunk)").max_mcc)
+		bpRNAContainer.sort(key=lambda x: x.get_results("RNA-MoIP (chunk)").max_mcc)
 
 		x = [
-			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in RNAStrandContainer ],
-			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in RNAStrandContainer ],
-			[ rna.get_results("RNAsubopt").max_mcc for rna in RNAStrandContainer ]
+			[ rna.get_results("RNA-MoIP (chunk)").max_mcc for rna in bpRNAContainer ],
+			[ rna.get_results("RNA-MoIP (1by1)").max_mcc for rna in bpRNAContainer ],
+			[ rna.get_results("RNAsubopt").max_mcc for rna in bpRNAContainer ]
 		]
 		diffs = [
 			[ x[1][i] - x[0][i] for i in range(len(x[0])) ], # 1by1 - chunk
@@ -1861,7 +1869,6 @@ if __name__ == '__main__':
 		plt.xticks([1,2,3], ["MoIP '1by1'\n-\nMoIP 'chunk'", "MoIP '1by1'\n-\nRNAsubopt", "MoIP 'chunk'\n-\nRNAsubopt"])
 		plt.subplots_adjust(wspace=0.25, bottom=0.2, left=0.1, right=0.99)
 
-	# savefig() rajoutés par Louis Samedi soir
 	plot_best_MCCs(x_noPK_fully, x_PK_fully, x_pseudobase_fully)
 	plt.savefig("best_MCCs.png")
 	plot_more_info()

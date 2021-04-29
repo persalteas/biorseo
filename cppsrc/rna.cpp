@@ -47,7 +47,7 @@ RNA::RNA(string name, string seq, bool verbose)
 	
 	const char      *cseq = seq.c_str();
 	int window_size = 100;
-	int max_bp_span = 150;
+	int max_bp_span = 100;
 	float cutoff = 1e-6;
 	vrna_ep_t* results = vrna_pfl_fold(cseq, window_size, max_bp_span, cutoff);
 
@@ -55,12 +55,12 @@ RNA::RNA(string name, string seq, bool verbose)
 	{
 		while (results->i != 0  &&  results->j != 0)
 		{
-			pij_(results->i,results->j) = results->p;
+			pij_(results->i-1,results->j-1) = results->p;
 			results++;
 		}
 	}
 
-	else cout << "NULL result returned by vrna_pfl_fold" << endl;
+	else cerr << "NULL result returned by vrna_pfl_fold" << endl;
 }
 
 

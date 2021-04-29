@@ -25,9 +25,10 @@ OUTPUT:
 MODULE SOURCES
 
 Biorseo can be used with two modules datasets (yet):
-* Rna3Dmotifs (from the work of *Djelloul & Denise, 2008*), but with the 3D data of 2018
+* Rna3Dmotifs (from the work of *Djelloul & Denise, 2008*)
 * The RNA 3D Motif Atlas of BGSU's RNA lab (*Petrov et al, 2013*, see http://rna.bgsu.edu/rna3dhub/motifs/)
-* RNA-Bricks 2 or CaRNAval, and others could theoretically be used, but are not supported (yet). You might write your own API.
+* CaRNAval 1.0 (*Reinhartz et al, 2018*)
+* RNA-Bricks 2, RNAMC, CaRNAval 2.0, and others could theoretically be used, but are not supported (yet). You might write your own API.
 
 PATTERN MATCHING STEP
 - Use **simple pattern matching**. Rna3Dmotifs modules are available with sequence information. We use regular expressions to find those known loops in your query. This is the approach of RNA-MoIP (*Reinharz et al, 2012*), we deal the same way with short components and wildcards.
@@ -45,7 +46,7 @@ OBJECTIVE FUNCTIONS FOR THE MODULE INSERTION CRITERIA
 
 3/ Installation
 ==================================
-Check the file INSTALL.md for installation instructions.
+Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 
 4/ Recommended uses
 ==================================
@@ -57,32 +58,30 @@ Check the file INSTALL.md for installation instructions.
     `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --rna3dmotifs --patternmatch --func A`
     
     * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function A is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
-    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func A`
-
-
-4/ Installation
-==================================
-Check the file [INSTALL.md](INSTALL.md) for installation instructions.
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func A
 
 5/ List of Options
 ==================================
 ```
 Usage:  You must provide:
         1) a FASTA input file with -i,
-        2) a module type with --rna3dmotifs or --3dmotifatlas
+        2) a module type with --rna3dmotifs, --carnaval or --3dmotifatlas
         3) one module placement method in { --patternmatch, --jar3d, --bayespairing }
         4) one scoring function with --func A, B, C or D
 
         If you are not using the Docker image: 
-        5) --modules-path, --biorseodir and (--jar3dexec or --bypdir)
+        5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)
 
 Options:
 -h [ --help ]                   Print this help message
 --version                       Print the program version
 -i [ --seq=… ]                  FASTA file with the query RNA sequence
--p [ --patternmatch ]           Use regular expressions to place modules in the sequence
+--rna3dmotifs                   Use DESC modules from Djelloul & Denise, 2008
+--carnaval                      Use RIN modules from Reinharz & al, 2018
+--3dmotifatlas                  Use the HL and IL loops from BGSU's 3D Motif Atlas (updated)
+-p [ --patternmatch ]           Use regular expressions to place modules in the sequence (requires --rna3dmotifs or --carnaval)
 -j [ --jar3d ]                  Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
--b [ --bayespairing ]           Use BayesPairing to place modules in the sequence
+-b [ --bayespairing ]           Use BayesPairing2 to place modules in the sequence (requires --rna3dmotifs or --3dmotifatlas)
 -o [ --output=… ]               File to summarize the results
 -O [ --outputf=… ]              Folder where to output result and temp files
 -f [ --func=… ]                 (A, B, C or D, default is B) Objective function to score module insertions:
@@ -92,28 +91,37 @@ Options:
                                   C and D require cannot be used with --patternmatch.
 -c [ --first-objective=… ]      (default 1) Objective to solve in the mono-objective portions of the algorithm.
                                   (1) is the module objective given by --func, (2) is the expected accuracy of the structure.
--l [ --limit=… ]                (default 500) Intermediate number of solutions in the Pareto set from which we give up the computation.
+-l [ --limit=… ]                (default 500) Number of solutions in the Pareto set from which
+                                  we give up the computation, before eliminating secondary structure doublons.
 -t [ --theta=… ]                (default 0.001) Pairing-probability threshold to consider or not the possibility of pairing
 -n [ --disable-pseudoknots ]    Add constraints to explicitly forbid the formation of pseudoknots
 -v [ --verbose ]                Print what is happening to stdout
 --modules-path=…                Path to the modules data.
                                   The folder should contain modules in the DESC format as output by Djelloul & Denise's
-                                  'catalog' program for use with --rna3dmotifs, or should contain the IL/ and HL/ 
-				  folders from a release of the RNA 3D Motif Atlasfor use with --3dmotifatlas.
+                                  'catalog' program for use with --rna3dmotifs, or the IL/ and HL/ folders
+                                  from a release of the RNA 3D Motif Atlas for use with --3dmotifatlas, or the
+                                  data/modules/RIN/Subfiles/ folder for use with --carnaval.
                                   Consider placing these files on a fast I/O device (NVMe SSD, ...)
---jar3dexec=…                   Path to the jar3d executable.
+--jar3d-exec=…                  Path to the jar3d executable.
                                   Default is /jar3d_2014-12-11.jar, you should use this option if you run
                                   BiORSEO from outside the docker image.
 --bypdir=…                      Path to the BayesParing src folder.
                                   Default is /byp/src, you should use this option if you run
                                   BiORSEO from outside the docker image.
---biorseodir=…                  Path to the BiORSEO root directory.
+--biorseo-dir=…                 Path to the BiORSEO root directory.
                                   Default is /biorseo, you should use this option if you run
                                   BiORSEO from outside the docker image. Use the FULL path.
 
 Examples:
-biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func A
-biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func A -l 800
+biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B
+biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
 biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D
+
+The allowed module/placement-method/function combinations are:
+
+                --patternmatch  --bayespairing    --jar3d
+--rna3dmotifs     A. B.           A. B. C. D.
+--3dmotifatlas                    A. B. C. D.     A. B. C. D.
+--carnaval        A. B.
 
 ```
