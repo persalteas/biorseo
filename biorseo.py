@@ -745,7 +745,8 @@ class BiorseoInstance:
                     pool.close()
                     pool.join()
         else:
-            self.execute_job(self.joblist[0])
+            for job in self.joblist:
+                self.execute_job(job)
 
     def list_jobs(self):
         """Determines the required tool runs we need before running the C++ Biorseo,
