@@ -51,6 +51,7 @@ class MOIP
 	bool   						exists_horizontal_outdated_labels(const SecondaryStructure& s) const;
 	void   						allowed_motifs_from_desc(args_of_parallel_func arg_struct);
 	void   						allowed_motifs_from_rin(args_of_parallel_func arg_struct);
+	void						allowed_motifs_from_json(args_of_parallel_func arg_struct);
 	
 	bool verbose_;    // Should we print things ?
 

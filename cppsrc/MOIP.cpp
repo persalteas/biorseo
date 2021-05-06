@@ -224,6 +224,61 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
         }
     }
+    //CONTACTS
+    else if (source == "jsonfolder") {
+        cout << "jsonfolder!!" << endl;
+    }
+    /*
+    else if (source == "jsonfolder")
+    {
+        mutex         posInsertionSites_access;
+        Pool          pool;
+        size_t        inserted = 0;
+        size_t        accepted = 0;
+        size_t        errors   = 0;
+        int           num_threads = thread::hardware_concurrency() - 1;
+        vector<thread> thread_pool;
+
+        for (int i = 0; i < num_threads; i++) 
+            thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
+
+        // Read every RIN file and add it to the queue (iff valid)
+		char error;
+        for (auto it : recursive_directory_range(source_path))
+        {
+			if ((error = Motif::is_valid_JSON(it.path().string()))) // Returns error if JSON file is incorrect
+			{
+				if (verbose)
+                {
+                    cerr << "\t>Ignoring JSON " << it.path().stem();
+                    switch (error)
+                    {
+                        case 'l': cerr << ", too short to be considered."; break;
+                        case 'x': cerr << ", because not constraining the secondary structure."; break;
+						default: cerr << ", unknown reason";
+                    }
+                    cerr << endl;
+                }
+				errors++;
+                continue;
+			}
+            accepted++;
+            args_of_parallel_func args(it.path(), posInsertionSites_access);
+            inserted++;
+            pool.push(bind(&MOIP::allowed_motifs_from_json, this, args)); // & is necessary to get the pointer to a member function
+        }
+        pool.done();
+
+        for (unsigned int i = 0; i < thread_pool.size(); i++)
+            thread_pool.at(i).join();
+
+        if (verbose){
+            cout << "\t> " << inserted << " candidate RINs on " << accepted + errors << " (" << errors << " ignored motifs), " << endl;
+            cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
+        }
+    }*/
+    //CONTACTS
+
     else
     {
         cout << "!!! Problem with the source" << endl;

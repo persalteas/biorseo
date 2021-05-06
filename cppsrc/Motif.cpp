@@ -5,10 +5,11 @@
 #include <regex>
 #include <sstream>
 #include <thread>
+#include <nlohmann_json/json.hpp>
 
 using namespace boost::filesystem;
 using namespace std;
-
+using json = nlohmann::json;
 
 struct recursive_directory_range {
     typedef recursive_directory_iterator iterator;
@@ -30,6 +31,13 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
     reversed_ = false;
     source_   = RNA3DMOTIF;
 }
+
+/**Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
+{
+    is_model_ = false;
+    reversed_ = false;
+    source_   = CONTACTS;
+}**/
 
 Motif::Motif(string csv_line)
 {
@@ -184,13 +192,27 @@ string Motif::get_identifier(void) const
 
 char Motif::is_valid_DESC(const string& descfile)
 {
-    // /!\ returns 0 iff no errors
+    // /!\ returns 0 if no errors
 
     std::ifstream  motif;
     string         line;
     vector<string> bases;
     char           c    = 'a';
     char*          prev = &c;
+
+    
+    /*std::cout << "----TEST----\n";
+    //int i = 0;
+    //string ite = "1";
+    //ite = std::to_string(i);
+    std::ifstream file("/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/cppsrc/motifs.json");
+    json j = json::parse(file);
+    //std::cout << file.rdbuf();
+    for (auto it = j["3"]["instances"].begin(); it != j["3"]["instances"].end(); ++it)
+    {   
+        std::cout << it.key() << " | " << it.value() << "\n";
+    }
+    std::cout << "----TEST2----\n";*/
 
     motif = std::ifstream(descfile);
     getline(motif, line);    // ignore "id: number"
@@ -254,6 +276,20 @@ char Motif::is_valid_RIN(const string& rinfile)
     
     return (char) 0;
 }
+
+/**char Motif::is_valid_JSON(const string& jsonfile)
+{
+    // /!\ returns 0 if no errors
+
+    std::ifstream  motif;
+    string         line;
+    vector<string> bases;
+    //char           c    = 'a';
+    //char*          prev = &c;
+
+    motif = std::ifstream(jsonfile);
+    return 0;
+}**/
 
 bool is_desc_insertible(const string& descfile, const string& rna)
 {
