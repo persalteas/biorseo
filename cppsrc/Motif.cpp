@@ -24,20 +24,21 @@ struct recursive_directory_range {
 Motif::Motif(void) {}
 
 
+//Voir comment gérer RNA3DMOTIF et CONTACTS avec un meme cosntructeur
+
+/*Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
+{
+    is_model_ = false;
+    reversed_ = false;
+    source_   = RNA3DMOTIF;
+}*/
 
 Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 {
     is_model_ = false;
     reversed_ = false;
-    source_   = RNA3DMOTIF;
-}
-
-/**Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
-{
-    is_model_ = false;
-    reversed_ = false;
     source_   = CONTACTS;
-}**/
+}
 
 Motif::Motif(string csv_line)
 {
@@ -200,20 +201,6 @@ char Motif::is_valid_DESC(const string& descfile)
     char           c    = 'a';
     char*          prev = &c;
 
-    
-    /*std::cout << "----TEST----\n";
-    //int i = 0;
-    //string ite = "1";
-    //ite = std::to_string(i);
-    std::ifstream file("/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/cppsrc/motifs.json");
-    json j = json::parse(file);
-    //std::cout << file.rdbuf();
-    for (auto it = j["3"]["instances"].begin(); it != j["3"]["instances"].end(); ++it)
-    {   
-        std::cout << it.key() << " | " << it.value() << "\n";
-    }
-    std::cout << "----TEST2----\n";*/
-
     motif = std::ifstream(descfile);
     getline(motif, line);    // ignore "id: number"
     getline(motif, line);    // Bases: 866_G  867_G  868_G  869_G  870_U  871_A ...
@@ -277,19 +264,103 @@ char Motif::is_valid_RIN(const string& rinfile)
     return (char) 0;
 }
 
-/**char Motif::is_valid_JSON(const string& jsonfile)
+//temporaire---------------------------------------------------
+enum base { BASE_n = 0, BASE_a, BASE_c, BASE_g, BASE_u };
+
+base base_type(char x) 
+{
+	if (x == 'a' or x == 'A') return BASE_a;
+	if (x == 'c' or x == 'C') return BASE_c;
+	if (x == 'g' or x == 'G') return BASE_g;
+	if (x == 'u' or x == 'U') return BASE_u;
+	return BASE_n;
+}
+
+bool checkSecondaryStructure(string struc)
+{ 
+    stack<char> s;
+    for (uint i = 0; i < struc.length(); i++)
+    {
+        if (struc[i] != '(' && struc[i] != ')' && struc[i] != '.') {
+            return false;
+        } else {
+            if (struc[i] == '(')
+            {
+                s.push(struc[i]);
+                continue;
+            }
+            if (struc[i] == ')') {
+
+                s.pop();
+            }
+        }
+    }
+    return (s.empty());
+}
+
+
+//--------------------------------------------------------------
+
+char Motif::is_valid_JSON(const string& jsonfile)
 {
     // /!\ returns 0 if no errors
 
     std::ifstream  motif;
-    string         line;
-    vector<string> bases;
-    //char           c    = 'a';
-    //char*          prev = &c;
-
     motif = std::ifstream(jsonfile);
+    json js = json::parse(motif);
+
+    std::string keys[4] = { "2D", "frequence", "instances", "sequence"};
+    for (uint i = 1; i <= js.size() ; i++) {
+        int j = 0;
+        string ite = std::to_string(i);
+        for (auto it = js[ite].begin(); it != js[ite].end(); ++it) {
+            string test = it.key();
+            if (test.compare(keys[j])){ 
+                return 'd'; 
+            }
+
+            if(!test.compare(keys[0])) {
+                std::cout << "2D: " << it.value() << "\n";
+                string ss = it.value();
+                if (ss.empty()) {
+                    std::cout << "error empty" <<endl;
+                    return 'f';
+                }
+
+                if (!checkSecondaryStructure(ss)) {
+                    std::cout << "error bracket" <<endl;
+                    return 'n';
+                }
+            }
+
+            if (!test.compare(keys[3])) {
+                std::cout << "sequence: " << it.value() << "\n";
+                string seq = it.value();
+                if (seq.empty()) {
+                    std::cout << "error empty 2" <<endl;
+                    return 'l';
+                }
+
+                /*vector<char> unknown_chars;
+                bool         contains_T = false;
+                for (char c : seq) {
+                    if (c == 'T' or c == 't') {
+                        c          = 'U';
+                        contains_T = true;
+                    }
+                    if (base_type(c) == BASE_n) {
+                        std::cout << "\tWARNING: Unknown chars in input sequence" << endl;
+                    }
+                }
+                if (contains_T)
+                    std::cout << "\tWARNING: Thymines in rna sequence" << endl;*/
+            }
+            j++;
+    }   
+    std::cout << "no error!\n";
+    }
     return 0;
-}**/
+}
 
 bool is_desc_insertible(const string& descfile, const string& rna)
 {
