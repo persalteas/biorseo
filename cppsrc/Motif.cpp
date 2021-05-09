@@ -279,21 +279,38 @@ base base_type(char x)
 bool checkSecondaryStructure(string struc)
 { 
     stack<char> s;
+    //char x;
     for (uint i = 0; i < struc.length(); i++)
     {
-        if (struc[i] != '(' && struc[i] != ')' && struc[i] != '.') {
+
+        if (struc[i] != '(' && struc[i] != ')' 
+        && struc[i] != '.' && struc[i] != '&'
+        && struc[i] != '[' && struc[i] != ']'
+        && struc[i] != '{' && struc[i] != '}'
+        && struc[i] != '<' && struc[i] != '>') {
             return false;
-        } else {
-            if (struc[i] == '(')
+        } /*else {
+            if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{')
             {
                 s.push(struc[i]);
                 continue;
-            }
-            if (struc[i] == ')') {
-
+            } else if (struc[i] == ')') {
+                x = s.top();
                 s.pop();
+                if (x == '{' || x == '[')
+                    return false;
+            } else if (struc[i] == ']') {
+                x = s.top();
+                s.pop();
+                if (x == '(' || x == '{')
+                    return false;
+            } else if (struc[i] == '}') {
+                x = s.top();
+                s.pop();
+                if (x == '(' || x == '[')
+                    return false;
             }
-        }
+        }*/
     }
     return (s.empty());
 }
@@ -309,18 +326,20 @@ char Motif::is_valid_JSON(const string& jsonfile)
     motif = std::ifstream(jsonfile);
     json js = json::parse(motif);
 
-    std::string keys[4] = { "2D", "frequence", "instances", "sequence"};
-    for (uint i = 1; i <= js.size() ; i++) {
+    std::string keys[3] = {"occurences", "sequence", "struct2d"};
+    
+    for (auto i = js.begin(); i != js.end(); ++i) {
         int j = 0;
-        string ite = std::to_string(i);
+        string ite = i.key();
+        cout << ite << ": " << endl;
         for (auto it = js[ite].begin(); it != js[ite].end(); ++it) {
             string test = it.key();
             if (test.compare(keys[j])){ 
                 return 'd'; 
             }
 
-            if(!test.compare(keys[0])) {
-                std::cout << "2D: " << it.value() << "\n";
+            if(!test.compare(keys[2])) {
+                std::cout << "struct2d: " << it.value() << endl;
                 string ss = it.value();
                 if (ss.empty()) {
                     std::cout << "error empty" <<endl;
@@ -333,7 +352,7 @@ char Motif::is_valid_JSON(const string& jsonfile)
                 }
             }
 
-            if (!test.compare(keys[3])) {
+            if (!test.compare(keys[1])) {
                 std::cout << "sequence: " << it.value() << "\n";
                 string seq = it.value();
                 if (seq.empty()) {
@@ -356,8 +375,8 @@ char Motif::is_valid_JSON(const string& jsonfile)
                     std::cout << "\tWARNING: Thymines in rna sequence" << endl;*/
             }
             j++;
-    }   
-    std::cout << "no error!\n";
+        }
+    std::cout << "no error!\n" << endl;
     }
     return 0;
 }
