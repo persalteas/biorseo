@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
+#include <nlohmann_json/json.hpp>
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
@@ -19,6 +20,7 @@
 
 using namespace boost::filesystem;
 using namespace std;
+using json = nlohmann::json;
 
 char   MOIP::obj_function_nbr_ = 'A';
 uint   MOIP::obj_to_solve_     = 1;
@@ -238,7 +240,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         for (int i = 0; i < num_threads; i++) 
             thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
 
-        // Read every JSON file and add it to the queue (iff valid)
+        // Read every JSON files and add it to the queue (iff valid)
 		char error;
         for (auto it : recursive_directory_range(source_path))
         {
@@ -266,7 +268,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
             std::cout << "OK!\n";
-            //pool.push(bind(&MOIP::allowed_motifs_from_json, this, args)); // & is necessary to get the pointer to a member function
+            pool.push(bind(&MOIP::allowed_motifs_from_json, this, args)); // & is necessary to get the pointer to a member function
         }
         pool.done();
 
@@ -1068,7 +1070,7 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     getline(motif, line); //skip the header_comp line
     while (getline(motif, line))
     {
-        // lines are formatteed like:
+        // lines are formatted like:
         // pos;k;seq
         // 0,1;2;GU
         if (line == "\n") break; //skip last line (empty)
@@ -1114,4 +1116,83 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         insertion_sites_.push_back(temp_motif);
         lock.unlock();
     }
+}
+
+void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
+{
+    /*
+        Searches where to place some JSONs in the RNA
+    */
+    cout << "---------DEBUT------------" << endl;
+    path           jsonfile                  = arg_struct.motif_file;
+    mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
+
+    std::ifstream                 motif;
+	string 	                      filepath = jsonfile.string();
+    vector<vector<Component>>     vresults, r_vresults;
+    vector<string>                component_sequences;
+    string                        id;
+    string                        line, filenumber;
+    string                        rna = rna_.get_seq();
+    string                        reversed_rna = rna_.get_seq();
+
+    cout << filepath << endl;
+    std::reverse(reversed_rna.begin(), reversed_rna.end());
+    
+    motif = std::ifstream(jsonfile.string());
+    json js = json::parse(motif);
+    id = js.begin().key();
+
+    string keys[3] = {"occurences", "sequence", "struct2d"};
+    uint i = 0;
+
+    for(auto it = js[id].begin(); it != js[id].end(); ++it) {
+        string test = it.key();
+            if (!test.compare(keys[1])){ 
+                string seq = it.value();
+                std::cout << "seq: " << seq << endl;
+                component_sequences.push_back(seq); // new component sequence
+            }
+        i++;       
+    }
+
+    vresults     = find_next_ones_in(rna, 0, component_sequences);
+    r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
+
+    for (vector<Component>& v : vresults)
+    {
+        Motif temp_motif = Motif(v);
+
+		bool unprobable = false;
+		for (const Link& l : temp_motif.links_)
+		{
+			if (!allowed_basepair(l.nts.first,l.nts.second))
+				unprobable = true;
+		}
+		if (unprobable) continue;
+
+        // Add it to the results vector
+        unique_lock<mutex> lock(posInsertionSites_access);
+        insertion_sites_.push_back(temp_motif);
+        lock.unlock();
+    }
+
+    /*for (vector<Component>& v : r_vresults)
+    {
+        Motif temp_motif = Motif(v, rinfile, carnaval_id, true);
+
+		bool unprobable = false;
+		for (const Link& l : temp_motif.links_)
+		{
+			if (!allowed_basepair(l.nts.first,l.nts.second))
+				unprobable = true;
+		}
+		if (unprobable) continue;
+
+        // Add it to the results vector
+        unique_lock<mutex> lock(posInsertionSites_access);
+        insertion_sites_.push_back(temp_motif);
+        lock.unlock();
+    }*/
+    std::cout << "---------FIN----------" << endl;
 }

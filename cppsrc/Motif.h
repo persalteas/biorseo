@@ -29,7 +29,6 @@ typedef struct Comp_ {
 } Component;
 
 
-
 typedef struct Link
 {
     pair<uint, uint> nts;
@@ -45,6 +44,8 @@ class Motif
     Motif(string csv_line);
     Motif(const vector<Component>& v, string PDB);
     Motif(const vector<Component>& v, path rinfile, uint id, bool reversed);
+    Motif(const vector<Component>& v);
+
     Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
     static char       is_valid_RIN(const string& rinfile);
     static char       is_valid_DESC(const string& descfile);
@@ -63,7 +64,7 @@ class Motif
     string atlas_id;     // if source = RNAMOTIFATLAS
     string PDBID;        // if source = RNA3DMOTIF
     string contacts_id;  // if source = CONTACTS
-    bool   is_model_;    // Wether the motif is a model or an extracted module from a 3D structure
+    bool   is_model_;    // Whether the motif is a model or an extracted module from a 3D structure
     enum { RNA3DMOTIF = 1, RNAMOTIFATLAS = 2, CARNAVAL = 3, CONTACTS = 4 } source_;
 };
 

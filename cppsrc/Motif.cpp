@@ -24,16 +24,14 @@ struct recursive_directory_range {
 Motif::Motif(void) {}
 
 
-//Voir comment gérer RNA3DMOTIF et CONTACTS avec un meme cosntructeur
-
-/*Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
+Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 {
     is_model_ = false;
     reversed_ = false;
     source_   = RNA3DMOTIF;
-}*/
+}
 
-Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
+Motif::Motif(const vector<Component>& v) : comp(v)
 {
     is_model_ = false;
     reversed_ = false;
