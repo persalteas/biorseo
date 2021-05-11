@@ -437,7 +437,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
 
     if (vc.size() > 1) {
         if (regex_search(rna, c)) {
-            if (vc.size() > 2)
+            if (vc.size() > 2) 
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
 
             else
@@ -448,6 +448,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                 smatch match = *i;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
+
                 // cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
                 if (pos.second - offset + 5 >= rna.length()) {
                     // cout << "\t\t... but we cannot place the next components : Ignored." << endl;
@@ -455,10 +456,10 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                 }
                 next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
                 if (!next_ones.size()) {
-                    // cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+                    // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
                     continue;
                 }
-                // cout  << endl;
+                 cout  << endl;
                 for (vector<Component> v : next_ones)    // For every combination of the next components
                 {
                     // Combine the match for this component pos with the combination
