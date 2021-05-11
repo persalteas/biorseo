@@ -1118,6 +1118,71 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     }
 }
 
+//Temporaire--------------------------------------
+vector<Link> search_pairing(string& struc) {
+    vector<Link> vec;
+    uint count = 0;
+    uint i;
+
+    for (i = 0; i < struc.size(); i++) {
+        if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{') {
+            count++;
+        }
+    }
+
+    i = 0;
+    uint j = (struc.size() - 1);
+
+    while (count > 0) {
+        if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{' || struc[i] == '<') {
+            Link l;
+            while (j > 0) {
+                if (struc[i] == '(') {
+                    if(struc[j] == ')') {
+                        l.nts.first = i;
+                        l.nts.second = j;
+                        vec.push_back(l);
+                        i++;
+                        count--;
+                    }
+                } else if (struc[i] == '{') {
+                    if(struc[j] == '}') {
+                        l.nts.first = i;
+                        l.nts.second = j;
+                        vec.push_back(l);
+                        i++;
+                        count--;
+                    }
+                } else if (struc[i] == '[') {
+                    if(struc[j] == ']') {
+                        l.nts.first = i;
+                        l.nts.second = j;
+                        vec.push_back(l);
+                        i++;
+                        count--;
+                    }
+                } else if (struc[i] == '<') {
+                    if(struc[j] == '>') {
+                        l.nts.first = i;
+                        l.nts.second = j;
+                        vec.push_back(l);
+                        i++;
+                        count--;
+                    }
+                } else {
+                    i++;
+                }
+                j--;       
+            } 
+        } 
+    }
+    for (i = 0; i < vec.size(); i++) {
+    std::cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
+    }
+    return vec;
+}
+//Temporaire--------------------------------------
+
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
 {
     /*
@@ -1131,6 +1196,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
 	string 	                      filepath = jsonfile.string();
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
+    string                        struc2d;
     string                        id;
     string                        line, filenumber;
     string                        rna = rna_.get_seq();
@@ -1141,17 +1207,21 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     
     motif = std::ifstream(jsonfile.string());
     json js = json::parse(motif);
-    id = js.begin().key();
+    id = "1005";
 
     string keys[3] = {"occurences", "sequence", "struct2d"};
     uint i = 0;
 
+    std::cout << "sequence fasta: " << rna << endl;
     for(auto it = js[id].begin(); it != js[id].end(); ++it) {
         string test = it.key();
             if (!test.compare(keys[1])){ 
                 string seq = it.value();
-                std::cout << "seq: " << seq << endl;
                 component_sequences.push_back(seq); // new component sequence
+                std::cout << "seq: " << component_sequences.at(0) << endl;
+            } else if (!test.compare(keys[2])) {
+                struc2d = it.value();            
+                std::cout << "2d: " << struc2d << endl;
             }
         i++;       
     }
@@ -1162,6 +1232,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     for (vector<Component>& v : vresults)
     {
         Motif temp_motif = Motif(v);
+        vector<Link> all_pos = search_pairing(struc2d);
+        temp_motif.links_ = all_pos;
 
 		bool unprobable = false;
 		for (const Link& l : temp_motif.links_)
@@ -1177,9 +1249,12 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         lock.unlock();
     }
 
-    /*for (vector<Component>& v : r_vresults)
+    for (vector<Component>& v : r_vresults)
     {
-        Motif temp_motif = Motif(v, rinfile, carnaval_id, true);
+        Motif temp_motif = Motif(v);
+        vector<Link> all_pos = search_pairing(struc2d);
+        temp_motif.links_ = all_pos;
+
 
 		bool unprobable = false;
 		for (const Link& l : temp_motif.links_)
@@ -1193,6 +1268,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         unique_lock<mutex> lock(posInsertionSites_access);
         insertion_sites_.push_back(temp_motif);
         lock.unlock();
-    }*/
+    }
     std::cout << "---------FIN----------" << endl;
 }
