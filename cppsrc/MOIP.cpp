@@ -1125,60 +1125,82 @@ vector<Link> search_pairing(string& struc) {
     uint i;
 
     for (i = 0; i < struc.size(); i++) {
-        if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{') {
+        if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{' || struc[i] == '<') {
             count++;
         }
     }
 
-    i = 0;
-    uint j = (struc.size() - 1);
+    stack<uint> s;
+    uint pos, index;
+    string str = struc;
 
+    while (str.find('(') != string::npos) {
+        pos = str.find('(');
+         s.push(pos);
+         str[pos] = '.';
+         
+    }
+    while (str.find('{') != string::npos) {
+        pos = str.find('{');
+         s.push(pos);
+         str[pos] = '.';
+    }
+    while (str.find('[') != string::npos) {
+        pos = str.find('[');
+        cout << "coucou" << endl;
+         s.push(pos);
+         str[pos] = '.';
+         
+    }
+    while (str.find('<') != string::npos) {
+        pos = str.find('<');
+         s.push(pos);
+         str[pos] = '.';
+         
+    }
     while (count > 0) {
-        if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{' || struc[i] == '<') {
-            Link l;
-            while (j > 0) {
-                if (struc[i] == '(') {
-                    if(struc[j] == ')') {
-                        l.nts.first = i;
-                        l.nts.second = j;
-                        vec.push_back(l);
-                        i++;
-                        count--;
-                    }
-                } else if (struc[i] == '{') {
-                    if(struc[j] == '}') {
-                        l.nts.first = i;
-                        l.nts.second = j;
-                        vec.push_back(l);
-                        i++;
-                        count--;
-                    }
-                } else if (struc[i] == '[') {
-                    if(struc[j] == ']') {
-                        l.nts.first = i;
-                        l.nts.second = j;
-                        vec.push_back(l);
-                        i++;
-                        count--;
-                    }
-                } else if (struc[i] == '<') {
-                    if(struc[j] == '>') {
-                        l.nts.first = i;
-                        l.nts.second = j;
-                        vec.push_back(l);
-                        i++;
-                        count--;
-                    }
-                } else {
-                    i++;
-                }
-                j--;       
-            } 
-        } 
+        Link l;
+        index = s.top();
+        l.nts.first = index;
+        s.pop();
+         if (struc[index] == '(') {
+             if (str.find(')') != string::npos) {
+                pos = str.find(')');
+                l.nts.second = pos;
+                vec.push_back(l);
+                str[pos] = '.';
+             }
+
+         } else if (struc[index] == '{') {
+             if (str.find('}') != string::npos) {
+                pos = str.find('}');
+                l.nts.second = pos;
+                vec.push_back(l);
+                str[pos] = '.';
+             }
+
+         } else if (struc[index] == '[') {
+             if (str.find(']') != string::npos) {
+                pos = str.find(']');
+                l.nts.second = pos;
+                vec.push_back(l);
+                str[pos] = '.';
+             }
+
+         } else if (struc[index] == '<') {
+             if (str.find('>') != string::npos) {
+                pos = str.find('>');
+                l.nts.second = pos;
+                vec.push_back(l);
+                str[pos] = '.';
+             }
+         }
+         count --;
     }
-    for (i = 0; i < vec.size(); i++) {
-    //std::cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
-    }
+
+    /*for (i = 0; i < vec.size(); i++) {
+    std::cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
+    }*/
     return vec;
 }
 //Temporaire--------------------------------------
@@ -1212,14 +1234,17 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     string delimiter = "&";
     uint fin = 0;
     uint i = 0;
+    //id = "1";
 
     for(auto it = js.begin(); it != js.end(); ++it) {
         id = it.key();
-        std::cout << "id: " << id << endl;
+        std::cout << "\nid: " << id << endl;
+        std::cout << "seq fasta: " << rna << endl;
         for(auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) {
             string test = it2.key();
                 if (!test.compare(keys[1])){ 
                     string seq = it2.value();
+                    std::cout << "seq : " << seq << endl;
                     string subseq;
                     while(seq.find(delimiter) != string::npos) {
                         fin = seq.find(delimiter);
@@ -1245,7 +1270,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
 
         for (vector<Component>& v : vresults)
         {
-            std::cout << "------ENTER----- "<< endl;
+            cout << "--------ENTER--------" << endl;
             Motif temp_motif = Motif(v);
             vector<Link> all_pos = search_pairing(struc2d);
             temp_motif.links_ = all_pos;
