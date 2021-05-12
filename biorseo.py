@@ -328,8 +328,8 @@ class BiorseoInstance:
         if self.modules == "rin" and self.type != "dpm":
             issues = True
             print(warning)
-            print("/!\\ CaRNAval does not support placement tools (yet). Please use it with --patternmatch, not --jar3d nor --bayespairing.")
-        if self.modules == "json" and self.type != "dpm":
+            print("/!\\ CaRNAval does not support placement tools (yet), or scoring tools. Please use it with --patternmatch, not --jar3d nor --bayespairing.")
+        if self.modules == "json" and (self.type != "dpm" or self.func == 'C' or self.func == 'D'):
             issues = True
             print(warning)
             print("/!\\ Contacts does not support placement tools (yet). Please use it with --patternmatch, not --jar3d nor --bayespairing.")
@@ -346,7 +346,8 @@ class BiorseoInstance:
             print("                --patternmatch  --bayespairing    --jar3d")
             print("--rna3dmotifs     A. B.           A. B. C. D.")
             print("--3dmotifatlas                    A. B. C. D.     A. B. C. D.")
-            print("--carnaval        A. B.\n")
+            print("--carnaval        A. B.")
+            print("--contacts        A. B.\n")
             exit(1)
 
     def enumerate_loops(self, s):

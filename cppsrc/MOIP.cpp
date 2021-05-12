@@ -2,6 +2,7 @@
 #include "Pool.h"
 #include "Motif.h"
 #include <algorithm>
+#include <string> 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <nlohmann_json/json.hpp>
@@ -1119,6 +1120,26 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
 }
 
 //Temporaire--------------------------------------
+
+//Check if the sequence is a rna sequence (ATGC) and replace T by U or remove modified nucleotide if necessary
+string check_motif_sequence(string seq) {
+
+std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+
+
+for (int i = seq.size(); i >= 0; i--) {
+    if(seq[i] == 'T') {
+        seq[i] = 'U';
+    } else if (!(seq [i] == 'A' || seq [i] == 'U' || seq [i] == '&'
+    || seq [i] == 'G' || seq [i] == 'C')) {
+        seq = seq.erase(i,1);
+    }
+}
+
+return seq;
+}
+
+// Based on the 2d structure find all positions of the pairings.
 vector<Link> search_pairing(string& struc) {
     vector<Link> vec;
     uint count = 0;
@@ -1198,9 +1219,9 @@ vector<Link> search_pairing(string& struc) {
          count --;
     }
 
-    /*for (i = 0; i < vec.size(); i++) {
+    for (i = 0; i < vec.size(); i++) {
     std::cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
-    }*/
+    }
     return vec;
 }
 //Temporaire--------------------------------------
@@ -1233,8 +1254,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     string keys[3] = {"occurences", "sequence", "struct2d"};
     string delimiter = "&";
     uint fin = 0;
-    uint i = 0;
-    //id = "1";
 
     for(auto it = js.begin(); it != js.end(); ++it) {
         id = it.key();
@@ -1243,8 +1262,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         for(auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) {
             string test = it2.key();
                 if (!test.compare(keys[1])){ 
-                    string seq = it2.value();
-                    std::cout << "seq : " << seq << endl;
+                    string seq = check_motif_sequence(it2.value());
+                    std::cout << "seq motif : " << seq << endl;
                     string subseq;
                     while(seq.find(delimiter) != string::npos) {
                         fin = seq.find(delimiter);
@@ -1261,19 +1280,19 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
                 } else if (!test.compare(keys[2])) {
                     struc2d = it2.value();            
                     std::cout << "2d: " << struc2d << endl;
-                }
-            i++;       
+                }     
         }
+
         vresults     = find_next_ones_in(rna, 0, component_sequences);
-        r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
+        //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
         std::cout << "size: " << vresults.size() << endl;
 
         for (vector<Component>& v : vresults)
         {
             cout << "--------ENTER--------" << endl;
             Motif temp_motif = Motif(v);
-            vector<Link> all_pos = search_pairing(struc2d);
-            temp_motif.links_ = all_pos;
+            vector<Link> all_pair = search_pairing(struc2d);
+            temp_motif.links_ = all_pair;
 
             bool unprobable = false;
             for (const Link& l : temp_motif.links_)
@@ -1292,8 +1311,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         for (vector<Component>& v : r_vresults)
         {
             Motif temp_motif = Motif(v);
-            vector<Link> all_pos = search_pairing(struc2d);
-            temp_motif.links_ = all_pos;
+            vector<Link> all_pair = search_pairing(struc2d);
+            temp_motif.links_ = all_pair;
 
 
             bool unprobable = false;
@@ -1309,6 +1328,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
             insertion_sites_.push_back(temp_motif);
             lock.unlock();
         }
+        component_sequences.clear();
     }
     std::cout << "---------FIN----------" << endl;
 }

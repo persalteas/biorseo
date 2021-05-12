@@ -436,6 +436,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
     //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
 
     if (vc.size() > 1) {
+        cout << "size vc: " << vc.size() << endl; 
         if (regex_search(rna, c)) {
             if (vc.size() > 2) 
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
