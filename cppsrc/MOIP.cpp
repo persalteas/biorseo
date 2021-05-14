@@ -174,7 +174,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         for (unsigned int i = 0; i < thread_pool.size(); i++)
             thread_pool.at(i).join();
 
-        if (verbose){
+        if (true){
             cout << "\t> " << inserted << " candidate motifs on " << accepted + errors << " (" << errors << " ignored motifs), " << endl;
             cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
         }
@@ -276,7 +276,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         for (unsigned int i = 0; i < thread_pool.size(); i++)
             thread_pool.at(i).join();
 
-        if (verbose){
+        if (true){
             cout << "\t> " << inserted << " candidate JSONs on " << accepted + errors << " (" << errors << " ignored motifs), " << endl;
             cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
         }
@@ -1168,7 +1168,6 @@ vector<Link> search_pairing(string& struc) {
     }
     while (str.find('[') != string::npos) {
         pos = str.find('[');
-        cout << "coucou" << endl;
          s.push(pos);
          str[pos] = '.';
          
@@ -1179,41 +1178,57 @@ vector<Link> search_pairing(string& struc) {
          str[pos] = '.';
          
     }
+
+    /*for(uint it = 0; it < count; it++) {
+        index = s.top();
+        s.pop();
+        std::cout << "top: " << index << endl;
+    }*/
+
     while (count > 0) {
         Link l;
         index = s.top();
         l.nts.first = index;
+        str = struc;
         s.pop();
          if (struc[index] == '(') {
+             struc[index] = '.';
+             str = str.substr(index);
              if (str.find(')') != string::npos) {
                 pos = str.find(')');
-                l.nts.second = pos;
+                l.nts.second = pos + index;
                 vec.push_back(l);
-                str[pos] = '.';
+                struc[pos + index] = '.';
              }
 
          } else if (struc[index] == '{') {
+             struc[index] = '.';
+             str = str.substr(index);
              if (str.find('}') != string::npos) {
                 pos = str.find('}');
-                l.nts.second = pos;
+                l.nts.second = pos + index;
                 vec.push_back(l);
-                str[pos] = '.';
+                struc[pos + index] = '.';
              }
 
          } else if (struc[index] == '[') {
+             struc[index] = '.';
+             str = str.substr(index);
              if (str.find(']') != string::npos) {
                 pos = str.find(']');
-                l.nts.second = pos;
+                l.nts.second = pos + index;
                 vec.push_back(l);
-                str[pos] = '.';
+                struc[pos + index] = '.';
              }
 
          } else if (struc[index] == '<') {
+             struc[index] = '.';
+             str = str.substr(index);
              if (str.find('>') != string::npos) {
                 pos = str.find('>');
-                l.nts.second = pos;
+                l.nts.second = pos + index;
                 vec.push_back(l);
-                str[pos] = '.';
+                struc[pos + index] = '.';
              }
          }
          count --;
@@ -1282,10 +1297,15 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
                     std::cout << "2d: " << struc2d << endl;
                 }     
         }
-
+        for (uint i = 0; i < component_sequences.size() ; i++) {
+            std::cout << "-" << component_sequences[i] << endl;
+        }
+        std::cout << endl;
         vresults     = find_next_ones_in(rna, 0, component_sequences);
         //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
         std::cout << "size: " << vresults.size() << endl;
+
+        //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
 
         for (vector<Component>& v : vresults)
         {
@@ -1297,8 +1317,9 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
             bool unprobable = false;
             for (const Link& l : temp_motif.links_)
             {
-                if (!allowed_basepair(l.nts.first,l.nts.second))
+                if (!allowed_basepair(l.nts.first,l.nts.second)) {
                     unprobable = true;
+                }
             }
             if (unprobable) continue;
 
