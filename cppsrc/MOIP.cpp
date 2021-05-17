@@ -444,7 +444,7 @@ void MOIP::define_problem_constraints(string& source)
                 {
                     if (allowed_basepair(u,v))
                     {
-                        if (source != "rinfolder")
+                        if (source != "rinfolder" && source != "jsonfolder")
                         {
                             c3 += y(u, v);
                             count++;
@@ -516,7 +516,7 @@ void MOIP::define_problem_constraints(string& source)
     // basepairs between components
     if (verbose_) cout << "\t> forcing basepairs imposed by a module insertion..." << endl;
 
-    if (source == "rinfolder")
+    if (source == "rinfolder" || source == "jsonfolder")
     {
         for (size_t i=0; i < insertion_sites_.size(); i++)
         {
