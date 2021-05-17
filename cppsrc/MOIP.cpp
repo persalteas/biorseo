@@ -5,7 +5,7 @@
 #include <string> 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-#include <nlohmann_json/json.hpp>
+#include <json.hpp>
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
@@ -76,7 +76,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     uint u, v, c = 0;
     index_of_yuv_ = vector<vector<size_t>>(rna_.get_RNA_length() - 6, vector<size_t>(0));
     for (u = 0; u < rna_.get_RNA_length() - 6; u++)
-        for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible iff v > u+3
+        for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible if v > u+3
             if (rna_.get_pij(u, v) > theta) {
                 if (verbose_) cout << u << '-' << v << " ";
                 index_of_yuv_[u].push_back(c);
@@ -1179,12 +1179,6 @@ vector<Link> search_pairing(string& struc) {
          
     }
 
-    /*for(uint it = 0; it < count; it++) {
-        index = s.top();
-        s.pop();
-        std::cout << "top: " << index << endl;
-    }*/
-
     while (count > 0) {
         Link l;
         index = s.top();
@@ -1246,7 +1240,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     /*
         Searches where to place some JSONs in the RNA
     */
-    cout << "---------DEBUT------------" << endl;
+    //cout << "---------DEBUT------------" << endl;
     path           jsonfile                  = arg_struct.motif_file;
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
@@ -1303,13 +1297,13 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         std::cout << endl;
         vresults     = find_next_ones_in(rna, 0, component_sequences);
         //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
-        std::cout << "size: " << vresults.size() << endl;
+        //std::cout << "size: " << vresults.size() << endl;
 
         //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
 
         for (vector<Component>& v : vresults)
         {
-            cout << "--------ENTER--------" << endl;
+            //cout << "--------ENTER--------" << endl;
             Motif temp_motif = Motif(v);
             vector<Link> all_pair = search_pairing(struc2d);
             temp_motif.links_ = all_pair;
@@ -1351,5 +1345,5 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         }
         component_sequences.clear();
     }
-    std::cout << "---------FIN----------" << endl;
+    //std::cout << "---------FIN----------" << endl;
 }

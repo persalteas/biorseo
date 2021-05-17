@@ -5,7 +5,7 @@
 #include <regex>
 #include <sstream>
 #include <thread>
-#include <nlohmann_json/json.hpp>
+#include <json.hpp>
 
 using namespace boost::filesystem;
 using namespace std;
