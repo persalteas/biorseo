@@ -788,12 +788,13 @@ class BiorseoInstance:
                 seq = l[:-1].upper()
                 if is_canonical_nts(seq):
                     header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_').replace('>','')
-                    RNAcontainer.append(RNA(header, seq))
-                    if not path.isfile(self.temp_dir + header + ".fa"):
-                        rna = open(self.temp_dir + header + ".fa", "w")
-                        rna.write(">" + header +'\n')
-                        rna.write(seq +'\n')
-                        rna.close()
+                    if (header != ""):
+                        RNAcontainer.append(RNA(header, seq))
+                        if not path.isfile(self.temp_dir + header + ".fa"):
+                            rna = open(self.temp_dir + header + ".fa", "w")
+                            rna.write(">" + header +'\n')
+                            rna.write(seq +'\n')
+                            rna.close()
         db.close()
 
         for nt, number in ignored_nt_dict.items():

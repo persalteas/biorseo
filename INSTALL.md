@@ -94,9 +94,6 @@ If you do not have the unzip command, download and extract manually the [CaRNAva
 ### CONTACTS DATA
 
 If you use contacts, you need to put the motifs.json of Isaure in `data/modules/ISAURE`.
-You also need too download json.hpp from [GitHub] https://github.com/nlohmann/json/blob/develop/single_include/nlohmann/json.hpp and put it in `cppsrc/nlohmann_json` folder.
-
-
 
 ### DEPENDENCIES
 - Make sure you have Python 3.7+ and a C++ compiler (tested with GCC and clang) installed on your distribution. Use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example.
