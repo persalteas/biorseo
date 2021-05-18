@@ -1140,61 +1140,79 @@ return seq;
 }
 
 // Based on the 2d structure find all positions of the pairings.
-vector<Link> search_pairing(string& struc) {
-    vector<Link> vec;
- 
+vector<Link> search_pairing(string& struc, vector<Component>& v) {
+
+    cout << "------DEBUT-----" << endl;
+
+    vector<Link> vec; 
     stack<uint> parentheses;
     stack<uint> crochets;
     stack<uint> accolades;
     stack<uint> chevrons;
+    
+    for(uint j = 0; j < v.size(); j++) {
+        cout << "composante: (" << v[j].pos.first << "," << v[j].pos.second << ")" << endl << endl;
+    }
+    uint count = 0;
+    uint debut = v[count].pos.first;
+    uint gap = 0;
 
    for (uint i = 0; i < struc.size(); i++) {
        if (struc[i] == '(') {
-           parentheses.push(i);
+           parentheses.push(i + debut + gap);
 
        } else if (struc[i] == ')') {
            Link l;
            l.nts.first = parentheses.top();
-           l.nts.second = i;
+           l.nts.second = i + debut + gap;
            vec.push_back(l);
            parentheses.pop();
-           std::cout << "(" << l.nts.first << "," << l.nts.second << ")" << endl;
+           
 
        } else if (struc[i] == '[') {
-           crochets.push(i);
+           crochets.push(i + debut + gap);
 
        } else if (struc[i] == ']') {
            Link l;
            l.nts.first = crochets.top();
-           l.nts.second = i;
+           l.nts.second = i + debut +gap;
            vec.push_back(l);
            crochets.pop();
            
        } else if (struc[i] == '{') {
-           accolades.push(i);
+           accolades.push(i + debut + gap);
 
        } else if (struc[i] == '}') {
            Link l;
            l.nts.first = accolades.top();
-           l.nts.second = i;
+           l.nts.second = i + debut + gap;
            vec.push_back(l);
            accolades.pop();
 
        } else if (struc[i] == '<') {
-           chevrons.push(i);
+           chevrons.push(i + debut + gap);
 
        } else if (struc[i] == '>') {
            Link l;
            l.nts.first = chevrons.top();
-           l.nts.second = i;
+           l.nts.second = i + debut + gap;
            vec.push_back(l);
            chevrons.pop();
+
+       } else if (struc[i] == '&') {
+           struc.erase(i,1);
+           count ++;
+           gap += v[count].pos.first - v[count - 1].pos.second - 1;
+           cout << "gap : " << gap << endl;
        }
     }
 
-    /*for (uint i = 0; i < vec.size(); i++) {
-    std::cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
-    }*/
+    for (uint i = 0; i < vec.size(); i++) {
+        cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
+    } 
+    cout << endl;
+
+    cout << "------FIN-----" << endl;
     return vec;
 }
 //Temporaire--------------------------------------
@@ -1261,7 +1279,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         std::cout << endl;
         vresults     = find_next_ones_in(rna, 0, component_sequences);
         //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
-        //std::cout << "size: " << vresults.size() << endl;
+        std::cout << "size: " << vresults.size() << endl;
 
         //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
 
@@ -1269,7 +1287,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         {
             //cout << "--------ENTER--------" << endl;
             Motif temp_motif = Motif(v);
-            vector<Link> all_pair = search_pairing(struc2d);
+            vector<Link> all_pair = search_pairing(struc2d, v);
             temp_motif.links_ = all_pair;
 
             bool unprobable = false;
@@ -1290,7 +1308,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         for (vector<Component>& v : r_vresults)
         {
             Motif temp_motif = Motif(v);
-            vector<Link> all_pair = search_pairing(struc2d);
+            vector<Link> all_pair = search_pairing(struc2d, v);
             temp_motif.links_ = all_pair;
 
 
