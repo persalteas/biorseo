@@ -1142,95 +1142,59 @@ return seq;
 // Based on the 2d structure find all positions of the pairings.
 vector<Link> search_pairing(string& struc) {
     vector<Link> vec;
-    uint count = 0;
-    uint i;
+ 
+    stack<uint> parentheses;
+    stack<uint> crochets;
+    stack<uint> accolades;
+    stack<uint> chevrons;
 
-    for (i = 0; i < struc.size(); i++) {
-        if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{' || struc[i] == '<') {
-            count++;
-        }
+   for (uint i = 0; i < struc.size(); i++) {
+       if (struc[i] == '(') {
+           parentheses.push(i);
+
+       } else if (struc[i] == ')') {
+           Link l;
+           l.nts.first = parentheses.top();
+           l.nts.second = i;
+           vec.push_back(l);
+           parentheses.pop();
+           std::cout << "(" << l.nts.first << "," << l.nts.second << ")" << endl;
+
+       } else if (struc[i] == '[') {
+           crochets.push(i);
+
+       } else if (struc[i] == ']') {
+           Link l;
+           l.nts.first = crochets.top();
+           l.nts.second = i;
+           vec.push_back(l);
+           crochets.pop();
+           
+       } else if (struc[i] == '{') {
+           accolades.push(i);
+
+       } else if (struc[i] == '}') {
+           Link l;
+           l.nts.first = accolades.top();
+           l.nts.second = i;
+           vec.push_back(l);
+           accolades.pop();
+
+       } else if (struc[i] == '<') {
+           chevrons.push(i);
+
+       } else if (struc[i] == '>') {
+           Link l;
+           l.nts.first = chevrons.top();
+           l.nts.second = i;
+           vec.push_back(l);
+           chevrons.pop();
+       }
     }
 
-    stack<uint> s;
-    uint pos, index;
-    string str = struc;
-
-    while (str.find('(') != string::npos) {
-        pos = str.find('(');
-         s.push(pos);
-         str[pos] = '.';
-         
-    }
-    while (str.find('{') != string::npos) {
-        pos = str.find('{');
-         s.push(pos);
-         str[pos] = '.';
-    }
-    while (str.find('[') != string::npos) {
-        pos = str.find('[');
-         s.push(pos);
-         str[pos] = '.';
-         
-    }
-    while (str.find('<') != string::npos) {
-        pos = str.find('<');
-         s.push(pos);
-         str[pos] = '.';
-         
-    }
-
-    while (count > 0) {
-        Link l;
-        index = s.top();
-        l.nts.first = index;
-        str = struc;
-        s.pop();
-         if (struc[index] == '(') {
-             struc[index] = '.';
-             str = str.substr(index);
-             if (str.find(')') != string::npos) {
-                pos = str.find(')');
-                l.nts.second = pos + index;
-                vec.push_back(l);
-                struc[pos + index] = '.';
-             }
-
-         } else if (struc[index] == '{') {
-             struc[index] = '.';
-             str = str.substr(index);
-             if (str.find('}') != string::npos) {
-                pos = str.find('}');
-                l.nts.second = pos + index;
-                vec.push_back(l);
-                struc[pos + index] = '.';
-             }
-
-         } else if (struc[index] == '[') {
-             struc[index] = '.';
-             str = str.substr(index);
-             if (str.find(']') != string::npos) {
-                pos = str.find(']');
-                l.nts.second = pos + index;
-                vec.push_back(l);
-                struc[pos + index] = '.';
-             }
-
-         } else if (struc[index] == '<') {
-             struc[index] = '.';
-             str = str.substr(index);
-             if (str.find('>') != string::npos) {
-                pos = str.find('>');
-                l.nts.second = pos + index;
-                vec.push_back(l);
-                struc[pos + index] = '.';
-             }
-         }
-         count --;
-    }
-
-    for (i = 0; i < vec.size(); i++) {
+    /*for (uint i = 0; i < vec.size(); i++) {
     std::cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
-    }
+    }*/
     return vec;
 }
 //Temporaire--------------------------------------
