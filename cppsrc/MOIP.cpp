@@ -87,6 +87,18 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
+    /*cout << endl << "(11,23): " << rna_.get_pij(11, 23) << endl;
+    cout << "(10,24): " << rna_.get_pij(10, 24) << endl;
+    cout << "(9,25): " << rna_.get_pij(9, 25) << endl;
+    cout << "(31,43): " << rna_.get_pij(31, 43) << endl;
+    cout << "(30,44): " << rna_.get_pij(30, 44) << endl;
+    cout << "(29,45): " << rna_.get_pij(29, 45) << endl;
+    cout << "(64,72): " << rna_.get_pij(65, 72) << endl;
+    cout << "(18,67): " << rna_.get_pij(18, 67) << endl;
+    cout << "(61,75): " << rna_.get_pij(61, 76) << endl;
+    cout << "(0,83): " << rna_.get_pij(0, 83) << endl;*/
+
+    cout << endl << "rna: " << rna_.get_RNA_length() << endl;
     if (verbose_) cout << endl;
 
     // Look for insertions sites, then create the appropriate Cxip variables
@@ -859,11 +871,14 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
     size_t a, b;
     a = (v > u) ? u : v;
     b = (v > u) ? v : u;
+    
     if (b - a < 4) return false;
     if (a >= rna_.get_RNA_length() - 6) return false;
     if (b >= rna_.get_RNA_length()) return false;
-    if (get_yuv_index(a, b) == rna_.get_RNA_length() * rna_.get_RNA_length() + 1)
+    if (get_yuv_index(a, b) == rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
         return false;    // not allowed because proba < theta
+        //cout << "erreur: (" << u << "," << v << ")" << endl;
+    }
     return true;
 }
 
@@ -1159,51 +1174,52 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
 
    for (uint i = 0; i < struc.size(); i++) {
        if (struc[i] == '(') {
-           parentheses.push(i + debut + gap);
+           parentheses.push(i + debut + gap - count);
+           cout << "i: " << i << "  pos :" << parentheses.top() << endl;
 
        } else if (struc[i] == ')') {
            Link l;
            l.nts.first = parentheses.top();
-           l.nts.second = i + debut + gap;
+           //cout << "top :" << parentheses.top() << endl;
+           l.nts.second = i + debut + gap - count;
            vec.push_back(l);
            parentheses.pop();
-           
 
        } else if (struc[i] == '[') {
-           crochets.push(i + debut + gap);
+           crochets.push(i + debut + gap - count);
 
        } else if (struc[i] == ']') {
            Link l;
            l.nts.first = crochets.top();
-           l.nts.second = i + debut +gap;
+           l.nts.second = i + debut + gap - count;
            vec.push_back(l);
            crochets.pop();
            
        } else if (struc[i] == '{') {
-           accolades.push(i + debut + gap);
+           accolades.push(i + debut + gap - count);
 
        } else if (struc[i] == '}') {
            Link l;
            l.nts.first = accolades.top();
-           l.nts.second = i + debut + gap;
+           l.nts.second = i + debut + gap - count;
            vec.push_back(l);
            accolades.pop();
 
        } else if (struc[i] == '<') {
-           chevrons.push(i + debut + gap);
+           chevrons.push(i + debut + gap - count);
 
        } else if (struc[i] == '>') {
            Link l;
            l.nts.first = chevrons.top();
-           l.nts.second = i + debut + gap;
+           l.nts.second = i + debut + gap - count;
            vec.push_back(l);
            chevrons.pop();
 
        } else if (struc[i] == '&') {
-           struc.erase(i,1);
            count ++;
            gap += v[count].pos.first - v[count - 1].pos.second - 1;
-           cout << "gap : " << gap << endl;
+           //cout << "count: " << count << endl;
+           //cout << "gap : " << gap << endl;
        }
     }
 
@@ -1302,8 +1318,14 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
             // Add it to the results vector
             unique_lock<mutex> lock(posInsertionSites_access);
             insertion_sites_.push_back(temp_motif);
+            cout << "size insertion sites: " << insertion_sites_.size() << endl;
             lock.unlock();
         }
+        
+        for (uint i = 0; i < insertion_sites_.size(); i++) { 
+            cout << "i: " << i << endl;
+        }
+        cout << "size2: " << insertion_sites_.size() << endl;
 
         for (vector<Component>& v : r_vresults)
         {
