@@ -774,7 +774,6 @@ class BiorseoInstance:
         c = 0
         header = ""
         seq = ""
-        print("----------\n\n\n")
         while True:
             l = db.readline()
             if l == "":
@@ -787,7 +786,6 @@ class BiorseoInstance:
                 header = l[1:-1]
             if c == 0:
                 seq = l.upper()
-                print(seq)
                 if is_canonical_nts(seq):
                     header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_').replace('>','')
                     if (header != ""):

@@ -98,6 +98,12 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     cout << "(61,75): " << rna_.get_pij(61, 76) << endl;
     cout << "(0,83): " << rna_.get_pij(0, 83) << endl;*/
 
+    /*for (uint ii = 0; ii < rna_.get_RNA_length() ; ii++) {
+        for (uint jj = 0; jj < rna_.get_RNA_length() ; jj++) {
+            cout << "(" << ii << "," << jj ") : " << rna_.get_pij(i, j) << endl;
+        }
+    }*/
+
     cout << endl << "rna: " << rna_.get_RNA_length() << endl;
     if (verbose_) cout << endl;
 
@@ -1157,7 +1163,7 @@ return seq;
 // Based on the 2d structure find all positions of the pairings.
 vector<Link> search_pairing(string& struc, vector<Component>& v) {
 
-    cout << "------DEBUT-----" << endl;
+    //cout << "------DEBUT-----" << endl;
 
     vector<Link> vec; 
     stack<uint> parentheses;
@@ -1165,9 +1171,9 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
     stack<uint> accolades;
     stack<uint> chevrons;
     
-    for(uint j = 0; j < v.size(); j++) {
+    /*for(uint j = 0; j < v.size(); j++) {
         cout << "composante: (" << v[j].pos.first << "," << v[j].pos.second << ")" << endl << endl;
-    }
+    }*/
     uint count = 0;
     uint debut = v[count].pos.first;
     uint gap = 0;
@@ -1175,7 +1181,7 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
    for (uint i = 0; i < struc.size(); i++) {
        if (struc[i] == '(') {
            parentheses.push(i + debut + gap - count);
-           cout << "i: " << i << "  pos :" << parentheses.top() << endl;
+           //cout << "i: " << i << "  pos :" << parentheses.top() << endl;
 
        } else if (struc[i] == ')') {
            Link l;
@@ -1228,7 +1234,7 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
     } 
     cout << endl;
 
-    cout << "------FIN-----" << endl;
+    //cout << "------FIN-----" << endl;
     return vec;
 }
 //Temporaire--------------------------------------
@@ -1295,7 +1301,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         std::cout << endl;
         vresults     = find_next_ones_in(rna, 0, component_sequences);
         //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
-        std::cout << "size: " << vresults.size() << endl;
+        //std::cout << "size: " << vresults.size() << endl;
 
         //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
 
@@ -1318,14 +1324,14 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
             // Add it to the results vector
             unique_lock<mutex> lock(posInsertionSites_access);
             insertion_sites_.push_back(temp_motif);
-            cout << "size insertion sites: " << insertion_sites_.size() << endl;
+            //cout << "size insertion sites: " << insertion_sites_.size() << endl;
             lock.unlock();
         }
         
-        for (uint i = 0; i < insertion_sites_.size(); i++) { 
+        /*for (uint i = 0; i < insertion_sites_.size(); i++) { 
             cout << "i: " << i << endl;
-        }
-        cout << "size2: " << insertion_sites_.size() << endl;
+        }*/
+        //cout << "size2: " << insertion_sites_.size() << endl;
 
         for (vector<Component>& v : r_vresults)
         {
