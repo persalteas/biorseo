@@ -31,8 +31,9 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
     source_   = RNA3DMOTIF;
 }
 
-Motif::Motif(const vector<Component>& v) : comp(v)
+Motif::Motif(const vector<Component>& v, uint id) : comp(v)
 {
+    carnaval_id = to_string(id);
     is_model_ = false;
     reversed_ = false;
     source_   = CONTACTS;
@@ -185,6 +186,7 @@ string Motif::get_identifier(void) const
     switch (source_) {
     case RNAMOTIFATLAS: return atlas_id; break;
     case CARNAVAL: return string("RIN") + carnaval_id; break;
+    case CONTACTS: return string("JSON") + contacts_id; break;
     default: return PDBID;
     }
 }
@@ -276,8 +278,10 @@ base base_type(char x)
 
 bool checkSecondaryStructure(string struc)
 { 
-    stack<char> s;
-    //char x;
+    stack<uint> parentheses;
+    stack<uint> crochets;
+    stack<uint> accolades;
+    stack<uint> chevrons;
     for (uint i = 0; i < struc.length(); i++)
     {
 
@@ -287,30 +291,36 @@ bool checkSecondaryStructure(string struc)
         && struc[i] != '{' && struc[i] != '}'
         && struc[i] != '<' && struc[i] != '>') {
             return false;
-        } /*else {
-            if (struc[i] == '(' || struc[i] == '[' || struc[i] == '{')
-            {
-                s.push(struc[i]);
-                continue;
-            } else if (struc[i] == ')') {
-                x = s.top();
-                s.pop();
-                if (x == '{' || x == '[')
-                    return false;
-            } else if (struc[i] == ']') {
-                x = s.top();
-                s.pop();
-                if (x == '(' || x == '{')
-                    return false;
-            } else if (struc[i] == '}') {
-                x = s.top();
-                s.pop();
-                if (x == '(' || x == '[')
-                    return false;
+        } else {
+            for (uint i = 0; i < struc.size(); i++) {
+                if (struc[i] == '(') {
+                    parentheses.push(i);
+
+                } else if (struc[i] == ')') {
+                    parentheses.pop();
+
+                } else if (struc[i] == '[') {
+                    crochets.push(i);
+
+                } else if (struc[i] == ']') {
+                    crochets.pop();
+                    
+                } else if (struc[i] == '{') {
+                    accolades.push(i);
+
+                } else if (struc[i] == '}') {
+                    accolades.pop();
+
+                } else if (struc[i] == '<') {
+                    chevrons.push(i);
+
+                } else if (struc[i] == '>') {
+                    chevrons.pop();
+                } 
             }
-        }*/
+        }
     }
-    return (s.empty());
+    return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
 
 
@@ -344,10 +354,10 @@ char Motif::is_valid_JSON(const string& jsonfile)
                     return 'f';
                 }
 
-                if (!checkSecondaryStructure(ss)) {
+                /*if (!checkSecondaryStructure(ss)) {
                     std::cout << "error bracket" <<endl;
                     return 'n';
-                }
+                }*/
             }
 
             if (!test.compare(keys[1])) {
@@ -496,7 +506,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                 pos.second   = pos.first + match.length() - 1;
 
                 cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-                
+
                 // Create a vector of component with one component for that match
                 vector<Component> r;
                 r.push_back(Component(pos));

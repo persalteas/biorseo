@@ -1253,7 +1253,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
     string                        struc2d;
-    string                        id;
+    string                        contacts_id;
     string                        line, filenumber;
     string                        rna = rna_.get_seq();
     string                        reversed_rna = rna_.get_seq();
@@ -1269,10 +1269,10 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
     uint fin = 0;
 
     for(auto it = js.begin(); it != js.end(); ++it) {
-        id = it.key();
-        std::cout << "\nid: " << id << endl;
+        contacts_id = it.key();
+        std::cout << "\nid: " << contacts_id << endl;
         std::cout << "seq fasta: " << rna << endl;
-        for(auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) {
+        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
             string test = it2.key();
                 if (!test.compare(keys[1])){ 
                     string seq = check_motif_sequence(it2.value());
@@ -1308,7 +1308,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         for (vector<Component>& v : vresults)
         {
             //cout << "--------ENTER--------" << endl;
-            Motif temp_motif = Motif(v);
+            Motif temp_motif = Motif(v, contacts_id);
             vector<Link> all_pair = search_pairing(struc2d, v);
             temp_motif.links_ = all_pair;
 
@@ -1335,7 +1335,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
 
         for (vector<Component>& v : r_vresults)
         {
-            Motif temp_motif = Motif(v);
+            Motif temp_motif = Motif(v, contacts_id);
             vector<Link> all_pair = search_pairing(struc2d, v);
             temp_motif.links_ = all_pair;
 

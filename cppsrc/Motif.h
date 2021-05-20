@@ -44,7 +44,7 @@ class Motif
     Motif(string csv_line);
     Motif(const vector<Component>& v, string PDB);
     Motif(const vector<Component>& v, path rinfile, uint id, bool reversed);
-    Motif(const vector<Component>& v);
+    Motif(const vector<Component>& v, uint id);
 
     Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
     static char       is_valid_RIN(const string& rinfile);
