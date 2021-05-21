@@ -248,7 +248,7 @@ char Motif::is_valid_RIN(const string& rinfile)
     getline(motif, line); //skip the header_comp line
     while (getline(motif, line))
     {
-        // lines are formatteed like:
+        // lines are formatted like:
         // pos;k;seq
         // 0,1;2;GU
         if (line == "\n") break; //skip last line (empty)
@@ -435,7 +435,7 @@ bool is_desc_insertible(const string& descfile, const string& rna)
 
 }
 
-vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc)
+vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc, bool is_RIN_or_JSON)
 {
     pair<uint, uint>          pos;
     vector<vector<Component>> results;
@@ -466,18 +466,21 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
             // For every regexp match
             for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
                 smatch match = *i;
+                uint add;
+                if (is_RIN_or_JSON) add = 2;
+                else add = 5;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
 
                 cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
                 // +5 because HL < 3 pbs but not for CaRNAval or Contacts
                 // if CaRNAval or Contacts +2 is better
-                if (pos.second - offset + 2 >= rna.length()) {
+                if (pos.second - offset + add >= rna.length()) {
                      cout << "\t\t... but we cannot place the next components : Ignored." << endl;
                     continue;
                 }
                 
-                next_ones = find_next_ones_in(rna.substr(pos.second - offset + 2), pos.second + 2, next_seqs);
+                next_ones = find_next_ones_in(rna.substr(pos.second - offset + add), pos.second + add, next_seqs, is_RIN_or_JSON);
                 if (!next_ones.size()) {
                      cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
                     continue;

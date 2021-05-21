@@ -520,6 +520,9 @@ void MOIP::define_problem_constraints(string& source)
     if (verbose_) cout << "\t> ensuring that motives cannot be partially included..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++) {
         Motif& x = insertion_sites_[i];
+        /*for (uint ii = 0; ii < x.comp.size(); ii++) {
+            cout << endl << "insertion (" << i << "): " << x.comp[ii].pos.first << ";" << x.comp[ii].pos.second << endl << endl;
+        }*/
         if (x.comp.size() == 1)    // This constraint is for multi-component motives.
             continue;
         IloExpr c5(env_);
@@ -536,6 +539,7 @@ void MOIP::define_problem_constraints(string& source)
 
     if (source == "rinfolder" || source == "jsonfolder")
     {
+
         for (size_t i=0; i < insertion_sites_.size(); i++)
         {
             Motif&  x   = insertion_sites_[i];
@@ -556,7 +560,6 @@ void MOIP::define_problem_constraints(string& source)
                 {
                     size_t ntA = x.links_[k].nts.first;
                     size_t ntB = x.links_[k].nts.second;
-
                     //check if the j component is the first to be linked in the k link
                     if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
                     {
@@ -566,7 +569,7 @@ void MOIP::define_problem_constraints(string& source)
                         size_t sum_next_comp_size = sum_comp_size;
 
                         //look for the location of the other linked nucleotide
-                        for (jj=j; jj < x.comp.size(); jj++)
+                        for (jj = j; jj < x.comp.size(); jj++)
                         {
                             //check if the jj component is the second to be linked in the k link
                             if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
@@ -582,6 +585,7 @@ void MOIP::define_problem_constraints(string& source)
                         {
                             c6 += y(ntA_location, ntB_location);
                             to_insert = true;
+                            
                         }
 
                         else //a link is unauthorized, the component cannot be inserted
@@ -621,7 +625,7 @@ void MOIP::define_problem_constraints(string& source)
             for (size_t j=0; j < x.comp.size(); j++)
                 if (weights[j] != 0)
                     if (expressions[j].size() != 0)
-                        for (size_t k=0; k<expressions[j].size(); k++)
+                        for (size_t k=0; k < expressions[j].size(); k++)
                         {
                             model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
                             if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
@@ -681,6 +685,7 @@ void MOIP::define_problem_constraints(string& source)
 
 SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 {
+    //cout << endl << "BEGIN" << endl;
     // Solves one of the objectives, under constraint that the other should be in [min, max]
 
     if (min > max) {
@@ -726,14 +731,23 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     // if (verbose_) cout << "\t\t>retrieveing motifs inserted in the result secondary structure..." << endl;
     for (size_t i = 0; i < insertion_sites_.size(); i++)
         // A constraint requires that all the components are inserted or none, so testing the first is enough:
-        if (cplex_.getValue(insertion_dv_[index_of_first_components[i]]) > 0.5)
+        if (cplex_.getValue(insertion_dv_[index_of_first_components[i]]) > 0.5) {
             best_ss.insert_motif(insertion_sites_[i]);
+        }
 
     // if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
+    //cout << "y(2,80): " << cplex_.getValue(y(u, v)) << endl;
     for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++)
             if (allowed_basepair(u, v))
-                if (cplex_.getValue(y(u, v)) > 0.5) best_ss.set_basepair(u, v);
+                if (cplex_.getValue(y(u, v)) > 0.5) {
+                    best_ss.set_basepair(u, v);
+                    /*if (u == 5 && v == 26) {
+                        cout << endl << "(" << u << "," << v << "): " << endl;
+                        cout << best_ss.to_string() << endl;
+                        cout << "(((...((((((((....))))))))(((.....((((((((....)))))))))))...((((((((....)))))))))))" << endl;
+                    }*/
+                }
 
     best_ss.sort();    // order the basepairs in the vector
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
@@ -757,12 +771,14 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     // exit
     model_.remove(bounds);
     model_.remove(obj);
+    //cout << endl << "END" << endl;
     return best_ss;
 }
 
 void MOIP::search_between(double lambdaMin, double lambdaMax)
 {
     SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin, lambdaMax);
+    //cout << "min: " << lambdaMin << " max: " << lambdaMax << endl;
     if (!s.is_empty_structure) {    // A solution has been found
 
         // if the solution is dominated, ignore it
@@ -848,8 +864,10 @@ bool MOIP::exists_horizontal_outdated_labels(const SecondaryStructure& s) const
 
 void MOIP::add_solution(const SecondaryStructure& s)
 {
-    if (verbose_) cout << "\t> adding structure to Pareto set :\t" << s.to_string() << endl;
+    if (verbose_) cout << "\t> adding structure to Pareto set :\t" << s.to_string() << endl; 
     pareto_.push_back(s);
+    cout << "struc  : " << s.to_string() << endl;
+    cout << "compare: " << "(((...((((((((....))))))))(((.....((((((((....)))))))))))...((((((((....)))))))))))" << endl << endl;
     if (pareto_.size() > max_sol_nbr_) {
         cerr << "\033[31m Quitting because combinatorial issues (>" << max_sol_nbr_ << " solutions in Pareto set). \033[0m" << endl;
         exit(1);
@@ -883,7 +901,6 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
     if (b >= rna_.get_RNA_length()) return false;
     if (get_yuv_index(a, b) == rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
         return false;    // not allowed because proba < theta
-        //cout << "erreur: (" << u << "," << v << ")" << endl;
     }
     return true;
 }
@@ -1032,7 +1049,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
 
         // We need to search for the different positions where to insert the first component
         for (auto c_s : motif_variants) {
-            vector<vector<Component>> new_results = find_next_ones_in(rna, 0, c_s);
+            vector<vector<Component>> new_results = find_next_ones_in(rna, 0, c_s, false);
             vresults.insert(vresults.end(), new_results.begin(), new_results.end());
         }
 
@@ -1041,7 +1058,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
     {
         // No multiple motif variants : we serach in a single vector component_sequences
         // We need to search for the different positions where to insert the first component
-        vresults = find_next_ones_in(rna, 0, component_sequences);
+        vresults = find_next_ones_in(rna, 0, component_sequences, false);
     }
 
     // Now create proper motifs with Motif class
@@ -1100,8 +1117,8 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         component_sequences.push_back(line.substr(index+1, string::npos)); // new component sequence
     }
 
-    vresults     = find_next_ones_in(rna, 0, component_sequences);
-    r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
+    vresults     = find_next_ones_in(rna, 0, component_sequences, true);
+    r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
 
     for (vector<Component>& v : vresults)
     {
@@ -1299,8 +1316,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
             std::cout << "-" << component_sequences[i] << endl;
         }
         std::cout << endl;
-        vresults     = find_next_ones_in(rna, 0, component_sequences);
-        //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
+        vresults     = find_next_ones_in(rna, 0, component_sequences, true);
+        //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
         //std::cout << "size: " << vresults.size() << endl;
 
         //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;

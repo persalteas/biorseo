@@ -77,7 +77,7 @@ vector<Motif>               load_desc_folder(const string& path, const string& r
 vector<Motif>               load_csv(const string& path);
 vector<Motif>               load_json_folder(const string& path, const string& rna, bool verbose);
 
-vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string>& vc);
+vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string>& vc, bool is_RIN_or_JSON);
 
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);
