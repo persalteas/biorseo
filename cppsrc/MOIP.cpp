@@ -87,16 +87,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
-    /*cout << endl << "(11,23): " << rna_.get_pij(11, 23) << endl;
-    cout << "(10,24): " << rna_.get_pij(10, 24) << endl;
-    cout << "(9,25): " << rna_.get_pij(9, 25) << endl;
-    cout << "(31,43): " << rna_.get_pij(31, 43) << endl;
-    cout << "(30,44): " << rna_.get_pij(30, 44) << endl;
-    cout << "(29,45): " << rna_.get_pij(29, 45) << endl;
-    cout << "(64,72): " << rna_.get_pij(65, 72) << endl;
-    cout << "(18,67): " << rna_.get_pij(18, 67) << endl;
-    cout << "(61,75): " << rna_.get_pij(61, 76) << endl;
-    cout << "(0,83): " << rna_.get_pij(0, 83) << endl;*/
 
     /*for (uint ii = 0; ii < rna_.get_RNA_length() ; ii++) {
         for (uint jj = 0; jj < rna_.get_RNA_length() ; jj++) {
@@ -192,7 +182,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         for (unsigned int i = 0; i < thread_pool.size(); i++)
             thread_pool.at(i).join();
 
-        if (true){
+        if (verbose){
             cout << "\t> " << inserted << " candidate motifs on " << accepted + errors << " (" << errors << " ignored motifs), " << endl;
             cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
         }
@@ -286,7 +276,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
-            std::cout << "OK!\n";
             pool.push(bind(&MOIP::allowed_motifs_from_json, this, args)); // & is necessary to get the pointer to a member function
         }
         pool.done();
@@ -457,7 +446,8 @@ void MOIP::define_problem_constraints(string& source)
             IloNum     kxi = IloNum(c.k);
             c3 += (kxi - IloNum(2)) * C(i, j);
             uint count = 0;
-            for (u = c.pos.first + 1; u < c.pos.second; u++)
+            //c3 += y(6, 41);
+            for (u = c.pos.first /*+ 1*/; u <= c.pos.second; u++)
                 for (v = 0; v < n; v++)
                 {
                     if (allowed_basepair(u,v))
@@ -481,6 +471,8 @@ void MOIP::define_problem_constraints(string& source)
                             if (!is_link)
                             {
                                 c3 += y(u, v);
+                                //if(u == 6 && v == 41)
+                                //cout << "C3: y(" << u << "," << v << ")" << endl;
                                 count++;
                             }
                         }
@@ -537,29 +529,39 @@ void MOIP::define_problem_constraints(string& source)
     // basepairs between components
     if (verbose_) cout << "\t> forcing basepairs imposed by a module insertion..." << endl;
 
-    if (source == "rinfolder" || source == "jsonfolder")
+    if (source == "rinfolder")
     {
-
         for (size_t i=0; i < insertion_sites_.size(); i++)
         {
+            //cout << "------------------------i: " << i << "--------------------------" << endl;
             Motif&  x   = insertion_sites_[i];
             //IloExpr c6p = IloExpr(env_);
 
             vector<size_t> weights(x.comp.size(), 0);
             vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
+            //cout << "comp size: " << x.comp.size() << endl;
 
             size_t sum_comp_size = 0;
 
             for (size_t j=0; j < x.comp.size(); j++)
             {
+                /*cout << "------------------j: " << j << "-------------------" << endl;
+                cout << "sum_comp_size : " << sum_comp_size << endl;*/
                 IloExpr c6 = IloExpr(env_);
                 bool to_insert = false;
                 size_t jj;
 
                 for (size_t k=0; k < x.links_.size(); k++)
                 {
+                    //cout << "------------------k: " << k << "-------------------" << endl;
                     size_t ntA = x.links_[k].nts.first;
                     size_t ntB = x.links_[k].nts.second;
+                    /*cout << "---ntA : " << ntA << endl;
+                    cout << "---ntB : " << ntB << endl;
+                    cout << "---x.comp[j].k : " << x.comp[j].k << endl;
+                    cout << "---x.comp[j].pos.first : " << x.comp[j].pos.first << endl;
+                    cout << "---x.comp[j].pos.second : " << x.comp[j].pos.second << endl;*/
+
                     //check if the j component is the first to be linked in the k link
                     if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
                     {
@@ -571,10 +573,13 @@ void MOIP::define_problem_constraints(string& source)
                         //look for the location of the other linked nucleotide
                         for (jj = j; jj < x.comp.size(); jj++)
                         {
+                            //cout << "------------------jj: " << jj << "-------------------" << endl;
                             //check if the jj component is the second to be linked in the k link
                             if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
                             {
                                 ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size;
+                                /*cout << "nta_location: " << ntA_location << endl;
+                                cout << "ntb_location: " << ntB_location << endl << endl;*/
                                 break;
                             }
 
@@ -583,6 +588,8 @@ void MOIP::define_problem_constraints(string& source)
 
                         if (allowed_basepair(ntA_location, ntB_location))
                         {
+                            //cout << "TRUE" << endl;
+                            cout << "y(" << ntA_location << "," << ntB_location << ")" << endl;
                             c6 += y(ntA_location, ntB_location);
                             to_insert = true;
                             
@@ -606,6 +613,7 @@ void MOIP::define_problem_constraints(string& source)
                         //weights[j] += 2;
                         weights[j] += 1;
                         expressions[j].push_back(c6);
+                        
                         //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
                     }
                     else
@@ -622,14 +630,152 @@ void MOIP::define_problem_constraints(string& source)
                 }
             }
 
-            for (size_t j=0; j < x.comp.size(); j++)
-                if (weights[j] != 0)
-                    if (expressions[j].size() != 0)
+            for (size_t j=0; j < x.comp.size(); j++) {
+                if (weights[j] != 0) 
+                    if (expressions[j].size() != 0) {
+                        //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
                         for (size_t k=0; k < expressions[j].size(); k++)
                         {
-                            model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
-                            if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
+                            model_.add( IloNum(/*weights[j]*/1) * C(i,j) <= (expressions[j])[k] );
+                            if (verbose_) cout << "\t\t" << (IloNum(/*weights[j]*/1) * C(i, j) <= (expressions[j])[k]) << endl;
                         }
+                    }
+            }
+        }
+    }
+
+    else if (source == "jsonfolder")
+    {
+        for (size_t i=0; i < insertion_sites_.size(); i++)
+        {
+            //cout << "------------------------i: " << i << "--------------------------" << endl;
+            Motif&  x   = insertion_sites_[i];
+            //IloExpr c6p = IloExpr(env_);
+
+            vector<size_t> weights(x.comp.size(), 0);
+            vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
+            //cout << "comp size: " << x.comp.size() << endl;
+
+            size_t sum_comp_size = 0;
+
+            for (size_t j=0; j < x.comp.size(); j++)
+            {
+                /*cout << "------------------j: " << j << "-------------------" << endl;
+                cout << "sum_comp_size : " << sum_comp_size << endl;*/
+                IloExpr c6 = IloExpr(env_);
+                bool to_insert = false;
+                //size_t jj;
+
+                for (size_t k=0; k < x.links_.size(); k++)
+                {
+                    //cout << "------------------k: " << k << "-------------------" << endl;
+                    size_t ntA = x.links_[k].nts.first;
+                    size_t ntB = x.links_[k].nts.second;
+                    //cout << "(" << ntA << "," << ntB << ")" << endl;
+                    /*cout << "---ntA : " << ntA << endl;
+                    cout << "---ntB : " << ntB << endl;
+                    cout << "---x.comp[j].k : " << x.comp[j].k << endl;
+                    cout << "---x.comp[j].pos.first : " << x.comp[j].pos.first << endl;
+                    cout << "---x.comp[j].pos.second : " << x.comp[j].pos.second << endl;*/
+
+                    //check if the j component is the first to be linked in the k link
+                    /*if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
+                    {
+                        size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size;
+                        size_t ntB_location = -1;
+
+                        size_t sum_next_comp_size = sum_comp_size;
+
+                        //look for the location of the other linked nucleotide
+                        for (jj = j; jj < x.comp.size(); jj++)
+                        {
+                            //cout << "------------------jj: " << jj << "-------------------" << endl;
+                            //check if the jj component is the second to be linked in the k link
+                            if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
+                            {
+                                ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size;
+                                //cout << "nta_location: " << ntA_location << endl;
+                                //cout << "ntb_location: " << ntB_location << endl << endl;
+                                break;
+                            }
+
+                            sum_next_comp_size += x.comp[jj].k;
+                        }
+
+                        if (allowed_basepair(ntA, ntB))
+                        {
+                            //cout << "TRUE" << endl;
+                            //cout << "y(" << ntA << "," << ntB << ")" << endl;
+                            c6 += y(ntA, ntB);
+                            to_insert = true;
+                            
+                        }
+
+                        else //a link is unauthorized, the component cannot be inserted
+                        {
+                            to_insert = false;
+                            break;
+                        }
+                    }*/
+                    if (allowed_basepair(ntA, ntB))
+                        {
+                            //cout << "TRUE" << endl;
+                            //cout << "y(" << ntA << "," << ntB << ")" << endl;
+                            c6 += y(ntA, ntB);
+                            to_insert = true;
+                            
+                        }
+
+                        else //a link is unauthorized, the component cannot be inserted
+                        {
+                            cout << "FALSE : y(" << ntA << "," << ntB << ")" << endl;
+                            to_insert = false;
+                            break;
+                        }
+                }
+
+                sum_comp_size += x.comp[j].k;
+
+                if (to_insert)
+                {
+                    //cout << "TRUE" << endl;
+
+                    expressions[j].push_back(c6);
+                    /*if (j==jj)
+                    {
+                        cout << "-----IF-----" << endl;
+                        //model_.add(C(i,j) <= c6);
+                        //weights[j] += 2;
+                        weights[j] += 1;
+                        expressions[j].push_back(c6);
+                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+                    }
+                    else
+                    {
+                        cout << "-----ELSE-----" << endl;
+                        //model_.add(C(i,j) <= c6);
+                        weights[j] += 1;
+                        expressions[j].push_back(c6);
+                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
+                        //model_.add(C(i,jj) <= c6);
+                        weights[jj] += 1;
+                        expressions[jj].push_back(c6);
+                        //if (verbose_) cout << "\t\t" << (C(i, jj) <= c6) << endl;
+                    }*/
+                }
+            }
+
+            for (size_t j=0; j < x.comp.size(); j++) {
+                //if (weights[j] != 0) 
+                    if (expressions[j].size() != 0) {
+                        //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
+                        for (size_t k=0; k < expressions[j].size(); k++)
+                        {
+                            model_.add( IloNum(/*weights[j]*/1) * C(i,j) <= (expressions[j])[k] );
+                            if (verbose_) cout << "\t\t" << (IloNum(/*weights[j]*/1) * C(i, j) <= (expressions[j])[k]) << endl;
+                        }
+                    }
+            }
         }
     }
 
@@ -866,8 +1012,6 @@ void MOIP::add_solution(const SecondaryStructure& s)
 {
     if (verbose_) cout << "\t> adding structure to Pareto set :\t" << s.to_string() << endl; 
     pareto_.push_back(s);
-    cout << "struc  : " << s.to_string() << endl;
-    cout << "compare: " << "(((...((((((((....))))))))(((.....((((((((....)))))))))))...((((((((....)))))))))))" << endl << endl;
     if (pareto_.size() > max_sol_nbr_) {
         cerr << "\033[31m Quitting because combinatorial issues (>" << max_sol_nbr_ << " solutions in Pareto set). \033[0m" << endl;
         exit(1);
@@ -1287,13 +1431,13 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
 
     for(auto it = js.begin(); it != js.end(); ++it) {
         contacts_id = it.key();
-        std::cout << "\nid: " << contacts_id << endl;
-        std::cout << "seq fasta: " << rna << endl;
+        /*std::cout << "\nid: " << contacts_id << endl;
+        std::cout << "seq fasta: " << rna << endl;*/
         for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
             string test = it2.key();
                 if (!test.compare(keys[1])){ 
                     string seq = check_motif_sequence(it2.value());
-                    std::cout << "seq motif : " << seq << endl;
+                    //std::cout << "seq motif : " << seq << endl;
                     string subseq;
                     while(seq.find(delimiter) != string::npos) {
                         fin = seq.find(delimiter);
@@ -1301,21 +1445,21 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
                         subseq = seq.substr(0, fin);
                         seq = seq.substr(fin + 1);
                         component_sequences.push_back(subseq); // new component sequence
-                        std::cout << "subseq: " << subseq << endl;
+                        //std::cout << "subseq: " << subseq << endl;
                     } 
                     if (!seq.empty()) {
                         component_sequences.push_back(seq);
-                        std::cout << "subseq: " << seq << endl;
+                        //std::cout << "subseq: " << seq << endl;
                     }
                 } else if (!test.compare(keys[2])) {
                     struc2d = it2.value();            
-                    std::cout << "2d: " << struc2d << endl;
+                    //std::cout << "2d: " << struc2d << endl;
                 }     
         }
-        for (uint i = 0; i < component_sequences.size() ; i++) {
+        /*for (uint i = 0; i < component_sequences.size() ; i++) {
             std::cout << "-" << component_sequences[i] << endl;
         }
-        std::cout << endl;
+        std::cout << endl;*/
         vresults     = find_next_ones_in(rna, 0, component_sequences, true);
         //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
         //std::cout << "size: " << vresults.size() << endl;
@@ -1335,6 +1479,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
                 if (!allowed_basepair(l.nts.first,l.nts.second)) {
                     unprobable = true;
                 }
+                
             }
             if (unprobable) continue;
 

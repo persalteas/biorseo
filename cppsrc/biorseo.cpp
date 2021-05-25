@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 	("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by biorseo.py")
 	("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
 	("output,o", po::value<string>(&outputName), "A file to summarize the computation results")
-	("theta,t", po::value<float>(&theta_p_threshold)->default_value(0.00000000000000000001), "Pairing probability threshold to consider or not the possibility of pairing")
+	("theta,t", po::value<float>(&theta_p_threshold)->default_value(0.001), "Pairing probability threshold to consider or not the possibility of pairing")
 	("function,f", po::value<char>(&obj_function_nbr)->default_value('B'), "What objective function to use to include motifs: square of motif size in nucleotides like "
 	"RNA-MoIP (A), light motif size + high number of components (B), site score (C), light motif size + site score + high number of components (D)")
 	("disable-pseudoknots,n", "Add constraints forbidding the formation of pseudoknots")
@@ -244,6 +244,7 @@ int main(int argc, char* argv[])
 		if (verbose) cout << "Saving structures to " << outputName << "..." << endl;
 		outfile.open(outputName);
 		outfile << fa->name() << endl << fa->seq() << endl;
+		//cout << "----struc----" << endl << myMOIP.solution(0).to_string() << endl;
 		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) outfile << myMOIP.solution(i).to_string() << endl;
 		outfile.close();
 	}

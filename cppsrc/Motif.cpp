@@ -472,17 +472,17 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
 
-                cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+                //cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
                 // +5 because HL < 3 pbs but not for CaRNAval or Contacts
                 // if CaRNAval or Contacts +2 is better
                 if (pos.second - offset + add >= rna.length()) {
-                     cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+                     //cout << "\t\t... but we cannot place the next components : Ignored." << endl;
                     continue;
                 }
                 
                 next_ones = find_next_ones_in(rna.substr(pos.second - offset + add), pos.second + add, next_seqs, is_RIN_or_JSON);
                 if (!next_ones.size()) {
-                     cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
+                    // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
                     continue;
                 }
                  cout  << endl;
@@ -508,7 +508,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
 
-                cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+                //cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
 
                 // Create a vector of component with one component for that match
                 vector<Component> r;
