@@ -369,28 +369,25 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     errors_id.push_back(make_pair(stoi(ite), 'l'));
                 } else {
                 string subseq;
-                bool flag = true;
+                
                     while(seq.find('&') != string::npos) {
                         fin = seq.find('&');  
                         subseq = seq.substr(0, fin);
                         seq = seq.substr(fin + 1);
-                        if (seq.size() >= 2) {
+                        if (seq.size() >= 4) {
                             components.push_back(subseq); 
                             //std::cout << "subseq: " << subseq << endl;
                         } else {
                             errors_id.push_back(make_pair(stoi(ite), 'k'));
                             //std::cout << "error too short1" << endl;
-                            flag = false;
                         }
                     } 
-                    if (seq.size() >= 2) {
+                    if (seq.size() >= 4) {
                         components.push_back(seq);
                         //std::cout << "subseq: " << seq << endl;
                     } else {
-                        if (flag) {
-                            errors_id.push_back(make_pair(stoi(ite), 'k'));
-                            //std::cout << "error too short2" << endl;
-                        }
+                        errors_id.push_back(make_pair(stoi(ite), 'k'));
+                        //std::cout << "error too short2" << endl;
                     }
                 }
             }

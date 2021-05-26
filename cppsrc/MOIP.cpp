@@ -257,7 +257,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 			if (!(errors_id.empty())) // Returns error if JSON file is incorrect
 			{ 
                 if(true) {
-                    //cout << "-------------------------------" << endl;
+                    //cout << "--------------begin-----------------" << endl;
                     for(uint j = 0; j < errors_id.size(); j++)
                     {
                         cerr << "\t>Ignoring JSON " << errors_id[j].first;
@@ -277,7 +277,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                         //cout << endl << errors_id[j].first << ", " << errors_id[j].second << endl;
                     cerr << endl;
                     }
-                    //cout << "-------------------------------" << endl;
+                    //cout << "----------------end---------------" << endl;
                 }
                 errors++;
 				/*if (verbose)
@@ -301,7 +301,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
+            cout << "--------------begin-----------------" << endl;
             pool.push(bind(&MOIP::allowed_motifs_from_json, this, args, errors_id)); // & is necessary to get the pointer to a member function
+            cout << "--------------end-----------------" << endl;
         }
         pool.done();
 
@@ -1386,9 +1388,14 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     for(auto it = js.begin(); it != js.end(); ++it) {
         contacts_id = it.key();
         comp = stoi(contacts_id);
-        if ( comp == errors_id[it_errors].first) {    
-            //cout << "id erreur: " << errors_id[it_errors].first << endl;
-            it_errors ++;
+        if (comp == errors_id[it_errors].first) {    
+            while (comp == errors_id[it_errors].first) {
+                //cout << "id erreur: " << errors_id[it_errors].first << endl;
+                /*if (contacts_id.compare("974") == 0) {
+                    cout << "id erreur: " << errors_id[it_errors].second << endl;
+                }*/
+                it_errors ++;
+            }
         } else {
             /*std::cout << "\nid: " << contacts_id << endl;
             std::cout << "seq fasta: " << rna << endl;*/
