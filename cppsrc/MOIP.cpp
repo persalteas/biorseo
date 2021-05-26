@@ -301,7 +301,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
-            //cout << "--------------ENTER4-----------------" << endl;
             pool.push(bind(&MOIP::allowed_motifs_from_json, this, args, errors_id)); // & is necessary to get the pointer to a member function
         }
         pool.done();
@@ -690,59 +689,13 @@ void MOIP::define_problem_constraints(string& source)
                 cout << "sum_comp_size : " << sum_comp_size << endl;*/
                 IloExpr c6 = IloExpr(env_);
                 bool to_insert = false;
-                //size_t jj;
 
                 for (size_t k=0; k < x.links_.size(); k++)
                 {
                     //cout << "------------------k: " << k << "-------------------" << endl;
                     size_t ntA = x.links_[k].nts.first;
                     size_t ntB = x.links_[k].nts.second;
-                    //cout << "(" << ntA << "," << ntB << ")" << endl;
-                    /*cout << "---ntA : " << ntA << endl;
-                    cout << "---ntB : " << ntB << endl;
-                    cout << "---x.comp[j].k : " << x.comp[j].k << endl;
-                    cout << "---x.comp[j].pos.first : " << x.comp[j].pos.first << endl;
-                    cout << "---x.comp[j].pos.second : " << x.comp[j].pos.second << endl;*/
 
-                    //check if the j component is the first to be linked in the k link
-                    /*if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
-                    {
-                        size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size;
-                        size_t ntB_location = -1;
-
-                        size_t sum_next_comp_size = sum_comp_size;
-
-                        //look for the location of the other linked nucleotide
-                        for (jj = j; jj < x.comp.size(); jj++)
-                        {
-                            //cout << "------------------jj: " << jj << "-------------------" << endl;
-                            //check if the jj component is the second to be linked in the k link
-                            if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
-                            {
-                                ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size;
-                                //cout << "nta_location: " << ntA_location << endl;
-                                //cout << "ntb_location: " << ntB_location << endl << endl;
-                                break;
-                            }
-
-                            sum_next_comp_size += x.comp[jj].k;
-                        }
-
-                        if (allowed_basepair(ntA, ntB))
-                        {
-                            //cout << "TRUE" << endl;
-                            //cout << "y(" << ntA << "," << ntB << ")" << endl;
-                            c6 += y(ntA, ntB);
-                            to_insert = true;
-                            
-                        }
-
-                        else //a link is unauthorized, the component cannot be inserted
-                        {
-                            to_insert = false;
-                            break;
-                        }
-                    }*/
                     if (allowed_basepair(ntA, ntB))
                         {
                             //cout << "TRUE" << endl;
@@ -767,40 +720,18 @@ void MOIP::define_problem_constraints(string& source)
                     //cout << "TRUE" << endl;
 
                     expressions[j].push_back(c6);
-                    /*if (j==jj)
-                    {
-                        cout << "-----IF-----" << endl;
-                        //model_.add(C(i,j) <= c6);
-                        //weights[j] += 2;
-                        weights[j] += 1;
-                        expressions[j].push_back(c6);
-                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
-                    }
-                    else
-                    {
-                        cout << "-----ELSE-----" << endl;
-                        //model_.add(C(i,j) <= c6);
-                        weights[j] += 1;
-                        expressions[j].push_back(c6);
-                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
-                        //model_.add(C(i,jj) <= c6);
-                        weights[jj] += 1;
-                        expressions[jj].push_back(c6);
-                        //if (verbose_) cout << "\t\t" << (C(i, jj) <= c6) << endl;
-                    }*/
                 }
             }
 
             for (size_t j=0; j < x.comp.size(); j++) {
-                //if (weights[j] != 0) 
-                    if (expressions[j].size() != 0) {
-                        //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
-                        for (size_t k=0; k < expressions[j].size(); k++)
-                        {
-                            model_.add( IloNum(/*weights[j]*/1) * C(i,j) <= (expressions[j])[k] );
-                            if (verbose_) cout << "\t\t" << (IloNum(/*weights[j]*/1) * C(i, j) <= (expressions[j])[k]) << endl;
-                        }
+                if (expressions[j].size() != 0) {
+                    //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
+                    for (size_t k=0; k < expressions[j].size(); k++)
+                    {
+                        model_.add( IloNum(/*weights[j]*/1) * C(i,j) <= (expressions[j])[k] );
+                        if (verbose_) cout << "\t\t" << (IloNum(/*weights[j]*/1) * C(i, j) <= (expressions[j])[k]) << endl;
                     }
+                }
             }
         }
     }
@@ -1412,10 +1343,10 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
        }
     }
 
-    for (uint i = 0; i < vec.size(); i++) {
+    /*for (uint i = 0; i < vec.size(); i++) {
         cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
     } 
-    cout << endl;
+    if (vec.size() != 0) cout << endl;*/
     //cout << "------FIN-----" << endl;
     return vec;
 }
@@ -1449,94 +1380,102 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     string keys[3] = {"occurences", "sequence", "struct2d"};
     string delimiter = "&";
     uint fin = 0;
+    uint it_errors = 0;
+    uint comp;
 
     for(auto it = js.begin(); it != js.end(); ++it) {
         contacts_id = it.key();
-        /*std::cout << "\nid: " << contacts_id << endl;
-        std::cout << "seq fasta: " << rna << endl;*/
-        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-            string test = it2.key();
-                if (!test.compare(keys[1])){ 
-                    string seq = check_motif_sequence(it2.value());
-                    //std::cout << "seq motif : " << seq << endl;
-                    string subseq;
-                    while(seq.find(delimiter) != string::npos) {
-                        fin = seq.find(delimiter);
-                        
-                        subseq = seq.substr(0, fin);
-                        seq = seq.substr(fin + 1);
-                        component_sequences.push_back(subseq); // new component sequence
-                        //std::cout << "subseq: " << subseq << endl;
-                    } 
-                    if (!seq.empty()) {
-                        component_sequences.push_back(seq);
-                        //std::cout << "subseq: " << seq << endl;
+        comp = stoi(contacts_id);
+        if ( comp == errors_id[it_errors].first) {    
+            //cout << "id erreur: " << errors_id[it_errors].first << endl;
+            it_errors ++;
+        } else {
+            /*std::cout << "\nid: " << contacts_id << endl;
+            std::cout << "seq fasta: " << rna << endl;*/
+            //cout << "id: " << comp << endl;
+            for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
+                string test = it2.key();                    if (!test.compare(keys[1])){ 
+                        string seq = check_motif_sequence(it2.value());
+                        //std::cout << "seq motif : " << seq << endl;
+                        string subseq;
+                        while(seq.find(delimiter) != string::npos) {
+                            fin = seq.find(delimiter);
+                            
+                            subseq = seq.substr(0, fin);
+                            seq = seq.substr(fin + 1);
+                            component_sequences.push_back(subseq); // new component sequence
+                            //std::cout << "subseq: " << subseq << endl;
+                        } 
+                        if (!seq.empty()) {
+                            component_sequences.push_back(seq);
+                            //std::cout << "subseq: " << seq << endl;
+                        }
+                    } else if (!test.compare(keys[2])) {
+                        struc2d = it2.value();            
+                        //std::cout << "2d: " << struc2d << endl;
+                    }     
+            }
+            /*for (uint i = 0; i < component_sequences.size() ; i++) {
+                std::cout << "-" << component_sequences[i] << endl;
+            }
+            std::cout << endl;*/
+            vresults     = find_next_ones_in(rna, 0, component_sequences, true);
+            //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
+            //std::cout << "vsize: " << vresults.size() << endl;
+
+            //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
+
+            for (vector<Component>& v : vresults)
+            {
+                //cout << "--------ENTER2-------" << endl;
+                Motif temp_motif = Motif(v, contacts_id);
+                vector<Link> all_pair = search_pairing(struc2d, v);
+                temp_motif.links_ = all_pair;
+
+                bool unprobable = false;
+                for (const Link& l : temp_motif.links_)
+                {
+                    if (!allowed_basepair(l.nts.first,l.nts.second)) {
+                        unprobable = true;
                     }
-                } else if (!test.compare(keys[2])) {
-                    struc2d = it2.value();            
-                    //std::cout << "2d: " << struc2d << endl;
-                }     
-        }
-        /*for (uint i = 0; i < component_sequences.size() ; i++) {
-            std::cout << "-" << component_sequences[i] << endl;
-        }
-        std::cout << endl;*/
-        vresults     = find_next_ones_in(rna, 0, component_sequences, true);
-        //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
-        //std::cout << "vsize: " << vresults.size() << endl;
-
-        //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
-
-        for (vector<Component>& v : vresults)
-        {
-            //cout << "--------ENTER2-------" << endl;
-            Motif temp_motif = Motif(v, contacts_id);
-            vector<Link> all_pair = search_pairing(struc2d, v);
-            temp_motif.links_ = all_pair;
-
-            bool unprobable = false;
-            for (const Link& l : temp_motif.links_)
-            {
-                if (!allowed_basepair(l.nts.first,l.nts.second)) {
-                    unprobable = true;
                 }
+                if (unprobable) continue;
+
+                // Add it to the results vector
+                unique_lock<mutex> lock(posInsertionSites_access);
+                insertion_sites_.push_back(temp_motif);
+                //cout << "size insertion sites: " << insertion_sites_.size() << endl;
+                lock.unlock();
+                //cout << "--------END2-------" << endl;
             }
-            if (unprobable) continue;
+            
+            /*for (uint i = 0; i < insertion_sites_.size(); i++) { 
+                cout << "i: " << i << endl;
+            }*/
+            //cout << "size2: " << insertion_sites_.size() << endl;
 
-            // Add it to the results vector
-            unique_lock<mutex> lock(posInsertionSites_access);
-            insertion_sites_.push_back(temp_motif);
-            //cout << "size insertion sites: " << insertion_sites_.size() << endl;
-            lock.unlock();
-            //cout << "--------END2-------" << endl;
-        }
-        
-        /*for (uint i = 0; i < insertion_sites_.size(); i++) { 
-            cout << "i: " << i << endl;
-        }*/
-        //cout << "size2: " << insertion_sites_.size() << endl;
-
-        for (vector<Component>& v : r_vresults)
-        {
-            Motif temp_motif = Motif(v, contacts_id);
-            vector<Link> all_pair = search_pairing(struc2d, v);
-            temp_motif.links_ = all_pair;
-
-
-            bool unprobable = false;
-            for (const Link& l : temp_motif.links_)
+            for (vector<Component>& v : r_vresults)
             {
-                if (!allowed_basepair(l.nts.first,l.nts.second))
-                    unprobable = true;
-            }
-            if (unprobable) continue;
+                Motif temp_motif = Motif(v, contacts_id);
+                vector<Link> all_pair = search_pairing(struc2d, v);
+                temp_motif.links_ = all_pair;
 
-            // Add it to the results vector
-            unique_lock<mutex> lock(posInsertionSites_access);
-            insertion_sites_.push_back(temp_motif);
-            lock.unlock();
+
+                bool unprobable = false;
+                for (const Link& l : temp_motif.links_)
+                {
+                    if (!allowed_basepair(l.nts.first,l.nts.second))
+                        unprobable = true;
+                }
+                if (unprobable) continue;
+
+                // Add it to the results vector
+                unique_lock<mutex> lock(posInsertionSites_access);
+                insertion_sites_.push_back(temp_motif);
+                lock.unlock();
+            }
+            component_sequences.clear();
         }
-        component_sequences.clear();
     }
     //std::cout << "---------FIN1----------" << endl;
 }

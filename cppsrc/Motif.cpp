@@ -338,7 +338,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
     for (auto i = js.begin(); i != js.end(); ++i) {
         int j = 0;
         string ite = i.key();
-        cout << ite << ": " << endl;
+        //cout << ite << ": " << endl;
         for (auto it = js[ite].begin(); it != js[ite].end(); ++it) {
             string test = it.key();
             
@@ -346,26 +346,26 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                 errors_id.push_back(make_pair(stoi(ite), 'd'));
                 //return 'd'; 
             } else if(!test.compare(keys[2])) {
-                std::cout << "struct2d: " << it.value() << endl;
+                //std::cout << "struct2d: " << it.value() << endl;
                 string ss = it.value();
                 if (ss.empty()) {
-                    std::cout << "error empty" <<endl;
+                    //std::cout << "error empty" <<endl;
                     errors_id.push_back(make_pair(stoi(ite), 'f'));
                     //return 'f';
                 } else if (!checkSecondaryStructure(ss)) {
-                    std::cout << "error bracket" <<endl;
+                    //std::cout << "error bracket" <<endl;
                     errors_id.push_back(make_pair(stoi(ite), 'n'));
                     //return 'n';
                 }
             } else if (!test.compare(keys[1])) {
-                std::cout << "sequence: " << it.value() << "\n";
+                //std::cout << "sequence: " << it.value() << "\n";
                 string seq = it.value();
                 if (seq.empty()) {
-                    std::cout << "error empty 2" <<endl;
+                    //std::cout << "error empty 2" <<endl;
                     errors_id.push_back(make_pair(stoi(ite), 'e'));
                     //return 'l';
                 } else if (seq.size() == 1) {
-                    std::cout << "error too short" << endl;
+                    //std::cout << "error too short" << endl;
                     errors_id.push_back(make_pair(stoi(ite), 'l'));
                 } else {
                 string subseq;
@@ -379,7 +379,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                             //std::cout << "subseq: " << subseq << endl;
                         } else {
                             errors_id.push_back(make_pair(stoi(ite), 'k'));
-                            std::cout << "error too short1" << endl;
+                            //std::cout << "error too short1" << endl;
                             flag = false;
                         }
                     } 
@@ -389,7 +389,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     } else {
                         if (flag) {
                             errors_id.push_back(make_pair(stoi(ite), 'k'));
-                            std::cout << "error too short2" << endl;
+                            //std::cout << "error too short2" << endl;
                         }
                     }
                 }
