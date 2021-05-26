@@ -47,9 +47,9 @@ class Motif
     Motif(const vector<Component>& v, uint id);
 
     Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
-    static char       is_valid_RIN(const string& rinfile);
-    static char       is_valid_DESC(const string& descfile);
-    static char       is_valid_JSON(const string& jsonfile);
+    static char                             is_valid_RIN(const string& rinfile);
+    static char                             is_valid_DESC(const string& descfile);
+    static vector<pair<uint,char>>          is_valid_JSON(const string& jsonfile);
 
     string            pos_string(void) const;
     string            get_origin(void) const;

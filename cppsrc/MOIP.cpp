@@ -87,14 +87,13 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
-
     /*for (uint ii = 0; ii < rna_.get_RNA_length() ; ii++) {
         for (uint jj = 0; jj < rna_.get_RNA_length() ; jj++) {
             cout << "(" << ii << "," << jj ") : " << rna_.get_pij(i, j) << endl;
         }
     }*/
 
-    cout << endl << "rna: " << rna_.get_RNA_length() << endl;
+    //cout << endl << "rna: " << rna_.get_RNA_length() << endl;
     if (verbose_) cout << endl;
 
     // Look for insertions sites, then create the appropriate Cxip variables
@@ -238,6 +237,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
    
     else if (source == "jsonfolder")
     {
+        //cout << "-------------BEGIN-----------------" << endl;
         mutex         posInsertionSites_access;
         Pool          pool;
         size_t        inserted = 0;
@@ -250,12 +250,37 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
 
         // Read every JSON files and add it to the queue (iff valid)
-		char error;
+		vector<pair<uint,char>> errors_id;
         for (auto it : recursive_directory_range(source_path))
         {
-			if ((error = Motif::is_valid_JSON(it.path().string()))) // Returns error if JSON file is incorrect
-			{   
-				if (verbose)
+            errors_id = Motif::is_valid_JSON(it.path().string());
+			if (!(errors_id.empty())) // Returns error if JSON file is incorrect
+			{ 
+                if(true) {
+                    //cout << "-------------------------------" << endl;
+                    for(uint j = 0; j < errors_id.size(); j++)
+                    {
+                        cerr << "\t>Ignoring JSON " << errors_id[j].first;
+                        uint error = errors_id[j].second;
+                        switch (error)
+                        {
+                            case 'l': cerr << ", too short to be considered."; break;
+                            //case 'x': cerr << ", because not constraining the secondary structure."; break;
+                            case 'd' : cerr << ", missing header."; break;
+                            case 'e' : cerr << ", sequence is empty."; break;
+                            case 'f' : cerr << ", 2D is empty."; break;
+                            case 'n' : cerr << ", brackets are not balanced."; break;
+                            case 'k' : cerr << ", one of the component is too small and got removed."; break;
+                            default: cerr << ", unknown reason";
+                           
+                        }
+                        //cout << endl << errors_id[j].first << ", " << errors_id[j].second << endl;
+                    cerr << endl;
+                    }
+                    //cout << "-------------------------------" << endl;
+                }
+                errors++;
+				/*if (verbose)
                 {
                     cerr << "\t>Ignoring JSON " << it.path().stem();
                     switch (error)
@@ -271,12 +296,13 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                     cerr << endl;
                 }
 				errors++;
-                continue;
+                continue;*/
 			}
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
-            pool.push(bind(&MOIP::allowed_motifs_from_json, this, args)); // & is necessary to get the pointer to a member function
+            //cout << "--------------ENTER4-----------------" << endl;
+            pool.push(bind(&MOIP::allowed_motifs_from_json, this, args, errors_id)); // & is necessary to get the pointer to a member function
         }
         pool.done();
 
@@ -840,7 +866,6 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
         min = max - min;
         max = max - min;
     }
-
     // impose the bounds and the objective
     IloObjective obj;
     IloRange     bounds;
@@ -857,6 +882,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     model_.add(obj);
     model_.add(bounds);
 
+
     IloCplex cplex_ = IloCplex(model_);
     cplex_.setOut(env_.getNullStream());
     // cplex_.exportModel("latestmodel.lp")
@@ -868,7 +894,6 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
         model_.remove(bounds);
         return SecondaryStructure(true);
     }
-
     if (verbose_)
         cout << "\t> Solution status: objective values (" << cplex_.getValue(obj1) << ", " << cplex_.getValue(obj2) << ')';
 
@@ -898,7 +923,6 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     best_ss.sort();    // order the basepairs in the vector
     best_ss.set_objective_score(2, cplex_.getValue(obj2));
     best_ss.set_objective_score(1, cplex_.getValue(obj1));
-
     // if (verbose_) cout << "\t\t>building the IP forbidding condition..." << endl;
     // Forbidding to find best_ss later
     IloExpr c(env_);
@@ -917,7 +941,6 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
     // exit
     model_.remove(bounds);
     model_.remove(obj);
-    //cout << endl << "END" << endl;
     return best_ss;
 }
 
@@ -932,7 +955,6 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
             if (verbose_) cout << ", but structure is dominated." << endl;
             return;
         }
-
         // adding the SecondaryStructure s to the set pareto_
         if (verbose_) cout << ", not dominated." << endl;
         add_solution(s);
@@ -948,7 +970,6 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
                              << x->get_objective_score(3 - obj_to_solve_) << endl;
                     pareto_.erase(x);
                 }
-
         // search on top
         double min = s.get_objective_score(3 - obj_to_solve_) + precision_;
         double max = lambdaMax;
@@ -1044,6 +1065,7 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
     if (a >= rna_.get_RNA_length() - 6) return false;
     if (b >= rna_.get_RNA_length()) return false;
     if (get_yuv_index(a, b) == rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
+        //cout << get_yuv_index()
         return false;    // not allowed because proba < theta
     }
     return true;
@@ -1394,18 +1416,17 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
         cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
     } 
     cout << endl;
-
     //cout << "------FIN-----" << endl;
     return vec;
 }
 //Temporaire--------------------------------------
 
-void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
+void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
 {
     /*
         Searches where to place some JSONs in the RNA
     */
-    //cout << "---------DEBUT------------" << endl;
+    //cout << "---------DEBUT1------------" << endl;
     path           jsonfile                  = arg_struct.motif_file;
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
@@ -1462,13 +1483,13 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         std::cout << endl;*/
         vresults     = find_next_ones_in(rna, 0, component_sequences, true);
         //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
-        //std::cout << "size: " << vresults.size() << endl;
+        //std::cout << "vsize: " << vresults.size() << endl;
 
         //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
 
         for (vector<Component>& v : vresults)
         {
-            //cout << "--------ENTER--------" << endl;
+            //cout << "--------ENTER2-------" << endl;
             Motif temp_motif = Motif(v, contacts_id);
             vector<Link> all_pair = search_pairing(struc2d, v);
             temp_motif.links_ = all_pair;
@@ -1479,7 +1500,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
                 if (!allowed_basepair(l.nts.first,l.nts.second)) {
                     unprobable = true;
                 }
-                
             }
             if (unprobable) continue;
 
@@ -1488,6 +1508,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
             insertion_sites_.push_back(temp_motif);
             //cout << "size insertion sites: " << insertion_sites_.size() << endl;
             lock.unlock();
+            //cout << "--------END2-------" << endl;
         }
         
         /*for (uint i = 0; i < insertion_sites_.size(); i++) { 
@@ -1517,5 +1538,5 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct)
         }
         component_sequences.clear();
     }
-    //std::cout << "---------FIN----------" << endl;
+    //std::cout << "---------FIN1----------" << endl;
 }
