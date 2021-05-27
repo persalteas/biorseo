@@ -265,16 +265,6 @@ char Motif::is_valid_RIN(const string& rinfile)
 }
 
 //temporaire---------------------------------------------------
-enum base { BASE_n = 0, BASE_a, BASE_c, BASE_g, BASE_u };
-
-base base_type(char x) 
-{
-	if (x == 'a' or x == 'A') return BASE_a;
-	if (x == 'c' or x == 'C') return BASE_c;
-	if (x == 'g' or x == 'G') return BASE_g;
-	if (x == 'u' or x == 'U') return BASE_u;
-	return BASE_n;
-}
 
 bool checkSecondaryStructure(string struc)
 { 
@@ -297,25 +287,33 @@ bool checkSecondaryStructure(string struc)
                     parentheses.push(i);
 
                 } else if (struc[i] == ')') {
-                    parentheses.pop();
+                    if (!parentheses.empty())
+                        parentheses.pop();
+                    else return false;
 
                 } else if (struc[i] == '[') {
                     crochets.push(i);
 
                 } else if (struc[i] == ']') {
-                    crochets.pop();
-                    
+                    if (!crochets.empty())
+                        crochets.pop();
+                    else return false;
+
                 } else if (struc[i] == '{') {
                     accolades.push(i);
 
                 } else if (struc[i] == '}') {
-                    accolades.pop();
+                    if (!accolades.empty())
+                        accolades.pop();
+                    else return false;
 
                 } else if (struc[i] == '<') {
                     chevrons.push(i);
 
                 } else if (struc[i] == '>') {
-                    chevrons.pop();
+                    if (!chevrons.empty())
+                        chevrons.pop();
+                    else return false;
                 } 
             }
         }
@@ -325,8 +323,81 @@ bool checkSecondaryStructure(string struc)
 
 
 //--------------------------------------------------------------
+vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
+{
+    // /!\ returns 0 if no errors
 
-char Motif::is_valid_JSON(const string& jsonfile)
+    std::ifstream  motif;
+    motif = std::ifstream(jsonfile);
+    json js = json::parse(motif);
+    vector<pair<uint,char>> errors_id;
+    vector<string> components;
+    uint fin = 0;
+
+    std::string keys[3] = {"occurences", "sequence", "struct2d"};
+    for (auto i = js.begin(); i != js.end(); ++i) {
+        int j = 0;
+        string ite = i.key();
+        //cout << ite << ": " << endl;
+        for (auto it = js[ite].begin(); it != js[ite].end(); ++it) {
+            string test = it.key();
+            
+            if (test.compare(keys[j])){ 
+                errors_id.push_back(make_pair(stoi(ite), 'd'));
+                //return 'd'; 
+            } else if(!test.compare(keys[2])) {
+                //std::cout << "struct2d: " << it.value() << endl;
+                string ss = it.value();
+                if (ss.empty()) {
+                    //std::cout << "error empty" <<endl;
+                    errors_id.push_back(make_pair(stoi(ite), 'f'));
+                    //return 'f';
+                } else if (!checkSecondaryStructure(ss)) {
+                    //std::cout << "error bracket" <<endl;
+                    errors_id.push_back(make_pair(stoi(ite), 'n'));
+                    //return 'n';
+                }
+            } else if (!test.compare(keys[1])) {
+                //std::cout << "sequence: " << it.value() << "\n";
+                string seq = it.value();
+                if (seq.empty()) {
+                    //std::cout << "error empty 2" <<endl;
+                    errors_id.push_back(make_pair(stoi(ite), 'e'));
+                    //return 'l';
+                } else if (seq.size() == 1) {
+                    //std::cout << "error too short" << endl;
+                    errors_id.push_back(make_pair(stoi(ite), 'l'));
+                } else {
+                string subseq;
+                
+                    while(seq.find('&') != string::npos) {
+                        fin = seq.find('&');  
+                        subseq = seq.substr(0, fin);
+                        seq = seq.substr(fin + 1);
+                        if (seq.size() >= 4) {
+                            components.push_back(subseq); 
+                            //std::cout << "subseq: " << subseq << endl;
+                        } else {
+                            errors_id.push_back(make_pair(stoi(ite), 'k'));
+                            //std::cout << "error too short1" << endl;
+                        }
+                    } 
+                    if (seq.size() >= 4) {
+                        components.push_back(seq);
+                        //std::cout << "subseq: " << seq << endl;
+                    } else {
+                        errors_id.push_back(make_pair(stoi(ite), 'k'));
+                        //std::cout << "error too short2" << endl;
+                    }
+                }
+            }
+            j++;
+        }
+    //std::cout << "no error!\n" << endl;
+    }
+    return errors_id;
+}
+/*char Motif::is_valid_JSON(const string& jsonfile)
 {
     // /!\ returns 0 if no errors
 
@@ -354,10 +425,10 @@ char Motif::is_valid_JSON(const string& jsonfile)
                     return 'f';
                 }
 
-                /*if (!checkSecondaryStructure(ss)) {
+                if (!checkSecondaryStructure(ss)) {
                     std::cout << "error bracket" <<endl;
                     return 'n';
-                }*/
+                }
             }
 
             if (!test.compare(keys[1])) {
@@ -367,27 +438,13 @@ char Motif::is_valid_JSON(const string& jsonfile)
                     std::cout << "error empty 2" <<endl;
                     return 'l';
                 }
-
-                /*vector<char> unknown_chars;
-                bool         contains_T = false;
-                for (char c : seq) {
-                    if (c == 'T' or c == 't') {
-                        c          = 'U';
-                        contains_T = true;
-                    }
-                    if (base_type(c) == BASE_n) {
-                        std::cout << "\tWARNING: Unknown chars in input sequence" << endl;
-                    }
-                }
-                if (contains_T)
-                    std::cout << "\tWARNING: Thymines in rna sequence" << endl;*/
             }
             j++;
         }
     std::cout << "no error!\n" << endl;
     }
     return 0;
-}
+}*/
 
 bool is_desc_insertible(const string& descfile, const string& rna)
 {

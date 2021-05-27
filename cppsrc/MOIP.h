@@ -7,6 +7,8 @@
 #include "rna.h"
 #include <ilconcert/ilomodel.h>
 #include <ilcplex/ilocplex.h>
+#include <iostream>
+#include <vector>
 
 using std::vector;
 
@@ -51,7 +53,7 @@ class MOIP
 	bool   						exists_horizontal_outdated_labels(const SecondaryStructure& s) const;
 	void   						allowed_motifs_from_desc(args_of_parallel_func arg_struct);
 	void   						allowed_motifs_from_rin(args_of_parallel_func arg_struct);
-	void						allowed_motifs_from_json(args_of_parallel_func arg_struct);
+	void						allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id);
 	
 	bool verbose_;    // Should we print things ?
 
