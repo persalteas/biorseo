@@ -1345,10 +1345,10 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
        }
     }
 
-    /*for (uint i = 0; i < vec.size(); i++) {
+    for (uint i = 0; i < vec.size(); i++) {
         cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
     } 
-    if (vec.size() != 0) cout << endl;*/
+    if (vec.size() != 0) cout << endl;
     //cout << "------FIN-----" << endl;
     return vec;
 }
