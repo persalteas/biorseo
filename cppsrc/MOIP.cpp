@@ -663,88 +663,83 @@ void MOIP::define_problem_constraints(string& source)
                         //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
                         for (size_t k=0; k < expressions[j].size(); k++)
                         {
-                            model_.add( IloNum(/*weights[j]*/1) * C(i,j) <= (expressions[j])[k] );
-                            if (verbose_) cout << "\t\t" << (IloNum(/*weights[j]*/1) * C(i, j) <= (expressions[j])[k]) << endl;
+                            model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
+                            if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
                         }
                     }
             }
         }
     }
 
-    else if (source == "jsonfolder")
-    {
-        for (size_t i=0; i < insertion_sites_.size(); i++)
-        {
-            //cout << "------------------------i: " << i << "--------------------------" << endl;
+    else if (source == "jsonfolder") {
+        for (size_t i=0; i < insertion_sites_.size(); i++) {
+            //cout << endl << "-------------------------------i: " << i << "-------------------------------" << endl;
             Motif&  x   = insertion_sites_[i];
             //IloExpr c6p = IloExpr(env_);
 
             vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
             vector<size_t> weights(x.comp.size(), 0);
             //cout << "comp size: " << x.comp.size() << endl;
+            //cout << "links size: " << x.links_.size() << endl;
 
             //size_t sum_comp_size = 0;
+            //cout << "sum_comp_size : " << sum_comp_size << endl;
+            IloExpr c6 = IloExpr(env_);
+            bool to_insert = false;
+            //cout << "-----------------------------------Begin----------------------------------" << endl;
+            for (uint k = 0; k < x.links_.size(); k++) {
+                //cout << "------------------k: " << k << "-------------------" << endl;
+                size_t ntA = x.links_[k].nts.first;
+                size_t ntB = x.links_[k].nts.second;
 
-            //for (size_t j=0; j < x.comp.size(); j++)
-            //{
-                /*cout << "------------------j: " << j << "-------------------" << endl;
-                cout << "sum_comp_size : " << sum_comp_size << endl;*/
-                IloExpr c6 = IloExpr(env_);
-                bool to_insert = false;
-                uint j = 0;
-                for (size_t k=0; k < x.links_.size(); k++)
+                //cout << "x.comp[" << j << "]: " << x.comp[j].pos.first << "," << x.comp[j].pos.second << endl;
+                //cout << "ntA: " << ntA << endl << endl;
+                if (allowed_basepair(ntA, ntB))
                 {
-                    cout << "------------------k: " << k << "-------------------" << endl;
-                    size_t ntA = x.links_[k].nts.first;
-                    size_t ntB = x.links_[k].nts.second;
-                    uint w = 0;
-
-                    //cout << "x.comp[" << j << "]: " << x.comp[j].pos.first << "," << x.comp[j].pos.second << endl;
-                    cout << "ntA: " << ntA << endl << endl;
-
-                    if (allowed_basepair(ntA, ntB))
-                        {
-                            //cout << "TRUE" << endl;
-                            cout << "y(" << ntA << "," << ntB << ")" << endl;
-                            //if (x.comp[j].pos.first <= ntA) {
-                                c6 += y(ntA, ntB);
-                                to_insert = true;
-                            //}
-                            
-                        }
-
-                        else //a link is unauthorized, the component cannot be inserted
-                        {
-                            cout << "FALSE : y(" << ntA << "," << ntB << ")" << endl;
-                            to_insert = false;
-                            break;
-                        }
+                    //cout << "TRUE" << endl;
+                    //cout << "y(" << ntA << "," << ntB << ")" << endl;
+                    //if (x.comp[j].pos.first <= ntA) {
+                        c6 += y(ntA, ntB);
+                        to_insert = true;
+                    //}
+                    
                 }
 
-                //sum_comp_size += x.comp[j].k;
+                else //a link is unauthorized, the component cannot be inserted
+                {
+                    cout << "FALSE : y(" << ntA << "," << ntB << ")" << endl;
+                    to_insert = false;
+                    break;
+                }      
+            }
+            //cout << "-----------------------------------End----------------------------------" << endl;
+            //weights[j] = k + 1;
+            //sum_comp_size += x.comp[j].k;
+            if (to_insert) {
+                for (uint j = 0; j < x.comp.size(); j++) {
                 
-                if (to_insert) {
-                    for (uint j = 0; j < x.comp.size(); j++) {
-                    {
-                        //cout << "TRUE" << endl;
-                        expressions[j].push_back(c6);
-                    }
+                    
+                //cout << "TRUE" << endl;
+                weights[j] = x.links_.size();
+                expressions[j].push_back(c6);
+                    
                 }
             }
-
+            
             for (size_t j=0; j < x.comp.size(); j++) {
                 if (expressions[j].size() != 0) {
                     //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
                     for (size_t k=0; k < expressions[j].size(); k++)
                     {
-                        model_.add( IloNum(/*weights[j]*/1) * C(i,j) <= (expressions[j])[k] );
-                        if (verbose_) cout << "\t\t" << (IloNum(/*weights[j]*/1) * C(i, j) <= (expressions[j])[k]) << endl;
+                        //cout << endl << endl << endl ;
+                        //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
+                        model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
+                        if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
                     }
                 }
             }
         }
     }
-
     else
     {
         // Force basepairs between the end of a component and the beginning of the next
