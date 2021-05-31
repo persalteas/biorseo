@@ -71,7 +71,7 @@ Option 2 : Compile and Install from source (without docker, Linux only)
 mkdir -p data/modules/DESC
 mkdir -p data/modules/BGSU
 mkdir -p data/modules/RIN
-mkdir -p data/modules/ISAURE
+mkdir -p data/modules/ISAURE/Motifs_derniere_version
 ```
 
 ### RNA3DMOTIFS DATA

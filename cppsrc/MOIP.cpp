@@ -1376,10 +1376,10 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     string                        rna = rna_.get_seq();
     string                        reversed_rna = rna_.get_seq();
 
-    cout << filepath << endl;
+    //cout << filepath << endl;
     std::reverse(reversed_rna.begin(), reversed_rna.end());
     
-    motif = std::ifstream(jsonfile.string());
+    motif = std::ifstream(filepath);
     json js = json::parse(motif);
 
     string keys[5] = {"occurences", "pdb", "pfam", "sequence", "struct2d"};
@@ -1391,7 +1391,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     for(auto it = js.begin(); it != js.end(); ++it) {
         contacts_id = it.key();
         comp = stoi(contacts_id);
-        if (comp == errors_id[it_errors].first) {    
+        if (!errors_id.empty() && comp == errors_id[it_errors].first) {    
             while (comp == errors_id[it_errors].first) {
                 //cout << "id erreur: " << errors_id[it_errors].first << endl;
                 /*if (contacts_id.compare("974") == 0) {
@@ -1489,7 +1489,9 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 lock.unlock();
             }
             component_sequences.clear();
+            cout << "-------end-------" << endl;
         }
+        
     }
     std::cout << "---------FIN1----------" << endl;
 }
