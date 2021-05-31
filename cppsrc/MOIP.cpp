@@ -301,18 +301,18 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
-            cout << "--------------begin-----------------" << endl;
+            //cout << "--------------begin-----------------" << endl;
             pool.push(bind(&MOIP::allowed_motifs_from_json, this, args, errors_id)); // & is necessary to get the pointer to a member function
-            cout << "--------------end-----------------" << endl;
+            //cout << "--------------end-----------------" << endl;
         }
         pool.done();
-
-        for (unsigned int i = 0; i < thread_pool.size(); i++)
+        for (unsigned int i = 0; i < thread_pool.size(); i++) {      
             thread_pool.at(i).join();
+        }
 
         if (true){
             cout << "\t> " << inserted << " candidate JSONs on " << accepted + errors << " (" << errors << " ignored motifs), " << endl;
-            cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
+            cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;  
         }
     }
     //CONTACTS
@@ -1346,11 +1346,12 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
            //cout << "gap : " << gap << endl;
        }
     }
-
-    for (uint i = 0; i < vec.size(); i++) {
-        cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;
-    } 
-    if (vec.size() != 0) cout << endl;
+    //cout << "size: " << vec.size() << endl;
+    /*if (vec.size() != 0) {
+        for (uint i = 0; i < vec.size(); i++) { 
+            cout << "i: " << i << "(" << vec.at(i).nts.first << "," << vec.at(i).nts.second << ")" << endl;   
+        } 
+    }*/
     //cout << "------FIN-----" << endl;
     return vec;
 }
@@ -1361,7 +1362,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     /*
         Searches where to place some JSONs in the RNA
     */
-    //cout << "---------DEBUT1------------" << endl;
+    cout << "---------DEBUT1------------" << endl;
     path           jsonfile                  = arg_struct.motif_file;
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
@@ -1381,7 +1382,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     motif = std::ifstream(jsonfile.string());
     json js = json::parse(motif);
 
-    string keys[3] = {"occurences", "sequence", "struct2d"};
+    string keys[5] = {"occurences", "pdb", "pfam", "sequence", "struct2d"};
     string delimiter = "&";
     uint fin = 0;
     uint it_errors = 0;
@@ -1403,7 +1404,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             std::cout << "seq fasta: " << rna << endl;*/
             //cout << "id: " << comp << endl;
             for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-                string test = it2.key();                    if (!test.compare(keys[1])){ 
+                string test = it2.key();                    
+                if (!test.compare(keys[3])){ 
                         string seq = check_motif_sequence(it2.value());
                         //std::cout << "seq motif : " << seq << endl;
                         string subseq;
@@ -1419,7 +1421,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                             component_sequences.push_back(seq);
                             //std::cout << "subseq: " << seq << endl;
                         }
-                    } else if (!test.compare(keys[2])) {
+                    } else if (!test.compare(keys[4])) {
                         struc2d = it2.value();            
                         //std::cout << "2d: " << struc2d << endl;
                     }     
@@ -1489,5 +1491,5 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             component_sequences.clear();
         }
     }
-    //std::cout << "---------FIN1----------" << endl;
+    std::cout << "---------FIN1----------" << endl;
 }

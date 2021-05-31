@@ -326,7 +326,7 @@ bool checkSecondaryStructure(string struc)
 vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
 {
     // /!\ returns 0 if no errors
-
+    //cout << "---begin----" << endl;
     std::ifstream  motif;
     motif = std::ifstream(jsonfile);
     json js = json::parse(motif);
@@ -334,18 +334,19 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
     vector<string> components;
     uint fin = 0;
 
-    std::string keys[3] = {"occurences", "sequence", "struct2d"};
+    std::string keys[5] = {"occurences", "pdb", "pfam", "sequence", "struct2d"};
     for (auto i = js.begin(); i != js.end(); ++i) {
         int j = 0;
         string ite = i.key();
         //cout << ite << ": " << endl;
         for (auto it = js[ite].begin(); it != js[ite].end(); ++it) {
             string test = it.key();
-            
+            //std::cout << "test: " << test << endl;
             if (test.compare(keys[j])){ 
-                errors_id.push_back(make_pair(stoi(ite), 'd'));
+                //std::cout << "error header : keys[" << j << "]: " << keys[j] << " vs test: " << test << endl;
+                errors_id.push_back(make_pair(stoi(ite), 'd')); 
                 //return 'd'; 
-            } else if(!test.compare(keys[2])) {
+            } else if(!test.compare(keys[4])) {
                 //std::cout << "struct2d: " << it.value() << endl;
                 string ss = it.value();
                 if (ss.empty()) {
@@ -357,7 +358,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     errors_id.push_back(make_pair(stoi(ite), 'n'));
                     //return 'n';
                 }
-            } else if (!test.compare(keys[1])) {
+            } else if (!test.compare(keys[3])) {
                 //std::cout << "sequence: " << it.value() << "\n";
                 string seq = it.value();
                 if (seq.empty()) {
@@ -392,10 +393,12 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                 }
             }
             j++;
+            //cout << "test fin" << endl << endl;
         }
     //std::cout << "no error!\n" << endl;
     }
     return errors_id;
+    //cout << "---end----" << endl;
 }
 /*char Motif::is_valid_JSON(const string& jsonfile)
 {
@@ -542,7 +545,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                     // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
                     continue;
                 }
-                 cout  << endl;
+                //cout  << endl;
                 for (vector<Component> v : next_ones)    // For every combination of the next components
                 {
                     // Combine the match for this component pos with the combination
