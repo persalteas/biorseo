@@ -471,27 +471,22 @@ void MOIP::define_problem_constraints(string& source)
             Component& c = x.comp[j];
             IloExpr    c3(env_);
             IloNum     kxi = IloNum(c.k);
-            c3 += (kxi - IloNum(2)) * C(i, j);
+            
             uint count = 0;
-            //c3 += y(6, 41);
-            for (u = c.pos.first + 1; u < c.pos.second; u++)
-                for (v = 0; v < n; v++)
-                {
-                    if (allowed_basepair(u,v))
+            uint count2 = 0;
+            if (source == "jsonfolder") {
+                c3 += kxi * C(i, j);
+                for (u = c.pos.first ; u <= c.pos.second; u++)
+                    for (v = 0; v < n; v++)
                     {
-                        if (source != "rinfolder" && source != "jsonfolder")
-                        {
-                            c3 += y(u, v);
-                            count++;
-                        }
-
-                        else
+                        if (allowed_basepair(u,v))
                         {
                             bool is_link = false;
                             for (Link link : x.links_)
                                 if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
                                 {
                                     is_link = true;
+                                    count2++;
                                     break;
                                 }
 
@@ -502,16 +497,53 @@ void MOIP::define_problem_constraints(string& source)
                                 //cout << "C3: y(" << u << "," << v << ")" << endl;
                                 count++;
                             }
+                        
                         }
                     }
-                }
+            } else {
+                c3 += (kxi - IloNum(2)) * C(i, j);
+                for (u = c.pos.first + 1; u < c.pos.second; u++)
+                    for (v = 0; v < n; v++)
+                    {
+                        if (allowed_basepair(u,v))
+                        {
+                            if (source != "rinfolder" && source != "jsonfolder")
+                            {
+                                c3 += y(u, v);
+                                count++;
+                            }
 
+                            else
+                            {
+                                bool is_link = false;
+                                for (Link link : x.links_)
+                                    if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
+                                    {
+                                        is_link = true;
+                                        count2++;
+                                        break;
+                                    }
+
+                                if (!is_link)
+                                {
+                                    c3 += y(u, v);
+                                    //if(u == 6 && v == 41)
+                                    //cout << "C3: y(" << u << "," << v << ")" << endl;
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+            }
             if (count > 0)
-            {
-                model_.add(c3 <= (kxi - IloNum(2)));
+            {   if(source == "jsonfolder")
+                    model_.add(c3 <= kxi);
+                else 
+                    model_.add(c3 <= (kxi - IloNum(2)));
+                //model_.add(c3 * C(i, j) <= 0);
                 if (verbose_) cout << "\t\t";
                 if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
-                if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
+                if (verbose_) cout << (c3 <= kxi) << endl;
             }
         }
     }
@@ -1403,7 +1435,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             std::cout << "seq fasta: " << rna << endl;*/
             //cout << "id: " << comp << endl;
             for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-                string test = it2.key();                    if (!test.compare(keys[1])){ 
+                string test = it2.key();                    
+                if (!test.compare(keys[1])){ 
                         string seq = check_motif_sequence(it2.value());
                         //std::cout << "seq motif : " << seq << endl;
                         string subseq;
