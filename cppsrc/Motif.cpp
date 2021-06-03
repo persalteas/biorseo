@@ -31,12 +31,14 @@ Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
     source_   = RNA3DMOTIF;
 }
 
-Motif::Motif(const vector<Component>& v, uint id) : comp(v)
+Motif::Motif(const vector<Component>& v, string id, size_t nb_contacts, double tx_occurrences) : comp(v)
 {
-    carnaval_id = to_string(id);
+    contacts_id = id;
     is_model_ = false;
     reversed_ = false;
     source_   = CONTACTS;
+    contact_ = nb_contacts;
+    tx_occurrences_ = tx_occurrences;
 }
 
 Motif::Motif(string csv_line)

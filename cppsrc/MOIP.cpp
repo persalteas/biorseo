@@ -379,9 +379,15 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
             break;
 
-        case 'C':
+        /*case 'C':
             // Weighted by the JAR3D or BayesPairing score only:
             obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
+            break;*/
+
+        case 'C':
+            // Fonction f1E
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * insertion_sites_[i].tx_occurrences_) * insertion_dv_[index_of_first_components[i]] ;
             break;
 
         case 'D':
@@ -390,6 +396,15 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             obj1 += IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].score_ / log2(sum_k)) *
                     insertion_dv_[index_of_first_components[i]];
             break;
+
+        /*case 'D':
+            // Fonction f1F
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            cx_ax += insertion_dv_[index_of_first_components[i]] * IloNum(insertion_sites_[i].contact_);
+            kx2_wx += IloNum(sum_k * sum_k) * insertion_sites_[i].tx_occurrences_);
+            cx_kx2_wx += insertion_dv_[index_of_first_components[i]] * IloNum(kx2_wx);
+            obj1 += IloNum(cx_ax + cx_kx2_wx);
+            break;   */
 
         }
     }
@@ -1386,6 +1401,38 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
     //cout << "------FIN-----" << endl;
     return vec;
 }
+
+size_t count_contacts(string contacts) {
+    
+    size_t count = 0;
+    for (uint i = 0; i < contacts.size(); i++) {
+        if (contacts[i] == '*') {
+            count++;
+        }
+    }
+    return count;
+}
+
+uint find_max (string filepath) {
+    uint max = 0;
+    std::ifstream in = std::ifstream(filepath);
+    json js = json::parse(in);
+    string contacts_id;
+
+    for(auto it = js.begin(); it != js.end(); ++it) {
+        contacts_id = it.key();
+        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
+            string test = it2.key(); 
+             if (!test.compare("occurences")) {
+                uint occ = it2.value();
+                if (occ > max) {
+                    max = occ;
+                }
+             }
+        }
+     }
+    return max;
+}
 //Temporaire--------------------------------------
 
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
@@ -1406,18 +1453,21 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     string                        line, filenumber;
     string                        rna = rna_.get_seq();
     string                        reversed_rna = rna_.get_seq();
+    size_t                        nb_contacts = 0;
+    double                        tx_occurrences = 0;
 
     cout << filepath << endl;
     std::reverse(reversed_rna.begin(), reversed_rna.end());
     
-    motif = std::ifstream(jsonfile.string());
+    motif = std::ifstream(filepath);
     json js = json::parse(motif);
 
-    string keys[3] = {"occurences", "sequence", "struct2d"};
+    string keys[4] = {"contacts", "occurences", "sequence", "struct2d"};
     string delimiter = "&";
     uint fin = 0;
     uint it_errors = 0;
     uint comp;
+    uint max = 0;
 
     for(auto it = js.begin(); it != js.end(); ++it) {
         contacts_id = it.key();
@@ -1435,8 +1485,20 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             std::cout << "seq fasta: " << rna << endl;*/
             //cout << "id: " << comp << endl;
             for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-                string test = it2.key();                    
-                if (!test.compare(keys[1])){ 
+                string test = it2.key(); 
+                if (!test.compare(keys[0])) {
+                    string contacts = it2.value();
+                    nb_contacts = count_contacts(contacts);
+                    //cout << "contacts : " << contacts << endl;
+                    //cout << "nb : " << nb_contacts << endl;
+
+                } else if (!test.compare(keys[1])) {
+                    uint occ = it2.value();
+                    max = find_max(filepath);
+                    tx_occurrences = (double)occ / (double)max;
+                    //cout << "occ: " << tx_occurrences << endl;
+    
+                } else if (!test.compare(keys[2])){ 
                         string seq = check_motif_sequence(it2.value());
                         //std::cout << "seq motif : " << seq << endl;
                         string subseq;
@@ -1452,7 +1514,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                             component_sequences.push_back(seq);
                             //std::cout << "subseq: " << seq << endl;
                         }
-                    } else if (!test.compare(keys[2])) {
+                    } else if (!test.compare(keys[3])) {
                         struc2d = it2.value();            
                         //std::cout << "2d: " << struc2d << endl;
                     }     
@@ -1470,9 +1532,11 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             for (vector<Component>& v : vresults)
             {
                 //cout << "--------ENTER2-------" << endl;
-                Motif temp_motif = Motif(v, contacts_id);
+                Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
                 vector<Link> all_pair = search_pairing(struc2d, v);
                 temp_motif.links_ = all_pair;
+                cout << "nb: " << temp_motif.contact_ << endl;
+                cout << "tx: " << temp_motif.tx_occurrences_ << endl;
 
                 bool unprobable = false;
                 for (const Link& l : temp_motif.links_)
@@ -1499,12 +1563,11 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             }*/
             //cout << "size2: " << insertion_sites_.size() << endl;
 
-            for (vector<Component>& v : r_vresults)
+            /*for (vector<Component>& v : r_vresults)
             {
-                Motif temp_motif = Motif(v, contacts_id);
+                Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
                 vector<Link> all_pair = search_pairing(struc2d, v);
                 temp_motif.links_ = all_pair;
-
 
                 bool unprobable = false;
                 for (const Link& l : temp_motif.links_)
@@ -1518,7 +1581,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 unique_lock<mutex> lock(posInsertionSites_access);
                 insertion_sites_.push_back(temp_motif);
                 lock.unlock();
-            }
+            }*/
             component_sequences.clear();
         }
     }
