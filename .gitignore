@@ -15,6 +15,7 @@ doc/*.fdb_latexmk
 eigen-eigen-323c052e1731
 cplex_installer_12.8_Student.bin
 BayesPairing/
+BayesPairing2/
 ViennaRNA-2.4.13
 
 # Compiled Object files
