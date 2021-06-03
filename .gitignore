@@ -34,16 +34,13 @@ logBadDesc.txt
 gurobi.log
 temp/*
 biorseo_results/*
+nohup.out
 
 # data 
 data/modules/BGSU
 data/modules/DESC
-data/modules/RIN/Subfiles/
-data/modules/BGSU/HL/3.2/diagnostic/*
-data/modules/BGSU/HL/3.2/lib/*
-data/modules/BGSU/IL/3.2/diagnostic/*
-data/modules/BGSU/IL/3.2/lib/*
-data/modules/DESC/*.desc
-data/modules/CaRNAval/Subfiles
-data/modules/CaRNAval/__pycache__
+data/modules/RIN
+data/modules/ISAURE
+data/sec_structs/bpRNA-1m_90.dbn
+data/sec_structs/pseudobase++.dbn
 
