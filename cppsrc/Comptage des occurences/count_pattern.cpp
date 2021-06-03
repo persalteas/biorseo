@@ -259,13 +259,18 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
             string sequence2, struc2;
             vector<string> composantes2;
             vector<string> tab_struc2;
+            int occurences2;
             int fin;
             //cout << "id: " << id << " / id2: " << id2 << endl;
             for (auto it4 = js[id2].begin(); it4 != js[id2].end(); ++it4) {
                 string test = it4.key();
                 
                 if (id != id2) {
-                    if (!test.compare("sequence")) {
+                    if (!test.compare("occurences")) {
+                        occurences2 = it4.value();
+                        //cout << "occurences2: "<< occurences2 << endl;
+
+                    } else if (!test.compare("sequence")) {
                         sequence2 = it4.value();
                         string subseq;
                         while(sequence2.find(delimiter) != string::npos) {
@@ -304,31 +309,39 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                         
                         uint number = 0;
                         int tab[composantes.size()];
+                        for (uint ii = 0; ii < composantes.size(); ii++) {
+                            //cout << "tab[" << ii << "]: " << tab[ii] << endl;
+                            tab[ii] = 0;
+                        }
+                        //int number_comp[composantes.size()];
                         for (uint k = 0; k < composantes.size() ; k++) {
                             bool flag = false;
                             for (uint l = 0; l < composantes2.size(); l++) {
-
                                 int test1 = is_contains(composantes[k], composantes2[l]);
                                 int test2 = is_contains(tab_struc[k], tab_struc2[l]);
                                 /*if (id == "1" && id2 == "100006") {
                                     
                                     cout << endl;
                                 }*/
-                                /*if (id == "10" && id2 == "65") {
+                                /*if (id == "735" && id2 == "928") {
                                     cout << "----begin----" << endl;
                                     cout << "id: " << id << " id2: " << id2 << endl;
                                     cout << "[" << k << "][" << l << "]: " << endl;
                                     cout << "test1: " << test1 << " | " << "test2: " << test2 << endl;
                                     cout << "seq1: " << composantes[k] << " vs " << "seq2: " << composantes2[l] << endl;
                                     cout << "struc1: " << tab_struc[k] << " vs " << "struc2: " <<tab_struc2[l] << endl << endl;*/
-                                if (test1 == test2 && test1 != -1 && test2 != -1) {
-                                    //cout << "flag: " << flag << endl;
-                                    if(!flag) {
-                                        if (k == 0 || test1 > tab[k-1])
-                                            tab[k] = test1;
-                                            flag = true;
-                                    }    
-                                }
+                                    if (test1 == test2 && test1 != -1 && test2 != -1) {
+                                        if(!flag) {
+                                            if (k == 0 || test1 + composantes[k].size() > tab[k-1]) {
+                                                tab[k] = test1 + composantes[k].size();
+                                                flag = true;
+                                            }
+                                                
+                                        }    
+                                    }
+                                    /*for (uint ii = 0; ii < composantes.size(); ii++) {
+                                        cout << "tab[" << ii << "]: " << tab[ii] << endl;
+                                    }*/
                                     //cout << "----end----" << endl;
                                 //}
                             }
@@ -336,8 +349,14 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                                number++;
                             }
                         }
+
                         if(number == composantes.size()) {
-                            count++;
+                            count+= occurences2;
+                            /*count = number_comp[0];
+                            for (uint m = 1; m < composantes.size(); m++) {
+                                count = count * number_comp[m];
+                                cout << "count: " << count << endl;
+                            }*/
                             cout << id << " vs " << id2 << endl;
                         }
                         /*int test1 = is_contains(sequence, sequence2);
@@ -365,7 +384,6 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
         cout << "tab_struc[" << i << "]: " << tab_struc[i] << endl << endl;
         } */
     }
-
     outfile << new_motif.dump(4) << endl;
     outfile.close();
     
@@ -374,15 +392,15 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
 int main()
 {
     cout << "------------------BEGIN-----------------" << endl;
-    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_28-05-2021.json";
-    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
-    string tmpfile = pfams_union(jsonfile);
-    counting_occurences(tmpfile, out);
+    //string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_01-06-2021.json";
+    //string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
+    //string tmpfile = pfams_union(jsonfile);
+    //counting_occurences(tmpfile, out);
 
-    /*string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/bibli_test.json";
+    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/bibli_test.json";
     string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final_test.json";
     string tmpfile = pfams_union(jsonfile);
-    counting_occurences(tmpfile, out);*/
+    counting_occurences(tmpfile, out);
 
     /*if (std::remove(tmpfile.c_str()) != 0)
 		perror("File deletion failed \n");

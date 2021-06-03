@@ -334,10 +334,11 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
     vector<string> components;
     uint fin = 0;
 
-    std::string keys[5] = {"occurences", "pdb", "pfam", "sequence", "struct2d"};
+    std::string keys[6] = {"contacts", "occurences", "pdb", "pfam", "sequence", "struct2d"};
     for (auto i = js.begin(); i != js.end(); ++i) {
         int j = 0;
         string id = i.key();
+        string complete_seq;
         //cout << id << ": " << endl;
         for (auto it = js[id].begin(); it != js[id].end(); ++it) {
             string test = it.key();
@@ -346,7 +347,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                 //std::cout << "error header : keys[" << j << "]: " << keys[j] << " vs test: " << test << endl;
                 errors_id.push_back(make_pair(stoi(id), 'd')); 
                 //return 'd'; 
-            } else if(!test.compare(keys[4])) {
+            } else if(!test.compare(keys[5])) {
                 //std::cout << "struct2d: " << it.value() << endl;
                 string ss = it.value();
                 if (ss.empty()) {
@@ -357,12 +358,15 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     //std::cout << "error bracket" <<endl;
                     errors_id.push_back(make_pair(stoi(id), 'n'));
                     //return 'n';
+                } else if (ss.size() != complete_seq.size()) {
+                    errors_id.push_back(make_pair(stoi(id), 'x'));
                 }
-            } else if (!test.compare(keys[3])) {
+            } else if (!test.compare(keys[4])) {
                 //std::cout << "sequence: " << it.value() << "\n";
                 /*if (id == "484")
                     cout << "seq: " << it.value() << endl;*/
                 string seq = it.value();
+                complete_seq = seq;
                 if (seq.empty()) {
                     //std::cout << "error empty 2" <<endl;
                     errors_id.push_back(make_pair(stoi(id), 'e'));

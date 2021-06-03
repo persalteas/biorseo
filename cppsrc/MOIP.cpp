@@ -265,7 +265,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                         switch (error)
                         {
                             case 'l': cerr << ", too short to be considered."; break;
-                            //case 'x': cerr << ", because not constraining the secondary structure."; break;
+                            case 'x': cerr << ", sequence and secondary structure are of different size."; break;
                             case 'd' : cerr << ", missing header."; break;
                             case 'e' : cerr << ", sequence is empty."; break;
                             case 'f' : cerr << ", 2D is empty."; break;
