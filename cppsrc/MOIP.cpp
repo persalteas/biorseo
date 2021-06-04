@@ -280,30 +280,11 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                     //cout << "----------------end---------------" << endl;
                 }
                 errors++;
-				/*if (verbose)
-                {
-                    cerr << "\t>Ignoring JSON " << it.path().stem();
-                    switch (error)
-                    {
-                        //case 'l': cerr << ", too short to be considered."; break;
-                        //case 'x': cerr << ", because not constraining the secondary structure."; break;
-                        case 'd' : cerr << ", missing header."; break;
-                        case 'e' : cerr << ", sequence is empty."; break;
-                        case 'f' : cerr << ", 2D is empty."; break;
-                        case 'n' : cerr << ", brackets are not balanced."; break;
-						default: cerr << ", unknown reason";
-                    }
-                    cerr << endl;
-                }
-				errors++;
-                continue;*/
 			}
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
-            cout << "--------------begin-----------------" << endl;
             pool.push(bind(&MOIP::allowed_motifs_from_json, this, args, errors_id)); // & is necessary to get the pointer to a member function
-            cout << "--------------end-----------------" << endl;
         }
         pool.done();
 
@@ -488,7 +469,7 @@ void MOIP::define_problem_constraints(string& source)
             IloNum     kxi = IloNum(c.k);
             
             uint count = 0;
-            uint count2 = 0;
+            //uint count2 = 0;
             if (source == "jsonfolder") {
                 c3 += kxi * C(i, j);
                 for (u = c.pos.first ; u <= c.pos.second; u++)
@@ -501,7 +482,7 @@ void MOIP::define_problem_constraints(string& source)
                                 if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
                                 {
                                     is_link = true;
-                                    count2++;
+                                    //count2++;
                                     break;
                                 }
 
@@ -535,7 +516,6 @@ void MOIP::define_problem_constraints(string& source)
                                     if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
                                     {
                                         is_link = true;
-                                        count2++;
                                         break;
                                     }
 
@@ -722,9 +702,35 @@ void MOIP::define_problem_constraints(string& source)
         for (size_t i=0; i < insertion_sites_.size(); i++) {
             //cout << endl << "-------------------------------i: " << i << "-------------------------------" << endl;
             Motif&  x   = insertion_sites_[i];
+            
             //IloExpr c6p = IloExpr(env_);
+            for (size_t j=0; j < x.comp.size(); j++) {
+                Component& c = x.comp[j];
+                IloExpr    c6(env_);
+                IloNum     ax = IloNum(c.nb_pairing);
 
-            vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
+                if(c.nb_pairing > 0) {
+                    for (u = c.pos.first ; u <= c.pos.second; u++) {
+                        for (v = 0; v < n; v++)
+                        {
+                            if (allowed_basepair(u,v))
+                            {
+                                for (Link link : x.links_) {
+                                        if (u == link.nts.first and v == link.nts.second)
+                                        {   
+                                            //cout << "y(" << u << "," << v << ")" << endl;
+                                            c6 += y(u, v);
+                                            break;   
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    model_.add(c6 >= IloNum(ax) * C(i, j));
+                    if (verbose_) cout << "\t\t" << (IloNum(ax) * C(i, j) <= c6) << endl;
+                }
+            }
+            /*vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
             vector<size_t> weights(x.comp.size(), 0);
             //cout << "comp size: " << x.comp.size() << endl;
             //cout << "links size: " << x.links_.size() << endl;
@@ -784,7 +790,7 @@ void MOIP::define_problem_constraints(string& source)
                         if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
                     }
                 }
-            }
+            }*/
         }
     }
     else
@@ -955,12 +961,13 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
         // search on top
         double min = s.get_objective_score(3 - obj_to_solve_) + precision_;
         double max = lambdaMax;
+
         if (verbose_)
             cout << std::setprecision(-log10(precision_) + 4) << "\nSolving objective function " << obj_to_solve_
                  << ", on top of " << s.get_objective_score(3 - obj_to_solve_) << ": Obj" << 3 - obj_to_solve_
                  << "  being in [" << std::setprecision(-log10(precision_) + 4) << min << ", "
                  << std::setprecision(-log10(precision_) + 4) << max << "]..." << endl;
-        search_between(min, max);
+        if (lambdaMax != max && lambdaMin != min) search_between(min, max);
 
 
         if (std::abs(max - min) - precision_ > precision_) {
@@ -973,7 +980,7 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
                      << ", below (or eq. to) " << max << ": Obj" << 3 - obj_to_solve_ << "  being in ["
                      << std::setprecision(-log10(precision_) + 4) << min << ", "
                      << std::setprecision(-log10(precision_) + 4) << max << "]..." << endl;
-            search_between(min, max);
+            if (lambdaMax != max && lambdaMin != min) search_between(min, max);
         }
 
     } else {
@@ -1197,7 +1204,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
 
         // We need to search for the different positions where to insert the first component
         for (auto c_s : motif_variants) {
-            vector<vector<Component>> new_results = find_next_ones_in(rna, 0, c_s, false);
+            vector<vector<Component>> new_results = find_next_ones_in(rna, 0, c_s);
             vresults.insert(vresults.end(), new_results.begin(), new_results.end());
         }
 
@@ -1206,7 +1213,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
     {
         // No multiple motif variants : we serach in a single vector component_sequences
         // We need to search for the different positions where to insert the first component
-        vresults = find_next_ones_in(rna, 0, component_sequences, false);
+        vresults = find_next_ones_in(rna, 0, component_sequences);
     }
 
     // Now create proper motifs with Motif class
@@ -1265,8 +1272,8 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         component_sequences.push_back(line.substr(index+1, string::npos)); // new component sequence
     }
 
-    vresults     = find_next_ones_in(rna, 0, component_sequences, true);
-    r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
+    vresults     = find_next_ones_in(rna, 0, component_sequences);
+    r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
 
     for (vector<Component>& v : vresults)
     {
@@ -1433,6 +1440,27 @@ uint find_max_occurrences (string filepath) {
      }
     return max;
 }
+
+vector<string> find_components(string sequence, string delimiter) {
+    vector<string> list;
+    string seq = sequence;
+    string subseq;
+    uint fin = 0;
+
+    while(seq.find(delimiter) != string::npos) {
+        fin = seq.find(delimiter);
+        
+        subseq = seq.substr(0, fin);
+        seq = seq.substr(fin + 1);
+        list.push_back(subseq); // new component sequence
+        //std::cout << "subseq: " << subseq << endl;
+    } 
+    if (!seq.empty()) {
+        list.push_back(seq);
+        //std::cout << "subseq: " << seq << endl;
+    }
+    return list;
+}
 //Temporaire--------------------------------------
 
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
@@ -1448,6 +1476,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 	string 	                      filepath = jsonfile.string();
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
+    vector<string>                component_strucs;
     string                        struc2d;
     string                        contacts_id;
     string                        line, filenumber;
@@ -1463,8 +1492,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     json js = json::parse(motif);
 
     string keys[4] = {"contacts", "occurences", "sequence", "struct2d"};
-    string delimiter = "&";
-    uint fin = 0;
     uint it_errors = 0;
     uint comp;
     uint max = 0;
@@ -1501,21 +1528,10 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 } else if (!test.compare(keys[2])){ 
                         string seq = check_motif_sequence(it2.value());
                         //std::cout << "seq motif : " << seq << endl;
-                        string subseq;
-                        while(seq.find(delimiter) != string::npos) {
-                            fin = seq.find(delimiter);
-                            
-                            subseq = seq.substr(0, fin);
-                            seq = seq.substr(fin + 1);
-                            component_sequences.push_back(subseq); // new component sequence
-                            //std::cout << "subseq: " << subseq << endl;
-                        } 
-                        if (!seq.empty()) {
-                            component_sequences.push_back(seq);
-                            //std::cout << "subseq: " << seq << endl;
-                        }
+                        component_sequences = find_components(seq, "&");
                     } else if (!test.compare(keys[3])) {
-                        struc2d = it2.value();            
+                        struc2d = it2.value();          
+                        component_strucs = find_components(struc2d, "&"); 
                         //std::cout << "2d: " << struc2d << endl;
                     }     
             }
@@ -1523,7 +1539,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 std::cout << "-" << component_sequences[i] << endl;
             }
             std::cout << endl;*/
-            vresults     = find_next_ones_in(rna, 0, component_sequences, true);
+            vresults     = json_find_next_ones_in(rna, 0, component_sequences, component_strucs);
             //r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences, true);
             //std::cout << "vsize: " << vresults.size() << endl;
 
@@ -1535,6 +1551,9 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
                 vector<Link> all_pair = search_pairing(struc2d, v);
                 temp_motif.links_ = all_pair;
+                /*for (uint i = 0; i < temp_motif.comp.size() ; i++) {
+                    cout << "nb: " << temp_motif.comp[i].nb_pairing << endl;
+                }*/
                 //cout << "nb: " << temp_motif.contact_ << endl;
                 //cout << "tx: " << temp_motif.tx_occurrences_ << endl;
 

@@ -365,8 +365,6 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                 }
             } else if (!test.compare(keys[4])) {
                 //std::cout << "sequence: " << it.value() << "\n";
-                /*if (id == "484")
-                    cout << "seq: " << it.value() << endl;*/
                 string seq = it.value();
                 complete_seq = seq;
                 if (seq.empty()) {
@@ -379,11 +377,11 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                 } else {
                 string subseq;
                 
-                    while(seq.find('&') != string::npos) {
+                    while((seq.find('&') != string::npos)) {
                         fin = seq.find('&');  
                         subseq = seq.substr(0, fin);
                         seq = seq.substr(fin + 1);
-                        if (subseq.size() >= 2) {
+                        if (subseq.size() >= 1) {
                             components.push_back(subseq); 
                             //std::cout << "subseq: " << subseq << endl;
                         } else {
@@ -391,7 +389,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                             //std::cout << "error too short1" << endl;
                         }
                     } 
-                    if (seq.size() >= 2) {
+                    if (seq.size() >= 1) {
                         components.push_back(seq);
                         //std::cout << "subseq: " << seq << endl;
                     } else {
@@ -408,54 +406,6 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
     return errors_id;
     //cout << "---end----" << endl;
 }
-/*char Motif::is_valid_JSON(const string& jsonfile)
-{
-    // /!\ returns 0 if no errors
-
-    std::ifstream  motif;
-    motif = std::ifstream(jsonfile);
-    json js = json::parse(motif);
-
-    std::string keys[3] = {"occurences", "sequence", "struct2d"};
-    
-    for (auto i = js.begin(); i != js.end(); ++i) {
-        int j = 0;
-        string ite = i.key();
-        cout << ite << ": " << endl;
-        for (auto it = js[ite].begin(); it != js[ite].end(); ++it) {
-            string test = it.key();
-            if (test.compare(keys[j])){ 
-                return 'd'; 
-            }
-
-            if(!test.compare(keys[2])) {
-                std::cout << "struct2d: " << it.value() << endl;
-                string ss = it.value();
-                if (ss.empty()) {
-                    std::cout << "error empty" <<endl;
-                    return 'f';
-                }
-
-                if (!checkSecondaryStructure(ss)) {
-                    std::cout << "error bracket" <<endl;
-                    return 'n';
-                }
-            }
-
-            if (!test.compare(keys[1])) {
-                std::cout << "sequence: " << it.value() << "\n";
-                string seq = it.value();
-                if (seq.empty()) {
-                    std::cout << "error empty 2" <<endl;
-                    return 'l';
-                }
-            }
-            j++;
-        }
-    std::cout << "no error!\n" << endl;
-    }
-    return 0;
-}*/
 
 bool is_desc_insertible(const string& descfile, const string& rna)
 {
@@ -503,7 +453,7 @@ bool is_desc_insertible(const string& descfile, const string& rna)
 
 }
 
-vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc, bool is_RIN_or_JSON)
+vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc)
 {
     pair<uint, uint>          pos;
     vector<vector<Component>> results;
@@ -534,21 +484,18 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
             // For every regexp match
             for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
                 smatch match = *i;
-                uint add;
-                if (is_RIN_or_JSON) add = 2;
-                else add = 5;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
 
                 //cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
                 // +5 because HL < 3 pbs but not for CaRNAval or Contacts
                 // if CaRNAval or Contacts +2 is better
-                if (pos.second - offset + add >= rna.length()) {
+                if (pos.second - offset + 5 >= rna.length()) {
                      //cout << "\t\t... but we cannot place the next components : Ignored." << endl;
                     continue;
                 }
                 
-                next_ones = find_next_ones_in(rna.substr(pos.second - offset + add), pos.second + add, next_seqs, is_RIN_or_JSON);
+                next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
                 if (!next_ones.size()) {
                     // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
                     continue;
@@ -581,6 +528,104 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
                 // Create a vector of component with one component for that match
                 vector<Component> r;
                 r.push_back(Component(pos));
+                results.push_back(r);
+            }
+        }
+    }
+    return results;
+}
+
+uint count_pairing(string struc2d) {
+    uint count = 0;
+    for(uint i = 0; i < struc2d.size(); i++) {
+        if (struc2d[i] == '(' || struc2d[i] == '[' || struc2d[i] == '<' || struc2d[i] == '{') {
+            count++;
+        }
+    }
+    //cout << struc2d << ": " << count << endl;
+    return count;
+}
+
+vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector<string>& vc, vector<string>& vs)
+{
+    pair<uint, uint>          pos;
+    uint                      nb_pairing;
+    vector<vector<Component>> results;
+    vector<vector<Component>> next_ones;
+    vector<string>            next_seqs;
+    vector<string>            next_strucs;
+    regex                     c(vc[0]);
+
+    //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
+
+    if (vc.size() > 1) {
+        //cout << "size vc: " << vc.size() << endl; 
+        if (regex_search(rna, c)) {
+            if (vc.size() > 2) {
+                next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
+                next_strucs = vector<string>(&vs[1], &vs[vs.size()]);
+                /*for (uint i = 0; i < next_seqs.size(); i++) {
+                    std::cout << "next seq: " << next_seqs[i] << endl;
+                }
+                std::cout << endl;*/
+            }
+            else {
+                next_seqs = vector<string>(1, vc.back());
+                next_strucs = vector<string>(1, vs.back());
+                /*for (uint i = 0; i < next_seqs.size(); i++) {
+                    std::cout << "next seq: " << next_seqs[i] << endl;
+                }
+                std::cout << endl;*/
+            }
+            uint j = 0;
+            // For every regexp match
+            for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+                smatch match = *i;
+                pos.first    = match.position() + offset;
+                pos.second   = pos.first + match.length() - 1;
+                nb_pairing   = count_pairing(vs[0]);
+
+                //cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+                // +5 because HL < 3 pbs but not for CaRNAval or Contacts
+                // if CaRNAval or Contacts +2 is better
+                if (pos.second - offset + 2 >= rna.length()) {
+                     //cout << "\t\t... but we cannot place the next components : Ignored." << endl;
+                    continue;
+                }
+                
+                next_ones = json_find_next_ones_in(rna.substr(pos.second - offset + 2), pos.second + 2, next_seqs, next_strucs);
+                if (!next_ones.size()) {
+                    // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
+                    continue;
+                }
+                //cout  << endl;
+                for (vector<Component> v : next_ones)    // For every combination of the next components
+                {
+                    // Combine the match for this component pos with the combination
+                    // of next_ones as a whole solution
+                    vector<Component> r;
+                    r.push_back(Component(pos, nb_pairing));
+                    for (Component& c : v) r.push_back(c);
+                    results.push_back(r);
+                }
+                j++;
+            }
+        }
+    } else {
+        // Only one more component to find
+        if (regex_search(rna, c)) {
+            // For each regexp match
+            for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+                smatch match = *i;
+                pos.first    = match.position() + offset;
+                pos.second   = pos.first + match.length() - 1;
+                nb_pairing   = count_pairing(vs[0]);
+
+                //cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+
+                // Create a vector of component with one component for that match
+                vector<Component> r;
+                r.push_back(Component(pos, nb_pairing));
                 results.push_back(r);
             }
         }
