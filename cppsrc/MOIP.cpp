@@ -366,6 +366,8 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
         IloNum sum_k = 0;
+        IloNum kx2_wx_ax = 0;
+
         switch (obj_function_nbr_) {
         case 'A':
             // RNA MoIP style
@@ -377,17 +379,11 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             // everything but the Jar3D/Bayespairing score
             for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
             obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
-            break;
-
-        /*case 'C':
-            // Weighted by the JAR3D or BayesPairing score only:
-            obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
-            break;*/
+            break;   
 
         case 'C':
-            // Fonction f1E
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * insertion_sites_[i].tx_occurrences_) * insertion_dv_[index_of_first_components[i]] ;
+            // Weighted by the JAR3D or BayesPairing score only:
+            obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
             break;
 
         case 'D':
@@ -397,14 +393,18 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                     insertion_dv_[index_of_first_components[i]];
             break;
 
-        /*case 'D':
+        case 'E':
+            // Fonction f1E
+            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+            obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * insertion_sites_[i].tx_occurrences_) * insertion_dv_[index_of_first_components[i]] ;
+            break;
+
+        case 'F':
             // Fonction f1F
             for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            cx_ax += insertion_dv_[index_of_first_components[i]] * IloNum(insertion_sites_[i].contact_);
-            kx2_wx += IloNum(sum_k * sum_k) * insertion_sites_[i].tx_occurrences_);
-            cx_kx2_wx += insertion_dv_[index_of_first_components[i]] * IloNum(kx2_wx);
-            obj1 += IloNum(cx_ax + cx_kx2_wx);
-            break;   */
+            kx2_wx_ax += IloNum((sum_k * sum_k * insertion_sites_[i].tx_occurrences_) + insertion_sites_[i].contact_);
+            obj1 += insertion_dv_[index_of_first_components[i]] * IloNum(kx2_wx_ax);
+            break;
 
         }
     }
@@ -1413,7 +1413,7 @@ size_t count_contacts(string contacts) {
     return count;
 }
 
-uint find_max (string filepath) {
+uint find_max_occurrences (string filepath) {
     uint max = 0;
     std::ifstream in = std::ifstream(filepath);
     json js = json::parse(in);
@@ -1494,7 +1494,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
                 } else if (!test.compare(keys[1])) {
                     uint occ = it2.value();
-                    max = find_max(filepath);
+                    max = find_max_occurrences(filepath);
                     tx_occurrences = (double)occ / (double)max;
                     //cout << "occ: " << tx_occurrences << endl;
     
@@ -1535,8 +1535,8 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
                 vector<Link> all_pair = search_pairing(struc2d, v);
                 temp_motif.links_ = all_pair;
-                cout << "nb: " << temp_motif.contact_ << endl;
-                cout << "tx: " << temp_motif.tx_occurrences_ << endl;
+                //cout << "nb: " << temp_motif.contact_ << endl;
+                //cout << "tx: " << temp_motif.tx_occurrences_ << endl;
 
                 bool unprobable = false;
                 for (const Link& l : temp_motif.links_)

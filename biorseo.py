@@ -226,7 +226,8 @@ class BiorseoInstance:
                 print("                --patternmatch  --bayespairing    --jar3d")
                 print("--rna3dmotifs     A. B.           A. B. C. D.")
                 print("--3dmotifatlas                    A. B. C. D.     A. B. C. D.")
-                print("--carnaval        A. B.\n")
+                print("--carnaval        A. B.")
+                print("--contacts        A. B. E. D.\n")
                 sys.exit()
             elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg
@@ -235,7 +236,7 @@ class BiorseoInstance:
             elif opt == "-o" or opt == "--output":
                 self.output = absolutize_path(arg) # output file
             elif opt == "-f" or opt == "--func":
-                if arg in ['A', 'B', 'C', 'D']:
+                if arg in ['A', 'B', 'C', 'D', 'E', 'F']:
                     self.func = arg
                 else:
                     raise "Unknown scoring function " + arg
@@ -325,6 +326,10 @@ class BiorseoInstance:
             issues = True
             print(warning)
             print("/!\\ Using jar3d requires the 3D Motif Atlas modules. Use --3dmotifatlas instead of --rna3dmotifs or --carnaval.")
+        if (self.modules == "desc" or self.modules == "rin" or self.modules == "bgsu") and (self.func == 'E' or self.func == 'F'):
+            issues = True
+            print(warning)
+            print("/!\\ Functions E and F are only compatible with the contacts library from Isaure.")
         if self.modules == "rin" and self.type != "dpm":
             issues = True
             print(warning)
@@ -347,7 +352,7 @@ class BiorseoInstance:
             print("--rna3dmotifs     A. B.           A. B. C. D.")
             print("--3dmotifatlas                    A. B. C. D.     A. B. C. D.")
             print("--carnaval        A. B.")
-            print("--contacts        A. B.\n")
+            print("--contacts        A. B. E. F.\n")
             exit(1)
 
     def enumerate_loops(self, s):
