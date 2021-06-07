@@ -184,12 +184,18 @@ class Method:
 			return self.tool
 
 	def build_job_list(self):
+		# PRIORITIES :
+		# 1/	RNAsubopt
+		# 2/	mv
+		# 3/	Jar3D, BayesPairing, RNA-MoIP
+		# 4/	BiORSEO
+		# 5/	BiokoP
 		basename = self.parent_rna.basename
 		fasta = outputDir+basename+".fa"
 
 		# Things that require RNAsubopt calculations
 		if self.tool in ["RNAsubopt", "RNA-MoIP (1by1)", "RNA-MoIP (chunk)"] or self.placement_method == "Jar3d":
-			if f"{basename} RNAsubopt" in issues or f"{basename} mv" in issues:
+			if f"{basename} RNAsubopt" in issues:
 				return
 			self.joblist.append(Job(command=["RNAsubopt", "-i", fasta, "--outfile="+ basename + ".subopt"], 
 									priority=1, how_many_in_parallel=1 if self.flat else 0, 
@@ -216,7 +222,6 @@ class Method:
 				module_type_arg = "carnaval"
 			else:
 				module_type_arg = "3dmotifatlas"
-
 			
 			if module_type_arg != "carnaval":
 				if f"{basename} {self.data_source}-ByP" in issues:
@@ -244,10 +249,10 @@ class Method:
 					c += [ "-d", descfolder]
 			elif self.placement_method == "ByP":
 				results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_{self.data_source.lower()}_{self.placement_method.lower()}_{self.func}"
-				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}2.csv"]
+				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}.csv"]
 			else:
 				results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_{self.data_source.lower()}_{self.placement_method.lower()}_{self.func}"
-				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}.csv"]
+				c += ["--jar3dcsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}.csv"]
 			c += ["-o", results_file, "--func", self.func]
 			if not self.allow_pk:
 				c += ["-n"]
@@ -415,42 +420,74 @@ class RNA:
 		self.load_RNAsubopt_results()
 		self.load_RNAMoIP_results()
 		self.load_biokop_results()
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A", self.get_method("DESC-D.P.-A"))
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B", self.get_method("DESC-D.P.-B"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A", self.get_method("DESC-ByP-A"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_B", self.get_method("DESC-ByP-B"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_C", self.get_method("DESC-ByP-C"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_D", self.get_method("DESC-ByP-D"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_A", self.get_method("BGSU-ByP-A"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_B", self.get_method("BGSU-ByP-B"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_C", self.get_method("BGSU-ByP-C"))
-		# self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_D", self.get_method("BGSU-ByP-D"))
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_A", self.get_method("BGSU-Jar3d-A"))
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_B", self.get_method("BGSU-Jar3d-B"))
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_C", self.get_method("BGSU-Jar3d-C"))
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_D", self.get_method("BGSU-Jar3d-D"))
+		if "DESC-D.P.-A" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A", self.get_method("DESC-D.P.-A"))
+		if "DESC-D.P.-B" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B", self.get_method("DESC-D.P.-B"))
+		if "DESC-ByP-A" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A", self.get_method("DESC-ByP-A"))
+		if "DESC-ByP-B" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_B", self.get_method("DESC-ByP-B"))
+		if "DESC-ByP-C" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_C", self.get_method("DESC-ByP-C"))
+		if "DESC-ByP-D" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_D", self.get_method("DESC-ByP-D"))
+		if "BGSU-ByP-A" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_A", self.get_method("BGSU-ByP-A"))
+		if "BGSU-ByP-B" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_B", self.get_method("BGSU-ByP-B"))
+		if "BGSU-ByP-C" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_C", self.get_method("BGSU-ByP-C"))
+		if "BGSU-ByP-D" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_D", self.get_method("BGSU-ByP-D"))
+		if "BGSU-Jar3d-A" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_A", self.get_method("BGSU-Jar3d-A"))
+		if "BGSU-Jar3d-B" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_B", self.get_method("BGSU-Jar3d-B"))
+		if "BGSU-Jar3d-C" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_C", self.get_method("BGSU-Jar3d-C"))
+		if "BGSU-Jar3d-B" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_D", self.get_method("BGSU-Jar3d-D"))
 
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_rin_raw_A", self.get_method("RIN-D.P.-A"))
-		self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_rin_raw_B", self.get_method("RIN-D.P.-B"))
+		if "RIN-D.P.-A" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_rin_raw_A", self.get_method("RIN-D.P.-A"))
+		if "RIN-D.P.-B" in self.meth_idx.keys():
+			self.load_biorseo_results(outputDir + "PK/" + self.basename + ".biorseo_rin_raw_B", self.get_method("RIN-D.P.-B"))
 
 		if include_noPK:
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_raw_A", self.get_method("DESC-D.P.-A-noPK"))
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_raw_B", self.get_method("DESC-D.P.-B-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_A", self.get_method("DESC-ByP-A-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_B", self.get_method("DESC-ByP-B-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_C", self.get_method("DESC-ByP-C-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_D", self.get_method("DESC-ByP-D-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_A", self.get_method("BGSU-ByP-A-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_B", self.get_method("BGSU-ByP-B-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_C", self.get_method("BGSU-ByP-C-noPK"))
-			# self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_D", self.get_method("BGSU-ByP-D-noPK"))
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_A", self.get_method("BGSU-Jar3d-A-noPK"))
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_B", self.get_method("BGSU-Jar3d-B-noPK"))
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_C", self.get_method("BGSU-Jar3d-C-noPK"))
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_D", self.get_method("BGSU-Jar3d-D-noPK"))
+			if "DESC-D.P.-A-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_raw_A", self.get_method("DESC-D.P.-A-noPK"))
+			if "DESC-D.P.-B-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_raw_B", self.get_method("DESC-D.P.-B-noPK"))
+			if "DESC-ByP-A-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_A", self.get_method("DESC-ByP-A-noPK"))
+			if "DESC-ByP-B-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_B", self.get_method("DESC-ByP-B-noPK"))
+			if "DESC-ByP-C-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_C", self.get_method("DESC-ByP-C-noPK"))
+			if "DESC-ByP-D-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_D", self.get_method("DESC-ByP-D-noPK"))
+			if "BGSU-ByP-A-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_A", self.get_method("BGSU-ByP-A-noPK"))
+			if "BGSU-ByP-B-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_B", self.get_method("BGSU-ByP-B-noPK"))
+			if "BGSU-ByP-C-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_C", self.get_method("BGSU-ByP-C-noPK"))
+			if "BGSU-ByP-D-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_D", self.get_method("BGSU-ByP-D-noPK"))
+			if "BGSU-Jar3d-A-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_A", self.get_method("BGSU-Jar3d-A-noPK"))
+			if "BGSU-Jar3d-B-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_B", self.get_method("BGSU-Jar3d-B-noPK"))
+			if "BGSU-Jar3d-C-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_C", self.get_method("BGSU-Jar3d-C-noPK"))
+			if "BGSU-Jar3d-B-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_D", self.get_method("BGSU-Jar3d-D-noPK"))
 
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_A", self.get_method("RIN-D.P.-A-noPK"))
-			self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_B", self.get_method("RIN-D.P.-B-noPK"))
+			if "RIN-D.P.-A-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_A", self.get_method("RIN-D.P.-A-noPK"))
+			if "RIN-D.P.-B-noPK" in self.meth_idx.keys():
+				self.load_biorseo_results(outputDir + "noPK/" + self.basename + ".biorseo_rin_raw_B", self.get_method("RIN-D.P.-B-noPK"))
 
 	def has_complete_results(self, with_PK):
 		if not with_PK:
@@ -459,14 +496,14 @@ class RNA:
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".moipc"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_raw_A"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_raw_B"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_A"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_B"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_C"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_D"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_A"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_B"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_C"): return False
-			# if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_D"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_A"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_B"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_C"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_desc_byp_D"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_A"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_B"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_C"): return False
+			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_byp_D"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_A"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_B"): return False
 			if not path.isfile(outputDir + "noPK/" + self.basename + ".biorseo_bgsu_jar3d_C"): return False
@@ -479,14 +516,14 @@ class RNA:
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biok"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_A"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_raw_B"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_B"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_C"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_D"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_A"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_B"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_C"): return False
-			# if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_D"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_A"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_B"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_C"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_desc_byp_D"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_A"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_B"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_C"): return False
+			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_byp_D"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_A"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_B"): return False
 			if not path.isfile(outputDir + "PK/" + self.basename + ".biorseo_bgsu_jar3d_C"): return False
@@ -528,7 +565,9 @@ def execute_job(j):
 		start_time = time.time()
 		r = subprocess.run(j.cmd_, timeout=j.timeout_)
 		end_time = time.time()
-		if r != 0:
+		if r.returncode != 0:
+			if r.stderr is not None:
+				print(r.stderr, flush=True)
 			print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\tIssue faced with {j.label}, skipping it and adding it to known issues (if not known).")
 			with n_launched.get_lock():
 				n_launched.value -= 1
@@ -1070,7 +1109,7 @@ def load_from_dbn(file, header_style=3):
 
 def get_bpRNA_statistics(include_noPK=True):
 
-	print("\nLoading RNA Strand results from files...")
+	print("\nLoading bpRNA results from files...")
 
 	# load results in objects
 	for instance in bpRNAContainer:
@@ -1081,25 +1120,25 @@ def get_bpRNA_statistics(include_noPK=True):
 
 	# Get max MCCs for each method without PK, and see who is complete
 	x_noPK = [
-		[ rna.get_method("RNAsubopt").max_mcc for rna in bpRNAContainer if rna.get_method("RNAsubopt").n_pred ],
-		[ rna.get_method("RNA-MoIP (1by1)").max_mcc for rna in bpRNAContainer if rna.get_method("RNA-MoIP (1by1)").n_pred ],
-		[ rna.get_method("RNA-MoIP (chunk)").max_mcc for rna in bpRNAContainer if rna.get_method("RNA-MoIP (chunk)").n_pred ],
-		[ rna.get_method("DESC-D.P.-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-D.P.-A-noPK").n_pred ],
-		[ rna.get_method("DESC-D.P.-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-D.P.-B-noPK").n_pred ],
-		[ rna.get_method("DESC-ByP-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-A-noPK").n_pred ],
-		[ rna.get_method("DESC-ByP-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-B-noPK").n_pred ],
-		[ rna.get_method("DESC-ByP-C-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-C-noPK").n_pred ],
-		[ rna.get_method("DESC-ByP-D-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-D-noPK").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-A-noPK").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-B-noPK").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-C-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-C-noPK").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-D-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-D-noPK").n_pred ],
-		[ rna.get_method("BGSU-ByP-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-A-noPK").n_pred ],
-		[ rna.get_method("BGSU-ByP-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-B-noPK").n_pred ],
-		[ rna.get_method("BGSU-ByP-C-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-C-noPK").n_pred ],
-		[ rna.get_method("BGSU-ByP-D-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-D-noPK").n_pred ],
-		[ rna.get_method("RIN-D.P.-A-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("RIN-D.P.-A-noPK").n_pred ],
-		[ rna.get_method("RIN-D.P.-B-noPK").max_mcc  for rna in bpRNAContainer if rna.get_method("RIN-D.P.-B-noPK").n_pred ],
+		[ rna.get_method("RNAsubopt").max_mcc if rna.get_method("RNAsubopt").n_pred else print(rna.basename, "has no RNAsubopt structure (linear)") for rna in bpRNAContainer if rna.get_method("RNAsubopt").n_pred ],
+		[ rna.get_method("RNA-MoIP (1by1)").max_mcc if rna.get_method("RNA-MoIP (1by1)").n_pred else print(rna.basename, "has no RNA-MoIP (1by1)") for rna in bpRNAContainer if rna.get_method("RNA-MoIP (1by1)").n_pred ],
+		[ rna.get_method("RNA-MoIP (chunk)").max_mcc if rna.get_method("RNA-MoIP (chunk)").n_pred else print(rna.basename, "has no RNA-MoIP (chunk)") for rna in bpRNAContainer if rna.get_method("RNA-MoIP (chunk)").n_pred ],
+		[ rna.get_method("DESC-D.P.-A-noPK").max_mcc  if rna.get_method("DESC-D.P.-A-noPK").n_pred else print(rna.basename, "has no DESC-D.P.-A-noPK") for rna in bpRNAContainer if rna.get_method("DESC-D.P.-A-noPK").n_pred ],
+		[ rna.get_method("DESC-D.P.-B-noPK").max_mcc  if rna.get_method("DESC-D.P.-B-noPK").n_pred else print(rna.basename, "has no DESC-D.P.-B-noPK") for rna in bpRNAContainer if rna.get_method("DESC-D.P.-B-noPK").n_pred ],
+		[ rna.get_method("DESC-ByP-A-noPK").max_mcc  if rna.get_method("DESC-ByP-A-noPK").n_pred else print(rna.basename, "has no DESC-ByP-A-noPK") for rna in bpRNAContainer if rna.get_method("DESC-ByP-A-noPK").n_pred ],
+		[ rna.get_method("DESC-ByP-B-noPK").max_mcc  if rna.get_method("DESC-ByP-B-noPK").n_pred else print(rna.basename, "has no DESC-ByP-B-noPK") for rna in bpRNAContainer if rna.get_method("DESC-ByP-B-noPK").n_pred ],
+		[ rna.get_method("DESC-ByP-C-noPK").max_mcc  if rna.get_method("DESC-ByP-C-noPK").n_pred else print(rna.basename, "has no DESC-ByP-C-noPK") for rna in bpRNAContainer if rna.get_method("DESC-ByP-C-noPK").n_pred ],
+		[ rna.get_method("DESC-ByP-D-noPK").max_mcc  if rna.get_method("DESC-ByP-D-noPK").n_pred else print(rna.basename, "has no DESC-ByP-D-noPK") for rna in bpRNAContainer if rna.get_method("DESC-ByP-D-noPK").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-A-noPK").max_mcc  if rna.get_method("BGSU-Jar3d-A-noPK").n_pred else print(rna.basename, "has no BGSU-Jar3d-A-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-A-noPK").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-B-noPK").max_mcc  if rna.get_method("BGSU-Jar3d-B-noPK").n_pred else print(rna.basename, "has no BGSU-Jar3d-B-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-B-noPK").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-C-noPK").max_mcc  if rna.get_method("BGSU-Jar3d-C-noPK").n_pred else print(rna.basename, "has no BGSU-Jar3d-C-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-C-noPK").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-D-noPK").max_mcc  if rna.get_method("BGSU-Jar3d-D-noPK").n_pred else print(rna.basename, "has no BGSU-Jar3d-D-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-D-noPK").n_pred ],
+		[ rna.get_method("BGSU-ByP-A-noPK").max_mcc  if rna.get_method("BGSU-ByP-A-noPK").n_pred else print(rna.basename, "has no BGSU-ByP-A-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-A-noPK").n_pred ],
+		[ rna.get_method("BGSU-ByP-B-noPK").max_mcc  if rna.get_method("BGSU-ByP-B-noPK").n_pred else print(rna.basename, "has no BGSU-ByP-B-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-B-noPK").n_pred ],
+		[ rna.get_method("BGSU-ByP-C-noPK").max_mcc  if rna.get_method("BGSU-ByP-C-noPK").n_pred else print(rna.basename, "has no BGSU-ByP-C-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-C-noPK").n_pred ],
+		[ rna.get_method("BGSU-ByP-D-noPK").max_mcc  if rna.get_method("BGSU-ByP-D-noPK").n_pred else print(rna.basename, "has no BGSU-ByP-D-noPK") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-D-noPK").n_pred ],
+		[ rna.get_method("RIN-D.P.-A-noPK").max_mcc  if rna.get_method("RIN-D.P.-A-noPK").n_pred else print(rna.basename, "has no RIN-D.P.-A-noPK") for rna in bpRNAContainer if rna.get_method("RIN-D.P.-A-noPK").n_pred ],
+		[ rna.get_method("RIN-D.P.-B-noPK").max_mcc  if rna.get_method("RIN-D.P.-B-noPK").n_pred else print(rna.basename, "has no RIN-D.P.-B-noPK") for rna in bpRNAContainer if rna.get_method("RIN-D.P.-B-noPK").n_pred ],
 	]
 
 	x_noPK_fully = [
@@ -1164,24 +1203,24 @@ def get_bpRNA_statistics(include_noPK=True):
 
 	# Get max MCCs for each method with PK, and see who is complete
 	x_PK = [
-		[ rna.get_method("Biokop").max_mcc for rna in bpRNAContainer if rna.get_method("Biokop").n_pred ],
-		[],
-		[ rna.get_method("DESC-D.P.-A").max_mcc for rna in bpRNAContainer if rna.get_method("DESC-D.P.-A").n_pred ],
-		[ rna.get_method("DESC-D.P.-B").max_mcc for rna in bpRNAContainer if rna.get_method("DESC-D.P.-B").n_pred ],
-		[ rna.get_method("DESC-ByP-A").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-A").n_pred ],
-		[ rna.get_method("DESC-ByP-B").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-B").n_pred ],
-		[ rna.get_method("DESC-ByP-C").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-C").n_pred ],
-		[ rna.get_method("DESC-ByP-D").max_mcc  for rna in bpRNAContainer if rna.get_method("DESC-ByP-D").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-A").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-A").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-B").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-B").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-C").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-C").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-D").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-D").n_pred ],
-		[ rna.get_method("BGSU-ByP-A").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-A").n_pred ],
-		[ rna.get_method("BGSU-ByP-B").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-B").n_pred ],
-		[ rna.get_method("BGSU-ByP-C").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-C").n_pred ],
-		[ rna.get_method("BGSU-ByP-D").max_mcc  for rna in bpRNAContainer if rna.get_method("BGSU-ByP-D").n_pred ],
-		[ rna.get_method("RIN-D.P.-A").max_mcc for rna in bpRNAContainer if rna.get_method("RIN-D.P.-A").n_pred ],
-		[ rna.get_method("RIN-D.P.-B").max_mcc for rna in bpRNAContainer if rna.get_method("RIN-D.P.-B").n_pred ],
+		[ rna.get_method("Biokop").max_mcc if rna.get_method("Biokop").n_pred else print(rna.basename, "has no Biokop") for rna in bpRNAContainer if rna.get_method("Biokop").n_pred ],
+		[], [], 
+		[ rna.get_method("DESC-D.P.-A").max_mcc if rna.get_method("DESC-D.P.-A").n_pred else print(rna.basename, "has no DESC-D.P.-A") for rna in bpRNAContainer if rna.get_method("DESC-D.P.-A").n_pred ],
+		[ rna.get_method("DESC-D.P.-B").max_mcc if rna.get_method("DESC-D.P.-B").n_pred else print(rna.basename, "has no DESC-D.P.-B") for rna in bpRNAContainer if rna.get_method("DESC-D.P.-B").n_pred ],
+		[ rna.get_method("DESC-ByP-A").max_mcc  if rna.get_method("DESC-ByP-A").n_pred else print(rna.basename, "has no DESC-ByP-A") for rna in bpRNAContainer if rna.get_method("DESC-ByP-A").n_pred ],
+		[ rna.get_method("DESC-ByP-B").max_mcc  if rna.get_method("DESC-ByP-B").n_pred else print(rna.basename, "has no DESC-ByP-B") for rna in bpRNAContainer if rna.get_method("DESC-ByP-B").n_pred ],
+		[ rna.get_method("DESC-ByP-C").max_mcc  if rna.get_method("DESC-ByP-C").n_pred else print(rna.basename, "has no DESC-ByP-C") for rna in bpRNAContainer if rna.get_method("DESC-ByP-C").n_pred ],
+		[ rna.get_method("DESC-ByP-D").max_mcc  if rna.get_method("DESC-ByP-D").n_pred else print(rna.basename, "has no DESC-ByP-D") for rna in bpRNAContainer if rna.get_method("DESC-ByP-D").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-A").max_mcc  if rna.get_method("BGSU-Jar3d-A").n_pred else print(rna.basename, "has no BGSU-Jar3d-A") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-A").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-B").max_mcc  if rna.get_method("BGSU-Jar3d-B").n_pred else print(rna.basename, "has no BGSU-Jar3d-B") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-B").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-C").max_mcc  if rna.get_method("BGSU-Jar3d-C").n_pred else print(rna.basename, "has no BGSU-Jar3d-C") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-C").n_pred ],
+		[ rna.get_method("BGSU-Jar3d-D").max_mcc  if rna.get_method("BGSU-Jar3d-D").n_pred else print(rna.basename, "has no BGSU-Jar3d-D") for rna in bpRNAContainer if rna.get_method("BGSU-Jar3d-D").n_pred ],
+		[ rna.get_method("BGSU-ByP-A").max_mcc  if rna.get_method("BGSU-ByP-A").n_pred else print(rna.basename, "has no BGSU-ByP-A") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-A").n_pred ],
+		[ rna.get_method("BGSU-ByP-B").max_mcc  if rna.get_method("BGSU-ByP-B").n_pred else print(rna.basename, "has no BGSU-ByP-B") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-B").n_pred ],
+		[ rna.get_method("BGSU-ByP-C").max_mcc  if rna.get_method("BGSU-ByP-C").n_pred else print(rna.basename, "has no BGSU-ByP-C") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-C").n_pred ],
+		[ rna.get_method("BGSU-ByP-D").max_mcc  if rna.get_method("BGSU-ByP-D").n_pred else print(rna.basename, "has no BGSU-ByP-D") for rna in bpRNAContainer if rna.get_method("BGSU-ByP-D").n_pred ],
+		[ rna.get_method("RIN-D.P.-A").max_mcc if rna.get_method("RIN-D.P.-A").n_pred else print(rna.basename, "has no RIN-D.P.-A") for rna in bpRNAContainer if rna.get_method("RIN-D.P.-A").n_pred ],
+		[ rna.get_method("RIN-D.P.-B").max_mcc if rna.get_method("RIN-D.P.-B").n_pred else print(rna.basename, "has no RIN-D.P.-B") for rna in bpRNAContainer if rna.get_method("RIN-D.P.-B").n_pred ],
 	]
 
 	# We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
@@ -1259,27 +1298,27 @@ def get_Pseudobase_statistics():
 	RNAs_fully_predicted_Pseudobase = [ x for x in PseudobaseContainer if x.has_complete_results(True)]
 
 	x_pseudobase = [
-		[ rna.get_method("Biokop").max_mcc for rna in PseudobaseContainer if rna.get_method("Biokop").n_pred ],
+		[ rna.get_method("Biokop").max_mcc if rna.get_method("Biokop").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
 		[],
-		[ rna.get_method("RNAsubopt").max_mcc for rna in PseudobaseContainer if rna.get_method("RNAsubopt").n_pred ],
-		[ rna.get_method("RNA-MoIP (1by1)").max_mcc for rna in PseudobaseContainer if rna.get_method("RNA-MoIP (1by1)").n_pred ],
-		[ rna.get_method("RNA-MoIP (chunk)").max_mcc for rna in PseudobaseContainer if rna.get_method("RNA-MoIP (chunk)").n_pred ],
-		[ rna.get_method("DESC-D.P.-A").max_mcc for rna in PseudobaseContainer if rna.get_method("DESC-D.P.-A").n_pred ],
-		[ rna.get_method("DESC-D.P.-B").max_mcc for rna in PseudobaseContainer if rna.get_method("DESC-D.P.-B").n_pred ],
-		[ rna.get_method("DESC-ByP-A").max_mcc  for rna in PseudobaseContainer if rna.get_method("DESC-ByP-A").n_pred ],
-		[ rna.get_method("DESC-ByP-B").max_mcc  for rna in PseudobaseContainer if rna.get_method("DESC-ByP-B").n_pred ],
-		[ rna.get_method("DESC-ByP-C").max_mcc  for rna in PseudobaseContainer if rna.get_method("DESC-ByP-C").n_pred ],
-		[ rna.get_method("DESC-ByP-D").max_mcc  for rna in PseudobaseContainer if rna.get_method("DESC-ByP-D").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-A").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-Jar3d-A").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-B").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-Jar3d-B").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-C").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-Jar3d-C").n_pred ],
-		[ rna.get_method("BGSU-Jar3d-D").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-Jar3d-D").n_pred ],
-		[ rna.get_method("BGSU-ByP-A").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-ByP-A").n_pred ],
-		[ rna.get_method("BGSU-ByP-B").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-ByP-B").n_pred ],
-		[ rna.get_method("BGSU-ByP-C").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-ByP-C").n_pred ],
-		[ rna.get_method("BGSU-ByP-D").max_mcc  for rna in PseudobaseContainer if rna.get_method("BGSU-ByP-D").n_pred ],
-		[ rna.get_method("RIN-D.P.-A").max_mcc for rna in PseudobaseContainer if rna.get_method("RIN-D.P.-A").n_pred ],
-		[ rna.get_method("RIN-D.P.-B").max_mcc for rna in PseudobaseContainer if rna.get_method("RIN-D.P.-B").n_pred ],
+		[ rna.get_method("RNAsubopt").max_mcc if rna.get_method("RNAsubopt").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("RNA-MoIP (1by1)").max_mcc if rna.get_method("RNA-MoIP (1by1)").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("RNA-MoIP (chunk)").max_mcc if rna.get_method("RNA-MoIP (chunk)").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("DESC-D.P.-A").max_mcc if rna.get_method("DESC-D.P.-A").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("DESC-D.P.-B").max_mcc if rna.get_method("DESC-D.P.-B").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("DESC-ByP-A").max_mcc  if rna.get_method("DESC-ByP-A").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("DESC-ByP-B").max_mcc  if rna.get_method("DESC-ByP-B").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("DESC-ByP-C").max_mcc  if rna.get_method("DESC-ByP-C").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("DESC-ByP-D").max_mcc  if rna.get_method("DESC-ByP-D").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-Jar3d-A").max_mcc  if rna.get_method("BGSU-Jar3d-A").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-Jar3d-B").max_mcc  if rna.get_method("BGSU-Jar3d-B").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-Jar3d-C").max_mcc  if rna.get_method("BGSU-Jar3d-C").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-Jar3d-D").max_mcc  if rna.get_method("BGSU-Jar3d-D").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-ByP-A").max_mcc  if rna.get_method("BGSU-ByP-A").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-ByP-B").max_mcc  if rna.get_method("BGSU-ByP-B").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-ByP-C").max_mcc  if rna.get_method("BGSU-ByP-C").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("BGSU-ByP-D").max_mcc  if rna.get_method("BGSU-ByP-D").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("RIN-D.P.-A").max_mcc if rna.get_method("RIN-D.P.-A").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
+		[ rna.get_method("RIN-D.P.-B").max_mcc if rna.get_method("RIN-D.P.-B").n_pred else print(rna.basename, "has no") for rna in bpRNAContainer ],
 	]
 
 	# We ensure having the same number of RNAs in every sample by discarding the one for which computations did not ended/succeeded.
@@ -1656,7 +1695,7 @@ if __name__ == '__main__':
 		# ======= number of solutions, insertion ratio, etc ========================
 
 		n = [
-			[ rna.get_method("Biokop").n_pred  for rna in bpRNAContainer if rna.get_method("Biokop").n_pred  ],
+			[ rna.get_method("Biokop").n_pred for rna in bpRNAContainer  if rna.get_method("Biokop").n_pred  ],
 			[ rna.get_method("RNAsubopt").n_pred  for rna in bpRNAContainer if rna.get_method("RNAsubopt").n_pred ],
 			[ rna.get_method("RNA-MoIP (1by1)").n_pred for rna in bpRNAContainer if rna.get_method("RNA-MoIP (1by1)").n_pred ],
 			[ rna.get_method("RNA-MoIP (chunk)").n_pred for rna in bpRNAContainer if rna.get_method("RNA-MoIP (chunk)").n_pred ],
