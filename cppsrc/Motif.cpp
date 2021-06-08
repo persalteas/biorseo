@@ -381,7 +381,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                         fin = seq.find('&');  
                         subseq = seq.substr(0, fin);
                         seq = seq.substr(fin + 1);
-                        if (subseq.size() >= 1) {
+                        if (subseq.size() >= 2) {
                             components.push_back(subseq); 
                             //std::cout << "subseq: " << subseq << endl;
                         } else {
@@ -389,7 +389,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                             //std::cout << "error too short1" << endl;
                         }
                     } 
-                    if (seq.size() >= 1) {
+                    if (seq.size() >= 2) {
                         components.push_back(seq);
                         //std::cout << "subseq: " << seq << endl;
                     } else {
