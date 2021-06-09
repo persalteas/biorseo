@@ -376,25 +376,35 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     errors_id.push_back(make_pair(stoi(id), 'l'));
                 } else {
                 string subseq;
-                
-                    while((seq.find('&') != string::npos)) {
-                        fin = seq.find('&');  
-                        subseq = seq.substr(0, fin);
-                        seq = seq.substr(fin + 1);
-                        if (subseq.size() >= 2) {
-                            components.push_back(subseq); 
-                            //std::cout << "subseq: " << subseq << endl;
+                    if (seq.size() > 3) {
+                        while((seq.find('&') != string::npos)) {
+                            fin = seq.find('&');  
+                            subseq = seq.substr(0, fin);
+                            seq = seq.substr(fin + 1);
+                            if (subseq.size() >= 2) {
+                                components.push_back(subseq); 
+                                //std::cout << "subseq: " << subseq << endl;
+                            } else {
+                                errors_id.push_back(make_pair(stoi(id), 'k'));
+                                //std::cout << "error too short1" << endl;
+                            }
+                        } 
+                        if (seq.size() >= 2) {
+                            components.push_back(seq);
+                            //std::cout << "subseq: " << seq << endl;
                         } else {
                             errors_id.push_back(make_pair(stoi(id), 'k'));
-                            //std::cout << "error too short1" << endl;
+                            //std::cout << "error too short2" << endl;
                         }
-                    } 
-                    if (seq.size() >= 2) {
-                        components.push_back(seq);
-                        //std::cout << "subseq: " << seq << endl;
+                        size_t n = 0;
+                        for (uint ii = 0; ii < components.size(); ii++) {
+                            n += components[ii].size();
+                        }
+                        if(n <= 3) {
+                            errors_id.push_back(make_pair(stoi(id), 'k'));
+                        }
                     } else {
                         errors_id.push_back(make_pair(stoi(id), 'k'));
-                        //std::cout << "error too short2" << endl;
                     }
                 }
             }

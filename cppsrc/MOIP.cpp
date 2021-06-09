@@ -377,7 +377,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         case 'E':
             // Fonction f1E
             for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * log2(insertion_sites_[i].tx_occurrences_)) * insertion_dv_[index_of_first_components[i]] ;
+            obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * insertion_sites_[i].tx_occurrences_) * insertion_dv_[index_of_first_components[i]] ;
             break;
 
         case 'F':
@@ -1517,7 +1517,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     string keys[4] = {"contacts", "occurences", "sequence", "struct2d"};
     uint it_errors = 0;
     uint comp;
-    uint max_occ = 0;
+    //uint max_occ = 0;
     //uint max_n = 0;
     uint occ = 0;
 
@@ -1546,7 +1546,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
                 } else if (!test.compare(keys[1])) {
                     occ = it2.value();
-                    max_occ = find_max_occurrences(filepath);
+                    //max_occ = find_max_occurrences(filepath);
                     tx_occurrences = (double)occ; // / (double)max_occ;
                     //cout << "occ: " << tx_occurrences << endl;
     
@@ -1567,7 +1567,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             }
             std::cout << endl;*/
             vresults     = json_find_next_ones_in(rna, 0, component_sequences, component_strucs);
-            r_vresults  = json_find_next_ones_in(reversed_rna, 0, component_sequences, component_strucs);
+            //r_vresults  = json_find_next_ones_in(reversed_rna, 0, component_sequences, component_strucs);
             //std::cout << "vsize: " << vresults.size() << endl;
 
             //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
@@ -1609,7 +1609,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             }*/
             //cout << "size2: " << insertion_sites_.size() << endl;
 
-            for (vector<Component>& v : r_vresults)
+            /*for (vector<Component>& v : r_vresults)
             {
                 Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
                 vector<Link> all_pair = search_pairing(struc2d, v);
@@ -1627,7 +1627,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 unique_lock<mutex> lock(posInsertionSites_access);
                 insertion_sites_.push_back(temp_motif);
                 lock.unlock();
-            }
+            }*/
             component_sequences.clear();
         }
     }
