@@ -11,29 +11,8 @@
 using namespace std;
 using json = nlohmann::json;
 
-bool is_contains_set(set<string>& s1, set<string>& s2) {
-    //cout << "-----begin------" << endl;
-    set<string>::iterator subset;
-    set<string>::iterator it ;
-
-    uint size1 = s1.size();
-    uint size2 = s2.size();
-    
-    if (size1 > size2) {
-        //cout << "size1: " << size1 << ", size2: " << size2 << endl;
-        return false;
-    }
-    for(string s: s1) {
-        //cout << "s1: " << s << endl;
-        if(s2.count(s) == 0) {
-            //cout << "count: " << s2.count(s) << endl;
-            return false;
-        }
-    }
-    //cout << "-----end------" << endl;
-    return true;
-}
-
+//Return true if the first sequence seq1 is included in the second sequence seq2
+//if not return false
 int is_contains(string& seq1, string& seq2) {
 
     uint size1 = seq1.size();
@@ -57,7 +36,8 @@ int is_contains(string& seq1, string& seq2) {
     
 }
 
-
+//If we find the sequence and structure of pattern A in pattern B, we have to concatenate the pfam lists of A and B,
+//remove the duplicates, assign this new list of pfam lists to A, and assign as occurrence to A the size of this list.
 void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
     std::ifstream lib(jsonfile);
     std::ifstream lib2(jsonfile);
@@ -70,6 +50,7 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
     json js = json::parse(lib);
     json js2 = json::parse(lib2);
     
+    //the list of pfam lists of the motif we want to count the inclusion in other motif
     for (auto it = js.begin(); it != js.end(); ++it) {
         string id = it.key();
         string test;
@@ -219,7 +200,8 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                             //cout << "tab[" << ii << "]: " << tab[ii] << endl;
                             tab[ii] = 0;
                         }
-                        //int number_comp[composantes.size()];
+                        //flag is true if the first component is found or if the k component is indeed placed after the k-1 component
+                        //It checks if the found components are in the correct order
                         for (uint k = 0; k < composantes.size() ; k++) {
                             bool flag = false;
                             for (uint l = 0; l < composantes2.size(); l++) {
@@ -242,6 +224,8 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                             }
                         }
                         
+                        // if number equal to the size of the number of component in the motif, it means that the motif is included.
+                        //So we add the intersection of the two pfams list to the motif
                         if(number == composantes.size()) {
                             cout << "id: " << id << " / id2: " << id2 << endl;
                             vector<vector<string>> add_pfams;
