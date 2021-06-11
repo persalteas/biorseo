@@ -563,7 +563,20 @@ def execute_job(j):
 		logfile.close()
 		print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\t{j.label}")
 		start_time = time.time()
-		r = subprocess.run(j.cmd_, timeout=j.timeout_)
+		try:
+			r = subprocess.run(j.cmd_, timeout=j.timeout_)
+		except (subprocess.TimeoutExpired) :
+			print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\tSkipping {j.label}, took more than 3600s. Adding it to known issues (if not known).")
+			with n_launched.get_lock():
+				n_launched.value -= 1
+			with n_skipped.get_lock():
+				n_skipped.value += 1
+			if j.label not in issues:
+				issues.add(j.label)
+				with open("benchmark_results/known_issues.txt", "a") as iss:
+					iss.write(j.label+"\n")
+			end_time = time.time()
+			return
 		end_time = time.time()
 		if r.returncode != 0:
 			if r.stderr is not None:
@@ -1553,21 +1566,16 @@ if __name__ == '__main__':
 			bunch = jobs[i][n]
 			if not len(bunch): continue # ignore if no jobs should be processed n by n
 			print("using", n, "processes:")
-			try :
-				# execute jobs of priority i that should be processed n by n:
-				p = MyPool(initializer = init, initargs = (n_launched, n_finished, n_skipped), processes=n, maxtasksperchild=10)
-				raw_results = p.map(execute_job, bunch)
-				p.close()
-				p.join()
+			# execute jobs of priority i that should be processed n by n:
+			p = MyPool(initializer = init, initargs = (n_launched, n_finished, n_skipped), processes=n, maxtasksperchild=10)
+			raw_results = p.map(execute_job, bunch)
+			p.close()
+			p.join()
 
-				# extract computation times
-				times = [ r[0] for r in raw_results ]
-				for j, t in zip(bunch, times):
-					j.comp_time = t
-
-			except (subprocess.TimeoutExpired) :
-				print("Skipping, took more than 3600s")
-				pass
+			# extract computation times
+			times = [ r[0] for r in raw_results ]
+			for j, t in zip(bunch, times):
+				j.comp_time = t
 
 
 	# ================= Statistics ========================
