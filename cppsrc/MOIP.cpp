@@ -56,8 +56,6 @@ MOIP::MOIP() {}
 
 MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool verbose) : verbose_{verbose}, rna_(rna) 
 {
-
-
     if (!exists(source_path))
     {
         cerr << "!!! Hmh, i can't find that folder: " << source_path << endl;
@@ -1313,8 +1311,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 if (!test.compare(keys[0])) {
                     string contacts = it2.value();
                     nb_contacts = count_contacts(contacts);
-                    //cout << "contacts : " << contacts << endl;
-                    //cout << "nb : " << nb_contacts << endl;
 
                 } else if (!test.compare(keys[1])) {
                     occ = it2.value();
@@ -1334,27 +1330,40 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                     //std::cout << "2d: " << struc2d << endl;
                 }     
             }
-            /*for (uint i = 0; i < component_sequences.size() ; i++) {
-                std::cout << "-" << component_sequences[i] << endl;
-            }
             std::cout << endl;*/
             vresults     = json_find_next_ones_in(rna, 0, component_sequences, component_strucs);
-            //r_vresults  = json_find_next_ones_in(reversed_rna, 0, component_sequences, component_strucs);
-            //std::cout << "vsize: " << vresults.size() << endl;
-
-            //std::cout << "composante: (" << vresults[0][0].pos.first << "," << vresults[0][0].pos.second << ") " << vresults[0][0].k << endl;
 
             for (vector<Component>& v : vresults)
             {
                 //cout << "--------ENTER2-------" << endl;
                 Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
-                vector<Link> all_pair = search_pairing(struc2d, v);
-                temp_motif.links_ = all_pair;
-                /*for (uint i = 0; i < temp_motif.comp.size() ; i++) {
-                    cout << "nb: " << temp_motif.comp[i].nb_pairing << endl;
-                }*/
-                //cout << "nb: " << temp_motif.contact_ << endl;
-                //cout << "tx: " << temp_motif.tx_occurrences_ << endl;
+                temp_motif.links_ = search_pairing(struc2d, v);
+
+                // Now renumber the Links based on the components positions.
+                for (Link& l : temp_motif.links_) {
+                    size_t sum_comp = 0;
+                    size_t j;
+                    for (j=0; j<v.size(); j++) {
+                        const Component& c = v[j];
+                        if (l.nts.first >= sum_comp and l.nts.first < sum_comp + c.k) {
+                            // This is the right component
+                            l.nts.first += c.pos.first - sum_comp;
+                            sum_comp += c.k;
+                            break;
+                        }
+                        sum_comp += c.k;
+                    }
+
+                    for (; j<v.size(); j++) {
+                        const Component& c = v[j];
+                        if (l.nts.second >= sum_comp and l.nts.second < sum_comp + c.k) {
+                            // This is the right component
+                            l.nts.second += c.pos.second - sum_comp;
+                            break;
+                        }
+                        sum_comp += c.k;
+                    }
+                }
 
                 bool unprobable = false;
                 for (const Link& l : temp_motif.links_)
@@ -1368,40 +1377,9 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 // Add it to the results vector
                 unique_lock<mutex> lock(posInsertionSites_access);
                 insertion_sites_.push_back(temp_motif);
-                //cout << "size insertion sites: " << insertion_sites_.size() << endl;
                 lock.unlock();
-                //cout << "--------END2-------" << endl;
             }
-            
-            /*for (uint i = 0; i < insertion_sites_.size(); i++) { 
-                for (uint j = 0; j < insertion_sites_[i].comp.size(); j++) {
-                    cout << "insertion_sites[" << i << "][" << j << "]: " << insertion_sites_[i].comp[j].pos.first << "," << insertion_sites_[i].comp[j].pos.second << endl;
-                }
-                cout << endl;
-            }*/
-            //cout << "size2: " << insertion_sites_.size() << endl;
-
-            /*for (vector<Component>& v : r_vresults)
-            {
-                Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
-                vector<Link> all_pair = search_pairing(struc2d, v);
-                temp_motif.links_ = all_pair;
-
-                bool unprobable = false;
-                for (const Link& l : temp_motif.links_)
-                {
-                    if (!allowed_basepair(l.nts.first,l.nts.second))
-                        unprobable = true;
-                }
-                if (unprobable) continue;
-
-                // Add it to the results vector
-                unique_lock<mutex> lock(posInsertionSites_access);
-                insertion_sites_.push_back(temp_motif);
-                lock.unlock();
-            }*/
             component_sequences.clear();
         }
     }
-    //std::cout << "---------FIN1----------" << endl;
 }
