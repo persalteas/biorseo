@@ -11,31 +11,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-//Return true if the first sequence seq1 is included in the second sequence seq2
-//if not return false
-int is_contains(string& seq1, string& seq2) {
-
-    uint size1 = seq1.size();
-    uint size2 = seq2.size();
-    int index = -1;
-    if (size1 > size2) {
-        //cout << "size1: " << size1 << ", size2: " << size2 << endl;
-        return -1;
-    }
-
-    /*cout << "seq1: " << seq1 << endl;
-    cout << "seq2: " << seq2 << endl;*/
-    index = seq2.find(seq1);
-    if (index == -1) {
-        return -1;
-    } else {
-        //cout << "index: " << index << endl;
-        return index;
-    }
-    return -1;
-    
-}
-
 void delete_redundant_pdb(const string& jsonfile, const string& jsontest, const string& jsonoutfile) {
     std::ifstream lib(jsonfile);
     std::ifstream lib2(jsontest);
