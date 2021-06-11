@@ -555,7 +555,7 @@ void MOIP::define_problem_constraints(string& source)
     if (source == "jsonfolder" or source == "rinfolder") {
         for (size_t i=0; i < insertion_sites_.size(); i++) {
             Motif&  x   = insertion_sites_[i];
-            cout << "\t\t> motif " << i << " " << x.pos_string() << " (" << x.links_.size() << " canonical pairs)";
+            //cout << "\t\t> motif " << i << " " << x.pos_string() << " (" << x.links_.size() << " canonical pairs)";
             
             for (size_t j=0; j < x.comp.size(); j++) {
                 Component& c = x.comp[j];

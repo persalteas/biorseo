@@ -257,7 +257,7 @@ class Method:
 			if not self.allow_pk:
 				c += ["-n"]
 			self.joblist.append(Job(command=c, priority=4, timeout=3600, 
-									how_many_in_parallel=1 if self.flat else 3, 
+									how_many_in_parallel=1 if self.flat else 10, 
 									results = results_file, 
 									label=f"{basename} {self.label}"))
 		
@@ -563,20 +563,7 @@ def execute_job(j):
 		logfile.close()
 		print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\t{j.label}")
 		start_time = time.time()
-		try:
-			r = subprocess.run(j.cmd_, timeout=j.timeout_)
-		except (subprocess.TimeoutExpired) :
-			print(f"[{n_launched.value+n_skipped.value}/{jobcount}]\tSkipping {j.label}, took more than 3600s. Adding it to known issues (if not known).")
-			with n_launched.get_lock():
-				n_launched.value -= 1
-			with n_skipped.get_lock():
-				n_skipped.value += 1
-			if j.label not in issues:
-				issues.add(j.label)
-				with open("benchmark_results/known_issues.txt", "a") as iss:
-					iss.write(j.label+"\n")
-			end_time = time.time()
-			return
+		r = subprocess.run(j.cmd_, timeout=j.timeout_)
 		end_time = time.time()
 		if r.returncode != 0:
 			if r.stderr is not None:
@@ -1443,7 +1430,58 @@ if __name__ == '__main__':
 	fulljoblist = []
 	joblabel_list = set()
 
-	for instance in tqdm(PseudobaseContainer + bpRNAContainer, desc="PK-ready jobs"):
+	for instance in tqdm(bpRNAContainer, desc="bpRNA jobs"):
+		instance.add_method_evaluation(instance, "RNAsubopt", flat=False)
+		instance.add_method_evaluation(instance, "Biokop")
+		instance.add_method_evaluation(instance, "RNA-MoIP (1by1)")
+		instance.add_method_evaluation(instance, "RNA-MoIP (chunk)")
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.",  obj_func="A", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.",  obj_func="A", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.",  obj_func="B", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.",  obj_func="B", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="A", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="A", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="B", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="B", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="C", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="C", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="D", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP",   obj_func="D", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="A", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="A", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="B", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="B", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="C", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="C", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="D", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP",   obj_func="D", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="A", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="A", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="B", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="B", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="C", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="C", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="D", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="D", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN",  placement_method="D.P.",  obj_func="A", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN",  placement_method="D.P.",  obj_func="A", PK=True)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN",  placement_method="D.P.",  obj_func="B", PK=False)
+		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN",  placement_method="D.P.",  obj_func="B", PK=True)
+
+		for method in instance.methods:
+			for i in range(len(method.joblist)):
+				j = method.joblist[i]
+				if j.label in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
+					# for index, job in enumerate(fulljoblist):
+					# 	if job.label == j.label:
+					# 		method.joblist[i] = fulljoblist[index] # point to the previous occurrence
+					# 		break
+					continue
+				else:
+					fulljoblist.append(j)
+					joblabel_list.add(j.label)
+	
+	for instance in tqdm(PseudobaseContainer, desc="Pseudobase jobs"):
 		instance.add_method_evaluation(instance, "RNAsubopt", flat=False)
 		instance.add_method_evaluation(instance, "Biokop")
 		instance.add_method_evaluation(instance, "RNA-MoIP (1by1)")
@@ -1478,37 +1516,6 @@ if __name__ == '__main__':
 					fulljoblist.append(j)
 					joblabel_list.add(j.label)
 
-	for instance in tqdm(bpRNAContainer, desc="Non-PK jobs"):
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="D.P.", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="C", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="DESC", placement_method="ByP", obj_func="D", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="C", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="ByP", obj_func="D", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="B", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="C", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="BGSU", placement_method="Jar3d", obj_func="D", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="A", PK=False)
-		instance.add_method_evaluation(instance, tool="biorseo", data_source="RIN", placement_method="D.P.", obj_func="B", PK=False)
-
-		for method in instance.methods:
-			for i in range(len(method.joblist)):
-				j = method.joblist[i]
-				if j.label in joblabel_list: # look for a duplicate job (Jar3d, BayesPairing, RNAsubopt...)
-					# for index, job in enumerate(fulljoblist):
-					# 	if job.label == j.label:
-					# 		method.joblist[i] = fulljoblist[index] # point to the previous occurrence
-					# 		break
-					continue
-				else:
-					fulljoblist.append(j)
-					joblabel_list.add(j.label)
-	
 	for instance in StudycaseContainer: # We need to define these separately because we do not want concurrency, to measure proper run times.
 		instance.add_method_evaluation(instance, "RNAsubopt", flat=True)
 		instance.add_method_evaluation(instance, "Biokop", flat=True)
@@ -1566,16 +1573,21 @@ if __name__ == '__main__':
 			bunch = jobs[i][n]
 			if not len(bunch): continue # ignore if no jobs should be processed n by n
 			print("using", n, "processes:")
-			# execute jobs of priority i that should be processed n by n:
-			p = MyPool(initializer = init, initargs = (n_launched, n_finished, n_skipped), processes=n, maxtasksperchild=10)
-			raw_results = p.map(execute_job, bunch)
-			p.close()
-			p.join()
+			try :
+				# execute jobs of priority i that should be processed n by n:
+				p = MyPool(initializer = init, initargs = (n_launched, n_finished, n_skipped), processes=n, maxtasksperchild=10)
+				raw_results = p.map(execute_job, bunch)
+				p.close()
+				p.join()
 
-			# extract computation times
-			times = [ r[0] for r in raw_results ]
-			for j, t in zip(bunch, times):
-				j.comp_time = t
+				# extract computation times
+				times = [ r[0] for r in raw_results ]
+				for j, t in zip(bunch, times):
+					j.comp_time = t
+
+			except (subprocess.TimeoutExpired) :
+				print("Skipping, took more than 3600s")
+				pass
 
 
 	# ================= Statistics ========================
