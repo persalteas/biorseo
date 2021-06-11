@@ -135,8 +135,33 @@ Motif::Motif(const vector<Component>& v, path rinfile, uint id, bool reversed) :
 
             links_.push_back(link);
         }
-    }
 
+        // Now renumber the Links based on the components positions.
+        for (Link& l : links_) {
+            size_t sum_comp = 0;
+            size_t j;
+            for (j=0; j<v.size(); j++) {
+                const Component& c = v[j];
+                if (l.nts.first >= sum_comp and l.nts.first < sum_comp + c.k) {
+                    // This is the right component
+                    l.nts.first += c.pos.first - sum_comp;
+                    sum_comp += c.k;
+                    break;
+                }
+                sum_comp += c.k;
+            }
+
+            for (; j<v.size(); j++) {
+                const Component& c = v[j];
+                if (l.nts.second >= sum_comp and l.nts.second < sum_comp + c.k) {
+                    // This is the right component
+                    l.nts.second += c.pos.second - sum_comp;
+                    break;
+                }
+                sum_comp += c.k;
+            }
+        }
+    }
     else cout << "\t> RIN file not found : " << rinfile << endl;
 }
 
@@ -234,8 +259,8 @@ char Motif::is_valid_RIN(const string& rinfile)
     getline(motif, line); //skip the header_comp line
     while (getline(motif, line))
     {
-        // lines are formatted like:
-        // pos;k;seq
+        // components are formatted like:
+        // pos;k;seq (position, length, sequence)
         // 0,1;2;GU
         if (line == "\n") break; //skip last line (empty)
         size_t start = line.find(";") + 1;
@@ -457,7 +482,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
     //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
 
     if (vc.size() > 1) {
-        //cout << "size vc: " << vc.size() << endl; 
+        //cout << "size vc: " << vc.sizef() << endl; 
         if (regex_search(rna, c)) {
             if (vc.size() > 2) {
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
