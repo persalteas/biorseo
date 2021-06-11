@@ -173,6 +173,8 @@ int main(int argc, char* argv[])
 	double             min, max;
 	IloConstraintArray F(myMOIP.get_env());
 
+	// return 0;
+
 	if (verbose)
 		cout << "Solving..." << endl;
 	try {

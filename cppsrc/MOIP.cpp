@@ -557,13 +557,10 @@ void MOIP::define_problem_constraints(string& source)
             Motif&  x   = insertion_sites_[i];
             cout << "\t\t> motif " << i << " " << x.pos_string() << " (" << x.links_.size() << " canonical pairs)";
             
-            size_t sum_comp_size = 0;
             for (size_t j=0; j < x.comp.size(); j++) {
                 Component& c = x.comp[j];
                 IloExpr    c6(env_);
                 uint ax(0);
-                bool to_insert = false;
-                size_t jj;
 
                 for (size_t k=0; k < x.links_.size(); k++) // iterate on the motif links
                 {
@@ -571,49 +568,21 @@ void MOIP::define_problem_constraints(string& source)
                     size_t ntB = x.links_[k].nts.second;
 
                     //check if the component we are in (j) is the first to be linked in the k link
-                    if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
+                    if( c.pos.first <= ntA && ntA <= c.pos.second )
                     {
-                        // Compute coordinate of ntA
-                        size_t ntA_location = c.pos.first + ntA - sum_comp_size; // if we are in the 2nd+ comp, ntA already counted the nucleotides of previous comps. 
-                        size_t ntB_location = -1;
-                        size_t sum_next_comp_size = sum_comp_size;
-
-                        //look for the location of the other linked nucleotide
-                        for (jj = j; jj < x.comp.size(); jj++)
+                        if (allowed_basepair(ntA, ntB))
                         {
-                            //check if the jj component is the second to be linked in the k link
-                            if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
-                            {
-                                ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size;
-                                break;
-                            }
-
-                            sum_next_comp_size += x.comp[jj].k;
-                        }
-
-                        if (allowed_basepair(ntA_location, ntB_location))
-                        {
-                            // cout << "y(" << ntA_location << "," << ntB_location << ")";
-                            c6 += y(ntA_location, ntB_location);
+                            c6 += y(ntA, ntB);
                             ax++;
-                            to_insert = true;
                         }
                         else // a link is unauthorized, the component cannot be inserted
                         {
-                            to_insert = false;
                             ax++;
                             break;
                         }       
                     }
                 }
 
-                sum_comp_size += x.comp[j].k;
-
-                // if (to_insert)
-                // {
-                //     model_.add(c6 >= IloNum(ax) * C(i, j));
-                //     if (verbose_) cout << "\t\t" << (IloNum(ax) * C(i, j) <= c6);
-                // }
                 if (ax > 0) {
                     model_.add(c6 >= IloNum(ax) * C(i, j));
                     if (verbose_) cout << "\t\t" << (IloNum(ax) * C(i, j) <= c6);
@@ -1096,18 +1065,9 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         component_sequences.push_back(line.substr(index+1, string::npos)); // new component sequence
         // std::cout << line.substr(index+1, string::npos) << " ";
     }
-    // std::cout << "\t, found insertion sites of size ";
-
 
     vresults     = find_next_ones_in(rna, 0, component_sequences);
-    // r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
-    // for (vector<Component>& site : vresults) 
-    // {
-    //     std::cout << site.size() << " ";
-    // }
-    // std::cout << " components." << std::endl;
 
-    // std::cout << "--> found occurrences with " << vresults[0].size() << " components." << std::endl;
     for (vector<Component>& v : vresults)
     {
         Motif temp_motif = Motif(v, rinfile, carnaval_id, false);
@@ -1125,24 +1085,6 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         insertion_sites_.push_back(temp_motif);
         lock.unlock();
     }
-
-    // for (vector<Component>& v : r_vresults)
-    // {
-    //     Motif temp_motif = Motif(v, rinfile, carnaval_id, true);
-
-	// 	bool unprobable = false;
-	// 	for (const Link& l : temp_motif.links_)
-	// 	{
-	// 		if (!allowed_basepair(l.nts.first,l.nts.second))
-	// 			unprobable = true;
-	// 	}
-	// 	if (unprobable) continue;
-
-    //     // Add it to the results vector
-    //     unique_lock<mutex> lock(posInsertionSites_access);
-    //     insertion_sites_.push_back(temp_motif);
-    //     lock.unlock();
-    // }
 }
 
 //Temporaire--------------------------------------
