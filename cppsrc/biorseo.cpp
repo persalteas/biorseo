@@ -3,6 +3,7 @@
 		Special thanks to Lénaic Durand for working a lot on version 2.0
 		louis.becquey@univ-evry.fr
 ***/
+#include <cmath> 
 
 #include <algorithm>
 #include <boost/program_options.hpp>
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
 	RNA                myRNA;
 
 	/*  ARGUMENT CHECKING  */
-
+	
 	po::options_description desc("Options");
 	desc.add_options()
 	("help,h", "Print the help message")
@@ -74,6 +75,9 @@ int main(int argc, char* argv[])
 	("seq,s", po::value<string>(&inputName)->required(), "Fasta file containing the RNA sequence")
 	("descfolder,d", po::value<string>(&motifs_path_name), "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")
 	("rinfolder,x", po::value<string>(&motifs_path_name), "A folder containing CaRNAval's RINs in .txt format, as produced by script transform_caRNAval_pickle.py")
+	
+	("jsonfolder,a", po::value<string>(&motifs_path_name), "A folder containing the motif library of Isaure in .json format")
+	
 	("jar3dcsv,j", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by biorseo.py")
 	("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by biorseo.py")
 	("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
@@ -87,6 +91,7 @@ int main(int argc, char* argv[])
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	basename = remove_ext(inputName.c_str(), '.', '/');
+	//theta_p_threshold = 0.01;
 
 	try {
 		po::store(po::parse_command_line(argc, argv, desc), vm);    // can throw
@@ -107,7 +112,7 @@ int main(int argc, char* argv[])
 		if (vm.count("verbose")) verbose = true;
 		if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
 
-		if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder") and !vm.count("rinfolder")) {
+		if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder") and !vm.count("rinfolder") and !vm.count("jsonfolder")) {
 			cerr << "\033[31mYou must provide at least one of --descfolder, --rinfolder, --jar3dcsv or --bayespaircsv.\033[0m See --help "
 					"for more information."
 				 << endl;
@@ -159,8 +164,10 @@ int main(int argc, char* argv[])
 		source = "bayespaircsv";
 	else if (vm.count("rinfolder"))
 		source = "rinfolder";
-	else
+	else if (vm.count("descfolder"))
 		source = "descfolder";
+	else
+		source = "jsonfolder";
 
 	MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), theta_p_threshold, verbose);
 	double             min, max;
@@ -237,10 +244,12 @@ int main(int argc, char* argv[])
 		if (verbose) cout << "Saving structures to " << outputName << "..." << endl;
 		outfile.open(outputName);
 		outfile << fa->name() << endl << fa->seq() << endl;
+		//cout << "----struc----" << endl << myMOIP.solution(0).to_string() << endl;
 		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) outfile << myMOIP.solution(i).to_string() << endl;
 		outfile.close();
 	}
 
+	std::cout << "theta: " << theta_p_threshold << endl;
 	/*  QUIT  */
 
 	return EXIT_SUCCESS;

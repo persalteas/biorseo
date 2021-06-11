@@ -14,7 +14,7 @@ from ast import literal_eval
 try:
     cmd_opts, cmd_args = getopt.getopt( sys.argv[1:],
                                 "bc:f:hi:jl:no:O:pt:v",
-                             [  "verbose","rna3dmotifs","3dmotifatlas","carnaval","jar3d","bayespairing","patternmatch","func=",
+                             [  "verbose","rna3dmotifs","3dmotifatlas","carnaval","contacts","jar3d","bayespairing","patternmatch","func=",
                                 "help","version","seq=","modules-path=", "jar3d-exec=", "bypdir=", "biorseo-dir=", "first-objective=","output=","theta=",
                                 "interrupt-limit=", "outputf="])
 except getopt.GetoptError as err:
@@ -170,6 +170,7 @@ class BiorseoInstance:
         self.IL_motif_dir = "/modules/BGSU/IL/3.2/lib"
         self.desc_folder = "/modules/DESC"
         self.rin_folder = "/modules/RIN/Subfiles"
+        self.json_folder = "/modules/ISAURE"
         self.biorseo_dir = "/biorseo"
         self.run_dir = path.dirname(path.realpath(__file__))
         self.temp_dir = "temp/"
@@ -179,7 +180,7 @@ class BiorseoInstance:
                 print(  "Biorseo, Bi-Objective RNA Structure Efficient Optimizer\n"
                         "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules.\n"
                         "Developped by Louis Becquey (louis.becquey@univ-evry.fr), 2018-2020\n\n")
-                print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs, --carnaval or --3dmotifatlas"
+                print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs, --carnaval, --contacts or --3dmotifatlas"
                       "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
                       "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
                 print()
@@ -190,6 +191,8 @@ class BiorseoInstance:
                 print("--rna3dmotifs\t\t\tUse DESC modules from Djelloul & Denise, 2008")
                 print("--carnaval\t\t\tUse RIN modules from Reinharz & al, 2018")
                 print("--3dmotifatlas\t\t\tUse the HL and IL loops from BGSU's 3D Motif Atlas (updated)")
+                print("--contacts\t\t\tUse .json motif from Isaure")
+
                 print("-p [ --patternmatch ]\t\tUse regular expressions to place modules in the sequence (requires --rna3dmotifs or --carnaval)")
                 print("-j [ --jar3d ]\t\t\tUse JAR3D to place modules in the sequence (requires --3dmotifatlas)")
                 print("-b [ --bayespairing ]\t\tUse BayesPairing2 to place modules in the sequence (requires --rna3dmotifs or --3dmotifatlas)")
@@ -223,7 +226,8 @@ class BiorseoInstance:
                 print("                --patternmatch  --bayespairing    --jar3d")
                 print("--rna3dmotifs     A. B.           A. B. C. D.")
                 print("--3dmotifatlas                    A. B. C. D.     A. B. C. D.")
-                print("--carnaval        A. B.\n")
+                print("--carnaval        A. B.")
+                print("--contacts        A. B. E. D.\n")
                 sys.exit()
             elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg
@@ -232,7 +236,7 @@ class BiorseoInstance:
             elif opt == "-o" or opt == "--output":
                 self.output = absolutize_path(arg) # output file
             elif opt == "-f" or opt == "--func":
-                if arg in ['A', 'B', 'C', 'D']:
+                if arg in ['A', 'B', 'C', 'D', 'E', 'F']:
                     self.func = arg
                 else:
                     raise "Unknown scoring function " + arg
@@ -244,6 +248,8 @@ class BiorseoInstance:
                 self.type = "byp"
             elif opt == "--carnaval":
                 self.modules = "rin"
+            elif opt == "--contacts":
+                self.modules = "json"
             elif opt == "--rna3dmotifs":
                 self.modules = "desc"
             elif opt == "--3dmotifatlas":
@@ -253,6 +259,7 @@ class BiorseoInstance:
                 self.IL_motif_dir = absolutize_path(arg, directory=True) + "IL/3.2/lib"
                 self.desc_folder = absolutize_path(arg, directory=True)
                 self.rin_folder = absolutize_path(arg, directory=True)
+                self.json_folder = absolutize_path(arg, directory=True)
                 print("Looking for modules in", arg)
             elif opt == "--jar3d-exec":
                 self.jar3d_exec = absolutize_path(arg)
@@ -319,24 +326,33 @@ class BiorseoInstance:
             issues = True
             print(warning)
             print("/!\\ Using jar3d requires the 3D Motif Atlas modules. Use --3dmotifatlas instead of --rna3dmotifs or --carnaval.")
+        if (self.modules == "desc" or self.modules == "rin" or self.modules == "bgsu") and (self.func == 'E' or self.func == 'F'):
+            issues = True
+            print(warning)
+            print("/!\\ Functions E and F are only compatible with the contacts library from Isaure.")
         if self.modules == "rin" and self.type != "dpm":
             issues = True
             print(warning)
-            print("/!\\ CaRNAval does not support placement tools (yet). Please use it with --patternmatch, not --jar3d nor --bayespairing.")
+            print("/!\\ CaRNAval does not support placement tools (yet), or scoring tools. Please use it with --patternmatch, not --jar3d nor --bayespairing.")
+        if self.modules == "json" and (self.type != "dpm" or self.func == 'C' or self.func == 'D'):
+            issues = True
+            print(warning)
+            print("/!\\ Contacts does not support placement tools (yet). Please use it with --patternmatch, not --jar3d nor --bayespairing.")
         if self.modules == "bgsu" and self.type == "dpm":
             issues = True
             print(warning)
             print("/!\\ Cannot place the Atlas loops by direct pattern matching. Please use a dedicated tool --jar3d or --bayespairing to do so.")
 
         if issues:
-            print("\nUsage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) one module type in { --rna3dmotifs, --carnaval, --3dmotifatlas }"
+            print("\nUsage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) one module type in { --rna3dmotifs, --carnaval, --3dmotifatlas, --contacts }"
                   "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
                   "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
             print("\nThe allowed module/placement-method/function combinations are:\n")
             print("                --patternmatch  --bayespairing    --jar3d")
             print("--rna3dmotifs     A. B.           A. B. C. D.")
             print("--3dmotifatlas                    A. B. C. D.     A. B. C. D.")
-            print("--carnaval        A. B.\n")
+            print("--carnaval        A. B.")
+            print("--contacts        A. B. E. F.\n")
             exit(1)
 
     def enumerate_loops(self, s):
@@ -774,15 +790,16 @@ class BiorseoInstance:
                     self.mode = 1 # we switch to batch mode
                 header = l[1:-1]
             if c == 0:
-                seq = l[:-1].upper()
+                seq = l.upper()
                 if is_canonical_nts(seq):
                     header = header.replace('/', '_').replace('\'','').replace('(','').replace(')','').replace(' ','_').replace('>','')
-                    RNAcontainer.append(RNA(header, seq))
-                    if not path.isfile(self.temp_dir + header + ".fa"):
-                        rna = open(self.temp_dir + header + ".fa", "w")
-                        rna.write(">" + header +'\n')
-                        rna.write(seq +'\n')
-                        rna.close()
+                    if (header != ""):
+                        RNAcontainer.append(RNA(header, seq))
+                        if not path.isfile(self.temp_dir + header + ".fa"):
+                            rna = open(self.temp_dir + header + ".fa", "w")
+                            rna.write(">" + header +'\n')
+                            rna.write(seq +'\n')
+                            rna.close()
         db.close()
 
         for nt, number in ignored_nt_dict.items():
@@ -837,6 +854,11 @@ class BiorseoInstance:
                     method_type = "--rinfolder"
                     csv = self.rin_folder
                     ext = ".rin_pm"
+
+                elif self.modules == "json":
+                    method_type = "--jsonfolder"
+                    csv = self.json_folder
+                    ext = ".json_pm"
 
             command = [ executable, "-s", fastafile ]
             if method_type:

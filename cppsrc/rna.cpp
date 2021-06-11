@@ -64,9 +64,6 @@ RNA::RNA(string name, string seq, bool verbose)
 }
 
 
-
-
-
 void RNA::print_basepair_p_matrix(float theta) const
 {
 	cout << endl;
