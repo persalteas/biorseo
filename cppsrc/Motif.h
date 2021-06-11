@@ -59,6 +59,7 @@ class Motif
     static vector<pair<uint,char>>          is_valid_JSON(const string& jsonfile);
 
     string            pos_string(void) const;
+    string            sec_struct(void) const;
     string            get_origin(void) const;
     string            get_identifier(void) const;
     vector<Component> comp;

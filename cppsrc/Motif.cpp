@@ -23,7 +23,6 @@ struct recursive_directory_range {
 
 Motif::Motif(void) {}
 
-
 Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 {
     is_model_ = false;
@@ -136,39 +135,6 @@ Motif::Motif(const vector<Component>& v, path rinfile, uint id, bool reversed) :
 
             links_.push_back(link);
         }
-
-
-        getline(file,line); //skip the header_comp line
-        string pos_str, sub_pos_str, k_str, seq;
-
-        while ( std::getline(file,line) )
-        {
-            if (line == "\n") break; //skip last line (empty)
-
-            Component c(0,0);
-
-            //c.pos
-            index         = line.find(";");
-            pos_str     = line.substr(0, index);
-            line.erase(0, index+1);
-
-            sub_index     = pos_str.find(",");
-            sub_pos_str = pos_str.substr(0, sub_index);
-            pos_str.erase(0, sub_index+1);
-            c.pos.first = stoi(sub_pos_str);
-            c.pos.second = stoi(pos_str);
-
-            //c.k
-            index     = line.find(";");
-            k_str     = line.substr(0, index);
-            line.erase(0, index+1);
-            c.k     = stoi(k_str);
-
-            //c.seq_
-            c.seq_ = line;
-
-            comp.push_back(c);
-        }
     }
 
     else cout << "\t> RIN file not found : " << rinfile << endl;
@@ -181,6 +147,24 @@ string Motif::pos_string(void) const
     for (auto c : comp) s << c.pos.first << '-' << c.pos.second << ' ';
     s << ')';
     return s.str();
+}
+
+string Motif::sec_struct(void) const 
+{
+    // Fill a string of the right size with dots
+    string secstruct = string("");
+    secstruct += to_string(comp.size()) + string(" components: ");
+    for (auto c : comp) {
+        for (uint k = c.pos.first; k<=c.pos.second; k++) secstruct += ".";
+        secstruct += " ";
+    }
+
+    // Replace dots by brackets
+    secstruct += "basepairs:";
+    for (auto l : links_) {
+        secstruct += '\t' + to_string(l.nts.first) + '-' + to_string(l.nts.second);
+    }
+    return secstruct;
 }
 
 string Motif::get_identifier(void) const
@@ -322,7 +306,6 @@ bool checkSecondaryStructure(string struc)
     }
     return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
-
 
 //--------------------------------------------------------------
 vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
@@ -651,8 +634,6 @@ bool operator==(const Component& c1, const Component& c2)
 }
 
 bool operator!=(const Component& c1, const Component& c2) { return not(c1 == c2); }
-
-
 
 bool operator==(const Motif& m1, const Motif& m2)
 {

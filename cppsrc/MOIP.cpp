@@ -54,10 +54,10 @@ unsigned getNumConstraints(IloModel& m)
 
 MOIP::MOIP() {}
 
-
-
 MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool verbose) : verbose_{verbose}, rna_(rna) 
 {
+
+
     if (!exists(source_path))
     {
         cerr << "!!! Hmh, i can't find that folder: " << source_path << endl;
@@ -87,13 +87,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
-    /*for (uint ii = 0; ii < rna_.get_RNA_length() ; ii++) {
-        for (uint jj = 0; jj < rna_.get_RNA_length() ; jj++) {
-            cout << "(" << ii << "," << jj ") : " << rna_.get_pij(i, j) << endl;
-        }
-    }*/
-
-    //cout << endl << "rna: " << rna_.get_RNA_length() << endl;
     if (verbose_) cout << endl;
 
     // Look for insertions sites, then create the appropriate Cxip variables
@@ -207,7 +200,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 			{
 				if (verbose)
                 {
-                    cerr << "\t>Ignoring RIN " << it.path().stem();
+                    cerr << "\t> Ignoring RIN " << it.path().stem();
                     switch (error)
                     {
                         case 'l': cerr << ", too short to be considered."; break;
@@ -234,7 +227,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
         }
     }
-   
     else if (source == "jsonfolder")
     {
         //cout << "-------------BEGIN-----------------" << endl;
@@ -296,8 +288,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
         }
     }
-    //CONTACTS
-
     else
     {
         cout << "!!! Problem with the source" << endl;
@@ -311,7 +301,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     for (uint p = 0; p < insertion_sites_.size(); ++p) {
         const Motif& m = insertion_sites_[p];
 
-        if (verbose_) cout << "\t\t> " << m.get_identifier() << '\t' << m.pos_string() << endl;
+        if (verbose_) cout << "\t\t> " << m.get_identifier() << '\t' << m.pos_string() << '\t' << m.sec_struct() << endl;
         index_of_first_components.push_back(i);
         index_of_Cxip_.push_back(vector<size_t>(0)); // A vector of size 0 (empty)
 
@@ -401,8 +391,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
 MOIP::~MOIP() { env_.end(); }
 
-
-
 bool MOIP::is_undominated_yet(const SecondaryStructure& s)
 {
     for (SecondaryStructure& x : pareto_) {
@@ -438,7 +426,7 @@ void MOIP::define_problem_constraints(string& source)
     }
 
     // forbid lonely basepairs if databases other than CaRNAval are being used
-    if (source != "rinfolder")
+    if (source != "rinfolder" and source != "jsonfolder")
     {
         if (verbose_) cout << "\t> forbidding lonely basepairs..." << endl;
         for (u = 0; u < n - 5; u++)
@@ -457,7 +445,13 @@ void MOIP::define_problem_constraints(string& source)
     }
 
     // Forbid pairings inside every motif component if included
-    if (verbose_) cout << "\t> forbidding basepairs inside included motif's components..." << endl;
+    if (verbose_) {
+        if (source == "jsonfolder" or source == "rinfolder") {
+            cout << "\t> forbidding basepairs inside a motif component if they are not explicitly part of the motif..." << endl;
+        } else {
+            cout << "\t> forbidding basepairs inside included motif's components..." << endl;
+        }
+    }
     for (size_t i = 0; i < insertion_sites_.size(); i++)
     {
         Motif& x = insertion_sites_[i];
@@ -469,8 +463,7 @@ void MOIP::define_problem_constraints(string& source)
             IloNum     kxi = IloNum(c.k);
             
             uint count = 0;
-            //uint count2 = 0;
-            if (source == "jsonfolder") {
+            if (source == "jsonfolder" or source == "rinfolder") {
                 c3 += kxi * C(i, j);
                 for (u = c.pos.first ; u <= c.pos.second; u++)
                     for (v = 0; v < n; v++)
@@ -479,18 +472,15 @@ void MOIP::define_problem_constraints(string& source)
                         {
                             bool is_link = false;
                             for (Link link : x.links_)
-                                if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
+                                if ((u == link.nts.first and v == link.nts.second) or (u == link.nts.second and v == link.nts.first))
                                 {
                                     is_link = true;
-                                    //count2++;
                                     break;
                                 }
 
                             if (!is_link)
                             {
                                 c3 += y(u, v);
-                                //if(u == 6 && v == 41)
-                                //cout << "C3: y(" << u << "," << v << ")" << endl;
                                 count++;
                             }
                         
@@ -503,42 +493,22 @@ void MOIP::define_problem_constraints(string& source)
                     {
                         if (allowed_basepair(u,v))
                         {
-                            if (source != "rinfolder" && source != "jsonfolder")
-                            {
-                                c3 += y(u, v);
-                                count++;
-                            }
-
-                            else
-                            {
-                                bool is_link = false;
-                                for (Link link : x.links_)
-                                    if ((u==link.nts.first and v==link.nts.second) or (u==link.nts.second and v==link.nts.first))
-                                    {
-                                        is_link = true;
-                                        break;
-                                    }
-
-                                if (!is_link)
-                                {
-                                    c3 += y(u, v);
-                                    //if(u == 6 && v == 41)
-                                    //cout << "C3: y(" << u << "," << v << ")" << endl;
-                                    count++;
-                                }
-                            }
+                            c3 += y(u, v);
+                            count++;
                         }
                     }
             }
             if (count > 0)
-            {   if(source == "jsonfolder")
-                    model_.add(c3 <= kxi);
-                else 
-                    model_.add(c3 <= (kxi - IloNum(2)));
-                //model_.add(c3 * C(i, j) <= 0);
+            {   
                 if (verbose_) cout << "\t\t";
                 if (verbose_) cout << x.get_identifier() << '-' << j << ": ";
-                if (verbose_) cout << (c3 <= kxi) << endl;
+                if(source == "jsonfolder" or source == "rinfolder") {
+                    if (verbose_) cout << (c3 <= kxi) << endl;
+                    model_.add(c3 <= kxi);
+                } else { 
+                    if (verbose_) cout << (c3 <= (kxi - IloNum(2))) << endl;
+                    model_.add(c3 <= (kxi - IloNum(2)));
+                }
             }
         }
     }
@@ -582,58 +552,39 @@ void MOIP::define_problem_constraints(string& source)
 
     // basepairs between components
     if (verbose_) cout << "\t> forcing basepairs imposed by a module insertion..." << endl;
-
-    if (source == "rinfolder")
-    {
-        for (size_t i=0; i < insertion_sites_.size(); i++)
-        {
-            //cout << "------------------------i: " << i << "--------------------------" << endl;
+    if (source == "jsonfolder" or source == "rinfolder") {
+        for (size_t i=0; i < insertion_sites_.size(); i++) {
             Motif&  x   = insertion_sites_[i];
-            //IloExpr c6p = IloExpr(env_);
-
-            vector<size_t> weights(x.comp.size(), 0);
-            vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
-            //cout << "comp size: " << x.comp.size() << endl;
-
+            cout << "\t\t> motif " << i << " " << x.pos_string() << " (" << x.links_.size() << " canonical pairs)";
+            
             size_t sum_comp_size = 0;
-
-            for (size_t j=0; j < x.comp.size(); j++)
-            {
-                /*cout << "------------------j: " << j << "-------------------" << endl;
-                cout << "sum_comp_size : " << sum_comp_size << endl;*/
-                IloExpr c6 = IloExpr(env_);
+            for (size_t j=0; j < x.comp.size(); j++) {
+                Component& c = x.comp[j];
+                IloExpr    c6(env_);
+                uint ax(0);
                 bool to_insert = false;
                 size_t jj;
 
-                for (size_t k=0; k < x.links_.size(); k++)
+                for (size_t k=0; k < x.links_.size(); k++) // iterate on the motif links
                 {
-                    //cout << "------------------k: " << k << "-------------------" << endl;
                     size_t ntA = x.links_[k].nts.first;
                     size_t ntB = x.links_[k].nts.second;
-                    /*cout << "---ntA : " << ntA << endl;
-                    cout << "---ntB : " << ntB << endl;
-                    cout << "---x.comp[j].k : " << x.comp[j].k << endl;
-                    cout << "---x.comp[j].pos.first : " << x.comp[j].pos.first << endl;
-                    cout << "---x.comp[j].pos.second : " << x.comp[j].pos.second << endl;*/
 
-                    //check if the j component is the first to be linked in the k link
+                    //check if the component we are in (j) is the first to be linked in the k link
                     if( sum_comp_size <= ntA && ntA < sum_comp_size + x.comp[j].k )
                     {
-                        size_t ntA_location = x.comp[j].pos.first + ntA - sum_comp_size;
+                        // Compute coordinate of ntA
+                        size_t ntA_location = c.pos.first + ntA - sum_comp_size; // if we are in the 2nd+ comp, ntA already counted the nucleotides of previous comps. 
                         size_t ntB_location = -1;
-
                         size_t sum_next_comp_size = sum_comp_size;
 
                         //look for the location of the other linked nucleotide
                         for (jj = j; jj < x.comp.size(); jj++)
                         {
-                            //cout << "------------------jj: " << jj << "-------------------" << endl;
                             //check if the jj component is the second to be linked in the k link
                             if( sum_next_comp_size <= ntB && ntB < sum_next_comp_size + x.comp[jj].k )
                             {
                                 ntB_location = x.comp[jj].pos.first + ntB - sum_next_comp_size;
-                                /*cout << "nta_location: " << ntA_location << endl;
-                                cout << "ntb_location: " << ntB_location << endl << endl;*/
                                 break;
                             }
 
@@ -642,155 +593,33 @@ void MOIP::define_problem_constraints(string& source)
 
                         if (allowed_basepair(ntA_location, ntB_location))
                         {
-                            //cout << "TRUE" << endl;
-                            cout << "y(" << ntA_location << "," << ntB_location << ")" << endl;
+                            // cout << "y(" << ntA_location << "," << ntB_location << ")";
                             c6 += y(ntA_location, ntB_location);
+                            ax++;
                             to_insert = true;
-                            
                         }
-
-                        else //a link is unauthorized, the component cannot be inserted
+                        else // a link is unauthorized, the component cannot be inserted
                         {
                             to_insert = false;
+                            ax++;
                             break;
-                        }
+                        }       
                     }
                 }
 
                 sum_comp_size += x.comp[j].k;
 
-                if (to_insert)
-                {
-                    if (j==jj)
-                    {
-                        //model_.add(C(i,j) <= c6);
-                        //weights[j] += 2;
-                        weights[j] += 1;
-                        expressions[j].push_back(c6);
-                        
-                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
-                    }
-                    else
-                    {
-                        //model_.add(C(i,j) <= c6);
-                        weights[j] += 1;
-                        expressions[j].push_back(c6);
-                        //if (verbose_) cout << "\t\t" << (C(i, j) <= c6) << endl;
-                        //model_.add(C(i,jj) <= c6);
-                        weights[jj] += 1;
-                        expressions[jj].push_back(c6);
-                        //if (verbose_) cout << "\t\t" << (C(i, jj) <= c6) << endl;
-                    }
-                }
-            }
-
-            for (size_t j=0; j < x.comp.size(); j++) {
-                if (weights[j] != 0) 
-                    if (expressions[j].size() != 0) {
-                        //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
-                        for (size_t k=0; k < expressions[j].size(); k++)
-                        {
-                            model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
-                            if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
-                        }
-                    }
-            }
-        }
-    }
-
-    else if (source == "jsonfolder") {
-        for (size_t i=0; i < insertion_sites_.size(); i++) {
-            //cout << endl << "-------------------------------i: " << i << "-------------------------------" << endl;
-            Motif&  x   = insertion_sites_[i];
-            
-            //IloExpr c6p = IloExpr(env_);
-            for (size_t j=0; j < x.comp.size(); j++) {
-                Component& c = x.comp[j];
-                IloExpr    c6(env_);
-                IloNum     ax = IloNum(c.nb_pairing);
-
-                if(c.nb_pairing > 0) {
-                    for (u = c.pos.first ; u <= c.pos.second; u++) {
-                        for (v = 0; v < n; v++)
-                        {
-                            if (allowed_basepair(u,v))
-                            {
-                                for (Link link : x.links_) {
-                                        if (u == link.nts.first and v == link.nts.second)
-                                        {   
-                                            //cout << "y(" << u << "," << v << ")" << endl;
-                                            c6 += y(u, v);
-                                            break;   
-                                        }
-                                }
-                            }
-                        }
-                    }
+                // if (to_insert)
+                // {
+                //     model_.add(c6 >= IloNum(ax) * C(i, j));
+                //     if (verbose_) cout << "\t\t" << (IloNum(ax) * C(i, j) <= c6);
+                // }
+                if (ax > 0) {
                     model_.add(c6 >= IloNum(ax) * C(i, j));
-                    if (verbose_) cout << "\t\t" << (IloNum(ax) * C(i, j) <= c6) << endl;
+                    if (verbose_) cout << "\t\t" << (IloNum(ax) * C(i, j) <= c6);
                 }
             }
-            /*vector<vector<IloExpr>> expressions(x.comp.size(), vector<IloExpr>());
-            vector<size_t> weights(x.comp.size(), 0);
-            //cout << "comp size: " << x.comp.size() << endl;
-            //cout << "links size: " << x.links_.size() << endl;
-
-            //size_t sum_comp_size = 0;
-            //cout << "sum_comp_size : " << sum_comp_size << endl;
-            IloExpr c6 = IloExpr(env_);
-            bool to_insert = false;
-            //cout << "-----------------------------------Begin----------------------------------" << endl;
-            for (uint k = 0; k < x.links_.size(); k++) {
-                //cout << "------------------k: " << k << "-------------------" << endl;
-                size_t ntA = x.links_[k].nts.first;
-                size_t ntB = x.links_[k].nts.second;
-
-                //cout << "x.comp[" << j << "]: " << x.comp[j].pos.first << "," << x.comp[j].pos.second << endl;
-                //cout << "ntA: " << ntA << endl << endl;
-                if (allowed_basepair(ntA, ntB))
-                {
-                    //cout << "TRUE" << endl;
-                    //cout << "y(" << ntA << "," << ntB << ")" << endl;
-                    //if (x.comp[j].pos.first <= ntA) {
-                        c6 += y(ntA, ntB);
-                        to_insert = true;
-                    //}
-                    
-                }
-
-                else //a link is unauthorized, the component cannot be inserted
-                {
-                    cout << "FALSE : y(" << ntA << "," << ntB << ")" << endl;
-                    to_insert = false;
-                    break;
-                }      
-            }
-            //cout << "-----------------------------------End----------------------------------" << endl;
-            //weights[j] = k + 1;
-            //sum_comp_size += x.comp[j].k;
-            if (to_insert) {
-                for (uint j = 0; j < x.comp.size(); j++) {
-                
-                    
-                //cout << "TRUE" << endl;
-                weights[j] = x.links_.size();
-                expressions[j].push_back(c6);
-                    
-                }
-            }
-            
-            for (size_t j=0; j < x.comp.size(); j++) {
-                if (expressions[j].size() != 0) {
-                    //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
-                    for (size_t k=0; k < expressions[j].size(); k++)
-                    {
-                        //cout << endl << endl << endl ;
-                        //cout << "expressions[" << j << "].size: " << expressions[j].size() << endl;
-                        model_.add( IloNum(weights[j]) * C(i,j) <= (expressions[j])[k] );
-                        if (verbose_) cout << "\t\t" << (IloNum(weights[j]) * C(i, j) <= (expressions[j])[k]) << endl;
-                    }
-                }
-            }*/
+            if (verbose_) cout << endl;
         }
     }
     else
@@ -1038,11 +867,7 @@ size_t MOIP::get_yuv_index(size_t u, size_t v) const
 
 size_t MOIP::get_Cpxi_index(size_t x_i, size_t i_on_j) const { return index_of_Cxip_[x_i][i_on_j]; }
 
-
-
 void MOIP::remove_solution(uint i) { pareto_.erase(pareto_.begin() + i); }
-
-
 
 bool MOIP::allowed_basepair(size_t u, size_t v) const
 {
@@ -1211,7 +1036,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
     } 
     else 
     {
-        // No multiple motif variants : we serach in a single vector component_sequences
+        // No multiple motif variants : we search in a single vector component_sequences
         // We need to search for the different positions where to insert the first component
         vresults = find_next_ones_in(rna, 0, component_sequences);
     }
@@ -1238,9 +1063,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
 
 void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
 {
-    /*
-        Searches where to place some RINs in the RNA
-    */
+    // Searches where to place some RINs in the RNA
 
     path           rinfile                  = arg_struct.motif_file;
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
@@ -1262,6 +1085,7 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     getline(motif, line); //skip the header_link line
     getline(motif, line); //get the links line
     getline(motif, line); //skip the header_comp line
+    // std::cout << "RIN " << carnaval_id << ": \t";
     while (getline(motif, line))
     {
         // lines are formatted like:
@@ -1270,11 +1094,20 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         if (line == "\n") break; //skip last line (empty)
         size_t index = line.find(';', line.find(';') + 1); // find the second ';'
         component_sequences.push_back(line.substr(index+1, string::npos)); // new component sequence
+        // std::cout << line.substr(index+1, string::npos) << " ";
     }
+    // std::cout << "\t, found insertion sites of size ";
+
 
     vresults     = find_next_ones_in(rna, 0, component_sequences);
-    r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
+    // r_vresults  = find_next_ones_in(reversed_rna, 0, component_sequences);
+    // for (vector<Component>& site : vresults) 
+    // {
+    //     std::cout << site.size() << " ";
+    // }
+    // std::cout << " components." << std::endl;
 
+    // std::cout << "--> found occurrences with " << vresults[0].size() << " components." << std::endl;
     for (vector<Component>& v : vresults)
     {
         Motif temp_motif = Motif(v, rinfile, carnaval_id, false);
@@ -1293,43 +1126,39 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
         lock.unlock();
     }
 
-    for (vector<Component>& v : r_vresults)
-    {
-        Motif temp_motif = Motif(v, rinfile, carnaval_id, true);
+    // for (vector<Component>& v : r_vresults)
+    // {
+    //     Motif temp_motif = Motif(v, rinfile, carnaval_id, true);
 
-		bool unprobable = false;
-		for (const Link& l : temp_motif.links_)
-		{
-			if (!allowed_basepair(l.nts.first,l.nts.second))
-				unprobable = true;
-		}
-		if (unprobable) continue;
+	// 	bool unprobable = false;
+	// 	for (const Link& l : temp_motif.links_)
+	// 	{
+	// 		if (!allowed_basepair(l.nts.first,l.nts.second))
+	// 			unprobable = true;
+	// 	}
+	// 	if (unprobable) continue;
 
-        // Add it to the results vector
-        unique_lock<mutex> lock(posInsertionSites_access);
-        insertion_sites_.push_back(temp_motif);
-        lock.unlock();
-    }
+    //     // Add it to the results vector
+    //     unique_lock<mutex> lock(posInsertionSites_access);
+    //     insertion_sites_.push_back(temp_motif);
+    //     lock.unlock();
+    // }
 }
 
 //Temporaire--------------------------------------
 
 //Check if the sequence is a rna sequence (ATGC) and replace T by U or remove modified nucleotide if necessary
 string check_motif_sequence(string seq) {
-
-std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
-
-
-for (int i = seq.size(); i >= 0; i--) {
-    if(seq[i] == 'T') {
-        seq[i] = 'U';
-    } else if (!(seq [i] == 'A' || seq [i] == 'U' || seq [i] == '&'
-    || seq [i] == 'G' || seq [i] == 'C')) {
-        seq = seq.erase(i,1);
+    std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+    for (int i = seq.size(); i >= 0; i--) {
+        if(seq[i] == 'T') {
+            seq[i] = 'U';
+        } else if (!(seq [i] == 'A' || seq [i] == 'U' || seq [i] == '&'
+        || seq [i] == 'G' || seq [i] == 'C')) {
+            seq = seq.erase(i,1);
+        }
     }
-}
-
-return seq;
+    return seq;
 }
 
 // Based on the 2d structure find all positions of the pairings.
@@ -1484,6 +1313,7 @@ vector<string> find_components(string sequence, string delimiter) {
     }
     return list;
 }
+
 //Temporaire--------------------------------------
 
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
@@ -1551,16 +1381,16 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                     //cout << "occ: " << tx_occurrences << endl;
     
                 } else if (!test.compare(keys[2])){ 
-                        string seq = check_motif_sequence(it2.value());
-                        /*max_n = find_max_sequence(filepath);
-                        tx_occurrences = (double)occ / (double)max_n - seq.size() + 1 ;*/
-                        //std::cout << "seq motif : " << seq << endl;
-                        component_sequences = find_components(seq, "&");
-                    } else if (!test.compare(keys[3])) {
-                        struc2d = it2.value();         
-                        component_strucs = find_components(struc2d, "&"); 
-                        //std::cout << "2d: " << struc2d << endl;
-                    }     
+                    string seq = check_motif_sequence(it2.value());
+                    /*max_n = find_max_sequence(filepath);
+                    tx_occurrences = (double)occ / (double)max_n - seq.size() + 1 ;*/
+                    //std::cout << "seq motif : " << seq << endl;
+                    component_sequences = find_components(seq, "&");
+                } else if (!test.compare(keys[3])) {
+                    struc2d = it2.value();         
+                    component_strucs = find_components(struc2d, "&"); 
+                    //std::cout << "2d: " << struc2d << endl;
+                }     
             }
             /*for (uint i = 0; i < component_sequences.size() ; i++) {
                 std::cout << "-" << component_sequences[i] << endl;
