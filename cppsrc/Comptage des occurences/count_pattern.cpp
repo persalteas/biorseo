@@ -247,9 +247,9 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                             vector<vector<string>> add_pfams;
                             std::set_difference(list_pfams2.begin(), list_pfams2.end(), list_pfams.begin(), list_pfams.end(),
                             std::inserter(add_pfams, add_pfams.begin()));
-                            std::set_union(list_pfams.begin(), list_pfams.end(), add_pfams.begin(), add_pfams.end(),
-                            std::inserter(union_pfams, union_pfams.begin()));
-                            list_pfams = union_pfams;
+                            list_pfams.insert(list_pfams.begin(), add_pfams.begin(), add_pfams.end());
+                            cout << "size: " << list_pfams.size() << endl;
+                            add_pfams.clear();
                             is_change = true;
                         } 
                     }
@@ -257,22 +257,17 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
             }
             //cout << endl;*/
         }
+    
        
-        /*for(uint ii = 0; ii < union_pfams.size(); ii++) {
-            for (uint jj = 0; jj < union_pfams[ii].size(); jj++) {
-                cout << "[" << ii << "][" << jj << "]: " << union_pfams[ii][jj] << endl;
+        /*for(uint ii = 0; ii < list_pfams.size(); ii++) {
+            for (uint jj = 0; jj < list_pfams[ii].size(); jj++) {
+                cout << "[" << ii << "][" << jj << "]: " << list_pfams[ii][jj] << endl;
             }
         }*/
         
-        if (is_change) {
-            new_id["occurences"] = union_pfams.size();
-            new_id["pfam"] = union_pfams;
-        } else {
-            new_id["occurences"] = occurrences;
-            new_id["pfam"] = list_pfams;
-        //}
+        new_id["occurences"] = list_pfams.size();
+        new_id["pfam"] = list_pfams;
                         
-        
         //cout << "-------ending---------" << endl;
         new_motif[id] = new_id;
         new_id.clear();
@@ -296,6 +291,5 @@ int main()
 
     //cout << "------------------END-----------------" << endl;
     return 0;
-
-    
 }
+    
