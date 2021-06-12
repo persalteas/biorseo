@@ -23,7 +23,6 @@ struct recursive_directory_range {
 
 Motif::Motif(void) {}
 
-
 Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
 {
     is_model_ = false;
@@ -137,40 +136,32 @@ Motif::Motif(const vector<Component>& v, path rinfile, uint id, bool reversed) :
             links_.push_back(link);
         }
 
+        // Now renumber the Links based on the components positions.
+        for (Link& l : links_) {
+            size_t sum_comp = 0;
+            size_t j;
+            for (j=0; j<v.size(); j++) {
+                const Component& c = v[j];
+                if (l.nts.first >= sum_comp and l.nts.first < sum_comp + c.k) {
+                    // This is the right component
+                    l.nts.first += c.pos.first - sum_comp;
+                    sum_comp += c.k;
+                    break;
+                }
+                sum_comp += c.k;
+            }
 
-        getline(file,line); //skip the header_comp line
-        string pos_str, sub_pos_str, k_str, seq;
-
-        while ( std::getline(file,line) )
-        {
-            if (line == "\n") break; //skip last line (empty)
-
-            Component c(0,0);
-
-            //c.pos
-            index         = line.find(";");
-            pos_str     = line.substr(0, index);
-            line.erase(0, index+1);
-
-            sub_index     = pos_str.find(",");
-            sub_pos_str = pos_str.substr(0, sub_index);
-            pos_str.erase(0, sub_index+1);
-            c.pos.first = stoi(sub_pos_str);
-            c.pos.second = stoi(pos_str);
-
-            //c.k
-            index     = line.find(";");
-            k_str     = line.substr(0, index);
-            line.erase(0, index+1);
-            c.k     = stoi(k_str);
-
-            //c.seq_
-            c.seq_ = line;
-
-            comp.push_back(c);
+            for (; j<v.size(); j++) {
+                const Component& c = v[j];
+                if (l.nts.second >= sum_comp and l.nts.second < sum_comp + c.k) {
+                    // This is the right component
+                    l.nts.second += c.pos.second - sum_comp;
+                    break;
+                }
+                sum_comp += c.k;
+            }
         }
     }
-
     else cout << "\t> RIN file not found : " << rinfile << endl;
 }
 
@@ -181,6 +172,24 @@ string Motif::pos_string(void) const
     for (auto c : comp) s << c.pos.first << '-' << c.pos.second << ' ';
     s << ')';
     return s.str();
+}
+
+string Motif::sec_struct(void) const 
+{
+    // Fill a string of the right size with dots
+    string secstruct = string("");
+    secstruct += to_string(comp.size()) + string(" components: ");
+    for (auto c : comp) {
+        for (uint k = c.pos.first; k<=c.pos.second; k++) secstruct += ".";
+        secstruct += " ";
+    }
+
+    // Replace dots by brackets
+    secstruct += "basepairs:";
+    for (auto l : links_) {
+        secstruct += '\t' + to_string(l.nts.first) + '-' + to_string(l.nts.second);
+    }
+    return secstruct;
 }
 
 string Motif::get_identifier(void) const
@@ -250,8 +259,8 @@ char Motif::is_valid_RIN(const string& rinfile)
     getline(motif, line); //skip the header_comp line
     while (getline(motif, line))
     {
-        // lines are formatted like:
-        // pos;k;seq
+        // components are formatted like:
+        // pos;k;seq (position, length, sequence)
         // 0,1;2;GU
         if (line == "\n") break; //skip last line (empty)
         size_t start = line.find(";") + 1;
@@ -322,7 +331,6 @@ bool checkSecondaryStructure(string struc)
     }
     return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
-
 
 //--------------------------------------------------------------
 vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
@@ -474,7 +482,7 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
     //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
 
     if (vc.size() > 1) {
-        //cout << "size vc: " << vc.size() << endl; 
+        //cout << "size vc: " << vc.sizef() << endl; 
         if (regex_search(rna, c)) {
             if (vc.size() > 2) {
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
@@ -651,8 +659,6 @@ bool operator==(const Component& c1, const Component& c2)
 }
 
 bool operator!=(const Component& c1, const Component& c2) { return not(c1 == c2); }
-
-
 
 bool operator==(const Motif& m1, const Motif& m2)
 {
