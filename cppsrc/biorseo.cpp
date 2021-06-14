@@ -251,7 +251,9 @@ int main(int argc, char* argv[])
 		outfile.close();
 	}
 
-	std::cout << "theta: " << theta_p_threshold << endl;
+	if (verbose)
+		std::cout << "theta: " << theta_p_threshold << endl;
+		
 	/*  QUIT  */
 
 	return EXIT_SUCCESS;
