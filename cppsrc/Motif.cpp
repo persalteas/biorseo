@@ -336,7 +336,6 @@ bool checkSecondaryStructure(string struc)
 vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
 {
     // /!\ returns 0 if no errors
-    //cout << "---begin----" << endl;
     std::ifstream  motif;
     motif = std::ifstream(jsonfile);
     json js = json::parse(motif);
@@ -345,84 +344,83 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
     uint fin = 0;
 
     std::string keys[6] = {"contacts", "occurences", "pdb", "pfam", "sequence", "struct2d"};
+    // Iterating over Motifs
     for (auto i = js.begin(); i != js.end(); ++i) {
         int j = 0;
         string id = i.key();
         string complete_seq;
         //cout << id << ": " << endl;
+
+        // Iterating over json keys
         for (auto it = js[id].begin(); it != js[id].end(); ++it) {
             string test = it.key();
             //std::cout << "test: " << test << endl;
-            if (test.compare(keys[j])){ 
+            if (test.compare(keys[j]))
+            { 
                 //std::cout << "error header : keys[" << j << "]: " << keys[j] << " vs test: " << test << endl;
                 errors_id.push_back(make_pair(stoi(id), 'd')); 
                 //return 'd'; 
-            } else if(!test.compare(keys[5])) {
+            } 
+            else if(!test.compare(keys[5])) // This is the secondary structure field
+            {
                 //std::cout << "struct2d: " << it.value() << endl;
                 string ss = it.value();
                 if (ss.empty()) {
-                    //std::cout << "error empty" <<endl;
                     errors_id.push_back(make_pair(stoi(id), 'f'));
-                    //return 'f';
+                    break;
                 } else if (!checkSecondaryStructure(ss)) {
-                    //std::cout << "error bracket" <<endl;
                     errors_id.push_back(make_pair(stoi(id), 'n'));
-                    //return 'n';
+                    break;
                 } else if (ss.size() != complete_seq.size()) {
                     errors_id.push_back(make_pair(stoi(id), 'x'));
+                    break;
                 }
-            } else if (!test.compare(keys[4])) {
+            } 
+            else if (!test.compare(keys[4])) // This is the sequence field
+            {
                 //std::cout << "sequence: " << it.value() << "\n";
                 string seq = it.value();
                 complete_seq = seq;
                 if (seq.empty()) {
-                    //std::cout << "error empty 2" <<endl;
                     errors_id.push_back(make_pair(stoi(id), 'e'));
-                    //return 'l';
-                } else if (seq.size() == 1) {
-                    //std::cout << "error too short" << endl;
+                    break;
+                } 
+                if (seq.size() < 4) {
                     errors_id.push_back(make_pair(stoi(id), 'l'));
-                } else {
+                    break;
+                }
+
+                // Iterate on components to check their length
                 string subseq;
-                    if (seq.size() > 3) {
-                        while((seq.find('&') != string::npos)) {
-                            fin = seq.find('&');  
-                            subseq = seq.substr(0, fin);
-                            seq = seq.substr(fin + 1);
-                            if (subseq.size() >= 2) {
-                                components.push_back(subseq); 
-                                //std::cout << "subseq: " << subseq << endl;
-                            } else {
-                                errors_id.push_back(make_pair(stoi(id), 'k'));
-                                //std::cout << "error too short1" << endl;
-                            }
-                        } 
-                        if (seq.size() >= 2) {
-                            components.push_back(seq);
-                            //std::cout << "subseq: " << seq << endl;
-                        } else {
-                            errors_id.push_back(make_pair(stoi(id), 'k'));
-                            //std::cout << "error too short2" << endl;
-                        }
-                        size_t n = 0;
-                        for (uint ii = 0; ii < components.size(); ii++) {
-                            n += components[ii].size();
-                        }
-                        if(n <= 3) {
-                            errors_id.push_back(make_pair(stoi(id), 'k'));
-                        }
+                while((seq.find('&') != string::npos)) {
+                    fin = seq.find('&');  
+                    subseq = seq.substr(0, fin);
+                    seq = seq.substr(fin + 1);
+                    if (subseq.size() >= 2) {
+                        components.push_back(subseq); 
                     } else {
                         errors_id.push_back(make_pair(stoi(id), 'k'));
                     }
                 }
+                if (seq.size() >= 2) { // Last component after the last &
+                    components.push_back(seq); 
+                } else {
+                    errors_id.push_back(make_pair(stoi(id), 'k'));
+                }
+
+                size_t n = 0;
+                for (uint ii = 0; ii < components.size(); ii++) {
+                    n += components[ii].size();
+                }
+                if(n <= 3) {
+                    errors_id.push_back(make_pair(stoi(id), 'l'));
+                }
             }
             j++;
-            //cout << "test fin" << endl << endl;
         }
     //std::cout << "no error!\n" << endl;
     }
     return errors_id;
-    //cout << "---end----" << endl;
 }
 
 bool is_desc_insertible(const string& descfile, const string& rna)
