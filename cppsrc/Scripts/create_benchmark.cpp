@@ -238,7 +238,7 @@ string create_benchmark(const string& jsonmotifs, const string& fasta, size_t nu
                 string test = it2.key();
                 if (!test.compare("sequence")) {
                     string seq = it2.value();
-                    outfasta << seq.substr(0,seq.size()-1) << endl;
+                    outfasta << seq.substr(0,seq.size()) << endl;
                 }
                 new_id[test] = it2.value();   
             }
@@ -255,7 +255,7 @@ int main()
 {
     string path = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/";
     string jsonbeta = path + "modules/ISAURE/Motifs_version_initiale/motifs_beta.json";
-    string fasta = path + "fasta/benchmark.fasta";
+    string fasta = path + "fasta/benchmark.fa";
     string jsondssr = path + "modules/ISAURE/Motifs_version_initiale/dssr2.json";
     string jsonmotifs= path + "modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
 
