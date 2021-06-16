@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <boost/format.hpp>
 
+#define RESET   "\033[0m"
+#define RED     "\033[31m"      /* Red */
+
 using std::abs;
 using std::cout;
 using std::endl;
-
 
 SecondaryStructure::SecondaryStructure() {}
 
@@ -119,13 +121,32 @@ void SecondaryStructure::set_basepair(uint i, uint j)
 
 void SecondaryStructure::insert_motif(const Motif& m) { motif_info_.push_back(m); }
 
-
+void colored_contacts(string sequence, vector<Motif> motif_info_) {
+    bool flag;
+    for (uint i = 0; i < sequence.size(); i++) {
+        flag = false;
+        for (const Motif& m : motif_info_) {
+            for (uint j = 0; j < m.pos_contacts.size(); j++) {
+                if (m.pos_contacts[j] == i) flag = true;
+            }
+        }
+        if (flag) {   
+            cout << RED << sequence[i] << RESET;
+        } else {
+            cout << sequence[i];
+        }
+    }
+}
 
 void SecondaryStructure::print(void) const
 {
     cout << endl;
     cout << '\t' << rna_.get_seq() << endl;
-    cout << '\t' << to_string() << endl;
+    string ss = to_string();
+    cout << '\t';
+    colored_contacts(ss, motif_info_);
+    //cout << ss;
+    cout << endl;
     for (const Motif& m : motif_info_) {
         uint i = 0;
         cout << '\t';

@@ -551,25 +551,12 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
     return results;
 }
 
-uint count_pairing(string struc2d) {
-    uint count = 0;
-    for(uint i = 0; i < struc2d.size(); i++) {
-        if (struc2d[i] == '(' || struc2d[i] == '[' || struc2d[i] == '<' || struc2d[i] == '{') {
-            count++;
-        }
-    }
-    //cout << struc2d << ": " << count << endl;
-    return count;
-}
-
-vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector<string>& vc, vector<string>& vs)
+vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector<string>& vc)
 {
     pair<uint, uint>          pos;
-    uint                      nb_pairing;
     vector<vector<Component>> results;
     vector<vector<Component>> next_ones;
     vector<string>            next_seqs;
-    vector<string>            next_strucs;
     regex                     c(vc[0]);
 
     //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
@@ -579,7 +566,6 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
         if (regex_search(rna, c)) {
             if (vc.size() > 2) {
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
-                next_strucs = vector<string>(&vs[1], &vs[vs.size()]);
                 /*for (uint i = 0; i < next_seqs.size(); i++) {
                     std::cout << "next seq: " << next_seqs[i] << endl;
                 }
@@ -587,7 +573,6 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
             }
             else {
                 next_seqs = vector<string>(1, vc.back());
-                next_strucs = vector<string>(1, vs.back());
                 /*for (uint i = 0; i < next_seqs.size(); i++) {
                     std::cout << "next seq: " << next_seqs[i] << endl;
                 }
@@ -599,7 +584,6 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
                 smatch match = *i;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
-                nb_pairing   = count_pairing(vs[0]);
 
                 //cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
                 // +5 because HL < 3 pbs but not for CaRNAval or Contacts
@@ -609,7 +593,7 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
                     continue;
                 }
                 
-                next_ones = json_find_next_ones_in(rna.substr(pos.second - offset + 2), pos.second + 2, next_seqs, next_strucs);
+                next_ones = json_find_next_ones_in(rna.substr(pos.second - offset + 2), pos.second + 2, next_seqs);
                 if (!next_ones.size()) {
                     // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
                     continue;
@@ -620,7 +604,7 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
                     // Combine the match for this component pos with the combination
                     // of next_ones as a whole solution
                     vector<Component> r;
-                    r.push_back(Component(pos, nb_pairing));
+                    r.push_back(Component(pos));
                     for (Component& c : v) r.push_back(c);
                     results.push_back(r);
                 }
@@ -635,13 +619,12 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
                 smatch match = *i;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
-                nb_pairing   = count_pairing(vs[0]);
 
                 //cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
 
                 // Create a vector of component with one component for that match
                 vector<Component> r;
-                r.push_back(Component(pos, nb_pairing));
+                r.push_back(Component(pos));
                 results.push_back(r);
             }
         }

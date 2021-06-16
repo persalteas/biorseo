@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 	// print the pareto set
 	if (verbose) {
 		cout << endl << endl << "---------------------------------------------------------------" << endl;
-		cout << "Whole Pareto Set:" << endl;
+		cout  << "Whole Pareto Set:" << endl;
 		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) myMOIP.solution(i).print();
 		cout << endl;
 		cout << myMOIP.get_n_candidates() << " candidate insertion sites, " << myMOIP.get_n_solutions() << " solutions kept." << endl;

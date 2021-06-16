@@ -136,6 +136,7 @@ string add_pdb(const string& jsonmotifs, const string& jsondssr) {
                             //cout << id2 << endl;
                             vector<string> tmp;
                             tmp.push_back(id2);
+                            cout << "id2: " << id2 << endl;
                             new_id["pdb"] = tmp;
                         }
 

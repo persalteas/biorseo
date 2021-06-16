@@ -1230,6 +1230,24 @@ vector<string> find_components(string sequence, string delimiter) {
     return list;
 }
 
+vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
+    vector<uint> positions;
+    string delimiter = "*";
+    uint debut;
+
+    for (uint i = 0; i < v.size(); i++) {
+        debut = v[i].pos.first;
+        uint pos = struc2d[i].find(delimiter, 0);
+        while(pos != string::npos && pos <= struc2d[i].size())
+        {   
+            cout << "position: " << pos + debut << endl;
+            positions.push_back(pos + debut);
+            pos = struc2d[i].find(delimiter, pos+1);
+        } 
+    }
+    return positions;
+}
+
 //Temporaire--------------------------------------
 
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
@@ -1244,7 +1262,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 	string 	                      filepath = jsonfile.string();
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
-    vector<string>                component_strucs;
+    vector<string>                component_contacts;
     string                        contacts, field, seq, struct2d;
     string                        contacts_id;
     string                        line, filenumber;
@@ -1288,6 +1306,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             {  
                 contacts = it2.value();
                 nb_contacts = count_contacts(contacts);
+                component_contacts = find_components(contacts, "&");
             } 
             else if (!field.compare(keys[1]))    // This is the occurences field
             {
@@ -1306,17 +1325,17 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             } 
             else if (!field.compare(keys[3]))       // This is the struct2D field
             {
-                struct2d = it2.value();         
-                component_strucs = find_components(struct2d, "&"); 
+                struct2d = it2.value();      
             }     
         }
-        vresults     = json_find_next_ones_in(rna, 0, component_sequences, component_strucs);
+        vresults     = json_find_next_ones_in(rna, 0, component_sequences);
 
         for (vector<Component>& v : vresults)
         {
             if (verbose_) cout << "\t> Considering motif JSON " << contacts_id << "\t" << seq << ", " << struct2d << ", ";
             Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
             temp_motif.links_ = search_pairing(struct2d, v);
+            temp_motif.pos_contacts = find_contacts(component_contacts, v);
 
             // Check if the motif can be inserted, checking the basepairs probabilities and theta
             bool unprobable = false;
