@@ -247,7 +247,9 @@ int main(int argc, char* argv[])
 		outfile.open(outputName);
 		outfile << fa->name() << endl << fa->seq() << endl;
 		//cout << "----struc----" << endl << myMOIP.solution(0).to_string() << endl;
-		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) outfile << myMOIP.solution(i).to_string() << endl;
+		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
+			outfile << myMOIP.solution(i).to_string() << endl << structure_with_contacts(myMOIP.solution(i)) << endl;
+		}
 		outfile.close();
 	}
 

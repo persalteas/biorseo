@@ -100,6 +100,26 @@ string SecondaryStructure::to_DBN(void) const
     return res;
 }
 
+string structure_with_contacts(const SecondaryStructure& ss) {
+    string sequence = ss.rna_.get_seq();
+    string construct = "";
+    bool flag;
+    for (uint i = 0; i < sequence.size(); i++) {
+        flag = false;
+        for (const Motif& m : ss.motif_info_) {
+            for (uint j = 0; j < m.pos_contacts.size(); j++) {
+                if (m.pos_contacts[j] == i) flag = true;
+            }
+        }
+        if (flag) {   
+            construct += "*";
+        } else {
+            construct += ".";
+        }
+    }
+    return construct;
+}
+
 string SecondaryStructure::to_string(void) const
 {
     string s;
@@ -141,7 +161,10 @@ void colored_contacts(string sequence, vector<Motif> motif_info_) {
 void SecondaryStructure::print(void) const
 {
     cout << endl;
-    cout << '\t' << rna_.get_seq() << endl;
+    cout << '\t';
+    colored_contacts(rna_.get_seq(), motif_info_);
+    //rna_.get_seq() 
+    cout << endl;
     string ss = to_string();
     cout << '\t';
     colored_contacts(ss, motif_info_);

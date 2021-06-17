@@ -1240,7 +1240,7 @@ vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
         uint pos = struc2d[i].find(delimiter, 0);
         while(pos != string::npos && pos <= struc2d[i].size())
         {   
-            cout << "position: " << pos + debut << endl;
+            //cout << "position: " << pos + debut << endl;
             positions.push_back(pos + debut);
             pos = struc2d[i].find(delimiter, pos+1);
         } 
