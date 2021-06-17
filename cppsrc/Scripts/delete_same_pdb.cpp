@@ -53,7 +53,7 @@ void delete_redundant_pdb(const string& jsonfile, const string& jsontest, const 
             string id2 = it3.key();
 
             //cout << "id: " << id << " / id2: " << id2 << endl;
-            for (auto it4 = js[id2].begin(); it4 != js[id2].end(); ++it4) {
+            for (auto it4 = js2[id2].begin(); it4 != js2[id2].end(); ++it4) {
                 string test = it4.key();
                 
                 if (!test.compare("pdb")) {
