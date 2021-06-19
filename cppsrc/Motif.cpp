@@ -425,6 +425,10 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     errors_id.push_back(make_pair(stoi(id), 'a'));
                     break;
                 }
+                if (contacts.size() != seq.size()) {
+                    errors_id.push_back(make_pair(stoi(id), 'b'));
+                    break;
+                }
 
                 // Iterate on components to check their length
                 string subseq;

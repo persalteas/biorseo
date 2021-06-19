@@ -227,12 +227,12 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                         // if number equal to the size of the number of component in the motif, it means that the motif is included.
                         //So we add the intersection of the two pfams list to the motif
                         if(number == composantes.size()) {
-                            cout << "id: " << id << " / id2: " << id2 << endl;
+                            //cout << "id: " << id << " / id2: " << id2 << endl;
                             vector<vector<string>> add_pfams;
                             std::set_difference(list_pfams2.begin(), list_pfams2.end(), list_pfams.begin(), list_pfams.end(),
                             std::inserter(add_pfams, add_pfams.begin()));
                             list_pfams.insert(list_pfams.begin(), add_pfams.begin(), add_pfams.end());
-                            cout << "size: " << list_pfams.size() << endl;
+                            //cout << "size: " << list_pfams.size() << endl;
                             add_pfams.clear();
                             is_change = true;
                         } 
@@ -269,7 +269,7 @@ int main()
 {
     //183
     //cout << "------------------BEGIN-----------------" << endl;
-    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
+    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_tmp.json";
     string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_final.json";
     counting_occurences(jsonfile, out);
 

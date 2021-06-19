@@ -253,6 +253,8 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                         case 'f' : cerr << ", 2D is empty."; break;
                         case 'n' : cerr << ", brackets are not balanced."; break;
                         case 'k' : cerr << ", a component is too small and got removed."; break;
+                        case 'a' : cerr << ", the number of components is different between contacts and sequence"; break;
+                        case 'b' : cerr << ", the number of nucleotides is different between contacts and sequence"; break;
                         default: cerr << ", unknown reason";
                         
                     }
@@ -1234,8 +1236,10 @@ vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
     vector<uint> positions;
     string delimiter = "*";
     uint debut;
-
+    /*cout << "vsize: " << v.size() << endl;
+    cout << "struc2dsize: " << struc2d.size() << endl;*/
     for (uint i = 0; i < v.size(); i++) {
+        //cout << "[" << i << "]:" << endl;
         debut = v[i].pos.first;
         uint pos = struc2d[i].find(delimiter, 0);
         while(pos != string::npos && pos <= struc2d[i].size())
@@ -1284,11 +1288,12 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     //uint max_occ = 0;
     //uint max_n = 0;
     uint occ = 0;
-
+    
     for(auto it = js.begin(); it != js.end(); ++it) {
         contacts_id = it.key();
         comp = stoi(contacts_id);
 
+        //cout << "id: " << contacts_id << endl;
         // Check for known errors to ignore corresponding motifs
         if (comp == errors_id[it_errors].first) {    
             while (comp == errors_id[it_errors].first) {
@@ -1303,6 +1308,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
         for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
             field = it2.key(); 
+            //cout << "field: " << field << endl;
             if (!field.compare(keys[0]))  // This is the contacts field
             {  
                 contacts = it2.value();
@@ -1342,10 +1348,13 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
         for (vector<Component>& v : vresults)
         {
-            if (verbose_) cout << "\t> Considering motif JSON " << contacts_id << "\t" << seq << ", " << struct2d << ", ";
+            if (verbose_) cout << "\t> Considering motif JSON " << contacts_id << "\t" << seq << ", " << struct2d << ", " << endl;
+            
             Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
             temp_motif.links_ = search_pairing(struct2d, v);
+            //cout << "test" << endl;
             temp_motif.pos_contacts = find_contacts(component_contacts, v);
+            //cout << "test2" << endl;
 
             // Check if the motif can be inserted, checking the basepairs probabilities and theta
             bool unprobable = false;
@@ -1370,4 +1379,5 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
         }
         component_sequences.clear();
     }
+
 }
