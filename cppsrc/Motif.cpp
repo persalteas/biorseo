@@ -332,6 +332,17 @@ bool checkSecondaryStructure(string struc)
     return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
 
+size_t count_nucleotide(string seq) {
+    size_t count = 0;
+    for(uint i = 0; i < seq.size(); i++) {
+        char c = seq.at(i);
+        if (c != '&') {
+            count++;
+        }
+    }
+    return count;
+}
+
 //--------------------------------------------------------------
 vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
 {
@@ -348,6 +359,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
     for (auto i = js.begin(); i != js.end(); ++i) {
         int j = 0;
         string id = i.key();
+        size_t size;
         string complete_seq;
         //cout << id << ": " << endl;
 
@@ -380,12 +392,13 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
             {
                 //std::cout << "sequence: " << it.value() << "\n";
                 string seq = it.value();
+                size = count_nucleotide(seq);
                 complete_seq = seq;
                 if (seq.empty()) {
                     errors_id.push_back(make_pair(stoi(id), 'e'));
                     break;
                 } 
-                if (seq.size() < 4) {
+                if (size < 4) {
                     errors_id.push_back(make_pair(stoi(id), 'l'));
                     break;
                 }
