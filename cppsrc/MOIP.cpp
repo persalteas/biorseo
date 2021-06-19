@@ -1263,6 +1263,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
     vector<string>                component_contacts;
+    vector<string>                pdbs;
     string                        contacts, field, seq, struct2d;
     string                        contacts_id;
     string                        line, filenumber;
@@ -1277,7 +1278,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     motif = std::ifstream(filepath);
     json js = json::parse(motif);
 
-    string keys[4] = {"contacts", "occurences", "sequence", "struct2d"};
+    string keys[5] = {"contacts", "occurences", "pdb", "sequence", "struct2d"};
     uint it_errors = 0;
     uint comp;
     //uint max_occ = 0;
@@ -1288,10 +1289,10 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
         contacts_id = it.key();
         comp = stoi(contacts_id);
 
-        // Check for known errors to ignore correspopnding motifs
+        // Check for known errors to ignore corresponding motifs
         if (comp == errors_id[it_errors].first) {    
             while (comp == errors_id[it_errors].first) {
-                //cout << "id erreur: " << errors_id[it_errors].first << endl;
+                //cout << "id erreur: " << errors_id[it_errors].first << " " << errors_id[it_errors].second << endl;
                 /*if (contacts_id.compare("974") == 0) {
                     cout << "id erreur: " << errors_id[it_errors].second << endl;
                 }*/
@@ -1316,14 +1317,23 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 //cout << "occ: " << tx_occurrences << endl;
 
             } 
-            else if (!field.compare(keys[2]))    // This is the sequence field
+            else if (!field.compare(keys[2]))    // This is the pdb field
+            {
+                vector<string> tab = it2.value();
+                pdbs = tab;
+                /*for (uint i = 0; i < pdbs.size(); i++) {
+                    cout << "pdbs[" << i << "]: " << pdbs[i] << endl;
+                }*/
+
+            } 
+            else if (!field.compare(keys[3]))    // This is the sequence field
             { 
                 seq = check_motif_sequence(it2.value());
                 /*max_n = find_max_sequence(filepath);
                 tx_occurrences = (double)occ / (double)max_n - seq.size() + 1 ;*/
                 component_sequences = find_components(seq, "&");
             } 
-            else if (!field.compare(keys[3]))       // This is the struct2D field
+            else if (!field.compare(keys[4]))       // This is the struct2D field
             {
                 struct2d = it2.value();      
             }     

@@ -357,7 +357,7 @@ return tab_max;
 
 }
 
-string create_benchmark(const string& jsonmotifs, const string& fasta, size_t number_seq) {
+/*string create_benchmark(const string& jsonmotifs, const string& fasta, size_t number_seq) {
     std::ifstream lib(jsonmotifs);
     
     std::ofstream outfasta (fasta);
@@ -390,20 +390,43 @@ string create_benchmark(const string& jsonmotifs, const string& fasta, size_t nu
     outmotif << new_motif.dump(4) << endl;
     outmotif.close(); 
     return jsonremove;
+}*/
+
+string create_benchmark(const string& jsonmotifs) {
+    std::ifstream lib(jsonmotifs);
+    string fasta = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/fasta/";
+    json js = json::parse(lib);
+    
+    for (auto it = js.begin(); it != js.end(); ++it) {    
+        string id = it.key();
+        string filename = fasta + id + ".fa";
+        std::ofstream outfasta (filename);
+        outfasta << ">test_" << id << endl;
+        for (auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) {      
+            string test = it2.key();
+            if (!test.compare("seq")) {
+                string seq = it2.value();
+                outfasta << seq.substr(0,seq.size()) << endl;
+                outfasta.close();
+            }
+        }
+    }
+    return fasta;
+    lib.close();
 }
 
 int main()
 {
     string path = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/";
     //string jsonbeta = path + "modules/ISAURE/Motifs_version_initiale/motifs_beta.json";
-    string fasta = path + "fasta/benchmark.fa";
     //string jsondssr = path + "modules/ISAURE/Motifs_version_initiale/dssr2.json";
     string jsonmotifs = path + "modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
     string jsonbm1 = path + "modules/ISAURE/Motifs_version_initiale/benchmark_16-06-2021.json";
 
-    //string jsonremove = create_benchmark(jsonbeta, fasta, 20);
+    
     //string jsonremovewithpdb = add_pdb(jsonremove, jsondssr);
     string jsonbm2 = add_contact(jsonbm1, jsonmotifs);
+    string jsonfasta = create_benchmark(jsonbm2);
     //string jsonlibrary = delete_redundant_pdb(jsonmotifs, jsonremovewithpdb);
 
     return 0;

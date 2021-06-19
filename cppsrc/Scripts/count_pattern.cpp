@@ -270,7 +270,7 @@ int main()
     //183
     //cout << "------------------BEGIN-----------------" << endl;
     string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
-    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
+    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_final.json";
     counting_occurences(jsonfile, out);
 
     //cout << "------------------END-----------------" << endl;
