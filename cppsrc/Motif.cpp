@@ -332,11 +332,22 @@ bool checkSecondaryStructure(string struc)
     return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
 
-size_t count_nucleotide(string seq) {
+size_t count_nucleotide(string& seq) {
     size_t count = 0;
     for(uint i = 0; i < seq.size(); i++) {
         char c = seq.at(i);
         if (c != '&') {
+            count++;
+        }
+    }
+    return count;
+}
+
+size_t count_delimiter(string& seq) {
+    size_t count = 0;
+    for(uint i = 0; i < seq.size(); i++) {
+        char c = seq.at(i);
+        if (c == '&') {
             count++;
         }
     }
@@ -361,6 +372,7 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
         string id = i.key();
         size_t size;
         string complete_seq;
+        string contacts;
         //cout << id << ": " << endl;
 
         // Iterating over json keys
@@ -388,6 +400,11 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     break;
                 }
             } 
+            else if(!test.compare(keys[0])) // This is the contacts field
+            {
+                //std::cout << "struct2d: " << it.value() << endl;
+                contacts = it.value();
+            } 
             else if (!test.compare(keys[4])) // This is the sequence field
             {
                 //std::cout << "sequence: " << it.value() << "\n";
@@ -400,6 +417,12 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                 } 
                 if (size < 4) {
                     errors_id.push_back(make_pair(stoi(id), 'l'));
+                    break;
+                }
+                size_t count_contact = count_delimiter(contacts);
+                size_t count_seq = count_delimiter(seq);
+                if (count_contact != count_seq) {
+                    errors_id.push_back(make_pair(stoi(id), 'a'));
                     break;
                 }
 
