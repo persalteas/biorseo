@@ -1,6 +1,8 @@
 import time
 import subprocess
 import os
+from math import sqrt, ceil
+
 
 log_path = "test.log"
 log = open(log_path, 'a')
@@ -29,6 +31,7 @@ def create_command(name):
       "--modules-path /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
 
+# ================== Code from Louis Beckey Benchark.py ==============================
 def dbn_to_basepairs(structure):
     parenthesis = []
     brackets = []
@@ -66,6 +69,23 @@ def dbn_to_basepairs(structure):
             basepairs.append((i, Bs.pop()))
     return basepairs
 
+def compare_two_contacts(true_ctc, prediction):
+    tp = 0
+    fp = 0
+    tn = 0
+    fn = 0
+    for i in range(len(true_ctc)):
+        if true_ctc[i] == '*' and prediction[i] == '*':
+            tp += 1
+        elif true_ctc[i] == '.' and prediction[i] == '.':
+            tn += 1
+        elif true_ctc[i] == '.' and prediction[i] == '*':
+            fp += 1
+        elif true_ctc[i] == '*' and prediction[i] == '.':
+            fn += 1
+    #print(str(tp) + " " + str(tn) + " " + str(fp) + " " + str(fn) + "\n")
+    return [tp, tn, fp, fn]
+
 def compare_two_structures(true2d, prediction):
     true_basepairs = dbn_to_basepairs(true2d)
     pred_basepairs = dbn_to_basepairs(prediction)
@@ -85,7 +105,10 @@ def compare_two_structures(true2d, prediction):
     return [tp, tn, fp, fn]
 
 def mattews_corr_coeff(tp, tn, fp, fn):
-    if (tp + fp == 0):
+    if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
+        print("warning: division by zero!")
+        return 0
+    elif (tp + fp == 0):
         print("We have an issue : no positives detected ! (linear structure)")
     return (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
 
@@ -95,35 +118,99 @@ def f1_score(tp, tn, fp, fn):
 def specificity(tp, tn, fp, fn):
     return tn / (tn + fp)
 
+# ================== Code from Louis Beckey Benchark.py ==============================
+
+def write_mcc_in_file(sequence_id, true_contacts, true_structure):
+    read_prd = open("results/test_" + sequence_id + ".json_pmE", "r")
+    write = open("results/test_" + sequence_id + ".mcc", "w")
+
+    title_exp = ">test_" + sequence_id + ": "
+    write.write(title_exp)
+    contacts_exp = true_contacts
+    structure_exp = true_structure
+    write.write("structure 2d attendue:\n" + structure_exp + "\n")
+    write.write("contacts attendus:\n" + contacts_exp + "\n" + len(structure_exp) * "-")
+
+    title_prd = read_prd.readline()
+    structure_prd = read_prd.readline()
+    sequence_prd = structure_prd
+    while structure_prd:
+        structure_prd = read_prd.readline()
+        if (len(structure_prd) != 0):
+            write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
+            mcc_tab = compare_two_structures(structure_exp, structure_prd[:len(sequence_prd)])
+            mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+            write.write("mcc: " + str(mcc_str) + "\n")
+            contacts_prd = read_prd.readline()
+            write.write("\ncontacts predits:\n" + contacts_prd)
+            if (len(contacts_prd) == len(contacts_exp)):
+                mcc_tab = compare_two_contacts(contacts_exp, contacts_prd)
+                mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+                write.write("mcc: " + str(mcc_ctc) + "\n\n")
+            else:
+                write.write("mcc: no expected contacts sequence or not same length between expected and predicted\n\n")
+
+    read_prd.close()
+    write.close()
+
+
 cmd = ("cppsrc/Scripts/addDelimiter")
 cmd1 = ("cppsrc/Scripts/countPattern")
 cmd2 = ("cppsrc/Scripts/deletePdb")
 
-myfile = open("data/fasta/benchmark.fa", "r")
+myfile = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
 name = myfile.readline()
+contacts = myfile.readline()
 seq = myfile.readline()
+structure2d = myfile.readline()
 
-run_test(cmd2 + " 1JJ2" + ".fa", log)
+"""run_test(cmd2 + " 1JJ2" + ".fa", log)
 print(cmd2 + " 1JJ2" + ".fa")
-cmd2 = create_command("1JJ2")
+cmd3 = create_command("1JJ2")
 print(cmd3)
 os.system(cmd3)
-filetest = open("test_1L9A.json_pmE", "r")
-line = filetest.readline()
-while line:
-    print(line)
-    line = filetest.readline()
-filetest.close()
+read_exp = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
+read_prd = open("results/test_1JJ2.json_pmE", "r")
+write = open("results/test_1JJ2.mcc", "w")
 
-"""while seq:
+title_exp = read_exp.readline()
+write.write(title_exp)
+contacts_exp = read_exp.readline()
+structure_exp = read_exp.readline()
+write.write("structure 2d attendue:\n" + structure_exp + "\n")
+write.write("contacts attendus:\n" + contacts_exp + "\n" + len(structure_exp) * "-")
+
+title_prd = read_prd.readline()
+structure_prd = read_prd.readline()
+sequence_prd = structure_prd
+while structure_prd:
+    structure_prd = read_prd.readline()
+    if (len(structure_prd) != 0):
+        write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
+        mcc_tab = compare_two_structures(structure_exp, structure_prd[:len(sequence_prd)])
+        mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+        write.write("mcc: " + str(mcc_str) + "\n")
+        contacts_prd = read_prd.readline()
+        write.write("\ncontacts predits:\n" + contacts_prd)
+        mcc_tab = compare_two_contacts(contacts_exp, contacts_prd)
+        mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+        write.write("mcc: " + str(mcc_ctc) + "\n\n")
+
+read_prd.close()
+write.close()"""
+
+while seq:
     name = name[6:].strip()
     print(name)
-    run_test(cmd, log)
+    """run_test(cmd, log)
     run_test(cmd1, log)
     run_test(cmd2 + " " + name + ".fa", log)
     print(cmd2 + " " + name + ".fa")
     cmd3 = create_command(name)
-    os.system(cmd3)
+    os.system(cmd3)"""
+    write_mcc_in_file(name, contacts, structure2d)
     name = myfile.readline()
-    seq = myfile.readline()"""
+    contacts = myfile.readline()
+    seq = myfile.readline()
+    structure2d = myfile.readline()
 myfile.close()
