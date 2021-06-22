@@ -29,7 +29,10 @@ def create_command(name):
       "--modules-path /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
 
-cmd1 = ("cppsrc/Scripts/deletePdb")
+cmd = ("cppsrc/Scripts/addDelimiter")
+cmd1 = ("cppsrc/Scripts/countPattern")
+cmd2 = ("cppsrc/Scripts/deletePdb")
+
 
 myfile = open("data/fasta/benchmark.fa", "r")
 name = myfile.readline()
@@ -43,10 +46,12 @@ os.system(cmd2)"""
 while seq:
     name = name[6:].strip()
     print(name)
-    run_test(cmd1 + " " + name + ".fa", log)
-    print(cmd1 + " " + name + ".fa")
-    cmd2 = create_command(name)
-    os.system(cmd2)
+    run_test(cmd, log)
+    run_test(cmd1, log)
+    run_test(cmd2 + " " + name + ".fa", log)
+    print(cmd2 + " " + name + ".fa")
+    cmd3 = create_command(name)
+    os.system(cmd3)
     name = myfile.readline()
     seq = myfile.readline()
 myfile.close()
