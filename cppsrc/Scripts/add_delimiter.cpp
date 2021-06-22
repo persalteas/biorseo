@@ -42,7 +42,6 @@ void add_delimiter(const string& jsonfile, const string& jsonoutfile) {
         //cout << "id: " << id << endl;
         for (auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) {      
             test = it2.key();
-            string test = it2.key();   
 
             if (!test.compare("sequence")) {
                 //cout << "sequence: " << it2.value() << endl;

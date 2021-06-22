@@ -28,7 +28,6 @@ void delete_redundant_pdb(const string& jsonlibrary, const string& fasta, const 
     for (auto it = js.begin(); it != js.end(); ++it) {
         string id = it.key();
         vector<string> list_pdbs;
-        vector<string> list_pdbs2;
         bool is_added = true;
 
         //cout << "id: " << id << endl;
