@@ -716,6 +716,7 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 
 void MOIP::search_between(double lambdaMin, double lambdaMax)
 {
+    if (abs(lambdaMin - lambdaMax) < MOIP::precision_) return;
     SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin, lambdaMax);
     //cout << "min: " << lambdaMin << " max: " << lambdaMax << endl;
     if (!s.is_empty_structure) {    // A solution has been found

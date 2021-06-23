@@ -121,7 +121,7 @@ def specificity(tp, tn, fp, fn):
 # ================== Code from Louis Beckey Benchark.py ==============================
 
 def write_mcc_in_file(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmE", "r")
+    read_prd = open("results/test_" + sequence_id + ".json_pmF", "r")
     write = open("results/test_" + sequence_id + ".mcc", "w")
 
     title_exp = ">test_" + sequence_id + ": "
