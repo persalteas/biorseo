@@ -227,7 +227,6 @@ def is_canonical_bps(struct):
 def load_from_dbn(file, header_style=1):
     container = []
     counter = 0
-
     db = open(file, "r")
     c = 0
     header = ""
@@ -248,8 +247,6 @@ def load_from_dbn(file, header_style=1):
             n = len(seq)
         if c == 0:
             contacts = l[:-1]
-            if n < 10 or n > 100:
-                continue  # ignore too short and too long RNAs
             if is_canonical_nts(seq) and is_canonical_bps(struct):
                 if header_style == 1: container.append(RNA(header.replace('/', '_').split('(')[-1][:-1], header, seq, struct, contacts))
                 if header_style == 2: container.append(RNA(header.replace('/', '_').split('[')[-1][:-41], header, seq, struct, contacts))
@@ -484,7 +481,7 @@ if extension == "all":
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizer.png")
+    plt.savefig("pareto_visualizer_json.png")
 else:
     fig, ax = plt.subplots(2,1, figsize=(6,5))
     plt.subplots_adjust(bottom=0.12, top=0.9, left=0.15, right=0.9, hspace=0.4)

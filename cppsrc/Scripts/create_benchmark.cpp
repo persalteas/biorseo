@@ -155,7 +155,9 @@ string create_benchmark(const string& jsonmotifs) {
     std::ifstream lib(jsonmotifs);
     string fasta = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/fasta/";
     string list = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/benchmark.txt";
+    string dbn = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/benchmark.dbn";
     std::ofstream outlist (list);
+    std::ofstream outdbn (dbn);
     json js = json::parse(lib);
     
     for (auto it = js.begin(); it != js.end(); ++it) {    
@@ -179,17 +181,26 @@ string create_benchmark(const string& jsonmotifs) {
                 structure = it2.value();
             }
         }
-        if(!contacts.empty())
+        
+        if(!contacts.empty()) {
+            outdbn << "test_" << id << "." << endl;
             outlist << contacts << endl;
-        else
+            outdbn << seq << endl;
+            outdbn << structure << endl;
+            outdbn << contacts << endl;
+        }
+        else {
             outlist << endl;
+        }
         outlist << seq << endl;
         outlist << structure << endl;
+        
 
     }
     return fasta;
     lib.close();
     outlist.close();
+    outdbn.close();
 }
 
 int main()
