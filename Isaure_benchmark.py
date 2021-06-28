@@ -2,6 +2,8 @@ import time
 import subprocess
 import os
 from math import sqrt, ceil
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 log_path = "test.log"
@@ -107,7 +109,7 @@ def compare_two_structures(true2d, prediction):
 def mattews_corr_coeff(tp, tn, fp, fn):
     if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
         print("warning: division by zero!")
-        return 0
+        return -10
     elif (tp + fp == 0):
         print("We have an issue : no positives detected ! (linear structure)")
     return (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
@@ -120,9 +122,12 @@ def specificity(tp, tn, fp, fn):
 
 # ================== Code from Louis Beckey Benchark.py ==============================
 
-def write_mcc_in_file(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmF", "r")
-    write = open("results/test_" + sequence_id + ".mcc", "w")
+def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
+    read_prd = open("results/test_" + sequence_id + ".json_pmE", "r")
+    write = open("results/test_" + sequence_id + ".mcc_E", "w")
+
+    max_mcc_str = -1;
+    max_mcc_ctc = -1;
 
     title_exp = ">test_" + sequence_id + ": "
     write.write(title_exp)
@@ -140,21 +145,105 @@ def write_mcc_in_file(sequence_id, true_contacts, true_structure):
             write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
             mcc_tab = compare_two_structures(structure_exp, structure_prd[:len(sequence_prd)])
             mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+            if (max_mcc_str < mcc_str):
+                max_mcc_str = mcc_str
             write.write("mcc: " + str(mcc_str) + "\n")
+
             contacts_prd = read_prd.readline()
             write.write("\ncontacts predits:\n" + contacts_prd)
             if (len(contacts_prd) == len(contacts_exp)):
                 mcc_tab = compare_two_contacts(contacts_exp, contacts_prd)
                 mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+                if (max_mcc_ctc < mcc_ctc):
+                    max_mcc_ctc = mcc_ctc
                 write.write("mcc: " + str(mcc_ctc) + "\n\n")
             else:
                 write.write("mcc: no expected contacts sequence or not same length between expected and predicted\n\n")
 
     read_prd.close()
     write.close()
+    return [max_mcc_ctc, max_mcc_str]
 
+def write_mcc_in_file_F(sequence_id, true_contacts, true_structure):
+    read_prd = open("results/test_" + sequence_id + ".json_pmF", "r")
+    write = open("results/test_" + sequence_id + ".mcc_F", "w")
 
-cmd = ("cppsrc/Scripts/addDelimiter")
+    max_mcc_str = -1;
+    max_mcc_ctc = -1;
+
+    title_exp = ">test_" + sequence_id + ": "
+    write.write(title_exp)
+    contacts_exp = true_contacts
+    structure_exp = true_structure
+    write.write("structure 2d attendue:\n" + structure_exp + "\n")
+    write.write("contacts attendus:\n" + contacts_exp + "\n" + len(structure_exp) * "-")
+
+    title_prd = read_prd.readline()
+    structure_prd = read_prd.readline()
+    sequence_prd = structure_prd
+    while structure_prd:
+        structure_prd = read_prd.readline()
+        if (len(structure_prd) != 0):
+            write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
+            mcc_tab = compare_two_structures(structure_exp, structure_prd[:len(sequence_prd)])
+            mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+            if (max_mcc_str < mcc_str):
+                max_mcc_str = mcc_str
+            write.write("mcc: " + str(mcc_str) + "\n")
+
+            contacts_prd = read_prd.readline()
+            write.write("\ncontacts predits:\n" + contacts_prd)
+            if (len(contacts_prd) == len(contacts_exp)):
+                mcc_tab = compare_two_contacts(contacts_exp, contacts_prd)
+                mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+                if (max_mcc_ctc < mcc_ctc):
+                    max_mcc_ctc = mcc_ctc
+                write.write("mcc: " + str(mcc_ctc) + "\n\n")
+            else:
+                write.write("mcc: no expected contacts sequence or not same length between expected and predicted\n\n")
+
+    read_prd.close()
+    write.close()
+    return [max_mcc_ctc, max_mcc_str]
+
+def set_axis_style(ax, labels):
+    ax.xaxis.set_tick_params(direction='out')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.set_xticks(np.arange(1, len(labels) + 1))
+    ax.set_xticklabels(labels)
+    ax.set_xlim(0.25, len(labels) + 0.75)
+    ax.set_xlabel('Sample name')
+
+def visualization(list_struct2d, list_contacts, function, color, lines_color):
+
+    np_struct2d = np.array(list_struct2d)
+    np_contacts = np.array(list_contacts)
+
+    data_to_plot = [np_struct2d, np_contacts]
+
+    fig = plt.figure()
+
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    labels = ['structure 2D', 'contacts']
+    ax.set_xticks(np.arange(1, len(labels) + 1))
+    ax.set_xticklabels(labels)
+    ax.set_xlabel(function)
+    ax.set_ylabel('MCC')
+
+    violins = ax.violinplot(data_to_plot, showmedians=True)
+
+    for partname in ('cbars', 'cmins', 'cmaxes', 'cmedians'):
+        vp = violins[partname]
+        vp.set_edgecolor(lines_color)
+        vp.set_linewidth(1)
+
+    for v in violins['bodies']:
+        v.set_facecolor(color)
+    plt.savefig('visualisation' + function + '.png', bbox_inches='tight')
+
+cmd = ("cppsrc/Scripts/create")
+cmd0 = ("cppsrc/Scripts/addDelimiter")
 cmd1 = ("cppsrc/Scripts/countPattern")
 cmd2 = ("cppsrc/Scripts/deletePdb")
 
@@ -199,18 +288,35 @@ while structure_prd:
 read_prd.close()
 write.close()"""
 
+run_test(cmd, log)
+run_test(cmd0, log)
+run_test(cmd1, log)
+
+list_struct2d_E = []
+list_contacts_E = []
+list_struct2d_F = []
+list_contacts_F = []
 while seq:
     name = name[6:].strip()
     print(name)
-    """run_test(cmd, log)
-    run_test(cmd1, log)
+    """
     run_test(cmd2 + " " + name + ".fa", log)
     print(cmd2 + " " + name + ".fa")
     cmd3 = create_command(name)
     os.system(cmd3)"""
-    write_mcc_in_file(name, contacts, structure2d)
+    tabE = write_mcc_in_file_E(name, contacts, structure2d)
+    list_contacts_E.append(tabE[0])
+    list_struct2d_E.append(tabE[1])
+
+    tabF = write_mcc_in_file_F(name, contacts, structure2d)
+    list_contacts_F.append(tabF[0])
+    list_struct2d_F.append(tabF[1])
+
     name = myfile.readline()
     contacts = myfile.readline()
     seq = myfile.readline()
     structure2d = myfile.readline()
+
+visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')
+visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')
 myfile.close()
