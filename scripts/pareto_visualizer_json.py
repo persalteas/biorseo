@@ -36,7 +36,8 @@ import subprocess
 import getopt
 
 class SecStruct:
-    def __init__(self, dot_bracket, contacts, obj1_value, obj2_value):
+    def __init__(self, name, dot_bracket, contacts, obj1_value, obj2_value):
+        self.name = name
         self.dbn = dot_bracket
         self.ctc = contacts
         self.objectives = [ obj1_value, obj2_value ]
@@ -107,8 +108,8 @@ class SecStruct:
         fp = 0
         tn = 0
         fn = 0
-        prediction = reference_structure.ctc
-        true_ctc = self.ctc
+        prediction = self.ctc
+        true_ctc = reference_structure.ctc
         for i in range(len(true_ctc)):
             if true_ctc[i] == '*' and prediction[i] == '*':
                 tp += 1
@@ -123,7 +124,7 @@ class SecStruct:
         # Compute MCC
         if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
             print("warning: division by zero!")
-            return 0
+            return None
         elif (tp + fp == 0):
             print("We have an issue : no positives detected ! (linear structure)")
         return (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
@@ -133,8 +134,8 @@ class Pareto:
         self.predictions = list_of_structs
         self.true_structure = reference
         self.n_pred = len(list_of_structs)
-        self.max_obj1 = max([ s.objectives[0] for s in self.predictions ])
-        self.max_obj2 = max([ s.objectives[1] for s in self.predictions ])
+        self.max_obj1 = max([s.objectives[0] for s in self.predictions ])
+        self.max_obj2 = max([s.objectives[1] for s in self.predictions ])
         self.index_of_best = self.find_best_solution()
         self.index_of_best_ctc = self.find_best_solution_ctc()
         
@@ -152,12 +153,14 @@ class Pareto:
 
     def find_best_solution_ctc(self):
         # returns the index of the solution of the Pareto set which is the closest
-        # to the real 2D structure (the one with the max MCC)
+        # to the real contacts area (the one with the max MCC)
         max_i = -1
         max_mcc = -1
         for i,s in enumerate(self.predictions):
             mcc = s.get_MCC_ctc_with(self.true_structure)
-            if mcc > max_mcc:
+            if mcc is None:
+                continue
+            elif mcc > max_mcc:
                 max_mcc = mcc
                 max_i = i
         return max_i
@@ -176,18 +179,35 @@ class Pareto:
         return ( x,y )
 
     def get_normalized_coords_ctc(self):
+        CRED = '\033[91m'
+        CEND = '\033[0m'
+        CGREEN = '\33[32m'
+        CBLUE = '\33[34m'
         # retrieves the objective values of the best solution and normalizes them
         coords = self.predictions[self.index_of_best_ctc].objectives
         if self.max_obj1: # avoid divide by zero if all solutions are 0
             x = coords[0]/self.max_obj1
         else:
             x = 0.5
+        if(x < 0.5):
+            print("\n" + CRED + self.predictions[self.index_of_best_ctc].name + CEND)
+            print(CRED + self.predictions[self.index_of_best_ctc].ctc + CEND)
+            print("count: " + str(self.predictions[self.index_of_best_ctc].ctc.count("*")))
+            print(CRED + self.true_structure.ctc + CEND)
+            print("count: " + str(self.true_structure.ctc.count("*")) + "\n")
+
+        elif(x >= 0.5 and type(self.predictions[self.index_of_best_ctc].ctc)) is str:
+            print("\n" + CGREEN + self.predictions[self.index_of_best_ctc].name + CEND)
+            print(CGREEN + self.predictions[self.index_of_best_ctc].ctc + CEND)
+            print("count: " + str(self.predictions[self.index_of_best_ctc].ctc.count("*")))
+            print(CGREEN + self.true_structure.ctc + CEND)
+            print("count: " + str(self.true_structure.ctc.count("*")) + "\n")
+
         if self.max_obj2: # avoid divide by zero if all solutions are 0
             y = coords[1]/self.max_obj2
         else:
             y = 0.5
         return ( x,y )
-
 
 class RNA:
     def __init__(self, filename, header, seq, struct, contacts):
@@ -270,7 +290,7 @@ def parse_biokop(folder, basename, ext=".biok"):
                 different_2ds.append(db2d)
             # here is a negative sign because Biokop actually minimizes -MEA instead
             # of maximizing MEA : we switch back to MEA
-            solutions.append(SecStruct(db2d, -float(splitted[1]), -float(splitted[2][:-1])))
+            solutions.append(SecStruct(basename, db2d, -float(splitted[1]), -float(splitted[2][:-1])))
 
         # check the range of MEA in this pareto set
         min_mea = solutions[0].objectives[1]
@@ -302,19 +322,25 @@ def parse_biorseo(folder, basename, ext):
         rna.close()
         different_2ds = []
         contacts = []
+        str2d = []
+        count = 0;
         for s in lines[2:]:
+            count = count + 1
             if s == '\n':
                 continue
             splitted = s.split('\t')
+            if(count % 2 == 1):
+                obj1 = float(splitted[1])
+                obj2 = float(splitted[2][:-1])
             db2d = splitted[0].split(' ')[0]
             if db2d not in different_2ds:
-                different_2ds.append(db2d)
+                if(s.find('(') != -1):
+                    different_2ds.append(db2d)
             if(s.find('*') != -1):
-                contacts = s
-                #print("1: " + s)
+                contacts = db2d
+                solutions.append(SecStruct(basename, str2d, contacts, obj1, obj2))
             elif(s.find('(') != -1):
-                #print("2: " + s)
-                solutions.append(SecStruct(db2d, contacts, float(splitted[1]), float(splitted[2][:-1])))
+                str2d = db2d
         if len(different_2ds) > 1:
             return solutions
         else:
@@ -385,7 +411,7 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
     for rna in RNAcontainer:
         # Extracting the predictions from the results file
         solutions = parse(results_folder, rna.basename_, ext)
-        reference = SecStruct(rna.struct_, rna.contacts_, float("inf"), float("inf"))
+        reference = SecStruct(rna.basename_, rna.struct_, rna.contacts_, float("inf"), float("inf"))
         if solutions is None:
             continue
         pset = Pareto(solutions, reference)
@@ -430,7 +456,7 @@ def process_extension_ctc(ax, pos, ext, nsolutions=False, xlabel="Best solution 
     for rna in RNAcontainer:
         # Extracting the predictions from the results file
         solutions = parse(results_folder, rna.basename_, ext)
-        reference = SecStruct(rna.struct_, rna.contacts_, float("inf"), float("inf"))
+        reference = SecStruct(rna.basename_, rna.struct_, rna.contacts_, float("inf"), float("inf"))
         if solutions is None:
             continue
         pset = Pareto(solutions, reference)
@@ -475,8 +501,11 @@ if extension == "all":
     fig, ax = plt.subplots(1, 4, figsize=(10, 3), sharey=True)
     ax = ax.flatten()
     process_extension(ax, 0, ".json_pmE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
+    print("--------------------------------------------------------------------------------------------")
     process_extension(ax, 1, ".json_pmF", xlabel="Normalized $f_{1F}$", ylabel="Normalized MEA")
+    print("--------------------------------------------------------------------------------------------")
     process_extension_ctc(ax, 2, ".json_pmE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
+    print("--------------------------------------------------------------------------------------------")
     process_extension_ctc(ax, 3, ".json_pmF", xlabel="Normalized $f_{1F}$", ylabel="Normalized MEA")
     for a in ax:
         a.label_outer()
