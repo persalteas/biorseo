@@ -439,13 +439,13 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
                     if (subseq.size() >= 2) {
                         components.push_back(subseq); 
                     } else {
-                        errors_id.push_back(make_pair(stoi(id), 'k'));
+                        //errors_id.push_back(make_pair(stoi(id), 'k'));
                     }
                 }
                 if (seq.size() >= 2) { // Last component after the last &
                     components.push_back(seq); 
                 } else {
-                    errors_id.push_back(make_pair(stoi(id), 'k'));
+                    //errors_id.push_back(make_pair(stoi(id), 'k'));
                 }
 
                 size_t n = 0;

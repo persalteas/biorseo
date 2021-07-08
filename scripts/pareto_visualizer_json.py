@@ -121,6 +121,7 @@ class SecStruct:
                 fn += 1
         # print(str(tp) + " " + str(tn) + " " + str(fp) + " " + str(fn) + "\n")
 
+        result = (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
         # Compute MCC
         if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
             print("warning: division by zero!")
@@ -149,6 +150,7 @@ class Pareto:
             if mcc > max_mcc:
                 max_mcc = mcc
                 max_i = i
+        print("\n" + "max mcc str: " + str(max_mcc))
         return max_i
 
     def find_best_solution_ctc(self):
@@ -189,7 +191,7 @@ class Pareto:
             x = coords[0]/self.max_obj1
         else:
             x = 0.5
-        if(x < 0.5):
+        """if(x < 0.5):
             print("\n" + CRED + self.predictions[self.index_of_best_ctc].name + CEND)
             print(CRED + self.predictions[self.index_of_best_ctc].ctc + CEND)
             print("count: " + str(self.predictions[self.index_of_best_ctc].ctc.count("*")))
@@ -201,7 +203,7 @@ class Pareto:
             print(CGREEN + self.predictions[self.index_of_best_ctc].ctc + CEND)
             print("count: " + str(self.predictions[self.index_of_best_ctc].ctc.count("*")))
             print(CGREEN + self.true_structure.ctc + CEND)
-            print("count: " + str(self.true_structure.ctc.count("*")) + "\n")
+            print("count: " + str(self.true_structure.ctc.count("*")) + "\n")"""
 
         if self.max_obj2: # avoid divide by zero if all solutions are 0
             y = coords[1]/self.max_obj2
@@ -344,7 +346,7 @@ def parse_biorseo(folder, basename, ext):
         if len(different_2ds) > 1:
             return solutions
         else:
-            print("[%s] \033[36mWARNING: ignoring this RNA, only one 2D solution is found.\033[0m" % (basename))
+            print("[%s] \033[36mWARNING: ignoring this RNA, only one 2D or contacts solution is found.\033[0m" % (basename))
     else:
         print("[%s] \033[36mWARNING: file not found !\033[0m" % (basename))
     return None
@@ -438,7 +440,7 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
     ax[pos].set_xlim((-0.1,1.1))
     ax[pos].set_ylim((-0.1,1.1))
     ax[pos].set_title(prettify_biorseo(ext[1:]), fontsize=10)
-    ax[pos].annotate("("+str(len(points))+'/'+str(len(RNAcontainer))+" RNAs)", (0.08,0.15))
+    ax[pos].annotate("("+str(len(points))+'/'+str(len(RNAcontainer))+" RNAs)", (0.08, 0.15))
     ax[pos].set_xlabel(xlabel)
     ax[pos].set_ylabel(ylabel)
 

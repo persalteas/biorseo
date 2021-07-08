@@ -85,7 +85,10 @@ def compare_two_contacts(true_ctc, prediction):
             fp += 1
         elif true_ctc[i] == '*' and prediction[i] == '.':
             fn += 1
-    #print(str(tp) + " " + str(tn) + " " + str(fp) + " " + str(fn) + "\n")
+    """if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
+        print(str(tp) + " " + str(tn) + " " + str(fp) + " " + str(fn) + "\n")
+        print(true_ctc)
+        print(prediction)"""
     return [tp, tn, fp, fn]
 
 def compare_two_structures(true2d, prediction):
@@ -108,7 +111,8 @@ def compare_two_structures(true2d, prediction):
 
 def mattews_corr_coeff(tp, tn, fp, fn):
     if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
-        print("warning: division by zero!")
+        print("warning: division by zero! no contact in the prediction")
+        #print("tp: " + str(tp) + " fp: " + str(fp) + " tn: " + str(tn) + " fn: " + str(fn))
         return -10
     elif (tp + fp == 0):
         print("We have an issue : no positives detected ! (linear structure)")
@@ -140,6 +144,7 @@ def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
     structure_prd = read_prd.readline()
     sequence_prd = structure_prd
     while structure_prd:
+        print("max_str: " + str(max_mcc_str))
         structure_prd = read_prd.readline()
         if (len(structure_prd) != 0):
             write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
@@ -248,6 +253,7 @@ cmd1 = ("cppsrc/Scripts/countPattern")
 cmd2 = ("cppsrc/Scripts/deletePdb")
 
 myfile = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
+#myfile = open("data/modules/ISAURE/Motifs_version_initiale/test.txt", "r")
 name = myfile.readline()
 contacts = myfile.readline()
 seq = myfile.readline()
@@ -302,8 +308,9 @@ while seq:
     """
     run_test(cmd2 + " " + name + ".fa", log)
     print(cmd2 + " " + name + ".fa")
+    """
     cmd3 = create_command(name)
-    os.system(cmd3)"""
+    os.system(cmd3)
     tabE = write_mcc_in_file_E(name, contacts, structure2d)
     list_contacts_E.append(tabE[0])
     list_struct2d_E.append(tabE[1])
