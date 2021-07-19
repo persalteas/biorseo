@@ -42,6 +42,8 @@ rna = file.readline()
 twod = file.readline()
 contacts = file.readline()
 list_name = []
+list_score = []
+list_type = []
 print(np)
 while name:
     #print(name)
@@ -51,7 +53,8 @@ while name:
             lineStruct = fileMFE.readline()
     MFE = float(lineStruct[len(lineStruct)-8:len(lineStruct)-2])
     list_name.append(name[5:len(name)-1])
-    list_MFE.append(MFE)
+    list_score.append(MFE)
+    list_type.append('MFE')
     #print("MFE:" + str(MFE))
     lineRna = fileMFE.readline()
     lineStruct = fileMFE.readline()
@@ -62,7 +65,8 @@ while name:
             lineStruct2 = fileEval.readline()
     eval = float(lineStruct2[len(lineStruct2)-8:len(lineStruct2)-2])
     list_name.append(name[5:len(name) - 1])
-    list_eval.append(eval)
+    list_score.append(eval)
+    list_type.append('eval')
     #print("Eval:" + str(eval))
     lineRna2 = fileEval.readline()
     lineStruct2 = fileEval.readline()
@@ -70,7 +74,8 @@ while name:
     best_mea = get_result_MEA(name)
     #print("MEA: " + str(best_mea) + "\n")
     list_name.append(name[5:len(name) - 1])
-    list_MEA.append(best_mea)
+    list_score.append(best_mea)
+    list_type.append('MEA')
     name = file.readline().strip()
     rna = file.readline()
     twod = file.readline()
@@ -85,12 +90,11 @@ print(list_MEA)
 print(list_eval)'''
 
 #np = [["rna", "type_score", "score"]]
-df = pd.DataFrame({'rna':list_name})
+d = {'rna':list_name,'score':list_score, 'type_score':list_type}
+df = pd.DataFrame(d, columns=['rna','type_score','score'])
 print(df)
 
-sns.set_theme(style="ticks")
+sns.stripplot(x="rna",y="score",data=df,jitter=True,hue='type_score',palette='Set1')
 plt.savefig("output.png")
-t=sns.load_dataset('tips')
-#sns.stripplot(x="rna",y="score",data=t,jitter=True,hue='type_score',palette='Set1')
 
 
