@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import re
 import seaborn as sns
 import pandas as pd
+import matplotlib.pylab as plt
 
 def get_result_MEA(filename):
     ext = "json_pmE"
@@ -92,9 +93,9 @@ print(list_eval)'''
 #np = [["rna", "type_score", "score"]]
 d = {'rna':list_name,'score':list_score, 'type_score':list_type}
 df = pd.DataFrame(d, columns=['rna','type_score','score'])
-print(df)
 
 sns.stripplot(x="rna",y="score",data=df,jitter=True,hue='type_score',palette='Set1')
-plt.savefig("output.png")
+plt.xticks(rotation=90)
+plt.savefig("compare_BiORSEOMEA_RNAeval_RNAfold.png")
 
 
