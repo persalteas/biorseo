@@ -58,11 +58,70 @@ RNA::RNA(string name, string seq, bool verbose)
 			pij_(results->i-1,results->j-1) = results->p;
 			results++;
 		}
+
+		/*define type_*/
+		type_ = vector<vector<int>>(n_, vector<int>(n_));
+		for(uint i = 0; i < n_; i++){
+			for(uint j = 0; j < n_; j++){
+				if (i < j){
+					std::stringstream ss;
+					ss << seq_[i] << seq_[j];
+					std::string str = ss.str();
+					if(str.compare("AU") == 0 ){
+						type_[i][j] = 1;
+					}
+					else if(str.compare("CG") == 0 ){
+						type_[i][j] = 2;
+					
+					}
+					else if(str.compare("GC") == 0 ){
+						type_[i][j] = 3;
+					}
+					else if(str.compare("GU") == 0 ){
+						type_[i][j] = 4;
+					}
+					else if(str.compare("UG") == 0 ){
+						type_[i][j] = 5;
+					}
+					else if(str.compare("UA") == 0 ){
+						type_[i][j] = 6;
+					}
+					else{
+						type_[i][j] = 0;
+					}
+				}
+				else{
+					type_[i][j] = 0;
+				}
+			}
+		}
+
+		//define coord
+			for (uint i = 0; i < n_; i++){
+				for(uint j = 0; j < n_; j++){
+					if(i < j && type_[i][j] > 0){
+						if(i != 0 and i != n_ and j != 0 and j != n_){
+							if((type_[i-1][j+1] > 0 and type_[i-1][j+1] < 7) or (type_[i+1][j-1] > 0 and type_[i+1][j-1] < 7)){
+								/*if (i == 93 and j == 95) {
+									std::cout << "HERE" << endl;
+									std::cout << "type_[" << i-1 << "][" << j+1 << "]: " << type_[i-1][j+1] << endl << endl;
+								}*/
+								//std::cout << "type_[" << i << "][" << j << "]: " << type_[i][j] << endl;
+								coord_.push_back(std::make_pair(i,j));
+							}
+						}
+						else if(i == 0 or j == n_){
+							if(type_[i+1][j-1] > 0){
+								coord_.push_back(std::make_pair(i,j));
+							}
+						}
+					}
+				}
+			}
 	}
 
 	else cerr << "NULL result returned by vrna_pfl_fold" << endl;
 }
-
 
 void RNA::print_basepair_p_matrix(float theta) const
 {

@@ -32,6 +32,10 @@ class RNA
     uint   get_RNA_length(void) const;
     void   print_basepair_p_matrix(float theta) const;
 
+    vector<pair<int,int>> get_coord();
+    vector<vector<int>> get_type();
+    int find_coord(pair<int, int>);
+
     bool verbose_;    // Should we print things ?
 
     private:
@@ -41,10 +45,23 @@ class RNA
     string   seq_;     // sequence of the rna with chars
     uint     n_;       // length of the rna
     MatrixXf pij_;     // matrix of basepair probabilities
+
+    vector<vector<int>> type_;  //vector of base pair types
+    vector<pair<int,int>> coord_; //vector of base pair coordinates
 };
 
 inline float  RNA::get_pij(int i, int j) { return pij_(i, j); }
 inline uint   RNA::get_RNA_length() const { return n_; }
 inline string RNA::get_seq(void) const { return seq_; }
+
+inline vector<pair<int,int>>  RNA::get_coord() { return coord_; }
+inline vector<vector<int>>  RNA::get_type() { return type_; }
+inline int RNA::find_coord(std::pair< int,int > p){
+    std::vector<pair<int, int>>::iterator it = find(coord_.begin(), coord_.end(), p);
+    int r = -1;
+    if(it != coord_.end())
+        r = std::distance(coord_.begin(), it);
+    return r;
+}
 
 #endif

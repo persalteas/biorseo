@@ -72,6 +72,8 @@ class MOIP
 	vector<vector<size_t>> index_of_Cxip_;               // Stores the indexes of the Cxip in insertion_dv_
 	vector<size_t>         index_of_first_components;    // Stores the indexes of Cx1p in insertion_dv_
 	vector<vector<size_t>> index_of_yuv_;                // Stores the indexes of the y^u_v in basepair_dv_
+
+	vector<vector<uint>>   index_of_xij_;		         //Stores the indexes of the xij variables (BioKop)
 };
 
 inline uint                      MOIP::get_n_solutions(void) const { return pareto_.size(); }

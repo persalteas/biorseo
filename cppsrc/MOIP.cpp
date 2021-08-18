@@ -364,13 +364,62 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         }
     }
 
-    // Define the expected accuracy objective function:
+    // Define the MFE:
+    double energy[7][7] = {
+        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+        {0.0, 1.1, 2.1, 2.2,1.4,0.9,0.6},
+        {0.0,2.1,2.4,3.3,2.1,2.1,1.4},
+        {0.0,2.2,3.3,3.4,2.5,2.4,1.5},
+        {0.0,1.4,2.1,2.5,1.3,1.3,0.5},
+        {0.0,0.9,2.1,2.4,1.3,1.3,1.0},
+        {0.0,0.6,1.4,1.5,0.5,1.0,0.3}
+    }; 
+
     obj2 = IloExpr(env_);
-    for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
+    for (size_t m = 0; m < 2; m++) {
+        for (size_t i = 0; i < rna_.get_coord().size(); i++) {
+            uint type1 = rna_.get_type()[rna_.get_coord()[i].first][rna_.get_coord()[i].second];
+            uint type2 = rna_.get_type()[rna_.get_coord()[i].first + 1][rna_.get_coord()[i].second - 1];
+            obj2 += IloNum(energy[type1][type2]);
+        }
+    }
+    /*for (size_t i = 0; i < rna_.get_coord().size(); i++) {
+        uint type1 = rna_.get_type()[rna_.get_coord()[i].first][rna_.get_coord()[i].second];
+        std::cout << "type 1 :" << type1 << endl;
+
+        uint type2 = rna_.get_type()[rna_.get_coord()[i].first + 1][rna_.get_coord()[i].second - 1];
+        std::cout << "type 2: " << type2 << endl;
+        //std::cout << "type[" << rna_.get_coord()[i].first << "][" << rna_.get_coord()[i].second << "] :" << rna_.get_type()[rna_.get_coord()[i].first][rna_.get_coord()[i].second] << endl;
+        std::cout << "energy[" << type1 << "][" << type2 << "]: " << energy[type1][type2] << endl;
+    }*/
+    // Define the expected accuracy objective function:
+    //MEA:
+    /*for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
             if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
         }
-    }
+    }*/
+    
+    //std::cout << "\n fin \n";
+
+    /*for (size_t u = 0; u < rna_.get_RNA_length(); u++) {
+        for (size_t v = 0; v < rna_.get_RNA_length(); v++) {
+            std::cout << index_of_xij_[u][v] << ", ";
+        }
+        std::cout << "\n";
+    }*/
+
+    /*for (size_t i = 0; i < 7; i++) {
+        for (size_t j = 0; j < 7; j++) {
+            std::cout << energy[i][j] << ", ";
+        }
+        std::cout << "\n";
+    }*/
+    /*std::cout << rna_.get_coord().size() << endl;
+    for (size_t i = 0; i < rna_.get_coord().size(); i++) {
+        std::cout << rna_.get_coord()[i].first << ", " << rna_.get_coord()[i].second << endl;
+    }*/
+    std::cout << "\n\n";
 }
 
 MOIP::~MOIP() { env_.end(); }
