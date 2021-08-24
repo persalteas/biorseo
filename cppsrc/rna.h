@@ -32,7 +32,6 @@ class RNA
     uint   get_RNA_length(void) const;
     void   print_basepair_p_matrix(float theta) const;
 
-    //vector<pair<int,int>> get_coord();
     vector<vector<int>> get_type();
 
     bool verbose_;    // Should we print things ?
@@ -46,14 +45,12 @@ class RNA
     MatrixXf pij_;     // matrix of basepair probabilities
 
     vector<vector<int>> type_;  //vector of base pair types
-    //vector<pair<int,int>> coord_; //vector of base pair coordinates
 };
 
 inline float  RNA::get_pij(int i, int j) { return pij_(i, j); }
 inline uint   RNA::get_RNA_length() const { return n_; }
 inline string RNA::get_seq(void) const { return seq_; }
 
-//inline vector<pair<int,int>>  RNA::get_coord() { return coord_; }
 inline vector<vector<int>>  RNA::get_type() { return type_; }
 
 

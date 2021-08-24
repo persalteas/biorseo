@@ -25,7 +25,7 @@ using json = nlohmann::json;
 
 char   MOIP::obj_function_nbr_ = 'A';
 uint   MOIP::obj_to_solve_     = 1;
-double MOIP::precision_        = 1e-6;
+double MOIP::precision_        = 1e-7;
 bool   MOIP::allow_pk_         = true;
 uint   MOIP::max_sol_nbr_      = 500;
 
@@ -68,6 +68,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     if (verbose_) cout << "Defining problem decision variables..." << endl;
     basepair_dv_  = IloNumVarArray(env_);
     insertion_dv_ = IloNumVarArray(env_);
+    stacks_dv_ = IloNumVarArray(env_);
 
     // Add the y^u_v decision variables
     if (verbose_) cout << "\t> Legal basepairs : ";
@@ -85,6 +86,34 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
+    /*for (u = 0; u < index_of_yuv_.size(); u++) {
+        for (v = 0; v < index_of_yuv_[u].size(); v++) {
+            cout << "["<< u << "]["<< v <<"]: " << index_of_yuv_[u][v] << endl;
+        }   
+    }*/
+    if (verbose_) cout << endl;
+
+    // Add the x_i,j decision variables
+    if (verbose_) cout << "\t> The possible stacks of two base pairs (i,j) and (i+1,j-1) : ";
+    c = 0;
+    index_of_xij_ = vector<vector<size_t>>(rna_.get_RNA_length() - 6, vector<size_t>(0));
+    for (u = 0; u < rna_.get_RNA_length() - 6; u++)
+        for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible if v > u+3
+            if (rna_.get_pij(u, v) > theta and rna_.get_pij(u + 1, v - 1) > theta) { // ou u-1 v+1 ??
+                if (verbose_) cout << u << '-' << v << " ";
+                index_of_xij_[u].push_back(c);
+                c++;
+                char name[15];
+                sprintf(name, "x%d,%d", u, v);
+                stacks_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether (u,v) and (u+1,v-1) are a stack
+            } else {
+                index_of_xij_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
+            }
+    /*for (u = 0; u < index_of_xij_.size(); u++) {
+        for (v = 0; v < index_of_xij_[u].size(); v++) {
+            cout << "["<< u << "]["<< v <<"]: " << index_of_xij_[u][v] << endl;
+        }   
+    }*/
     if (verbose_) cout << endl;
 
     // Look for insertions sites, then create the appropriate Cxip variables
@@ -376,25 +405,16 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     }; 
 
     obj2 = IloExpr(env_);
+ 
     for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
-            if (allowed_basepair(u, v) and allowed_basepair(u + 1, v - 1)) {
+            if (get_xij_index(u, v) != rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
                 uint type1 = rna_.get_type()[u][v];
                 uint type2 = rna_.get_type()[u + 1][v - 1];
-                obj2 += IloNum(energy[type1][type2]);
+                obj2 += IloNum(energy[type1][type2]) * x(u, v);
             }
         }
     }
-
-    /*for (size_t i = 0; i < rna_.get_coord().size(); i++) {
-        uint type1 = rna_.get_type()[rna_.get_coord()[i].first][rna_.get_coord()[i].second];
-        std::cout << "type 1 :" << type1 << endl;
-
-        uint type2 = rna_.get_type()[rna_.get_coord()[i].first + 1][rna_.get_coord()[i].second - 1];
-        std::cout << "type 2: " << type2 << endl;
-        //std::cout << "type[" << rna_.get_coord()[i].first << "][" << rna_.get_coord()[i].second << "] :" << rna_.get_type()[rna_.get_coord()[i].first][rna_.get_coord()[i].second] << endl;
-        std::cout << "energy[" << type1 << "][" << type2 << "]: " << energy[type1][type2] << endl;
-    }*/
     // Define the expected accuracy objective function:
     //MEA:
     /*for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
@@ -402,7 +422,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
         }
     }*/
-    
     //std::cout << "\n fin \n";
 }
 
@@ -439,6 +458,25 @@ void MOIP::define_problem_constraints(string& source)
         if (count > 1) {
             model_.add(c1 <= 1);
             if (verbose_) cout << "\t\t" << (c1 <= 1) << endl;
+        }
+    }
+
+    // Ensure that the stacking of (i,j) and (i+1,j-1) exists if and only if the pairing (i,j) and (i+1, j-1) exist
+    if (verbose_) cout << "\t> ensuring that the stacks are possible..." << endl;
+    for (u = 0; u < n - 5; u++) {
+        for (v = u + 4; v < n; v++) {
+            if (allowed_basepair(u, v) and allowed_basepair(u + 1, v - 1)) {
+                IloExpr c7_1(env_);
+                IloExpr c7_2(env_);
+
+                c7_1 += y(u, v) + y(u + 1, v - 1);
+                c7_2 += y(u, v) + y(u + 1, v - 1) - IloNum(1);
+
+                model_.add(IloNum(2) * x(u, v) <= c7_1);
+                if (verbose_) cout << "\t\t" << (2 * x(u,v) <= c7_1) << endl;
+                model_.add(x(u, v) >= c7_2);
+                if (verbose_) cout << "\t\t" << (x(u, v) >= c7_2) << endl << endl;
+            }
         }
     }
 
@@ -853,6 +891,14 @@ size_t MOIP::get_yuv_index(size_t u, size_t v) const
 }
 
 size_t MOIP::get_Cpxi_index(size_t x_i, size_t i_on_j) const { return index_of_Cxip_[x_i][i_on_j]; }
+
+size_t MOIP::get_xij_index(size_t u, size_t v) const
+{
+    size_t a, b;
+    a = (u < v) ? u : v;
+    b = (u > v) ? u : v;
+    return index_of_xij_[a][b - 4 - a];
+}
 
 void MOIP::remove_solution(uint i) { pareto_.erase(pareto_.begin() + i); }
 

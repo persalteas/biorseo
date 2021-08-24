@@ -294,7 +294,7 @@ while structure_prd:
 read_prd.close()
 write.close()"""
 
-run_test(cmd, log)
+"""run_test(cmd, log)"""
 run_test(cmd0, log)
 run_test(cmd1, log)
 
