@@ -29,7 +29,7 @@ import pickle
 # ================== DEFINITION OF THE PATHS ==============================
 
 biorseoDir = path.realpath(".")
-jar3dexec = "/home/persalteas/Software/jar3dbin/jar3d_2014-12-11.jar"
+jar3dexec = "/local/local/localopt/jar3d_2014-12-11.jar"
 bypdir = biorseoDir + "/BayesPairing/bayespairing/src"
 byp2dir = biorseoDir + "/BayesPairing2/bayespairing/src"
 moipdir = "/home/persalteas/Software/RNAMoIP/Src/RNAMoIP.py"
@@ -803,7 +803,7 @@ class Method:
 			else:
 				results_file = outputDir+f"{'' if self.allow_pk else 'no'}PK/"+basename+f".biorseo_{self.data_source.lower()}_{self.placement_method.lower()}_{self.func}"
 				c += ["--bayespaircsv", outputDir+basename+f".{self.data_source.lower()}_{self.placement_method.lower()}.csv"]
-			c += ["-o", results_file, "--func", self.func]
+			c += ["-o", results_file, "--func", self.func, "--MFE"]
 			if not self.allow_pk:
 				c += ["-n"]
 			self.joblist.append(Job(command=c, priority=4, timeout=3600, 
