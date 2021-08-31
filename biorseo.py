@@ -14,7 +14,7 @@ from ast import literal_eval
 try:
     cmd_opts, cmd_args = getopt.getopt( sys.argv[1:],
                                 "bc:f:hi:jl:no:O:pt:v",
-                             [  "verbose","rna3dmotifs","3dmotifatlas","carnaval","contacts","jar3d","bayespairing","patternmatch","func=",
+                             [  "verbose","rna3dmotifs","3dmotifatlas","carnaval","contacts","jar3d","bayespairing","patternmatch","func=", "MFE", "MEA",
                                 "help","version","seq=","modules-path=", "jar3d-exec=", "bypdir=", "biorseo-dir=", "first-objective=","output=","theta=",
                                 "interrupt-limit=", "outputf="])
 except getopt.GetoptError as err:
@@ -118,9 +118,10 @@ class InsertionSite:
 class Job:
     """A class to store the properties of a tool execution, in order to run similar jobs in parallel."""
 
-    def __init__(self, command=None, function=None, args=None, how_many_in_parallel=0, priority=1, timeout=None):
+    def __init__(self, command=None, function=None, estimator=None, args=None, how_many_in_parallel=0, priority=1, timeout=None):
         self.cmd_ = command
         self.func_ = function
+        self.estimator_ = estimator
         self.args_ = args
         self.priority_ = priority
         self.timeout_ = timeout
@@ -150,6 +151,7 @@ class BiorseoInstance:
         self.type = "dpm"       # direct pattern mathcing
         self.modules = "desc"   # ...with Rna3dMotifs "DESC" modules
         self.func = 'B'         # ...and function B
+        self.estimator = 'b'    # ...and estimator MEA"""
         self.forward_options = []   # options to pass to the C++ biorseo
         self.jobcount = 0
         self.joblist = []
@@ -174,15 +176,19 @@ class BiorseoInstance:
         self.biorseo_dir = "/biorseo"
         self.run_dir = path.dirname(path.realpath(__file__))
         self.temp_dir = "temp/"
+        count = 0
 
         for opt, arg in opts:
             if opt == "-h" or opt == "--help":
                 print(  "Biorseo, Bi-Objective RNA Structure Efficient Optimizer\n"
                         "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules.\n"
                         "Developped by Louis Becquey (louis.becquey@univ-evry.fr), 2018-2020\n\n")
-                print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) a module type with --rna3dmotifs, --carnaval, --contacts or --3dmotifatlas"
-                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
-                      "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
+                print("Usage:\tYou must provide:\n\t1) a FASTA input file with -i,"
+                      "\n\t2) a module type with --rna3dmotifs, --carnaval, --contacts or --3dmotifatlas"
+                      "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }"
+                      "\n\t4) one scoring function with --func A, B, C or D"
+                      "\n\t5) one estimator between MFE or MEA"
+                      "\n\n\tIf you are not using the Docker image: \n\t6) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
                 print()
                 print("Options:")
                 print("-h [ --help ]\t\t\tPrint this help message")
@@ -202,6 +208,8 @@ class BiorseoInstance:
                       " Objective function to score module insertions:\n\t\t\t\t  (A) insert big modules (B) insert light, high-order modules"
                       "\n\t\t\t\t  (c) insert modules which score well with the sequence\n\t\t\t\t  (D) insert light, high-order modules which score well with the sequence."
                       "\n\t\t\t\t  C and D require cannot be used with --patternmatch.")
+                print("-e [ --MFE ]\t\t\tUse the estimator MFE(Minimum Free Energy)")
+                print("-a [ --MEA ]\t\t\tUse the estimator MEA(Maximum Expected Energy)")
                 print("-c [ --first-objective=… ]\t(default 1) Objective to solve in the mono-objective portions of the algorithm."
                       "\n\t\t\t\t  (1) is the module objective given by --func, (2) is the expected accuracy of the structure.")
                 print("-l [ --limit=… ]\t\t(default 500) Number of solutions in the Pareto set from which"
@@ -219,9 +227,9 @@ class BiorseoInstance:
                 print("--biorseo-dir=…\t\t\tPath to the BiORSEO root directory.\n\t\t\t\t  Default is /biorseo, you should use this option if you run"
                       "\n\t\t\t\t  BiORSEO from outside the docker image. Use the FULL path.")
                 print("\nExamples:")
-                print("biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B")
-                print("biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800")
-                print("biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D")
+                print("biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B --MEA")
+                print("biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B --MEA -l 800")
+                print("biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D --MEA")
                 print("\nThe allowed module/placement-method/function combinations are:\n")
                 print("                --patternmatch  --bayespairing    --jar3d")
                 print("--rna3dmotifs     A. B.           A. B. C. D.")
@@ -275,6 +283,19 @@ class BiorseoInstance:
             elif opt == "-l" or opt == "--interrupt-limit":
                 self.forward_options.append("-l")
                 self.forward_options.append(arg)
+            elif opt == "-a" or opt == "--MFA":
+                if count == 0:
+                    self.forward_options.append("-a")
+                    count = 1
+                else:
+                    raise "Choose only one estimator between MEA or MFE !"
+            elif opt == "-e" or opt == "--MFE":
+                if count == 0:
+                    self.estimator = "a"
+                    self.forward_options.append("-e")
+                    count = 1
+                else:
+                    raise "Choose only one estimator between MEA or MFE !"
             elif opt == "-v" or opt == "--verbose":
                 self.forward_options.append("-v")
             elif opt == "-n" or opt == "--disable-pseudoknots":
@@ -346,7 +367,8 @@ class BiorseoInstance:
         if issues:
             print("\nUsage:\tYou must provide:\n\t1) a FASTA input file with -i,\n\t2) one module type in { --rna3dmotifs, --carnaval, --3dmotifatlas, --contacts }"
                   "\n\t3) one module placement method in { --patternmatch, --jar3d, --bayespairing }\n\t4) one scoring function with --func A, B, C or D"
-                  "\n\n\tIf you are not using the Docker image: \n\t5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
+                  "\n\t4) one estimator for the second objective with --MFE or --MEA"
+                  "\n\n\tIf you are not using the Docker image: \n\t6) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)")
             print("\nThe allowed module/placement-method/function combinations are:\n")
             print("                --patternmatch  --bayespairing    --jar3d")
             print("--rna3dmotifs     A. B.           A. B. C. D.")
@@ -863,8 +885,12 @@ class BiorseoInstance:
             command = [ executable, "-s", fastafile ]
             if method_type:
                 command += [ method_type, csv ]
-            self.finalname =  self.temp_dir + instance.header + ext + self.func
-            command += [ "-o", self.finalname, "--function", self.func ]
+
+            if self.estimator == 'a':
+                self.finalname = self.temp_dir + instance.header + ext + self.func + " MFE"
+            else:
+                self.finalname = self.temp_dir + instance.header + ext + self.func + " MEA"
+            command += ["-o", self.finalname, "--function", self.func]
             command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))
 

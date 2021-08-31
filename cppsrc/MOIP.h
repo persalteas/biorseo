@@ -37,6 +37,7 @@ class MOIP
 	void                      	forbid_solutions_between(double min, double max);
 	IloEnv&                   	get_env(void);
 	static char               	obj_function_nbr_;    // On what criteria do you want to insert motifs ?
+	static char					obj_function2_nbr_;  // Do you want to use MEA or MFE to determine the best energy score ?
 	static uint               	obj_to_solve_;  // What objective do you prefer to solve in mono-objective portions of the algorithm ?
 	static double             	precision_;   // decimals to keep in objective values, to avoid numerical issues. otherwise, solution with objective 5.0000000009 dominates solution with 5.0 =(
 	static bool               	allow_pk_;      // Wether we forbid pseudoknots (false) or allow them (true)

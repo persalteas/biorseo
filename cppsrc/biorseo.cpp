@@ -61,6 +61,7 @@ int main(int argc, char* argv[])
 	bool               verbose = false;
 	float              theta_p_threshold;
 	char               obj_function_nbr = 'B';
+	char			   mea_or_mfe = 'b';
 	list<Fasta>        f;
 	ofstream           outfile;
 	SecondaryStructure bestSSO1, bestSSO2;
@@ -80,18 +81,21 @@ int main(int argc, char* argv[])
 	
 	("jar3dcsv,j", po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by biorseo.py")
 	("bayespaircsv,b", po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by biorseo.py")
-	("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(1), "Objective to solve in the mono-objective portions of the algorithm")
+	("first-objective,c", po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(2), "Objective to solve in the mono-objective portions of the algorithm")
 	("output,o", po::value<string>(&outputName), "A file to summarize the computation results")
 	("theta,t", po::value<float>(&theta_p_threshold)->default_value(0.001), "Pairing probability threshold to consider or not the possibility of pairing")
 	("function,f", po::value<char>(&obj_function_nbr)->default_value('B'), "What objective function to use to include motifs: square of motif size in nucleotides like "
 	"RNA-MoIP (A), light motif size + high number of components (B), site score (C), light motif size + site score + high number of components (D)")
+	
+	("MFE,e", "Use as function for objective 2 MFE (Minimum Free Energy)")
+	("MEA,a", "Use as function for objective 2 MEA (Maximum Expected Accuracy")
+
 	("disable-pseudoknots,n", "Add constraints forbidding the formation of pseudoknots")
 	("limit,l", po::value<unsigned int>(&MOIP::max_sol_nbr_)->default_value(500), "Intermediate number of solutions in the Pareto set above which we give up the calculation.")
 	("verbose,v", "Print what is happening to stdout");
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	basename = remove_ext(inputName.c_str(), '.', '/');
-	//theta_p_threshold = 0.01;
 
 	try {
 		po::store(po::parse_command_line(argc, argv, desc), vm);    // can throw
@@ -108,6 +112,11 @@ int main(int argc, char* argv[])
 		if (vm.count("version")) {
 			cout << "Biorseo v2.0, dockerized, August 2020" << endl;
 			return EXIT_SUCCESS;
+		}
+		if (vm.count("MFE")) mea_or_mfe = 'a';
+		if (vm.count("MEA")) {
+			mea_or_mfe = 'b';
+			cout << "hey" << endl;
 		}
 		if (vm.count("verbose")) verbose = true;
 		if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
@@ -134,6 +143,7 @@ int main(int argc, char* argv[])
 	}
 
 	MOIP::obj_function_nbr_ = obj_function_nbr;
+	MOIP::obj_function2_nbr_ = mea_or_mfe;
 
 	/*  FILE PARSING  */
 
@@ -175,6 +185,10 @@ int main(int argc, char* argv[])
 
 	// return 0;
 
+	//test
+	/*string best_score;
+	bool flag = false;*/
+
 	if (verbose)
 		cout << "Solving..." << endl;
 	try {
@@ -185,17 +199,22 @@ int main(int argc, char* argv[])
 			cout << endl << "Best solution according to objective 1 :" << bestSSO1.to_string() << endl;
 			cout << "Best solution according to objective 2 :" << bestSSO2.to_string() << endl;
 		}
+		//test
+		/*string s = bestSSO1.to_string();
+		string delimiter = "\t";
+		best_score = bestSSO1.to_string().substr(s.find(delimiter) + delimiter.size());
+		best_score = best_score.substr(0, best_score.find(delimiter));*/
 
 		// extend the Pareto set on top
 		if (MOIP::obj_to_solve_ == 1) {
 			myMOIP.add_solution(bestSSO1);
 			min = bestSSO1.get_objective_score(2) + MOIP::precision_;
-			max = bestSSO2.get_objective_score(2);
+			max = bestSSO2.get_objective_score(2) + MOIP::precision_;
 			if (verbose) cout << endl << "Solving obj1 on top of best solution 1." << endl;
 		} else {
 			myMOIP.add_solution(bestSSO2);
 			min = bestSSO2.get_objective_score(1) + MOIP::precision_;
-			max = bestSSO1.get_objective_score(1);
+			max = bestSSO1.get_objective_score(1) + MOIP::precision_;
 			if (verbose) cout << endl << "Solving obj2 on top of best solution 2." << endl;
 		}
 
@@ -240,7 +259,6 @@ int main(int argc, char* argv[])
 		cout << "Best value for Motif insertion objective: " << bestSSO1.get_objective_score(1) << endl;
 		cout << "Best value for structure expected accuracy: " << bestSSO2.get_objective_score(2) << endl;
 	}
-
 	// Save it to file
 	if (vm.count("output")) {
 		if (verbose) cout << "Saving structures to " << outputName << "..." << endl;
@@ -249,7 +267,20 @@ int main(int argc, char* argv[])
 		//cout << "----struc----" << endl << myMOIP.solution(0).to_string() << endl;
 		for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
 			outfile << myMOIP.solution(i).to_string() << endl << structure_with_contacts(myMOIP.solution(i)) << endl;
+			string str1 = myMOIP.solution(i).to_string();
+
+			//Check if the best score for obj2 is correctly include in the results
+			/*string delimiter = "\t";
+			string obj2 = str1.substr(str1.find(delimiter) + delimiter.size());
+			obj2 = obj2.substr(0, obj2.find(delimiter));
+			if (obj2.compare(best_score) == 0)
+				flag = true;*/
 		}
+		/*if (!flag)
+			cout << "\033[1m\033[31mBest score not find for " << outputName << " !\033[0m" << endl;
+		else
+			cout << "OK for "<< outputName << "!" << endl;*/
+
 		outfile.close();
 	}
 

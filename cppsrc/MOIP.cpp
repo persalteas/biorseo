@@ -24,8 +24,9 @@ using namespace std;
 using json = nlohmann::json;
 
 char   MOIP::obj_function_nbr_ = 'A';
+char   MOIP::obj_function2_nbr_ = 'b';
 uint   MOIP::obj_to_solve_     = 1;
-double MOIP::precision_        = 1e-7;
+double MOIP::precision_        = 1e-5;
 bool   MOIP::allow_pk_         = true;
 uint   MOIP::max_sol_nbr_      = 500;
 
@@ -271,23 +272,25 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 			{ 
                 for(uint j = 0; j < errors_id.size(); j++)
                 {
-                    cerr << "\t> Ignoring JSON " << errors_id[j].first;
-                    uint error = errors_id[j].second;
-                    switch (error)
-                    {
-                        case 'l': cerr << ", too short to be considered."; break;
-                        case 'x': cerr << ", sequence and secondary structure are of different size."; break;
-                        case 'd' : cerr << ", missing header."; break;
-                        case 'e' : cerr << ", sequence is empty."; break;
-                        case 'f' : cerr << ", 2D is empty."; break;
-                        case 'n' : cerr << ", brackets are not balanced."; break;
-                        case 'k' : cerr << ", a component is too small and got removed."; break;
-                        case 'a' : cerr << ", the number of components is different between contacts and sequence"; break;
-                        case 'b' : cerr << ", the number of nucleotides is different between contacts and sequence"; break;
-                        default: cerr << ", unknown reason";
-                        
+                    if(verbose) {
+                        cerr << "\t> Ignoring JSON " << errors_id[j].first;
+                        uint error = errors_id[j].second;
+                        switch (error)
+                        {
+                            case 'l': cerr << ", too short to be considered."; break;
+                            case 'x': cerr << ", sequence and secondary structure are of different size."; break;
+                            case 'd' : cerr << ", missing header."; break;
+                            case 'e' : cerr << ", sequence is empty."; break;
+                            case 'f' : cerr << ", 2D is empty."; break;
+                            case 'n' : cerr << ", brackets are not balanced."; break;
+                            case 'k' : cerr << ", a component is too small and got removed."; break;
+                            case 'a' : cerr << ", the number of components is different between contacts and sequence"; break;
+                            case 'b' : cerr << ", the number of nucleotides is different between contacts and sequence"; break;
+                            default: cerr << ", unknown reason";
+                            
+                        }
+                        cerr << endl;
                     }
-                    cerr << endl;
                 }
                 errors++;
 			}
@@ -392,36 +395,40 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
         }
     }
-
-    // Define the MFE:
     double energy[7][7] = {
-        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-        {0.0, 1.1, 2.1, 2.2, 1.4, 0.9, 0.6},
-        {0.0, 2.1, 2.4, 3.3, 2.1, 2.1, 1.4},
-        {0.0, 2.2, 3.3, 3.4, 2.5, 2.4, 1.5},
-        {0.0, 1.4, 2.1, 2.5, 1.3, 1.3, 0.5},
-        {0.0, 0.9, 2.1, 2.4, 1.3, 1.3, 1.0},
-        {0.0, 0.6, 1.4, 1.5, 0.5, 1.0, 0.3}
-    }; 
+                {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                {0.0, 1.1, 2.1, 2.2, 1.4, 0.9, 0.6},
+                {0.0, 2.1, 2.4, 3.3, 2.1, 2.1, 1.4},
+                {0.0, 2.2, 3.3, 3.4, 2.5, 2.4, 1.5},
+                {0.0, 1.4, 2.1, 2.5, 1.3, 1.3, 0.5},
+                {0.0, 0.9, 2.1, 2.4, 1.3, 1.3, 1.0},
+                {0.0, 0.6, 1.4, 1.5, 0.5, 1.0, 0.3}
+            }; 
 
-    obj2 = IloExpr(env_);
- 
-    for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
-        for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
-            if (get_xij_index(u, v) != rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
-                uint type1 = rna_.get_type()[u][v];
-                uint type2 = rna_.get_type()[u + 1][v - 1];
-                obj2 += IloNum(energy[type1][type2]) * x(u, v);
+            obj2 = IloExpr(env_);
+    switch (obj_function2_nbr_) {     
+        case 'a':
+            // Define the MFE:
+            for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
+                for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
+                    if (get_xij_index(u, v) != rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
+                        uint type1 = rna_.get_type()[u][v];
+                        uint type2 = rna_.get_type()[u + 1][v - 1];
+                        obj2 += IloNum(energy[type1][type2]) * x(u, v);
+                    }
+                }
             }
-        }
+        break;
+        case 'b':
+            // Define the expected accuracy objective function:
+            //MEA:
+            for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
+                for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
+                    if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
+                }
+            }
+        break;
     }
-    // Define the expected accuracy objective function:
-    //MEA:
-    /*for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
-        for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
-            if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
-        }
-    }*/
     //std::cout << "\n fin \n";
 }
 
@@ -787,8 +794,9 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 
 void MOIP::search_between(double lambdaMin, double lambdaMax)
 {
-    if (fabs(lambdaMin - lambdaMax) < MOIP::precision_) return;
-    SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin, lambdaMax);
+    //if (fabs(lambdaMin - lambdaMax) < MOIP::precision_) return;
+    if (lambdaMin - lambdaMax > 0.0) return;
+    SecondaryStructure s = solve_objective(obj_to_solve_, lambdaMin + MOIP::precision_, lambdaMax);
     //cout << "min: " << lambdaMin << " max: " << lambdaMax << endl;
     if (!s.is_empty_structure) {    // A solution has been found
 
@@ -817,10 +825,10 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
         double max = lambdaMax;
 
         if (verbose_)
-            cout << std::setprecision(-log10(precision_) + 4) << "\nSolving objective function " << obj_to_solve_
+            cout << std::setprecision(-log10(precision_) + 7) << "\nSolving objective function " << obj_to_solve_
                  << ", on top of " << s.get_objective_score(3 - obj_to_solve_) << ": Obj" << 3 - obj_to_solve_
-                 << "  being in [" << std::setprecision(-log10(precision_) + 4) << min << ", "
-                 << std::setprecision(-log10(precision_) + 4) << max << "]..." << endl;
+                 << "  being in [" << std::setprecision(-log10(precision_) + 7) << min << ", "
+                 << std::setprecision(-log10(precision_) + 7) << max << "]..." << endl;
         search_between(min, max);
 
 
@@ -830,10 +838,10 @@ void MOIP::search_between(double lambdaMin, double lambdaMax)
             min = lambdaMin;
             max = s.get_objective_score(3 - obj_to_solve_);
             if (verbose_)
-                cout << std::setprecision(-log10(precision_) + 4) << "\nSolving objective function " << obj_to_solve_
+                cout << std::setprecision(-log10(precision_) + 7) << "\nSolving objective function " << obj_to_solve_
                      << ", below (or eq. to) " << max << ": Obj" << 3 - obj_to_solve_ << "  being in ["
-                     << std::setprecision(-log10(precision_) + 4) << min << ", "
-                     << std::setprecision(-log10(precision_) + 4) << max << "]..." << endl;
+                     << std::setprecision(-log10(precision_) + 7) << min << ", "
+                     << std::setprecision(-log10(precision_) + 7) << max << "]..." << endl;
             search_between(min, max);
         }
 
