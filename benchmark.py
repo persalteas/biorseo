@@ -29,11 +29,11 @@ import pickle
 # ================== DEFINITION OF THE PATHS ==============================
 
 biorseoDir = path.realpath(".")
-jar3dexec = "/home/persalteas/Software/jar3dbin/jar3d_2014-12-11.jar"
+jar3dexec = "/local/local/localopt/jar3d_2014-12-11.jar"
 bypdir = biorseoDir + "/BayesPairing/bayespairing/src"
 byp2dir = biorseoDir + "/BayesPairing2/bayespairing/src"
-moipdir = "/home/persalteas/Software/RNAMoIP/Src/RNAMoIP.py"
-biokopdir = "/home/persalteas/Software/biokop/biokop"
+moipdir = "/local/local/localopt/RNAMoIP/Src/RNAMoIP.py"
+biokopdir = "/local/local/localopt/biokop/biokop"
 runDir = path.dirname(path.realpath(__file__))
 bpRNAFile = argv[1]
 PseudobaseFile = argv[2]
@@ -1100,8 +1100,11 @@ def load_from_dbn(file, header_style=3):
 			if n < 10 or n > 100:
 				continue  # ignore too short and too long RNAs
 			if is_canonical_nts(seq) and is_canonical_bps(struct):
+				# keeps what's inside brackets at the end as the filename
 				if header_style == 1: container.append(RNA(header.replace('/', '_').split('(')[-1][:-1], header, seq, struct))
+				# keeps what's inside square brackets at the end as the filename
 				if header_style == 2: container.append(RNA(header.replace('/', '_').split('[')[-1][:-41], header, seq, struct))
+				# keeps all the header as filename
 				if header_style == 3: container.append(RNA(header[1:], header, seq, struct))
 				if '[' in struct: counter += 1
 	db.close()
@@ -1403,8 +1406,8 @@ def print_StudyCase_results():
 if __name__ == '__main__':
 
 	print("> Loading files...", flush=True)
-	bpRNAContainer, bpRNA_pk_counter = load_from_dbn(bpRNAFile)
-	PseudobaseContainer, Pseudobase_pk_counter = load_from_dbn(PseudobaseFile)
+	bpRNAContainer, bpRNA_pk_counter = load_from_dbn(bpRNAFile, header_style=1)
+	PseudobaseContainer, Pseudobase_pk_counter = load_from_dbn(PseudobaseFile, header_style=3)
 	StudycaseContainer, StudyCase_pk_counter = load_from_dbn(StudyCaseFile, header_style=1)
 
 	for nt, number in ignored_nt_dict.items():
