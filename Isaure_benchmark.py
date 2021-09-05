@@ -247,56 +247,16 @@ def visualization(list_struct2d, list_contacts, function, color, lines_color):
         v.set_facecolor(color)
     plt.savefig('visualisation' + function + '.png', bbox_inches='tight')
 
-cmd = ("cppsrc/Scripts/create")
-cmd0 = ("cppsrc/Scripts/addDelimiter")
-cmd1 = ("cppsrc/Scripts/countPattern")
-cmd2 = ("cppsrc/Scripts/deletePdb")
+#cmd = ("cppsrc/Scripts/create")
+#cmd0 = ("cppsrc/Scripts/addDelimiter")
+#cmd1 = ("cppsrc/Scripts/countPattern")
+#cmd2 = ("cppsrc/Scripts/deletePdb")
 
 myfile = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
-#myfile = open("data/modules/ISAURE/Motifs_version_initiale/test.txt", "r")
 name = myfile.readline()
 contacts = myfile.readline()
 seq = myfile.readline()
 structure2d = myfile.readline()
-
-"""run_test(cmd2 + " 1JJ2" + ".fa", log)
-print(cmd2 + " 1JJ2" + ".fa")
-cmd3 = create_command("1JJ2")
-print(cmd3)
-os.system(cmd3)
-read_exp = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
-read_prd = open("results/test_1JJ2.json_pmE", "r")
-write = open("results/test_1JJ2.mcc", "w")
-
-title_exp = read_exp.readline()
-write.write(title_exp)
-contacts_exp = read_exp.readline()
-structure_exp = read_exp.readline()
-write.write("structure 2d attendue:\n" + structure_exp + "\n")
-write.write("contacts attendus:\n" + contacts_exp + "\n" + len(structure_exp) * "-")
-
-title_prd = read_prd.readline()
-structure_prd = read_prd.readline()
-sequence_prd = structure_prd
-while structure_prd:
-    structure_prd = read_prd.readline()
-    if (len(structure_prd) != 0):
-        write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
-        mcc_tab = compare_two_structures(structure_exp, structure_prd[:len(sequence_prd)])
-        mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
-        write.write("mcc: " + str(mcc_str) + "\n")
-        contacts_prd = read_prd.readline()
-        write.write("\ncontacts predits:\n" + contacts_prd)
-        mcc_tab = compare_two_contacts(contacts_exp, contacts_prd)
-        mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
-        write.write("mcc: " + str(mcc_ctc) + "\n\n")
-
-read_prd.close()
-write.close()"""
-
-"""run_test(cmd, log)"""
-run_test(cmd0, log)
-run_test(cmd1, log)
 
 list_struct2d_E = []
 list_contacts_E = []
