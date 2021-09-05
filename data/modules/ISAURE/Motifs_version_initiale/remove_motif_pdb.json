@@ -1,0 +1,162 @@
+{
+    "103": {
+        "occurences": 1,
+        "pdb": [
+            "1TTT"
+        ],
+        "sequence": "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUUCGCACCA",
+        "struct2d": "(((((((..((((.....[..)))).(((((.......))))).....(((((..]....))))))))))))...."
+    },
+    "1103": {
+        "occurences": 1,
+        "pdb": [
+            "5HC9"
+        ],
+        "sequence": "GGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCACCA",
+        "struct2d": "(((((((..((((.....[..))))..(((.........)))......(((((..]....))))))))))))...."
+    },
+    "1104": {
+        "occurences": 1,
+        "pdb": [
+            "5HC9"
+        ],
+        "sequence": "GGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCACCA",
+        "struct2d": "(((((((..((((.....[..)))).(((((.......))))).....(((((..]....))))))))))))...."
+    },
+    "111": {
+        "occurences": 1,
+        "pdb": [
+            "1QF6"
+        ],
+        "sequence": "GCCGAUAUAGCUCAGUUGGUAGAGCAGCGCAUUCGUAAUGCGAAGGUCGUAGGUUCGACUCCUAUUAUCGGCACCA",
+        "struct2d": "(((((((..((((.....[..))))..((((.......))))......(((((..]....))))))))))))...."
+    },
+    "141": {
+        "occurences": 1,
+        "pdb": [
+            "1TTT"
+        ],
+        "sequence": "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUUCGCACCA",
+        "struct2d": "(((((((..((((.....[..)))).((((.........)))).....(((((..]....))))))))))))...."
+    },
+    "16": {
+        "occurences": 1,
+        "pdb": [
+            "1C0A"
+        ],
+        "sequence": "GGAGCGGUAGUUCAGUCGGUUAGAAUACCUGCCUGUCACGCAGGGGGUCGCGGGUUCGAGUCCCGUCCGUUCCGCCA",
+        "struct2d": "(((((((..((((.....[...)))).(((((.......))))).....(((((..]....))))))))))))...."
+    },
+    "281": {
+        "occurences": 1,
+        "pdb": [
+            "2FMT"
+        ],
+        "sequence": "CGCGGGGUGGAGCAGCCUGGUAGCUCGUCGGGCUCAUAACCCGAAGAUCGUCGGUUCAAAUCCGGCCCCCGCAACCA",
+        "struct2d": ".((((((..((((......[..)))).(((((.......))))).....(((((..]....)))))))))))....."
+    },
+    "282": {
+        "occurences": 1,
+        "pdb": [
+            "2FMT"
+        ],
+        "sequence": "CGCGGGGUGGAGCAGCCUGGUAGCUCGUCGGGCUCAUAACCCGAAGAUCGUCGGUUCAAAUCCGGCCCCCGCAACCA",
+        "struct2d": ".((((((..((((.........)))).(((((.......))))).....(((((.......)))))))))))....."
+    },
+    "37": {
+        "occurences": 1,
+        "pdb": [
+            "1EIY"
+        ],
+        "sequence": "GCCGAGGUAGCUCAGUUGGUAGAGCAUGCGACUGAAAAUCGCAGUGUCCGCGGUUCGAUUCCGCGCCUCGGCACCA",
+        "struct2d": "(((((((..((((.....[..)))).(((((.......))))).....(((((..]....))))))))))))...."
+    },
+    "453": {
+        "occurences": 1,
+        "pdb": [
+            "2ZUFB"
+        ],
+        "sequence": "GGACCGGUAGCCUAGCCAGGACAGGGCGGCGGCCUCCUAAGCCGCAGGUCCGGGGUUCAAAUCCCCGCCGGUCCGC",
+        "struct2d": "(((((((..((((......[...)))).(((((.......))))).....(((((..]....)))))))))))).."
+    },
+    "454": {
+        "occurences": 1,
+        "pdb": [
+            "2ZZM"
+        ],
+        "sequence": "GGGUCGCCAAGCCUGGCCAAAGGCGCUGGGCCUAGGACCCAGUCCCGUAGGGGUUCCAGGGUUCAAAUCCCUGCCCC",
+        "struct2d": "(((..(((.......[.....)))((((((.......))))))(((....)))...(.(((..]....))).))))."
+    },
+    "46": {
+        "occurences": 1,
+        "pdb": [
+            "1F7U"
+        ],
+        "sequence": "UUCCUCGUGGCCCAAUGGUCACGGCGUCUGGCUGCGAACCAGAAGAUUCCAGGUUCAAGUCCUGGCGGGGAAGCCA",
+        "struct2d": "(((((((..(((.....[....))).(((((.......))))).....(((((..]....))))))))))))...."
+    },
+    "470": {
+        "occurences": 1,
+        "pdb": [
+            "3AMU"
+        ],
+        "sequence": "GGGCCCGUAGCUUAGCCAGGUCAGAGCGCCCGGCUCAUAACCGGGCGGUCGAGGGUUCGAAUCCCUCCGGGCCCACCA",
+        "struct2d": "(((((((..((((......[...)))).((((.........)))).....(((((..]....))))))))))))...."
+    },
+    "536": {
+        "occurences": 2,
+        "pdb": [
+            "3IVKB"
+        ],
+        "sequence": "CUGCCCGAAGGGCUUGAGAACAUCGAAACACGAUGCAGAGGUGGCAGCCUCCGGUGGGUUAAAACCCAACGUUCUCAA",
+        "struct2d": "[[[[[(...).(.((((((((((((.....)))))..((((.]]]]]))))((.((((......)))).)))))))))"
+    },
+    "645": {
+        "occurences": 1,
+        "pdb": [
+            "3QSY"
+        ],
+        "sequence": "CGCGGGGUGGAGCAGCCUGGUAGCUCGUCGGGCUCAUAACCCGAAGAUCGUCGGUUCAAAUCCGGCCCCCGCAACCA",
+        "struct2d": "...((((....((.........))...(.(((.......))).).....(((((.......)))))))))......."
+    },
+    "671": {
+        "occurences": 1,
+        "pdb": [
+            "3UMY"
+        ],
+        "sequence": "GGGAUGCGUAGGAUAGGUGGGAGCCUGUGAACCCCCGCCUCCGGGUGGGGGGGAGGCGCCGGUGAAAUACCACCCUUCCC",
+        "struct2d": "((((.(......[..(((((..(((......((((((((....))))))))...)))..........].)))))).))))"
+    },
+    "680": {
+        "occurences": 1,
+        "pdb": [
+            "3W3S"
+        ],
+        "sequence": "GGCCGGCUGGUGCCGCCCCGGGACUUCAAAUCCCGUGGGAGGUCCCGCAAGGGAGCUCCGGAGGGUUCGAUUCCCUC",
+        "struct2d": "((.((((..[.))))))((((((.......))))).)((((.((((....)))).)))).(((((..]....)))))"
+    },
+    "72": {
+        "occurences": 1,
+        "pdb": [
+            "1J2B"
+        ],
+        "sequence": "GGGCCCGUGGUCUAGUUGGUCAUGACGCCGCCCUUACGAGGCGGAGGUCCGGGGUUCAAGUCCCCGCGGGCCCACCA",
+        "struct2d": "(((((((................(((..((((.......))))...)))(((((.......))))))))))))...."
+    },
+    "955": {
+        "occurences": 1,
+        "pdb": [
+            "4X0B"
+        ],
+        "sequence": "GGGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCCACC",
+        "struct2d": ".((((.((..((((........)))).(.((.........)).).....(((((.......))))))).))))...."
+    },
+    "985": {
+        "occurences": 1,
+        "pdb": [
+            "4XJN"
+        ],
+        "sequence": "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU",
+        "struct2d": ".............................................................................."
+    }
+}

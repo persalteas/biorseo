@@ -1,0 +1,39 @@
+{
+   "1":{
+      "occurences":2,
+      "pdb":[
+         "1A1T"
+      ],
+      "pfam":[
+		 [
+            "PF00539",
+			"PF08652"
+         ],
+         [
+            "PF00098"
+         ]
+      ],
+      "sequence":"ACUAGCGGAGGCUAGU",
+      "struct2d":"((((((....))))))"
+   },
+   "10006":{
+      "occurences":2,
+      "pdb":[
+         "1MNB",
+         "2A9X"
+      ],
+      "pfam":[
+         [
+            "PF00539",
+			"PF08652"
+         ],
+         [
+            "UNK13"
+         ]
+      ],
+      "sequence":"UCGUGACUAGCGGAGGCUAGUAGCUCAUUAGCUCCGA",
+      "struct2d":"(((.(((((((....))))))((((....))))))))"
+   }
+}
+
+

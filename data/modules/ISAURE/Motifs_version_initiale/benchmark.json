@@ -1,0 +1,204 @@
+{
+    "1JJ2": {
+        "ctc": "...************.**....*..*******.****..***.****************.......****.............*****..***...*****............*******..",
+        "seq": "UUAGGCGGCCACAGCGGUGGGGUUGCCUCCCGUACCCAUCCCGAACACGGAAGAUAAGCCCACCAGCGUUCCGGGGAGUACUGGAGUGCGCGAGCCUCUGGGAAACCCGGUUCGCCGCCACC",
+        "str": "...((((((....((((((((......((((((...(.....)...))))..))....)))))).))...(((((.....((((((.((....))))))))....)))))...))))))..."
+    },
+    "1L9A": {
+        "ctc": "............................************..........................................*****....****..................................",
+        "seq": "GACACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAUUUGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGUC",
+        "str": "((((((..(.(((((((((((.(((((..((((((....))))))..))))).)))).........(((((.....(.((....(((....)))....)).)...))))).))))))).)...))))))"
+    },
+    "1LNG": {
+        "ctc": "................************.....................................*****....***....................",
+        "seq": "UCGGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUC",
+        "str": "..(.((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).)).)"
+    },
+    "1MFQ": {
+        "ctc": "............................*****.******........**..............................*******....*******..............................",
+        "seq": "GACACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGUC",
+        "str": "((((((..(.(((((((((((.(((((..((((((....))))))..))))).))))......(.(((((.....((((....(((....)))....))))...))))))))))))).)...))))))"
+    },
+    "1SM1": {
+        "seq": "CCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGG",
+        "str": "(((((((((.....((.(((((.....(((((...............)))..))....)))))..)).((.......((.(((((....))))).)).......))...)))))))))"
+    },
+    "1U6P": {
+        "ctc": ".............................*****.....**.....*......................................................",
+        "seq": "GGCGGUACUAGUUGAGAAACUAGCUCUGUAUCUGGCGGACCCGUGGUGGAACUGUGAAGUUCGGAACACCCGGCCGCAACCCUGGGAGAGGUCCCAGGGUU",
+        "str": ".((((..((((((....))))))..)))).....((((..(((.(((((((((....)))))....)))))))))))((((((((((....))))))))))"
+    },
+    "1Y69": {
+        "ctc": ".........***................................**.........................................****...........................",
+        "seq": "CCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGG",
+        "str": "(((((((((.....((.(((((....((((((...............)))..)))...)))))..))(((.......((.(((((....))))).)).......)))..)))))))))"
+    },
+    "1YHQ": {
+        "ctc": "...***************......********.****..***.****************.......****............******..***...****.............*******..",
+        "seq": "UUAGGCGGCCACAGCGGUGGGGUUGCCUCCCGUACCCAUCCCGAACACGGAAGAUAAGCCCACCAGCGUUCCAGGGAGUACUGGAGUGCGCGAGCCUCUGGGAAAUCCGGUUCGCCGCCACC",
+        "str": "...((((((....((((((((......((((((...(.....)...))))..))....)))))).))...((.((.....((((((.((....))))))))....)).))...))))))..."
+    },
+    "1YI2": {
+        "ctc": "...************.**......********.****..***.****************.......****............******..***...****.............*******..",
+        "seq": "UUAGGCGGCCACAGCGGUGGGGUUGCCUCCCGUACCCAUCCCGAACACGGAAGAUAAGCCCACCAGCGUUCCAGGGAGUACUGGAGUGCGCGAGCCUCUGGGAAAUCCGGUUCGCCGCCACC",
+        "str": "...((((((....((((((((......((((((...(.....)...))))..))....)))))).))...((.(......((((((.((....)))))))).....).))...))))))..."
+    },
+    "2V3C": {
+        "ctc": "..............*************...................****.*.**......*******....********.......*****....",
+        "seq": "GGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUCG",
+        "str": "(.((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).)).)."
+    },
+    "2ZJQ": {
+        "ctc": "......****.**..............********..**.******.******.****..*............*******..***.....******.......*****.....******...",
+        "seq": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+        "str": ".((((((((((.....((.(((((....(((((((...(.....)...))))..)))...)))))..))(((.......((.(((((....))))).)).......)))..))))))))))."
+    },
+    "2ZJR": {
+        "ctc": "......****.**..............********..**..*****.******.****...............*******..***....*******.......*****.....******...",
+        "seq": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+        "str": ".((((((((((.....((.(((((....(((((((...(.....)...))))..)))...)))))..)).((.......((.(((((....))))).)).......))...))))))))))."
+    },
+    "3ADB": {
+        "ctc": "***............******.***.................**..........................**.**.*......*********",
+        "seq": "GGCCGCCGCCACCGGGGUGGUCCCCGGGCCGGACUUCAGAUCCGGCGCGCCCCGAGUGGGGCGCGGGGUUCAAUUCCCCGCGGCGGCCGCCA",
+        "str": "(((((((((..((((((..[.))))))((((((.......))))))(((((((....)))))))((((..]....)))))))))))))...."
+    },
+    "3CUL": {
+        "ctc": ".............................********.**.......*............................................",
+        "seq": "GGAUGGCGAAAGCCAUUUCCGCAGGCCCCAUUGCACUCCGGGGUAUUGGCGUUAGGUGGUGGUACGAGGUUCGAAUCCUCGUACCGCAGCCA",
+        "str": "(((((((....)))))).)(((..(((((..........)))))....)))...(((.(((((((((((.......))))))))))).)))."
+    },
+    "3CUN": {
+        "ctc": "............................********.**.........*..........................................",
+        "seq": "GAUGGCGAAAGCCAUUUCCGCAGGCCCCAUUGCACUCCGGGGUAUUGGCGUUAGGUGGUGGUACGAGGUUCGAAUCCUCGUACCGCAGCCA",
+        "str": "((((((....))))))..(.(...((((..........)))).....).)...((..(((((((((((.......)))))))))))..))."
+    },
+    "3DLL": {
+        "ctc": "......****.**..............********..**.******.******.*****..............*******..***.....***..*......******.....*****....",
+        "seq": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+        "str": ".((((((((((.....((.(((((.....((((((...(.....)...))))..))....)))))..)).((.......((.(((((....))))).)).......))...))))))))))."
+    },
+    "3HHN": {
+        "ctc": ".....**.............................................................********.**..........................................................",
+        "seq": "UCCAGUAGGAACACUAUACUACUGGAUAAUCAAAGACAAAUCUGCCCGAAGGGCUUGAGAACAUACCCAUUGCACUCCGGGUAUGCAGAGGUGGCAGCCUCCGGUGGGUUAAAACCCAACGUUCUCAACAAUAGUGA",
+        "str": "((((((((...[[[[[[.))))))))...............[[[[[(...).(.((((((((((((((..........)))))))..((((.]]]]]))))((.((((......)))).)))))))))).]]]]]]."
+    },
+    "3IVKA": {
+        "ctc": ".....................................................................*.*******........................****.........***..........",
+        "seq": "UCCAGUAGGAACACUAUACUACUGGAUAAUCAAAGACAAAUCUGCCCGAAGGGCUUGAGAACAUCGAAACACGAUGCAGAGGUGGCAGCCUCCGGUGGGUUAAAACCCAACGUUCUCAACAAUAGUGA",
+        "str": "((((((((...[[[[[[.))))))))...............[[[[[(...).(.((((((((((((.....)))))..((((.]]]]]))))((.((((......)))).)))))))))).]]]]]]."
+    },
+    "3IWN": {
+        "ctc": ".**.....................................................********.***.........................",
+        "seq": "CACGCACAGGGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACGGCAUUGCACUCCGCCGUAGGUAGCGGGGUUACCGAUGG",
+        "str": "((((......((...(((.((....)).)))..[))...(((.((.(((((..((((..........))))))))).].)))))...)).))."
+    },
+    "3KTW": {
+        "ctc": "...............*************.......*..............................*****...****.................",
+        "seq": "AGAUAGUCGUGGGUUCCCUUUCUGGAGGGAGAGGGAAUUCCACGUUGACCGGGGGAACCGGCCAGGCCCGGAAGGGAGCAACCGUGCCCGGCUAU",
+        "str": "..(((..((.(((((((((((((....))))))))))).)).))....(.(((.....(((.....(((....))).....)))..))).).)))"
+    },
+    "3MUM": {
+        "ctc": "..............***........................................*******..**.......................",
+        "seq": "GUCACGCACAGAGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACUCCGGUAGGUAGCGGGGUUACCGAUGG",
+        "str": "..(.((......((...((((((....))))))..[))...(((.((((((((..((..........))))))).]))))))...))...)"
+    },
+    "3MUR": {
+        "ctc": "....................................................****.********.**.......................",
+        "seq": "GUCACGCACAGGGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACUCCGGUAGGUAGCGGGGUUAUCGAUGG",
+        "str": "..(.((......((...((((((....))))))..[))...(((.((((((((...(..........).))))).]))))))...))...)"
+    },
+    "3NDB": {
+        "ctc": ".................................*************........**......................**********..*********.....................................",
+        "seq": "GUCUCGUCCCGUGGGGCUCGGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUCGGCGCUCACGGGGGUGCGGGAC",
+        "str": "((((((..(((((.(((.(((((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).))))))).).))))).....))))))"
+    },
+    "3PIO": {
+        "ctc": ".....****.***.............********..**.******.*****..****..*............*******..***....*****.*.......****......******..",
+        "seq": "ACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGU",
+        "str": "((((((((((.....((.(((((....((((((...............)))..)))...)))))..)).((.......((.(((((....))))).)).......))...))))))))))"
+    },
+    "3PIP": {
+        "ctc": ".....****.***.............********..*********.*****..****..*............*******..***....*****.*......*****......*****...",
+        "seq": "ACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGU",
+        "str": "((((((((((.....(..(((((....(((((((.............))))..)))...)))))...).((.......((.((.((....)).)).)).......))...))))))))))"
+    },
+    "3V7E": {
+        "ctc": "........*....*.................****.................................**....................................*...................",
+        "seq": "GGCUUAUCAAGAGAGGUGGAGGGACUGGCCCGAUGAAACCCGGCAACCACUAGUCUAGCGUCAGCUUCGGCUGACGCUAGGCUAGUGGUGCCAAUUCCUGCAGCGGAAACGUUGAAAGAUGAGCCA",
+        "str": "((((((((....(.(((...(((.[.[[)))......))))(((..(((((((((((((((((.(....).))))))))))))))))).)))...(]].](((((....)))))..)))))))))."
+    },
+    "3W3S": {
+        "ctc": "...................**...........*............................................*....................",
+        "seq": "GGGAGAGGUUGGCCGGCUGGUGCCGCCCCGGGACUUCAAAUCCCGUGGGAGGUCCCGCAAGGGAGCUCCGGAGGGUUCGAUUCCCUCCCUCUCCCGCC",
+        "str": "((((((((..((.((((..[.))))))((((((.......))))).)((((.((((....)))).)))).(((((..]....)))))))))))))..."
+    },
+    "4IO9": {
+        "ctc": ".....*****.**..............********..**..*****.******.****...............****.**..***.....******.......*****.....******...",
+        "seq": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+        "str": ".((((((((((.....((.(((((....(((.((....(.....)....))...)))...)))))..))(((.......((.(((((....))))).)).......)))..))))))))))."
+    },
+    "4IOA": {
+        "ctc": "......****.**..............*****.**..**..*****.******.****...............*******..***.....*******.....******.....******...",
+        "seq": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+        "str": ".((((((((((.....((.(((((....((((((....(.....)....)))..)))...)))))..))(((.......((.(((((....))))).)).......)))..))))))))))."
+    },
+    "4P3EA": {
+        "ctc": "..******..................*****..*****.............***..*******..................****....***................*******.........",
+        "seq": "GACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUU",
+        "str": "(.((..(.(((((((((((.(((((..((((((....))))))..))))).))))......(.(((((.....((((....(((....)))....))))...))))))))))))).)...)).)"
+    },
+    "4P3EB": {
+        "ctc": "..******..................*****..*****.............***..*******..................****....***................*******.........",
+        "seq": "GACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUU",
+        "str": "(.((.((.(((((((((((.(((((..((((((....))))))..))))).))))......(.(((((.....((((....(((....)))....))))...))))))))))))).)..))).)"
+    },
+    "4UYJ": {
+        "ctc": "......*....*.***....***********...........*..........**...........****.****.........***.***...................",
+        "seq": "GGGGCUAGGCCGGGGGGUUCGGCGUCCCCUGUAACCGGAAACCGCCGAUAUGCCGGGGCCGAAGCCCGAGGGGCGGUUCCCGUAAGGGUUCCCACCCUCGGGCGUGCCUC",
+        "str": "(((((..(((((((((...[[[[[.)))))....((((....]]]]].....))))))))...(((((((((..((..(((....)))..))..)))))))))..)))))"
+    },
+    "4UYK": {
+        "ctc": "......*.............************.....................**...........****..........................................***...................",
+        "seq": "GGGGCUAGGCCGGGGGGUUCGGCGUCCCCUGUAACCGGAAACCGCCGAUAUGCCGGGGCCGAAGCCCGAGGGGCGGUUCCCGAAGCCGCCUCUGUAAGGAGGCGGUGGAGGGUUCCCACCCUCGGGCGUGCCUC",
+        "str": "(((((..(((((((((...[[[[[.)))))....((((....]]]]].....))))))))...(((((((((..((..(((...(((((((((....)))))))))...)))..))..)))))))))..)))))"
+    },
+    "4W90": {
+        "seq": "GCGCGCUUAAUCUGAAAUCAGAGCGGGGGACCCAUUGCACUCCGGGUUUUUCCCGUAAGGGGUGAAUCCUUUUUAGGUAGGGCGAAAGCCCGAAUCCGUCAGCUAACCUCGUAAGCGCGC",
+        "str": "(((((((...((((....))))((((((....(.........................(((((....(((....)))..((((....))))..))))..).)....)))))).)))))))"
+    },
+    "4WF9": {
+        "ctc": "...****..**.............*****.....*...***...******.****.*.............*****.*..***....**..***.....***.......****..",
+        "seq": "UCUGGUGACUAUAGCAAGGAGGUCACACCUGUUCCCAUGCCGAACACAGAAGUUAAGGUCUUUAGCGACGAUGGUAGCCAACUUACGUUCCGCUAGAGUAGAACGUUGCCAGGC",
+        "str": ".(..(..(.....((((.((......((((((...(.....)...))))..)).....)).)).))............(............)..............)..)..)."
+    },
+    "4XCO": {
+        "ctc": "..............*************........**........................*******....********................",
+        "seq": "GGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUCG",
+        "str": "((((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).))))."
+    },
+    "4YB1": {
+        "ctc": "****..*....................................................................................",
+        "seq": "GGGCACGCACAGAGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACCUCGGUAGGUAGCGGGGUUACCGAUG",
+        "str": "...((((......((...((((((....))))))..[))...(((.(((((((...((..........)).)))).]))))))...)).))"
+    },
+    "5DM7": {
+        "ctc": "......*******..............*****..*..***.*****.******.*****..............*****....***.....****.***.....****......******...",
+        "seq": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+        "str": "..(((((((((.....((.(((((....((((((....(.....)....)))..)))...)))))..))(((.......((.(((((....))))).)).......)))..))))))))).."
+    },
+    "5JVGA": {
+        "ctc": ".....****..**.............*****.**..**..*****.******.*******............*****....***.....*******......*****.....*****...",
+        "seq": "ACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGU",
+        "str": "(((.((((((.....((.(.(((....(((((((...(.....)...))))..)))...))).)..)).((.......((.(((((....))))).)).......))...)))))).)))"
+    },
+    "5M73": {
+        "seq": "GGUGUCCGCACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGGGAUCGCGCCUA",
+        "str": "(((((((.((((..(.((((((.((((.(((((..((((((....))))))..))))).))))......(.((((......((((.....((....)).....))))....))))).)))))).)...))))))...))))).."
+    },
+    "5NRGA": {
+        "ctc": "...****..**.............******....**..*****..*****.****.*.............********.***....**.******..****.......****..",
+        "seq": "UCUGGUGACUAUAGCAAGGAGGUCACACCUGUUCCCAUGCCGAACACAGAAGUUAAGGUCUUUAGCGACGAUGGUAGCCAACUUACGUUCCGCUAGAGUAGAACGUUGCCAGGC",
+        "str": ".((.(..(.....((((.((......((((((...(.....)...))))..)).....)).)).))..........(.(............).)............)..).))."
+    }
+}

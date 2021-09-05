@@ -1,0 +1,2046 @@
+{
+  "1ASY": {
+    "R": {
+      "contacts": "*........****..........*******.********..........................**********",
+      "sequence": "UCCGUGAUAGUUUAAUGGUCAGAAUGGGCGCUUGUCGCGUGCCAGAUCGGGGUUCAAUUCCCCGUCGCGGAGCCA",
+      "struct2d": "(((((((..((((........)))).(((((.......)))))....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF01336",
+      "PF00152"
+    ]
+  },
+  "1B23": {
+    "R": {
+      "contacts": "***..........................................*****........*****....*****..",
+      "sequence": "GGCGCGUUAACAAAGCGGUUAUGUAGCGGAUUGCAAAUCCGUCUAGUCCGGUUCGACUCCGGAACGCGCCUCCA",
+      "struct2d": "(((((((..(((.........))).(((((.......)))))....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF00009",
+      "PF03144",
+      "PF03143"
+    ]
+  },
+  "1C0A": {
+    "B": {
+      "contacts": "*....*...****...........******.*********...........................**********",
+      "sequence": "GGAGCGGUAGUUCAGUCGGUUAGAAUACCUGCCUGUCACGCAGGGGGUCGCGGGUUCGAGUCCCGUCCGUUCCGCCA",
+      "struct2d": "(((((((..((((.........)))).(((((.......))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF01336",
+      "PF02938",
+      "PF00152"
+    ]
+  },
+  "1DRZ": {
+    "B": {
+      "contacts": "..........................................****.*******.***..............",
+      "sequence": "GGCCGGCAUGGUCCCAGCCUCCUCGCUGGCGCCGGCUGGGCAACACCAUUGCACUCCGGUGGCGAAUGGGAC",
+      "struct2d": "(((((((.........(((........))))))))))......((((..........))))..........."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "1EFW": {
+    "C": {
+      "contacts": ".........***..............****..********............................*****",
+      "sequence": "GGAGCGGUAGUUCAGUCGGUUAGAAUACCUGCCUGUCACGCAGGGGGUCGCGGGUUCGAGUCCCGUCCGUUCC",
+      "struct2d": "(((((((..((((.........)))).(((((.......))))).....(((((.......))))))))))))"
+    },
+    "D": {
+      "contacts": ".........**...............****..********.............................*.**",
+      "sequence": "GGAGCGGUAGUUCAGUCGGUUAGAAUACCUGCCUGUCACGCAGGGGGUCGCGGG&UCGAGUCCCGUCCGUUCC",
+      "struct2d": "(((((((..((((.........)))).(((((.......))))).....(((((&......))))))))))))"
+    },
+    "pfams": [
+      "PF01336",
+      "PF02938",
+      "PF00152"
+    ]
+  },
+  "1EIY": {
+    "C": {
+      "contacts": ".........**..............**..................*...................*....******",
+      "sequence": "GCCGAGGUAGCUCAGUUGGUAGAGCAUGCGACUGAAAAUCGCAGUGUCCGCGGUUCGAUUCCGCGCCUCGGCACCA",
+      "struct2d": "(((((((..((((........)))).(((((.......))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF17759",
+      "PF01409",
+      "PF03484",
+      "PF03483",
+      "PF03147",
+      "PF02912",
+      "PF01588"
+    ]
+  },
+  "1EUQ": {
+    "B": {
+      "contacts": "*******.*******.....******.....******..........................*********",
+      "sequence": "GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGCAGCGAGGUUCGAAUCCUCGUACCCCAGCCA",
+      "struct2d": "((((((..(((.........))).(((((.......)))))...(((((.......)))))))))))....."
+    },
+    "pfams": [
+      "PF00749",
+      "PF03950"
+    ]
+  },
+  "1EUY": {
+    "B": {
+      "contacts": "*******.*******.....******.....******............................********",
+      "sequence": "GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGCAAGCGAGGUUCGAAUCCUCGUACCCCAGCCA",
+      "struct2d": "((((((..(((.........))).(((((.......)))))....(((((.......)))))))))))....."
+    },
+    "pfams": [
+      "PF00749",
+      "PF03950"
+    ]
+  },
+  "1F7U": {
+    "B": {
+      "contacts": "..****.....*****.**.*****.....*..********..............*...........*********",
+      "sequence": "UUCCUCGUGGCCCAAUGGUCACGGCGUCUGGCUGCGAACCAGAAGAUUCCAGGUUCAAGUCCUGGCGGGGAAGCCA",
+      "struct2d": "(((((((..(((..........))).(((((.......))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF00750",
+      "PF05746",
+      "PF03485"
+    ]
+  },
+  "1F7V": {
+    "B": {
+      "contacts": "..****.....*****.********.....*..********..............*...........*****.",
+      "sequence": "UUCCUCGUGGCCCAAUGGUCACGGCGUCUGGCUGCGAACCAGAAGAUUCCAGGUUCAAGUCCUGGCGGGGAAG",
+      "struct2d": "(((((((..(((..........))).(((((.......))))).....(((((.......))))))))))))."
+    },
+    "pfams": [
+      "PF00750",
+      "PF05746",
+      "PF03485"
+    ]
+  },
+  "1FFY": {
+    "T": {
+      "contacts": "..****...*****.........****...**************........................*******",
+      "sequence": "GGGCUUGUAGCUCAGGUGGUUAGAGCGCACCCCUGAUAAGGGUGAGGUCGGUGGUUCAAGUCCACUCAGGCCCAC",
+      "struct2d": "(((((((..((((.........)))).(((((.......))))).....(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF06827",
+      "PF08264",
+      "PF00133"
+    ]
+  },
+  "1GAX": {
+    "C": {
+      "contacts": "...***...******..***.***....**.****.********..........*..............******",
+      "sequence": "GGGCGGCUAGCUCAGCGGAAGAGCGCUCGCCUCACACGCGAGAGGUCGUAGGUUCAAGUCCUACGCCGCCCACCA",
+      "struct2d": "(((((((..((((.......)))).(((((.......))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF00133",
+      "PF08264",
+      "PF10458"
+    ]
+  },
+  "1GTR": {
+    "B": {
+      "contacts": "*******.*******.....*****......*****..............................********",
+      "sequence": "GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGCAUUCCGAGGUUCGAAUCCUCGUACCCCAGCCA",
+      "struct2d": "((((((..(((.........))).(((((.......))))).....(((((.......)))))))))))....."
+    },
+    "pfams": [
+      "PF00749",
+      "PF03950"
+    ]
+  },
+  "1H3E": {
+    "B": {
+      "contacts": "..........**...*...........****..****.....******.............................***...",
+      "sequence": "GGGCAGGUUCCCGAGCGGCCAAAGGGGACGGUCUGUAAAACCGUUGGCGUAUGCCUUCGCUGGUUCGAAUCCAGCCCUGCCCA",
+      "struct2d": "(((((((..(((...........)))((((((.......))))))(((....)))...(((((.......))))))))))))."
+    },
+    "pfams": [
+      "PF00579"
+    ]
+  },
+  "1H4Q": {
+    "T": {
+      "contacts": "...*..................***..*******...***...........................",
+      "sequence": "GGAGUAGCGCAGCCCGGUAGCGCACCUCGUUCGGGACGAGGGGGGCGCUGGUUCAGAUCCAGUCUCC",
+      "struct2d": "((((..((((.........)))).((((((.....)))))).....(((((.......)))))))))"
+    },
+    "pfams": [
+      "PF03129",
+      "PF00587",
+      "PF09180"
+    ]
+  },
+  "1HC8": {
+    "C": {
+      "contacts": ".....****.****.*.......********.....*....................",
+      "sequence": "CCAGGAUGUAGGCUUAGAAGCAGCCAUCAUUUAAAGAAAGCGUAAUAGCUCACUGGU",
+      "struct2d": "((((.(((..(((.........)))..))).....(..(((......)))).))))."
+    },
+    "pfams": [
+      "PF00298"
+    ]
+  },
+  "1IL2": {
+    "D": {
+      "contacts": "........****..........******.*********...........................***..",
+      "sequence": "CCGUGAUAGUUUAAUGGUCAGAAUGGGCGCUUGUCGCGUGCCAGAUCGGGGUUCAAUUCCCCGUCGCGGA",
+      "struct2d": "((((((..((((........)))).(((((.......)))))....(((((.......)))))))))))."
+    },
+    "pfams": [
+      "PF01336",
+      "PF02938",
+      "PF00152"
+    ]
+  },
+  "1J1U": {
+    "B": {
+      "contacts": "...........................***....****..............................**....",
+      "sequence": "CCGGCGGUAGUUCAGCCUGGUAGAACGGCGGACUGUAGAUCCGCAUGUCGCUGGUUCAAAUCCGGCCCGCCGGA",
+      "struct2d": "(((((((..((((.........)))).(((((.......))))).....(((((.......))))))))))))."
+    },
+    "pfams": [
+      "PF00579"
+    ]
+  },
+  "1J2B": {
+    "C": {
+      "contacts": "*.....**************...****....***..*****......***.........*......******.****",
+      "sequence": "GGGCCCGUGGUCUAGUUGGUCAUGACGCCGCCCUUACGAGGCGGAGGUCCGGGGUUCAAGUCCCCGCGGGCCCACCA",
+      "struct2d": "(((((((................(((..((((.......))))...)))(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF01702",
+      "PF01472",
+      "PF14810",
+      "PF14809"
+    ]
+  },
+  "1JJ2": {
+    "9": {
+      "contacts": "...************.**.....*.*******.****..***.****************.......****.............*****..***...*****............*******..",
+      "sequence": "UUAGGCGGCCACAGCGGUGGGGUUGCCUCCCGUACCCAUCCCGAACACGGAAGAUAAGCCCACCAGCGUUCCGGGGAGUACUGGAGUGCGCGAGCCUCUGGGAAACCCGGUUCGCCGCCACC",
+      "struct2d": "...((((((....((((((((......((((((...(.....)...))))..))....)))))).))...(((((.....((((((.((....))))))))....)))))...))))))..."
+    },
+    "pfams": [
+      "PF00572",
+      "PF17144",
+      "PF01198",
+      "PF01248",
+      "PF01780",
+      "PF00237",
+      "PF00347",
+      "PF03947",
+      "PF00673",
+      "PF00827",
+      "PF01907",
+      "PF00828",
+      "PF01280",
+      "PF00297",
+      "PF00467",
+      "PF16906",
+      "PF00832",
+      "PF00935",
+      "PF00573",
+      "PF01655",
+      "PF00276",
+      "PF01246",
+      "PF00181",
+      "PF01157",
+      "PF00831",
+      "PF00238",
+      "PF00252",
+      "PF00327",
+      "PF00281",
+      "PF00466"
+    ]
+  },
+  "1KUQA": {
+    "B": {
+      "contacts": "...................*****.....*****..*****......********..",
+      "sequence": "GGGCGGCCUUCGGGCUAGACGGUGGGAGAGGCUUCGGCUGGUCCACCCGUGACGCUC",
+      "struct2d": "((((.(((....)))..(((((((((...(((....)))..))))).)))..)))))"
+    },
+    "pfams": [
+      "PF00312"
+    ]
+  },
+  "1L9A": {
+    "B": {
+      "contacts": ".............................************.........................................*****....****..................................",
+      "sequence": "GACACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAUUUGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGUC",
+      "struct2d": "((((((..(.(((((((((((.(((((..((((((....))))))..))))).)))).........(((((.....(.((....(((....)))....)).)...))))).))))))).)...))))))"
+    },
+    "pfams": [
+      "PF01922"
+    ]
+  },
+  "1LNG": {
+    "B": {
+      "contacts": "................************.....................................*****....***....................",
+      "sequence": "UCGGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUC",
+      "struct2d": "..(.((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).)).)"
+    },
+    "pfams": [
+      "PF01922"
+    ]
+  },
+  "1MFQ": {
+    "A": {
+      "contacts": "............................*****.******................................**......*******....*******..............................",
+      "sequence": "GACACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGUC",
+      "struct2d": "((((((..(.(((((((((((.(((((..((((((....))))))..))))).))))......(.(((((.....((((....(((....)))....))))...))))))))))))).)...))))))"
+    },
+    "pfams": [
+      "PF02978",
+      "PF01922"
+    ]
+  },
+  "1MMS": {
+    "C": {
+      "contacts": "......*********....*....*********....*......***...........",
+      "sequence": "GCUGGGAUGUUGGCUUAGAAGCAGCCAUCAUUUAAAGAGUGCGUAACAGCUCACCAGC",
+      "struct2d": "(((((.(((..(((.........)))..))).....(...((......)).).)))))"
+    },
+    "pfams": [
+      "PF00298",
+      "PF03946"
+    ]
+  },
+  "1MZP": {
+    "B": {
+      "contacts": "...............**********..........********.******.....",
+      "sequence": "GGGAUGCGUAGGAUAGGUGGGAGCCGCAAGGCGCCGGUGAAAUACCACCCUUCCC",
+      "struct2d": "((((.(.........(((((..(((....)))............)))))).))))"
+    },
+    "pfams": [
+      "PF00687"
+    ]
+  },
+  "1OB5": {
+    "B": {
+      "contacts": "***........*...........***..........****.........*****........*****.....***.",
+      "sequence": "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUUCGCAC&A",
+      "struct2d": "(((((((..((((........)))).(((((.......))))).....(((((.......))))))))))))..&."
+    },
+    "pfams": [
+      "PF00009",
+      "PF03144",
+      "PF03143"
+    ]
+  },
+  "1QA6": {
+    "C": {
+      "contacts": "......*********..........*******.....*....................",
+      "sequence": "GCCAGGAUGUAGGCUUAGAAGCAGCCAUCAUUUAAAGAAAGCGUAAUAGCUCACUGGU",
+      "struct2d": "(((((.(((..(((.........)))..))).....(..(((......)))).)))))"
+    },
+    "pfams": [
+      "PF00298"
+    ]
+  },
+  "1QF6": {
+    "B": {
+      "contacts": "****......**.............*.....********.........*................***********",
+      "sequence": "GCCGAUAUAGCUCAGUUGGUAGAGCAGCGCAUUCGUAAUGCGAAGGUCGUAGGUUCGACUCCUAUUAUCGGCACCA",
+      "struct2d": "(((((((..((((........))))..((((.......))))......(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF02824",
+      "PF07973",
+      "PF00587",
+      "PF03129"
+    ]
+  },
+  "1SER": {
+    "T": {
+      "contacts": "..............*...........***...............*******.......****.*",
+      "sequence": "GAGGUGCCCGAGUGGCUGAAGGG&GGUAGGGGGG&CCUCCCUCGCGGGUUCGAAUCCCGCCCUC",
+      "struct2d": "((((..(((...........)))&...(((((((&))))))).(((((.......)))))))))"
+    },
+    "pfams": [
+      "PF02403",
+      "PF00587"
+    ]
+  },
+  "1SJ3": {
+    "R": {
+      "contacts": "...........................................**...*******..**..............",
+      "sequence": "UGGCCGGCAUGGUCCCAGCCUCCUCGCUGGCGCCGGCUGGGCAACACCAUUGCACUCCGGUGGUGAAUGGGAC",
+      "struct2d": ".(((((((.........(((........))))))))))......((((..........))))..........."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "1SJF": {
+    "B": {
+      "contacts": "............................................**...*******.***..............",
+      "sequence": "AUGGCCGGCAUGGUCCCAGCCUCCUCGCUGGCGCCGGCUGGGCAACACCAUUGCACUCCGGUGGUGAAUGGGAC",
+      "struct2d": "..(((((((.........(((........))))))))))......((((..........))))..........."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "1U6P": {
+    "B": {
+      "contacts": ".............................*****..............................................**..................*",
+      "sequence": "GGCGGUACUAGUUGAGAAACUAGCUCUGUAUCUGGCGGACCCGUGGUGGAACUGUGAAGUUCGGAACACCCGGCCGCAACCCUGGGAGAGGUCCCAGGGUU",
+      "struct2d": ".((((..((((((....))))))..)))).....((((..(((.(((((((((....)))))....)))))))))))((((((((((....))))))))))"
+    },
+    "pfams": [
+      "PF00098"
+    ]
+  },
+  "1UN6": {
+    "E": {
+      "contacts": "...*.******........****.****..............*****..............",
+      "sequence": "GCCGGCCACACCUACGGGGCCUGGUUAGUACCUGGGAAACCUGGGAAUACCAGGUGCCGGC",
+      "struct2d": "((((((....((....))(((((((.....((..(....)..))....)))))))))))))"
+    },
+    "pfams": [
+      "PF00096"
+    ]
+  },
+  "1VC5": {
+    "B": {
+      "contacts": "........................................**...***********..............",
+      "sequence": "GGCCGGCAUGGUCCCAGCCUCCUC&UGGCGCCGGCUGGGCAACACCAUUGCACUCCGGUGGCGAAUGGGA",
+      "struct2d": "(((((((.........(((.....&.))))))))))......((((..........)))).........."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "1WZ2": {
+    "C": {
+      "contacts": "*****.......***....**...****............*****.....******..........................*.****",
+      "sequence": "GCGGGGGUUGCCGAGCCUGGUCAAAGGCGGGGGACUCAAGAUCCCCUCCCGUAGGGGUUCCGGGGUUCGAAUCCCCGCCCCCGCACCA",
+      "struct2d": "(((((((..(((.............))).(((((.......))))).(((....)))...(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF08264",
+      "PF00133"
+    ]
+  },
+  "1Y39": {
+    "C": {
+      "contacts": ".....*********.........********.....*....................",
+      "sequence": "CCAGGAUGUAUGCUUAGAAGCAGCAAUCAUUUAAAGAGUGCGUAAUAGCUCACUGGU",
+      "struct2d": "((((.(((..(((.........)))..))).....(...((......)).).))))."
+    },
+    "pfams": [
+      "PF00298"
+    ]
+  },
+  "1Y69": {
+    "9": {
+      "contacts": ".........***................................................................**.........****...........................",
+      "sequence": "CCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGG",
+      "struct2d": "(((((((((.....((.(((((....((((((...............)))..)))...)))))..))(((.......((.(((((....))))).)).......)))..)))))))))"
+    },
+    "pfams": [
+      "PF01765",
+      "PF01016",
+      "PF00252"
+    ]
+  },
+  "1YHQ": {
+    "9": {
+      "contacts": "...***************......********.****..***.****************.......****.............*****..***...****.............*******..",
+      "sequence": "UUAGGCGGCCACAGCGGUGGGGUUGCCUCCCGUACCCAUCCCGAACACGGAAGAUAAGCCCACCAGCGUUCCAGGGAGUACUGGAGUGCGCGAGCCUCUGGGAAAUCCGGUUCGCCGCCACC",
+      "struct2d": "...((((((....((((((((......((((((...(.....)...))))..))....)))))).))...((.((.....((((((.((....))))))))....)).))...))))))..."
+    },
+    "pfams": [
+      "PF00572",
+      "PF17144",
+      "PF01198",
+      "PF01248",
+      "PF01780",
+      "PF00237",
+      "PF00347",
+      "PF03947",
+      "PF00673",
+      "PF00827",
+      "PF01907",
+      "PF00828",
+      "PF01280",
+      "PF00297",
+      "PF00467",
+      "PF16906",
+      "PF00832",
+      "PF00935",
+      "PF00573",
+      "PF01655",
+      "PF00276",
+      "PF01246",
+      "PF00181",
+      "PF00298",
+      "PF01157",
+      "PF00831",
+      "PF00238",
+      "PF00252",
+      "PF00327",
+      "PF00281",
+      "PF00466"
+    ]
+  },
+  "2AKE": {
+    "B": {
+      "contacts": ".........................*....*****...............................**....",
+      "sequence": "GACCUCGUGGCGCAAUGGUAGCGCGUCUGACUCCAGAUCAGAAGGUUGCGUGUUCGAAUCACGUCGGGGUCA",
+      "struct2d": "(((((((..((((.......)))).(((((.......))))).....(((((.......))))))))))))."
+    },
+    "pfams": [
+      "PF00579"
+    ]
+  },
+  "2BTE": {
+    "B": {
+      "contacts": "..**.......****...**..*****.**....****....*..............**............*******",
+      "sequence": "GCCGGGGUGGCGGAAUGGGUAGACGCGCAUGAC&AUCAUGUGCGCAAGCGUGCGGGUUCAAGUCCCGCCCCCGGCACC",
+      "struct2d": "(((((((..(((...........)))((((((.&.))))))((....))..(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF14795",
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "2CSX": {
+    "C": {
+      "contacts": "..**.........*............**.....**********............................****",
+      "sequence": "GGCGGCGUAGCUCAGCUGGUCAGAGCGGGGAUCUCAUAAGUCCCAGGUCGGAGGUUCGAGUCCUCCCGCCGCCAC",
+      "struct2d": "(((.(((..((((.........)))).(((((.......))))).....(((((.......)))))))).))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF09334"
+    ]
+  },
+  "2CZJ": {
+    "B": {
+      "contacts": "...********..*******...............*****................*****.",
+      "sequence": "GGGGGUGAAACGGUCUCGACAGGGGUUCGCCUUUGGACGUGGGUUCGACUCCCACCACCUCC",
+      "struct2d": "(((((((............((((.(....).))))...(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF01668"
+    ]
+  },
+  "2D6F": {
+    "E": {
+      "contacts": "****..............................................****.....***.........*",
+      "sequence": "AGUCCCGUGGGGUAGUGGUAAUCCUGCUGGGCUUUGGACCCGGCGACAGCGGUUCGACUCCGCUCGGGACUA",
+      "struct2d": "(((((((...(........{...).((((((.......))))))...(((((......}))))))))))))."
+    },
+    "F": {
+      "contacts": "*****.............................................*****....***.........***",
+      "sequence": "AGUCCCGUGGGGUAGUGGUAAUCCUGCUGGGCUUUGGACCCGGCGACAGCGGUUCGACUCCGCUCGGGACUACC",
+      "struct2d": "(((((((..(((..........)))((((((.......))))))...(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF17763",
+      "PF02637",
+      "PF02934",
+      "PF00710",
+      "PF18195",
+      "PF02938"
+    ]
+  },
+  "2DER": {
+    "C": {
+      "contacts": ".........****...........*******..*********................................",
+      "sequence": "GUCCCCUUCGUCUAGAGGCCCAGGACACCGCCCUUUCACGGCGGUAACAGGGGUUCGAAUCCCCUAGGGGACGC",
+      "struct2d": "....(.(..((((.........))))((((((.......))))))...(((((.......)))))).)......"
+    },
+    "D": {
+      "contacts": ".....***............*****....********..................................",
+      "sequence": "CCCCUUCGUCUAGAGGCCCAGGACACCGCCCUUUCACGGCGGUAACAGGGGUUCGAAUCCCCUAGGGGACG",
+      "struct2d": ".((((..((((.........))))((((((.......))))))...(((((.......)))))))))...."
+    },
+    "pfams": [
+      "PF03054"
+    ]
+  },
+  "2DET": {
+    "C": {
+      "contacts": ".........***............*******.**********............................",
+      "sequence": "GUCCCCUUCGUCUAGAGGCCCAGGACACCGCCCUUUCACGGCGGUAACAGGGGUUCGAAUCCCCUAGGGG",
+      "struct2d": "..((.....((((.........))))((((((.......))))))....((((.......))))...))."
+    },
+    "pfams": [
+      "PF03054"
+    ]
+  },
+  "2DLC": {
+    "Y": {
+      "contacts": "...........................****.***.........................***......",
+      "sequence": "CUCUCGGUAGCCAAG&GG&AAGGCGCAAG&GUAAAUCUUGAG&UCGGGCGUUCGACUCGCCCCCGGGAG",
+      "struct2d": "(((((((..(((...&..&..))).(...&.........)..&..(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF00579"
+    ]
+  },
+  "2DR2": {
+    "B": {
+      "contacts": ".........................*....*****...............................**.......",
+      "sequence": "GACCUCGUGGCGCAAUGGUAGCGCGUCUGACUCCAGAUCAGAAGGUUGCGUGUUCGAAUCACGUCGGGGUCACCA",
+      "struct2d": "(((((((..(.((.......)).).(((((.......))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF00579"
+    ]
+  },
+  "2DU3": {
+    "D": {
+      "contacts": ".........**...............*..********............................*.....",
+      "sequence": "GCCAGGGUGGCAGAGGGGCUUUGCGGCGGACUGCAGAUCCGCUUUACCCCGGUUCGAAUCCGGGCCCUGGC",
+      "struct2d": "(((((((..(((.........)))..((((.......))))......(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF18006",
+      "PF01409"
+    ]
+  },
+  "2DU5": {
+    "D": {
+      "contacts": ".........**..............*....*.******..........................**.....",
+      "sequence": "GCCAGGGUGGCAGAGGGGCUUUGCGGCGGACUUCAGAUCCGCUUUACCCCGGUUCGAAUCCGGGCCCUGGC",
+      "struct2d": "(((((((..(((.........))).(((((.......))))).....(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF18006",
+      "PF01409"
+    ]
+  },
+  "2FK6": {
+    "R": {
+      "contacts": ".***..............*..............***....****.......**",
+      "sequence": "GCUUCCAUAGCUCAGCAGGUAGAGC&GUCAGCGGUUCGAGCCCGCUUGGAAGC",
+      "struct2d": "(((((((..((((........))))&...(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF12706"
+    ]
+  },
+  "2FMT": {
+    "C": {
+      "contacts": "*******..*****..........****........................................*********",
+      "sequence": "CGCGGGGUGGAGCAGCCUGGUAGCUCGUCGGGCUCAUAACCCGAAGAUCGUCGGUUCAAAUCCGGCCCCCGCAACCA",
+      "struct2d": ".((((((..((((.........)))).(((((.......))))).....(((((.......)))))))))))....."
+    },
+    "pfams": [
+      "PF00551",
+      "PF02911"
+    ]
+  },
+  "2HGH": {
+    "B": {
+      "contacts": "*..******........*********............****.............",
+      "sequence": "GGGCCAUACCUCUUGGGCCUGGUUAGUACCUCUUCGGUGGGAAUACCAGGUGCCC",
+      "struct2d": "((((....((....))(((((((.....((.(....).))....)))))))))))"
+    },
+    "pfams": [
+      "PF00096"
+    ]
+  },
+  "2HVY": {
+    "E": {
+      "contacts": "..****........*********..****.....*.*****......*******...",
+      "sequence": "GGGUCCGCCUUGA&UGCCCGGGUGA&AAGCAUGAUCCCGGGUAAU&AUGGCGGACCC",
+      "struct2d": "(((((((((....&.(((((((...&.........)))))))...&..)))))))))"
+    },
+    "pfams": [
+      "PF01248",
+      "PF01472",
+      "PF08068",
+      "PF04410",
+      "PF04135",
+      "PF01509",
+      "PF16198"
+    ]
+  },
+  "2IHX": {
+    "B": {
+      "contacts": "......***.**......................******................******..*******....",
+      "sequence": "CUGCCCUCAUCCGUCUCGCUUAUUCGGGGAGCGGACGAUGACCCUAGUAGAGGGGGCUGCGGCUUAGGAGGGCAG",
+      "struct2d": "((((((((...((((.(((((.......)))))))))....((((.....))))(((....)))...))))))))"
+    },
+    "pfams": [
+      "PF00098"
+    ]
+  },
+  "2L3J": {
+    "B": {
+      "contacts": "........****.....********......**.......***......***.****.....***......",
+      "sequence": "GGCAUUAAGGUGGGUGGAAUAGUAUAACAAUAUGCUAAAUGUUGUUAUAGUAUCCCACCUACCCUGAUGCC",
+      "struct2d": "(((((((.(((((((((.(((.(((((((((((.....))))))))))).))).))))))))).)))))))"
+    },
+    "pfams": [
+      "PF00035"
+    ]
+  },
+  "2MF0": {
+    "G": {
+      "contacts": ".************....**.************.*...******************..*************..",
+      "sequence": "UGUCGACGGAUAGACACAGCCAUCAAGGACGAUGGUCAGGACAUCGCAGGAAGCGAUUCAUCAGGACGAUGA",
+      "struct2d": "((((........))))..((((((......)))))).......((((.....))))..((((.....))))."
+    },
+    "pfams": [
+      "PF02599"
+    ]
+  },
+  "2MQV": {
+    "B": {
+      "contacts": "..............*****.............................********............",
+      "sequence": "GGGCGAGGGUCUCCUCUGAGUGAUUGACUACCCGUCAGCGGGGGUCUUUCAUUUGGGGGCUCGUGCCC",
+      "struct2d": "(((((.((((((((.....((((..((((.((((....))))))))..))))..)))))))).)))))"
+    },
+    "pfams": [
+      "PF00098"
+    ]
+  },
+  "2MS0": {
+    "B": {
+      "contacts": "**...*****............****************..........................****.**",
+      "sequence": "GGCUCGUUGGUCUAGGGGUAUGAUUCUCGCUUAGGGUGCGAGAGGUCCCGGGUUCAAAUCCCGGACGAGCC",
+      "struct2d": "(((((....(((.........)))((((((.......))))))....(((((.......)))))..)))))"
+    },
+    "pfams": [
+      "PF00098"
+    ]
+  },
+  "2V0G": {
+    "B": {
+      "contacts": "..***......****.**..*****.......****....*.........**...**............*******",
+      "sequence": "GCCGGGGUGGCGGAA&GGUAGACGCGCAUGAC&AUCAUGUGCGCAAGCGUGCGGGUUCAAGUCCCGCCCCCGGCAC",
+      "struct2d": "(.(((((..(((...&......)))(((((..&..)))))((....))..(((((.......)))))))))).).."
+    },
+    "pfams": [
+      "PF14795",
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "2V3C": {
+    "M": {
+      "contacts": "..............************...........******.****.....**....*********...**********........***....",
+      "sequence": "GGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUCG",
+      "struct2d": "((((..(((((.(((((((((....)))))))))..))))).....(((((.....(((.....(((....))).....)))..)))))..))))."
+    },
+    "pfams": [
+      "PF02978",
+      "PF01922",
+      "PF00448",
+      "PF02881"
+    ]
+  },
+  "2ZJQ": {
+    "Y": {
+      "contacts": "......****.**..............********..**.******.******.****..*............*******..***.....******.......*****.....******...",
+      "sequence": "CACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGUU",
+      "struct2d": ".((((((((((.....((.(((((....(((((((...(.....)...))))..)))...)))))..))(((.......((.(((((....))))).)).......)))..))))))))))."
+    },
+    "pfams": [
+      "PF00572",
+      "PF16320",
+      "PF17136",
+      "PF01632",
+      "PF00237",
+      "PF00830",
+      "PF00347",
+      "PF03947",
+      "PF00673",
+      "PF00828",
+      "PF00829",
+      "PF00471",
+      "PF01245",
+      "PF00297",
+      "PF00467",
+      "PF01783",
+      "PF00444",
+      "PF00861",
+      "PF01016",
+      "PF00542",
+      "PF00573",
+      "PF00453",
+      "PF01386",
+      "PF00276",
+      "PF01196",
+      "PF00181",
+      "PF00468",
+      "PF00298",
+      "PF14693",
+      "PF00831",
+      "PF00238",
+      "PF00252",
+      "PF00327",
+      "PF03946",
+      "PF00281"
+    ]
+  },
+  "2ZM5": {
+    "C": {
+      "contacts": ".........*..............*****************...........................*****.",
+      "sequence": "GCCCGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCCGGGCAC",
+      "struct2d": "(((((((..((((........)))).(((((.......))))).....(((((.......)))))))))))).."
+    },
+    "D": {
+      "contacts": "........................*****************........................***.",
+      "sequence": "GCCCGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCCG",
+      "struct2d": "....(((..((((........)))).(((((.......))))).....(((((.......))))))))."
+    },
+    "pfams": [
+      "PF01715"
+    ]
+  },
+  "2ZNI": {
+    "C": {
+      "contacts": "**.***.******......****......................................***********",
+      "sequence": "GGGGGGUGGAUCGAAUAGAUCACACGGACUCUAAAUUCGUGCAGGCGGGUGAAACUCCCGUACUCCCCGCCA",
+      "struct2d": "((((.((.((((.....)))).((((.(.......).))))...(((((.......))))))).))))...."
+    },
+    "pfams": [
+      "PF01409"
+    ]
+  },
+  "2ZUEA": {
+    "B": {
+      "contacts": ".*******...****.*.***..*****....*...*******.............***...........*****",
+      "sequence": "GGACCGGUAGCCUAGCCAGGACAGGGCGGCGGCCUCCUAAGCCGCAGGUCCGGGGUUCAAAUCCCCGCCGGUCCG",
+      "struct2d": "(((((((..((((..........)))).(((((.......))))).....(((((.......))))))))))))."
+    },
+    "pfams": [
+      "PF00750",
+      "PF05746",
+      "PF03485"
+    ]
+  },
+  "2ZUEB": {
+    "B": {
+      "contacts": ".*******...****.*.***..*****....*...*******.............***...........******",
+      "sequence": "GGACCGGUAGCCUAGCCAGGACAGGGCGGCGGCCUCCUAAGCCGCAGGUCCGGGGUUCAAAUCCCCGCCGGUCCGC",
+      "struct2d": "(((((((..((((..........)))).(((((.......))))).....(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF00750",
+      "PF05746",
+      "PF03485"
+    ]
+  },
+  "2ZZM": {
+    "B": {
+      "contacts": "..........****.....**...******...***********.....*.................**...........*...",
+      "sequence": "GCAGGGGUCGCCAAGCCUGGCCAAAGGCGCUGGGCCUAGGACCCAGUCCCGUAGGGGUUCCAGGGUUCAAAUCCCUGCCCCUGC",
+      "struct2d": "....(((..(((.............)))((((((.......))))))(((....)))...(.(((.......))).))))...."
+    },
+    "pfams": [
+      "PF18093",
+      "PF02475"
+    ]
+  },
+  "2ZZN": {
+    "C": {
+      "contacts": "........*******..**********..***********.******.**...***.*.........**..",
+      "sequence": "GCCGGGGUAGUCUAGGGGCUAGGCAGCGGACUGCAGAUCCGCCUUACGUGGGUUCAAAUCCCACCCCCGGC",
+      "struct2d": "(((((((..((((.......)))).(((((.......))))).....(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF18093",
+      "PF02475"
+    ]
+  },
+  "3ADB": {
+    "C": {
+      "contacts": "*............********.****...............****...*.....................**.**.....*..**....***",
+      "sequence": "GGCCGCCGCCACCGGGGUGGUCCCCGGGCCGGACUUCAGAUCCGGCGCGCCCCGAGUGGGGCGCGGGGUUCAAUUCCCCGCGGCGGCCGCCA",
+      "struct2d": "(((((((((..((((((....))))))((((((.......))))))(((((((....)))))))((((.......)))))))))))))...."
+    },
+    "pfams": [
+      "PF08433"
+    ]
+  },
+  "3ADC": {
+    "C": {
+      "contacts": "***.............*****.***............****...*.....................**.**.....*..*********",
+      "sequence": "GGCCGCCGCCACCGGGGUGGUCCCCGGGCCGGAC&GAUCCGGCGCGCCCCGAGUGGGGCGCGGGGUUCAAUUCCCCGCGGCGGCCGCC",
+      "struct2d": "(((((((((..((((((....))))))((((((.&..))))))(((((((....)))))))((((.......)))))))))))))..."
+    },
+    "pfams": [
+      "PF08433"
+    ]
+  },
+  "3ADD": {
+    "D": {
+      "contacts": "***............******.**.................*..........................*..**........*******",
+      "sequence": "GGCCGCCGCCACCGGGGUGGUCCCCGGGCCGGACU&AGAUCCGGCGCGCCCCGAGUGGGGCGCGGGGUUCAAUUCCCCGCGGCGGCCG",
+      "struct2d": "(((((((((..((((((....))))))((((((..&...))))))(((((((....)))))))((((.......)))))))))))))."
+    },
+    "pfams": [
+      "PF08433"
+    ]
+  },
+  "3AKZ": {
+    "F": {
+      "contacts": ".*******.*****.......***.**...*******..........................*********..",
+      "sequence": "UGGGAGGUCGUCUAACGGUAGGACGGCGGACUCUGGAUCCGCUGGUGGAGGUUCGAGUCCUCCCCUCCCAGCCA",
+      "struct2d": "(((((((..((((.......)))).(((((.......)))))....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF00749"
+    ]
+  },
+  "3AM1": {
+    "B": {
+      "contacts": "***.............*********..........***.......................*..**........*******",
+      "sequence": "GGCGCGGGGUACCGGGCUUGGUAGCCCGGGGCUUCGGCCGAGGGCGAGAGCCCUCGGGGUUCGAUUCCCCCCCUGCGCCGC",
+      "struct2d": "(((((((((..(((((((....)))))))(((....)))((((((....))))))((((.......))))))))))))).."
+    },
+    "pfams": [
+      "PF08433"
+    ]
+  },
+  "3AMT": {
+    "B": {
+      "contacts": "***........................****..**.********..........................********",
+      "sequence": "GGGCCCGUAGCUUAGCCAGGUCAGAGCGCCCGGCUCAUAACCGGGCGGUCGAGGGUUCGAAUCCCUCCGGGCCCACCA",
+      "struct2d": "(((((((..((((..........)))).((((.........)))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF01336",
+      "PF08489"
+    ]
+  },
+  "3CIY": {
+    "CD": {
+      "contacts": "...****..........*******.***............*****.&...*****..........*******.***............*****",
+      "sequence": "AUUCUGCGGAUUAUUUGGCAAAGGAAGCAUUGACACAUGCGCCAAU&AUUGGCGCAUGUGUCAAUGCUUCCUUUGCCAAAUAAUCCGCAGAAU",
+      "struct2d": "((((((((((((((((((((((((((((((((((((((((((((((&))))))))))))))))))))))))))))))))))))))))))))))"
+    },
+    "pfams": [
+      "PF00560",
+      "PF13855",
+      "PF13516"
+    ]
+  },
+  "3CUL": {
+    "C": {
+      "contacts": "............................***********...................*................................",
+      "sequence": "GAUGGCGAAAGCCAUUUCCGCAGGCCCCAUUGCACUCCGGGGUAUUGGCGUUAGGUGGUGGUACGAGGUUCGAAUCCUCGUACCGCAGCCA",
+      "struct2d": "((((((....))))))..(((..(((((..........)))))....)))...(((.(.(((((((((.......))))))))).).)))."
+    },
+    "D": {
+      "contacts": ".............................********.**................................................*...",
+      "sequence": "GGAUGGCGAAAGCCAUUUCCGCAGGCCCCAUUGCACUCCGGGGUAUUGGCGUUAGGUGGUGGUACGAGGUUCGAAUCCUCGUACCGCAGCCA",
+      "struct2d": "(((((((....)))))).)(((..(((((..........)))))....)))...(((.(((((((((((.......))))))))))).)))."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3EGZ": {
+    "B": {
+      "contacts": "..............................****.********.**...................",
+      "sequence": "GAGGGAGAGGUGAAGAAUACGACCACCUAGGUACCAUUGCACUCCGGUACCUAAAACAUACCCUC",
+      "struct2d": "(((((...((((...........))))((((((((..........)))))))).......)))))"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3EPH": {
+    "E": {
+      "contacts": ".......*........****..**********************.........................",
+      "sequence": "CUCGUAUGGCGCAGUGGUAGCGCAGCAGAUUGCAAAUCUGUUGGUCCUUAGUUCGAUCCUGAGUGCGAG",
+      "struct2d": "((((.(..((((.......))))..((((.......))))......((.((.......)).))).))))"
+    },
+    "pfams": [
+      "PF01715"
+    ]
+  },
+  "3FOZ": {
+    "C": {
+      "contacts": ".........*..............*****************...........................*****.",
+      "sequence": "GCCCGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCUGGGCAC",
+      "struct2d": "(((((((..((((........)))).(((((.......))))).....(((((.......)))))))))))).."
+    },
+    "D": {
+      "contacts": "...*..............*****************..................................",
+      "sequence": "CGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCCGGGC",
+      "struct2d": "((((..((((........)))).(((((.......))))).....(.(((.......))).)))))..."
+    },
+    "pfams": [
+      "PF01715"
+    ]
+  },
+  "3HHN": {
+    "C": {
+      "contacts": "...............................................................**...********.**..........................................................",
+      "sequence": "UCCAGUAGGAACACUAUACUACUGGAUAAUCAAAGACAAAUCUGCCCGAAGGGCUUGAGAACAUACCCAUUGCACUCCGGGUAUGCAGAGGUGGCAGCCUCCGGUGGGUUAAAACCCAACGUUCUCAACAAUAGUGA",
+      "struct2d": "((((((((..........))))))))....................(...).(.((((((((((((((..........)))))))..((((......))))((.((((......)))).))))))))))........"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3HJW": {
+    "D": {
+      "contacts": "..****........*****************.......*******.....********",
+      "sequence": "GGGCCACGGAAACCGCGCGCGGUGAUCAAUGAGCCGCGUUCGCUCCCGUGGCCCACAA",
+      "struct2d": "(((((((((.......(((((((.........)))))))......)))))))))...."
+    },
+    "pfams": [
+      "PF01248",
+      "PF01472",
+      "PF08068",
+      "PF04135",
+      "PF01509",
+      "PF16198"
+    ]
+  },
+  "3HL2A": {
+    "E": {
+      "contacts": "***................**.****......*****...............*..***..**......****...**.***.",
+      "sequence": "GCCCGGAUGAUCCUCAGUGGUCUGGGGUGCAGG&CCUGUAGCUGUCUAGCGACAGAGUGGUUCAAUUCCACCUUUCGGGCGC",
+      "struct2d": "(.(((((.(..((((((....))))))(.((((&)))).).(((((....))))).((((.......))))).))))).).."
+    },
+    "pfams": [
+      "PF05889"
+    ]
+  },
+  "3ICQ": {
+    "D": {
+      "contacts": "*****..........****.............*..*****.**....*******....****",
+      "sequence": "GCGGAUUUAACUCAGUUGGGAGAGCGC&GGAGGUCCUGUGUUCGAUCCACAGAAUUCGCACC",
+      "struct2d": "(((.(((...(((........)))..(&.).....(((((.......)))))))).)))..."
+    },
+    "E": {
+      "contacts": "*****...........****............*..*****.**....*******....****",
+      "sequence": "GCGGAUUUAACUCAGUUGGGAGAGCGCC&GAGGUCCUGUGUUCGAUCCACAGAAUUCGCACC",
+      "struct2d": "(((((((...(((........)))..(.&).....(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF00071",
+      "PF08389"
+    ]
+  },
+  "3IRW": {
+    "R": {
+      "contacts": "....................................................****.********.**......................",
+      "sequence": "GUCACGCACAGGGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACUCCGGUAGGUAGCGGGGUUACCGAUG",
+      "struct2d": "..((((......((...((((((....))))))...))...(((.(((((((...((..........)).))))..))))))...)).))"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3IVKA": {
+    "M": {
+      "contacts": ".....................................................................*.*******........................****.........***..........",
+      "sequence": "UCCAGUAGGAACACUAUACUACUGGAUAAUCAAAGACAAAUCUGCCCGAAGGGCUUGAGAACAUCGAAACACGAUGCAGAGGUGGCAGCCUCCGGUGGGUUAAAACCCAACGUUCUCAACAAUAGUGA",
+      "struct2d": "((((((((..........))))))))....................(...).(.((((((((((((.....)))))..((((......))))((.((((......)))).))))))))))........"
+    },
+    "pfams": [
+      "UNK30"
+    ]
+  },
+  "3IWN": {
+    "A": {
+      "contacts": "....................................................************.*******.....................",
+      "sequence": "CACGCACAGGGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACGGCAUUGCACUCCGCCGUAGGUAGCGGGGUUACCGAUGG",
+      "struct2d": "((((......((...((((((....))))))...))...(((.((((((((..((((..........)))))))))..))))))...)).))."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3K0J": {
+    "E": {
+      "contacts": ".............**....***********............*........*.....***.****.**...................",
+      "sequence": "GCGACUCGGGGUGCCCUCCAUUGCACUCCGGAGGCUGAGAAAUACCCGUAUCACCUGAUCUGGAUAAUGCCAGCGUAGGGAAGUCGC",
+      "struct2d": "((((((((((.((((.(((..........))))))......)..)))).....(((...((((......))))...)))..))))))"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3KFU": {
+    "K": {
+      "contacts": "**.......****..***...*****..*********............******...********...*****",
+      "sequence": "UCCGCGGUAGCUCAG&GGUAGAGCAGCCGGCUGUUAACCGGUAGGUCGCAGGUUCGAGUCCUGCCCGCGGAGCC",
+      "struct2d": "(((((((..((((..&....)))).(((((.......))))).....(((((.......))))))))))))..."
+    },
+    "M": {
+      "contacts": "..*......****........*****...********............................**..**",
+      "sequence": "UCCGCGGUAGCUCAG&GGUAGAGCAGCCGGCUGUUAACCGGUAGGUCGCAGGUUCGAGUCCUGCCCGCGGA",
+      "struct2d": "(((((((..((((..&....)))).(((((.......))))).....(((((.......))))))))))))"
+    },
+    "pfams": [
+      "PF01425",
+      "PF00152",
+      "PF02686",
+      "PF02637",
+      "PF02934",
+      "PF01336"
+    ]
+  },
+  "3KTW": {
+    "C": {
+      "contacts": "................************...................................*..*****..****...***.............",
+      "sequence": "AGAUAGUCGUGGGUUCCCUUUCUGGAGGGAGAGGGAAUUCCACGUUGACCGGGGGAACCGGCCAGGCCCGGAAGGGAGCAACCGUGCCCGGCUAUC",
+      "struct2d": ".(((...((((((((((((((((....))))))))))).))))).....((((.....(((.....(((....))).....)))..))))...)))"
+    },
+    "D": {
+      "contacts": "...............*************............................*.........*****...****.................",
+      "sequence": "AGAUAGUCGUGGGUUCCCUUUCUGGAGGGAGAGGGAAUUCCACGUUGACCGGGGGAACCGGCCAGGCCCGGAAGGGAGCAACCGUGCCCGGCUAU",
+      "struct2d": "..(((..((.(((((((((((((....))))))))))).)).))....(.(((.....(((.....(((....))).....)))..))).).)))"
+    },
+    "pfams": [
+      "PF01922"
+    ]
+  },
+  "3MOJ": {
+    "A": {
+      "contacts": "........................................**.*.*****...........***.....",
+      "sequence": "GGCUCAUCACAUCCUGGGGCUGGAAACGGUCCCAAGGGUAUGGCUGUUCGCCAUUUAAAGUGGU&AGCU",
+      "struct2d": ".((..(((((((((((((((((....))))))).)))))(((((.....))))).....)))))&.))."
+    },
+    "pfams": [
+      "PF03880"
+    ]
+  },
+  "3MUM": {
+    "R": {
+      "contacts": "....................................................***..*******..**.......................",
+      "sequence": "GUCACGCACAGAGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACUCCGGUAGGUAGCGGGGUUACCGAUGG",
+      "struct2d": "..(.((......((...((((((....))))))...))...(((.((((((((..((..........)))))))..))))))...))...)"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3MUR": {
+    "R": {
+      "contacts": "....................................................****.********.**.......................",
+      "sequence": "GUCACGCACAGGGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACUCCGGUAGGUAGCGGGGUUAUCGAUGG",
+      "struct2d": "..(.((......((...((((((....))))))...))...(((.((((((((...(..........).)))))..))))))...))...)"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "3NDB": {
+    "M": {
+      "contacts": ".................................*************..........................**....**********..*********.....................................",
+      "sequence": "GUCUCGUCCCGUGGGGCUCGGCGGUGGGGGAGCAUCUCCUGUAGGGGAGAUGUAACCCCCUUUACCUGCCGAACCCCGCCAGGCCCGGAAGGGAGCAACGGUAGGCAGGACGUCGGCGCUCACGGGGGUGCGGGAC",
+      "struct2d": "((((((..(((((.(((.(((((..(((((.(((((((((....)))))))))..)))))....((((((.....(((.....(((....))).....)))..)))))).))))))).).))))).....))))))"
+    },
+    "pfams": [
+      "PF02978",
+      "PF01922",
+      "PF00448",
+      "PF02881"
+    ]
+  },
+  "3PIO": {
+    "Y": {
+      "contacts": ".....****.***.............********..**.******.*****..****..*............*******..***....*****.*.......****......******..",
+      "sequence": "ACCCCCGUGCCCAUAGCACUGUGGAACCACCCCACCCCAUGCCGAACUGGGUCGUGAAACACAGCAGCGCCAAUGAUACUCGGACCGCAGGGUCCCGGAAAAGUCGGUCAGCGCGGGGGU",
+      "struct2d": "((((((((((.....((.(((((....((((((...............)))..)))...)))))..)).((.......((.(((((....))))).)).......))...))))))))))"
+    },
+    "pfams": [
+      "PF00572",
+      "PF17136",
+      "PF01632",
+      "PF00237",
+      "PF00830",
+      "PF00347",
+      "PF03947",
+      "PF00673",
+      "PF00828",
+      "PF00829",
+      "PF00471",
+      "PF01245",
+      "PF00297",
+      "PF00467",
+      "PF01783",
+      "PF00444",
+      "PF00861",
+      "PF01016",
+      "PF00573",
+      "PF00453",
+      "PF01386",
+      "PF00276",
+      "PF01196",
+      "PF00181",
+      "PF00468",
+      "PF00298",
+      "PF14693",
+      "PF00831",
+      "PF00238",
+      "PF00252",
+      "PF00327",
+      "PF00281"
+    ]
+  },
+  "3RW6": {
+    "H": {
+      "contacts": "****....********.***.........*****..............***.**.......",
+      "sequence": "GCACUAACCUAAGACAGGAGGGCCGGGAAACCUGCCUAAUCCAAUGACGGGUAAUAGUGUC",
+      "struct2d": "((((((((((......(((((((.((....)).))))..)))......))))..))))))."
+    },
+    "pfams": [
+      "PF09162"
+    ]
+  },
+  "3TUP": {
+    "T": {
+      "contacts": "**.......****..........***......*******..........................*********",
+      "sequence": "GCCGAGGUAGCUCAGUUGGUAGAGCAUGCGACUGAAAAUCGCAGUGUCGGCGGUUCGAUUCUGCUCCUCGGCAC",
+      "struct2d": "(((((((..((((........)))).(((((.......)))))......((.(.......).)).))))))).."
+    },
+    "pfams": [
+      "PF01409",
+      "PF03147"
+    ]
+  },
+  "3U4M": {
+    "B": {
+      "contacts": "...............**************..................................****.*******.....",
+      "sequence": "GGGAUGCGUAGGAUAGGUGGGAGCCUGUGAACCCCCGCCUCCGGGUGGGGGGGAGGCGCCGGUGAAAUACCACCCUUCCC",
+      "struct2d": "((((.(.........(((((..(((......((((((((....))))))))...)))............)))))).))))"
+    },
+    "pfams": [
+      "PF00687"
+    ]
+  },
+  "3V7E": {
+    "C": {
+      "contacts": "........*........**............****...................................................*......................................*",
+      "sequence": "GGCUUAUCAAGAGAGGUGGAGGGACUGGCCCGAUGAAACCCGGCAACCACUAGUCUAGCGUCAGCUUCGGCUGACGCUAGGCUAGUGGUGCCAAUUCCUGCAGCGGAAACGUUGAAAGAUGAGCCA",
+      "struct2d": "((((((((....(.(((...(((.....)))......))))(((..(((((((((((((((((((....))))))))))))))))))).)))...(....(((((....)))))..)))))))))."
+    },
+    "pfams": [
+      "PF01248"
+    ]
+  },
+  "3W3S": {
+    "B": {
+      "contacts": "...................**............................*...........................*....................",
+      "sequence": "GGGAGAGGUUGGCCGGCUGGUGCCGCCCCGGGACUUCAAAUCCCGUGGGAGGUCCCGCAAGGGAGCUCCGGAGGGUUCGAUUCCCUCCCUCUCCCGCC",
+      "struct2d": "((((((((..((.((((....))))))((((((.......))))).)((((.((((....)))).)))).(((((.......)))))))))))))..."
+    },
+    "pfams": [
+      "PF00587",
+      "PF18490"
+    ]
+  },
+  "3WFRA": {
+    "A": {
+      "contacts": "*****..........**.*....................................*.............****",
+      "sequence": "GGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCA",
+      "struct2d": "(((((((....(...........)..(((((.......))))).....(((((.......))))))))))))."
+    },
+    "C": {
+      "contacts": "****...........**.*....................................*.............*****",
+      "sequence": "GGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCAC",
+      "struct2d": "(((((((....((........).)..(((((.......))))).....(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF01743",
+      "PF12627",
+      "PF01966"
+    ]
+  },
+  "3WFRB": {
+    "C": {
+      "contacts": "****...........**.*....................................*.............******",
+      "sequence": "GGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCACC",
+      "struct2d": "(((((((....((........).)..(((((.......))))).....(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF01743",
+      "PF12627",
+      "PF01966"
+    ]
+  },
+  "3WQY": {
+    "C": {
+      "contacts": "*****......****..***......................****..**....**.........**********",
+      "sequence": "GGGCUCGUAGCUCAGCGGGAGAGCGCCGCCUUUGCGAGGCGGAGGCCGCGGGUUCAAAUCCCGCCGAGUCCACCA",
+      "struct2d": "(((((((..((((.......)))).((((((.....)))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF07973",
+      "PF01411",
+      "PF02272"
+    ]
+  },
+  "3WQZ": {
+    "C": {
+      "contacts": "*****......****..***......................********....**........***********",
+      "sequence": "GGACUCGUAGCUCAGCGGGAGAGCGCCGCCUUUGCGAGGCGGAGGCCGCGGGUUCAAAUCCCGCCGAGUCCACCA",
+      "struct2d": "(((((((..((((.......)))).(((((((...))))))).....(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "PF07973",
+      "PF01411",
+      "PF02272"
+    ]
+  },
+  "3ZGZ": {
+    "B": {
+      "contacts": "*****.....******..**..*****.....***.....*.................*..........**********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGCG&UCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGCAC",
+      "struct2d": "(((((((..(((...........))).(((((&))))).((((&...))))..(((((.......)))))))))))).."
+    },
+    "E": {
+      "contacts": "*.***.*...*******.**..*****......**.....*................**...........********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGCAC",
+      "struct2d": "(((((((..(((...........))).(((((&))))).((((&..))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "3ZJT": {
+    "B": {
+      "contacts": "..**.....*******..**..******.....*****....*..................**.............*.***",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGG&AAUCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).(..(.&...)..).((((....))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "3ZJU": {
+    "B": {
+      "contacts": ".****....********.**..*******...****....*..................**.............*.***",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).((.(.&.).)).((((....))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "3ZJV": {
+    "B": {
+      "contacts": "..**.....********.**..******.........**.*....*..................**..............****",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGAUU&AAAUCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).(((((..&...))))).((((....))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "4AQ7": {
+    "B": {
+      "contacts": "*****.*...******..**..*****.....**......*................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).(((((&))))).((((&..))))..(((((.......)))))))))))).."
+    },
+    "E": {
+      "contacts": "*******...*******.**..*****.....***.....*..............**...........********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGC&GCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).(((((&))))).(((&..)))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "4ARC": {
+    "B": {
+      "contacts": ".*...*******..**..*******...****..***..................**...........***",
+      "sequence": "GGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCC&C",
+      "struct2d": "(((..(((...........))).((.((&)).)).((((....))))..(((((.......))))))))&."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "4ARI": {
+    "B": {
+      "contacts": "..****...*.******.**..*******...****....*..................**.............*.****",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&UCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUACC",
+      "struct2d": "(((((((..(((...........))).((.((&)).)).((((....))))..(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "4AS1": {
+    "B": {
+      "contacts": "..**.....********.**..******.......****....*..................*..............******",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&AAAUCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUACC",
+      "struct2d": ".((((((..(((...........))).((((.&....)))).((((....))))..(((((.......)))))))))))...."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "4BY9": {
+    "A": {
+      "contacts": ".....*****************************......***************.....******.**...",
+      "sequence": "GCGAGCAAUGAUGAGUGAUGGGCGAACUGAGCUCGAAAGAGCAAUGAUGAGUGAUGGGCGAACUGAGCUCGC",
+      "struct2d": "((((((......(.............(...((((....))))......).............)...))))))"
+    },
+    "pfams": [
+      "PF01248",
+      "PF01269",
+      "PF01798"
+    ]
+  },
+  "4CQN": {
+    "B": {
+      "contacts": "*******...******..**..*****.......*****.....*................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGAUU&AAUCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).(((((..&..))))).((((&..))))..(((((.......)))))))))))).."
+    },
+    "E": {
+      "contacts": "*******...*******.**..*****......***.....*................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGAU&UCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).((((..&.)))).((((&..))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "4GCW": {
+    "B": {
+      "contacts": ".***............*.**.............*****...****.......***",
+      "sequence": "GCUUCCAUAGCUCAGCAGGUAGAGCA&GUCAGCGGUUCGAGCCCGCUUGGAAGCU",
+      "struct2d": "(((((((...(............)..&...(((((.......))))))))))))."
+    },
+    "pfams": [
+      "PF12706"
+    ]
+  },
+  "4JXX": {
+    "B": {
+      "contacts": "******..*******.....******.....******..........................********",
+      "sequence": "GGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGC&CCGAGGUUCGAAUCCUCGUACCCCAGCC",
+      "struct2d": "((((((..(((.........))).(((((.......))))).&.(((((.......)))))))))))...."
+    },
+    "pfams": [
+      "PF00749",
+      "PF03950"
+    ]
+  },
+  "4JYZ": {
+    "B": {
+      "contacts": "*******.*******.....******.....******...........................********",
+      "sequence": "GGGGUAUCGCCAAGCGGUAAGGCACCGGUUUUUGAUACCGGCA&CGCAGGUUCGAAUCCUGCUACCCCAGCC",
+      "struct2d": "((((((..(((.........))).(((((.......)))))..&.(((((.......)))))))))))...."
+    },
+    "pfams": [
+      "PF00749",
+      "PF03950"
+    ]
+  },
+  "4KR2": {
+    "C": {
+      "contacts": "**......***...........*****...******..........................******",
+      "sequence": "CGCCGCUGGUGUAGUGGUAUCAUGCAAGAUUCCCAUUCUUGCGACCCGGGUUCGAUUCCCGGGCGGCG",
+      "struct2d": "((((((..(((.........)))((((((.......))))))....((((.......)))).))))))"
+    },
+    "pfams": [
+      "PF00587",
+      "PF03129"
+    ]
+  },
+  "4KR3": {
+    "C": {
+      "contacts": "*.......***...........**************..........................*******",
+      "sequence": "CGCCGCUGGUGUAGUGGUAUCAUGCAAGAUUCCCAUUCUUGCGACCCGGGUUCGAUUCCCGGGCGGCGC",
+      "struct2d": "((((((..(((.........)))((((((.......))))))...(((((.......)))))))))))."
+    },
+    "pfams": [
+      "PF00587",
+      "PF03129"
+    ]
+  },
+  "4KZD": {
+    "R": {
+      "contacts": "...............................*.*******...........................................",
+      "sequence": "GACGCGACCGAAAUGGUGAAGGACGGGUCCAGUGCGAAACACGCACUGUUGAGUAGAGUGUGAGCUCCGUAACUGGUCGCGUC",
+      "struct2d": "((((((((((..((((.(.....(...(((((((((.....)))))))..)).........)..).))))..).)))))))))"
+    },
+    "pfams": [
+      "UNK38"
+    ]
+  },
+  "4LCK": {
+    "C": {
+      "contacts": "......****...................................................................................**.......",
+      "sequence": "GGGUGCGAUGAGAAGAAGAGUAUUAAGGAUUUACUAUGAUUAGCGACUCUAGGAUAGUGAAAGCUAGAGGAUAGUAACCUUAAGAAGGCACUUCGAGCACCC",
+      "struct2d": "((((((.....((((.......((((((..(((((((.........((((((...........)))))).))))))))))))).......))))..))))))"
+    },
+    "pfams": [
+      "PF01248"
+    ]
+  },
+  "4M4O": {
+    "B": {
+      "contacts": "...........................*.****.***.*....................",
+      "sequence": "GGGUUCAUCAGGGCUAAAGAGUGCAGAGUUACUUAGUUCACUGCAGACUUGACGAACCC",
+      "struct2d": "((((((.(((((.((.......((((.(...(...)..).)))))).))))).))))))"
+    },
+    "pfams": [
+      "PF00062"
+    ]
+  },
+  "4P3EA": {
+    "A": {
+      "contacts": "..******..................*****..*****.............***..*******..................****....***................*******.........",
+      "sequence": "GACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUU",
+      "struct2d": "(.((..(.(((((((((((.(((((..((((((....))))))..))))).))))......(.(((((.....((((....(((....)))....))))...))))))))))))).)...)).)"
+    },
+    "pfams": [
+      "PF16969",
+      "PF01922"
+    ]
+  },
+  "4PKD": {
+    "V": {
+      "contacts": "*....***********........****....*************.........",
+      "sequence": "GAUCCAUUGCACUCCGGAUCCAGGAGAUACCAUGAUCACGAAGGUGGUUUUCCU",
+      "struct2d": "(((((..........))))).((((((..((((..........)))).))))))"
+    },
+    "pfams": [
+      "PF12220",
+      "PF00076"
+    ]
+  },
+  "4RDX": {
+    "C": {
+      "contacts": "**........................******.*****............................**.*******",
+      "sequence": "GUGAGCGUAGCUCAGCUGGUUAGAGCACCGGACUGUGG&UCCGGGGGUCGUGGGUUCAAGUCCCAUCGCUCACCCC",
+      "struct2d": "(((((((..((((.........)))).((((.......&.)))).....(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF13393",
+      "PF03129"
+    ]
+  },
+  "4U7U": {
+    "L": {
+      "contacts": "***************************************************..********",
+      "sequence": "AUAAACCGGGCUCCCUGUCGGUUGUAAUUGAUAAUGUUGAGAGUUCCCCGCGCCAGCGGGG",
+      "struct2d": ".............................................((((((....))))))"
+    },
+    "pfams": [
+      "PF09485",
+      "PF08798",
+      "PF09481",
+      "PF09704",
+      "PF09344"
+    ]
+  },
+  "4UYJ": {
+    "R": {
+      "contacts": "......*.............************.....................**...........*****.................***...................",
+      "sequence": "GGGGCUAGGCCGGGGGGUUCGGCGUCCCCUGUAACCGGAAACCGCCGAUAUGCCGGGGCCGAAGCCCGAGGGGCGGUUCCCGUAAGGGUUCCCACCCUCGGGCGUGCCUC",
+      "struct2d": "(((((..(((((((((.........)))))....((((..............))))))))...((((((((((.((..(((....)))..))).)))))))))..)))))"
+    },
+    "pfams": [
+      "PF05486",
+      "PF02290"
+    ]
+  },
+  "4UYK": {
+    "R": {
+      "contacts": "......*.............************.....................**...........****..........................................***...................",
+      "sequence": "GGGGCUAGGCCGGGGGGUUCGGCGUCCCCUGUAACCGGAAACCGCCGAUAUGCCGGGGCCGAAGCCCGAGGGGCGGUUCCCGAAGCCGCCUCUGUAAGGAGGCGGUGGAGGGUUCCCACCCUCGGGCGUGCCUC",
+      "struct2d": "(((((..(((((((((.........)))))....((((..............))))))))...(((((((((..((..(((...(((((((((....)))))))))...)))..))..)))))))))..)))))"
+    },
+    "pfams": [
+      "PF05486",
+      "PF02290"
+    ]
+  },
+  "4V2S": {
+    "Q": {
+      "contacts": ".*...........******......................**......********",
+      "sequence": "AUGUAGACCCGUC&CUUCGCCUGCGUCACGGGUCCUGGUUAGACGCAGGCGUUUUCU",
+      "struct2d": ".............&...((((((((((..............))))))))))......"
+    },
+    "pfams": [
+      "PF17209"
+    ]
+  },
+  "4W90": {
+    "C": {
+      "contacts": "..............................*...******.......................................**.......................................",
+      "sequence": "GCGCGCUUAAUCUGAAAUCAGAGCGGGGGACCCAUUGCACUCCGGGUUUUUCCCGUAAGGGGUGAAUCCUUUUUAGGUAGGGCGAAAGCCCGAAUCCGUCAGCUAACCUCGUAAGCGCGC",
+      "struct2d": "(((((((...((((....))))((((((....(.........................(((((....(((....)))..((((....))))..))))..).)....)))))).)))))))"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "4WC3": {
+    "B": {
+      "contacts": "*****............***..................................**.*...**........*****",
+      "sequence": "GGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCACCA",
+      "struct2d": "((((.((..((((........)))).(((((.......))))).....(((((.......))))))).))))...."
+    },
+    "pfams": [
+      "PF01743"
+    ]
+  },
+  "4WF9": {
+    "Y": {
+      "contacts": "...****..**.............*****.....*...***...******.****.*.............*****.*..***....**..***.....***.......****..",
+      "sequence": "UCUGGUGACUAUAGCAAGGAGGUCACACCUGUUCCCAUGCCGAACACAGAAGUUAAGGUCUUUAGCGACGAUGGUAGCCAACUUACGUUCCGCUAGAGUAGAACGUUGCCAGGC",
+      "struct2d": ".(..(..(.....((((.((......((((((...(.....)...))))..)).....)).)).))............(............)..............)..)..)."
+    },
+    "pfams": [
+      "PF00572",
+      "PF17136",
+      "PF01632",
+      "PF00237",
+      "PF00347",
+      "PF03947",
+      "PF00673",
+      "PF00828",
+      "PF00829",
+      "PF01245",
+      "PF00297",
+      "PF00467",
+      "PF01783",
+      "PF00861",
+      "PF01016",
+      "PF00573",
+      "PF00453",
+      "PF01386",
+      "PF00276",
+      "PF01196",
+      "PF00181",
+      "PF00468",
+      "PF14693",
+      "PF00831",
+      "PF00238",
+      "PF00252",
+      "PF00327",
+      "PF00281"
+    ]
+  },
+  "4X0B": {
+    "B": {
+      "contacts": "******............***..................................**.*...**........*****",
+      "sequence": "GGGCCAGGUAGCUCAGUUGGUAGAGCACUGGACUGAAAAUCCAGGUGUCGGCGGUUCGAUUCCGCCCCUGGCCCACC",
+      "struct2d": ".((((.((..((((........)))).(.((.........)).).....(((((.......))))))).))))...."
+    },
+    "pfams": [
+      "PF01743"
+    ]
+  },
+  "4YB1": {
+    "R": {
+      "contacts": "****.............................................................................*.........",
+      "sequence": "GGGCACGCACAGAGCAAACCAUUCGAAAGAGUGGGACGCAAAGCCUCCGGCCUAAACCAUUGCACCUCGGUAGGUAGCGGGGUUACCGAUG",
+      "struct2d": "...((((......((...((((((....))))))...))...(((.(((((((...((..........)).))))..))))))...)).))"
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "4YCO": {
+    "D": {
+      "contacts": "............*****.******...***...........****.........**..................",
+      "sequence": "GCGCGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCCGCGCAC",
+      "struct2d": "(((((((..((((........)))).(((((.......))))).....(((((.......)))))))))))).."
+    },
+    "E": {
+      "contacts": "........*****.******...................*..........**...............",
+      "sequence": "GCGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCCG",
+      "struct2d": "..(((..((((........)))).(((((.......))))).....(((((.......))))))))."
+    },
+    "F": {
+      "contacts": "............*****.******..............................**...............",
+      "sequence": "GCGCGGAUAGCUCAGUCGGUAGAGCAGGGGAUUGAAAAUCCCCGUGUCCUUGGUUCGAUUCCGAGUCCGCG",
+      "struct2d": "..(((((..((((........)))).(((((.......))))).....(((((.......))))))))))."
+    },
+    "pfams": [
+      "PF01207"
+    ]
+  },
+  "4YVI": {
+    "C": {
+      "contacts": ".........***.........*****..**.******..................................",
+      "sequence": "UGGGAGGUCGUCUAACGGUAGGACGGCGGACUCUGGAUCCGCUGGUGGAGGUUCGAGUCCUCCCCUCCCAG",
+      "struct2d": ".((((((..((((.......))))((((((.......))))))...(((((.......))))))))))).."
+    },
+    "pfams": [
+      "PF01746"
+    ]
+  },
+  "4YYE": {
+    "C": {
+      "contacts": "**.......**.....*........****.**********..***.*..................********.",
+      "sequence": "GUUAUAUUAGCUUAAUUGGUAGAGCAUUCGUUUUGUAAUCGAAAGGUUUGGGGUUCAAAUCCCUAAUAUAACAC",
+      "struct2d": "(((((((..((((........)))).((((.........)))).....(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF00587",
+      "PF03129"
+    ]
+  },
+  "4ZT0": {
+    "B": {
+      "contacts": "******************...........***************.**************.........****",
+      "sequence": "GAUGAGACGCGUUUUAGAGCUAGAAAUAGCAAGUUAAAAUAAGGCUAGUCCGUUAUCAACUUGAAAAAGUGU",
+      "struct2d": "..........((((((..((((....))))....))))))..(((..).)).......((((....)))).."
+    },
+    "pfams": [
+      "PF16592",
+      "PF16593",
+      "PF16595",
+      "PF13395"
+    ]
+  },
+  "5AH5": {
+    "C": {
+      "contacts": "..***......******.**..****.........***....*................**............*******",
+      "sequence": "GCCCGCAUGGUGAAAUCGGUAAACACAUCGCAC&AAUGCGCCGCCUCUGGCUUGCCGGUUCAAGUCCGGCUGCGGGCACC",
+      "struct2d": "(((((((..(((...........)))..((((.&..))))..(((...)))..(((((.......))))))))))))..."
+    },
+    "D": {
+      "contacts": "..***......******.**..****.......*..***....*................**............*******",
+      "sequence": "GCCCGCAUGGUGAAAUCGGUAAACACAUCGCACU&AAUGCGCCGCCUCUGGCUUGCCGGUUCAAGUCCGGCUGCGGGCACC",
+      "struct2d": "(((((((..(((...........)))..((((..&..))))..(((...)))..(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "5AOX": {
+    "C": {
+      "contacts": "...*..............***********................****.......****............***.........",
+      "sequence": "GCCGGGCGCGGUGGCUCACGCCUGUAAUCCCAGCACUUUGGGAGGCCGAGGCGGGAGGAUCGCGAA&CGCGAGACCCCGUCUCU",
+      "struct2d": "((((((((.(......).)))))....((((........))))))).((((((((.(..(((((..&)))))..)))))))))."
+    },
+    "F": {
+      "contacts": "..................***********................****......****.............***.........",
+      "sequence": "GCCGGGCGCGGUGGCUCACGCCUGUAAUCCCAGCACUUUGGGAGGCCGAGGCGGG&GGAUCGCGAAC&CGCGAGACCCCGUCUC",
+      "struct2d": "((((((((.(......).)))))....((((........))))))).((((((((&(..(((((...&)))))..)))))))))"
+    },
+    "pfams": [
+      "PF05486",
+      "PF02290"
+    ]
+  },
+  "5AXM": {
+    "P": {
+      "contacts": "***.............*..............................********.....*****..*****",
+      "sequence": "GGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUCCCCAC",
+      "struct2d": "(((((..((((........)))).(((((.......))))).....(((((.......))))))))))...."
+    },
+    "pfams": [
+      "UNK48"
+    ]
+  },
+  "5AXN": {
+    "P": {
+      "contacts": "***.............*.......................********.....*****..*****",
+      "sequence": "GGAUUUAGCUCAGUUGGGAGAGCGCCAG&AUCUGGAGGUCCUGUGUUCGAUCCACAGAAUCCCCA",
+      "struct2d": "(((((..((((........)))).((..&....)).....(((((.......))))))))))..."
+    },
+    "pfams": [
+      "UNK49"
+    ]
+  },
+  "5CCBA": {
+    "N": {
+      "contacts": "..........**..........**.......***.........******************....**..........",
+      "sequence": "GGCCCGGAUAGCUCAGUCGGUAGAGCAUCAGACUUUUAAUCUGAGGGUCCAGGGUUCAAGUCCCUGUUCGGGCGCCA",
+      "struct2d": "((((((((..((((........)))).(((((.(...).))))).....(((((.......))))))))))))..)."
+    },
+    "pfams": [
+      "PF04189",
+      "PF08704"
+    ]
+  },
+  "5CCXB": {
+    "N": {
+      "contacts": ".........*...........**.......***.........******************.**...........",
+      "sequence": "GGCCCGGAUAGCUCAGUCGGUAGAGCAUCAGACUUUUAAUCUGAGGGUCCAGGGUUCAA&CCUGUUCGGGCGCC",
+      "struct2d": ".(((((((..((((........)))).(((((.(...).))))).....((((......&)))))))))))..."
+    },
+    "pfams": [
+      "PF04189",
+      "PF08704"
+    ]
+  },
+  "5D6G": {
+    "0": {
+      "contacts": "...*****....******.......................*****...................***......",
+      "sequence": "GCCUAAGACAGCGGGGAGGUUGGCUUAGAAGCAGCCAUCCUUUAAAGAGUGCGUAACAGCUCACCCGUCGAGGC",
+      "struct2d": "(((.......(((((.(((..(((.........)))..))).....(...((......)).).)))))...)))"
+    },
+    "pfams": [
+      "PF17777",
+      "PF00466"
+    ]
+  },
+  "5DDO": {
+    "A": {
+      "contacts": ".........**......*....**....*******..**...................",
+      "sequence": "CGUUGGCCCAGGAAACUGGGU&AGUAAGGUCCAUUGCACUCCGGGCCUGAAGCAACGC",
+      "struct2d": "(((((((((((....))))))&....((((((..........))))))....)))))."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "5DDP": {
+    "A": {
+      "contacts": "............................***...********.**................",
+      "sequence": "CGUUGACCCAGGAAACUGGGCGGAAGUAAGGUCCAUUGCACUCCGGGCCUGAAGCAACGCG",
+      "struct2d": "(((((.(((((....)))))........((((((..........))))))....))))).."
+    },
+    "pfams": [
+      "PF00076"
+    ]
+  },
+  "5E6M": {
+    "C": {
+      "contacts": "*.......***...........*****...******...****...................***********",
+      "sequence": "CGCCGCUGGUGUAGUGGUAUCAUGCAAGAUUCCCAUUCUUGCGACCCGGGUUCGAUUCCCGGGCGGCGCACCA",
+      "struct2d": "((((((..(((.........)))((((((.......))))))...(((((.......)))))))))))....."
+    },
+    "pfams": [
+      "PF00587",
+      "PF03129",
+      "PF00458"
+    ]
+  },
+  "5HR6": {
+    "C": {
+      "contacts": "......****.******....******************.............*..........****.",
+      "sequence": "CCCCUUCGUCUAGAGGCCCAGGACACCGCCCUUUCACGGCGGUAACAGGGGUUCGAAUCCCCUAGGGG",
+      "struct2d": "(((((..((((.........))))((((((.......))))))...(((((.......))))))))))"
+    },
+    "D": {
+      "contacts": "....****...........******************........................***..",
+      "sequence": "CCCUUCGUCUAGAGGCCCAGGACACCGCCCUUUCACGGCGGUAACAGGGGUUCGAAUCCCCUAGGG",
+      "struct2d": "((((..((((.........))))((((((.......))))))...(((((.......)))))))))"
+    },
+    "pfams": [
+      "PF04055"
+    ]
+  },
+  "5HR7": {
+    "D": {
+      "contacts": ".....****.............*****************........................*****..",
+      "sequence": "CCCCUUCGUCUAGAGGCCCAGGACACCGCCCUUUCACGGCGGUAACAGGGGUUCGAAUCCCCUAGGGGAC",
+      "struct2d": "(((((..((((.........))))((((((.......))))))...(((((.......)))))))))).."
+    },
+    "pfams": [
+      "PF04055"
+    ]
+  },
+  "5M73": {
+    "A": {
+      "contacts": "....****...*****..***...*.........*****..*****............*.***.*******...................***....***................**********........****......",
+      "sequence": "GGUGUCCGCACUAAGUUCGGCAUCAAUAUGGUGACCUCCCGGGAGCGGGGGACCACCAGGUUGCCUAAGGAGGGGUGAACCGGCCCAGGUCGGAAACGGAGCAGGUCAAAACUCCCGUGCUGAUCAGUAGUGGGAUCGCGCCUA",
+      "struct2d": "(((((((.(((((.(.(((((((((((.(((((..((((((....))))))..))))).))))......(.((((......((((....(((....)))....))))....)))))))))))).)..)))))))...))))).."
+    },
+    "pfams": [
+      "PF16969",
+      "PF08492",
+      "PF01922"
+    ]
+  },
+  "5OMW": {
+    "B": {
+      "contacts": "*******...******..**..*****.......*****......*................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGAUU&AAAUCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).(((((..&...))))).((((&..))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "5ON2": {
+    "B": {
+      "contacts": "*.*****...******..**..*****.......*******......*................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGAUUUAAAAUCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUACC",
+      "struct2d": "(((((((..(((...........))).((((((.....)))))).((((&..))))..(((((.......))))))))))))..."
+    },
+    "E": {
+      "contacts": "*.*****...*******.**..*****.......***.....*................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&AAUCCCUCGGCG&CGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUAC",
+      "struct2d": "(((((((..(((...........))).((((.&...)))).((((&..))))..(((((.......)))))))))))).."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "5ONH": {
+    "E": {
+      "contacts": "*.*****...*******.**..*****.......****....*..................**..........*********",
+      "sequence": "GCCCGGAUGGUGGAAUCGGUAGACACAAGGGA&AAUCCCUCGGCGUUCGCGCUGUGCGGGUUCAAGUCCCGCUCCGGGUACC",
+      "struct2d": "(((((((..(((...........))).(((((&..))))).((((....))))..(((((.......))))))))))))..."
+    },
+    "pfams": [
+      "PF08264",
+      "PF13603",
+      "PF00133"
+    ]
+  },
+  "5TF6": {
+    "B": {
+      "contacts": "......**.********************.**................***.**.......**........",
+      "sequence": "GGUCAAUUUGAAACAAUACAGAGAUGAUCAGCAGUUCCCCUGCAUAAGGAUGAACCGUUUUACAAAGAGAC",
+      "struct2d": ".(((..((((...................(((.((((.(((.....)))..)))).)))...))))..)))"
+    },
+    "pfams": [
+      "PF16842",
+      "PF00076"
+    ]
+  },
+  "5U34": {
+    "B": {
+      "contacts": ".***************...**************......******......................***********",
+      "sequence": "GGUCUAGAGGACAGAA&ACGGGUGUGCCAAUGGCCACUUUCCAGGUGGCAAAGCCCGUUGAGCU&GAAGUGGCACCAG",
+      "struct2d": ".((((..).)))....&......(((((....((((((.....))))))...............&.....)))))..."
+    },
+    "pfams": [
+      "UNK63"
+    ]
+  },
+  "5V6X": {
+    "C": {
+      "contacts": "........*.......***....................**********....***...****.......",
+      "sequence": "GGAAACCUGAUCAUGUAGAUCGAAUGGACUCUAAAUCCGUUCAGCCGGGUUAGAUUCCCGGGGUUUCCGC",
+      "struct2d": "(((((((.((((.....))))(((((((.......)))))))..(((((.......)))))))))))).."
+    },
+    "D": {
+      "contacts": "........*......****....................**********...****...****.........",
+      "sequence": "GGAAACCUGAUCAUGUAGAUCGAAUGGACUCUAAAUCCGUUCAGCCGGGUUAGAUUCCCGGGGUUUCCGCCA",
+      "struct2d": "(((((((.((((.....))))(((((((.......)))))))..(((((.......))))))))))))...."
+    },
+    "pfams": [
+      "UNK70"
+    ]
+  },
+  "5VW1": {
+    "C": {
+      "contacts": "******************...........***************.**************.......*.****.",
+      "sequence": "UUGUAAAAAAGUUUUAGAGCUAGAAAUAGCAAGUUAAAAUAAGGCUAGUCCGUUAUCAACUUGAAAAAGUGUC",
+      "struct2d": "..........((((((..((((....))))....))))))..(((..).)).......((((....))))..."
+    },
+    "pfams": [
+      "PF16592",
+      "PF16593",
+      "PF16595",
+      "PF13395"
+    ]
+  },
+  "5WQE": {
+    "B": {
+      "contacts": "..*********.*...*************.....*****.....**...**********",
+      "sequence": "GUCUAGAGGACAG&ACGGGUGUGCCAAUGGCCACU&CAGGUGGCA&GCCCG&UGGCACG",
+      "struct2d": "((((..).)))..&.(((((.........((((((&..)))))).&)))))&......."
+    },
+    "pfams": [
+      "UNK82"
+    ]
+  },
+  "5WWR": {
+    "C": {
+      "contacts": "****....****........*****.......***.............................********",
+      "sequence": "AGGGUAUAGCUCAGGGGUAGAGCAUUUGACU&AGAUCAAGAGGUCCCUGGUUCAAAUCCAGGUGCCCUCUCC",
+      "struct2d": ".(((((..((((.......)))).(((((((&)).)))).)....(((((.......))))))))))....."
+    },
+    "pfams": [
+      "PF01189"
+    ]
+  },
+  "5WWS": {
+    "D": {
+      "contacts": "****....****.......******......***.............................********",
+      "sequence": "AGGGUAUAGCUCAGGGGUAGAGCAUUUGAC&AGAUCAAGAGGUCCCUGGUUCAAAUCCAGGUGCCCUCUCC",
+      "struct2d": ".(((((..((((.......)))).((((((&.).)))).)....(((((.......))))))))))....."
+    },
+    "pfams": [
+      "PF01189"
+    ]
+  },
+  "5XBL": {
+    "B": {
+      "contacts": "******************..........****************.**************..........*************.*....",
+      "sequence": "UGCGCUUGGCGUUUUAGAGCUAGAAAUAGCAAGUUAAAAUAAGGCUAGUCCGUUAUCAACUUGAAAAAGUGGCACCGAGUCGGUGCUU",
+      "struct2d": "..........(((((...(((......))).....)))))..(.(..)..).......((((....)))).....(.....)......"
+    },
+    "pfams": [
+      "PF16592",
+      "PF16593",
+      "PF16595",
+      "PF13395"
+    ]
+  },
+  "5XWP": {
+    "CD": {
+      "contacts": "*******************************....****************.******&*****..***********************",
+      "sequence": "GACCACCCCAAAAAUGAAGGGGACUAAAACACAAAUCUAUCUGAAUAAACUCUUCUUC&GGAAGAAGAGUUUAUUCAGAUAGAUUUGUC",
+      "struct2d": "....(((((.........))))..).....(((((((((((((((((((((((.((((&.)))).)))))))))))))))))))))))."
+    },
+    "pfams": [
+      "UNK89"
+    ]
+  },
+  "5ZAL": {
+    "C": {
+      "contacts": "****.......****.......******...........****...............",
+      "sequence": "UGAGGUAGUAGGUUGUAUAGUUUUAGGG&GGAGAUAACUAUACAAUCUACUGUCUUAC",
+      "struct2d": "..((...(((((((((((((.(.(....&....).).)))))))))))))...))..."
+    },
+    "pfams": [
+      "PF00636",
+      "PF03368",
+      "PF04851",
+      "PF00271",
+      "PF02170"
+    ]
+  }
+}

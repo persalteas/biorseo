@@ -1,0 +1,206 @@
+{
+	"159": {
+        "contacts": "..&************&**&.&******.*.****..***.****************&..&.****.&...*****...**...*****&....*******",
+        "occurences": 1,
+        "pdb": [
+            "1VQ6"
+        ],
+        "pfam": [
+            "PF00181",
+            "PF00237",
+            "PF00238",
+            "PF00252",
+            "PF00276",
+            "PF00281",
+            "PF00297",
+            "PF00298",
+            "PF00327",
+            "PF00347",
+            "PF00466",
+            "PF00467",
+            "PF00572",
+            "PF00573",
+            "PF00673",
+            "PF00827",
+            "PF00828",
+            "PF00831",
+            "PF00832",
+            "PF00935",
+            "PF01157",
+            "PF01198",
+            "PF01246",
+            "PF01248",
+            "PF01280",
+            "PF01655",
+            "PF01780",
+            "PF01907",
+            "PF03947",
+            "PF16906",
+            "PF17144"
+        ],
+        "sequence": "UU&GGCGGCCACAGC&GU&G&GCCUCCCGUACCCAUCCCGAACACGGAAGAUAAGC&AC&GCGUUC&CUGGAGUGCGCGAGCCUCUGG&GUUCGCCGCCA",
+        "struct2d": "..&((((((....((&((&(&...((((((...(.....)...))))..))....)&))&))...(&((((((.((....))))))))&)...))))))."
+    },
+	    "122": {
+        "contacts": "***************&.&*&*****.******..***.****************&...&.****.&...*****..***...*****&....*******",
+        "occurences": 1,
+        "pdb": [
+            "1Q81",
+            "1Q82",
+            "3CPW"
+        ],
+        "pfam": [
+            "PF00181",
+            "PF00237",
+            "PF00238",
+            "PF00252",
+            "PF00276",
+            "PF00281",
+            "PF00297",
+            "PF00327",
+            "PF00347",
+            "PF00466",
+            "PF00467",
+            "PF00572",
+            "PF00573",
+            "PF00673",
+            "PF00827",
+            "PF00828",
+            "PF00831",
+            "PF00832",
+            "PF00935",
+            "PF01157",
+            "PF01198",
+            "PF01246",
+            "PF01248",
+            "PF01280",
+            "PF01655",
+            "PF01780",
+            "PF01907",
+            "PF03947",
+            "PF16906",
+            "PF17144"
+        ],
+        "sequence": "GGCGGCCACAGCGGU&G&U&CCUCCCGUACCCAUCCCGAACACGGAAGAUAAGC&ACC&GCGUUC&CUGGAGUGCGCGAGCCUCUGG&GUUCGCCGCCA",
+        "struct2d": "((((((....(((((&(&.&..((((((...(.....)...))))..))....)&)))&))...(&((((((.((....))))))))&)...))))))."
+    },
+	"264": {
+        "contacts": "***************************************************************************************************",
+        "occurences": 1,
+        "pdb": [
+            "2GTT"
+        ],
+        "pfam": [
+            "PF00945"
+        ],
+        "sequence": "CCCCCCCACCCACAAAAACCACAACACCCACAAACCCAAAAAACCCCACAACCCCCCCACACCCCACCAACCCCACAAACCCCACACACCCCACAAAAC",
+        "struct2d": "..................................................................................................."
+    },
+	"265": {
+        "contacts": "***************************************************************************************************",
+        "occurences": 1,
+        "pdb": [
+            "2GTT"
+        ],
+        "pfam": [
+            "PF00945"
+        ],
+        "sequence": "CCACCAACCCCACACACCCCCCCACCCCCACCCACCACACAAAACCCCCAAAACCCCCCCAACCCCCAAACCCCACCAACCCCACCAACCCCACAAACC",
+        "struct2d": "..................................................................................................."
+    },
+	"109": {
+        "contacts": "***************&.&************..***.****************&...&.****.&...*****...**...*****&....*******",
+        "occurences": 2,
+        "pdb": [
+            "1N8R",
+            "1W2B"
+        ],
+        "pfam": [
+            "PF00181",
+            "PF00237",
+            "PF00238",
+            "PF00252",
+            "PF00276",
+            "PF00281",
+            "PF00297",
+            "PF00327",
+            "PF00347",
+            "PF00466",
+            "PF00467",
+            "PF00572",
+            "PF00573",
+            "PF00673",
+            "PF00827",
+            "PF00828",
+            "PF00831",
+            "PF00832",
+            "PF00935",
+            "PF01157",
+            "PF01198",
+            "PF01246",
+            "PF01248",
+            "PF01280",
+            "PF01655",
+            "PF01780",
+            "PF01907",
+            "PF03947",
+            "PF05697",
+            "PF16906",
+            "PF17144"
+        ],
+        "sequence": "GGCGGCCACAGCGGU&G&CCUCCCGUACCCAUCCCGAACACGGAAGAUAAGC&ACC&GCGUUC&CUGGAGUGCGCGAGCCUCUGG&GUUCGCCGCCA",
+        "struct2d": "((((((....(((((&(&..((((((...(.....)...))))..))....)&)))&))...(&((((((.((....))))))))&)...))))))."
+    },
+	    "762": {
+        "contacts": "***************************************************..********",
+        "occurences": 1,
+        "pdb": [
+            "4U7U"
+        ],
+        "pfam": [
+            "PF08798",
+            "PF09344",
+            "PF09481",
+            "PF09485",
+            "PF09704"
+        ],
+        "sequence": "AUAAACCGGGCUCCCUGUCGGUUGUAAUUGAUAAUGUUGAGAGUUCCCCGCGCCAGCGGGG",
+        "struct2d": ".............................................((((((....))))))"
+    },
+	"968": {
+        "contacts": "******************************************",
+        "occurences": 1,
+        "pdb": [
+            "5WLH"
+        ],
+        "pfam": [
+            "UNK81"
+        ],
+        "sequence": "GAAGAUAGCCCAAGAAAGAGGGCAAUAACCAGAUAUAGCCUG",
+        "struct2d": "......(((((........))))..)................"
+    },
+	"962": {
+        "contacts": "*****************************************",
+        "occurences": 2,
+        "pdb": [
+            "5W1H"
+        ],
+        "pfam": [
+            "UNK75"
+        ],
+        "sequence": "AAGAUAGCCCAAGAAAGAGGGCAAUAACCAGAUAUAGCCUG",
+        "struct2d": ".....(((((........))))..)................"
+    },
+	"62": {
+        "contacts": ".*****..********.......*****.**....**",
+        "occurences": 1,
+        "pdb": [
+            "1I6U"
+        ],
+        "pfam": [
+            "PF00410"
+        ],
+        "sequence": "GGGCCCGGUAAGUCUCUUCGGAGAUACUGCCGGGCCC",
+        "struct2d": "(((((((((.((((((....))))..)))))))))))"
+    },
+}

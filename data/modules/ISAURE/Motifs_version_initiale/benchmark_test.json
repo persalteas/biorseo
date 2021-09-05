@@ -1,0 +1,98 @@
+{
+   "1": {
+        "occurences": 1,
+        "pdb": [
+            "1A1T"
+        ],
+        "sequence": "GGACUAGCGGAGGCUAGUCC",
+        "struct2d": "((((((((....))))))))"
+    },
+    "10": {
+        "occurences": 1,
+        "pdb": [
+            "1AUD"
+        ],
+        "sequence": "GGCAGAGUCCUUCGGGACAUUGCACCUG",
+        "struct2d": "(.(((.((((....)))).......)))"
+    },
+    "100": {
+        "occurences": 1,
+        "pdb": [
+            "1N38"
+        ],
+        "sequence": "UUAGC",
+        "struct2d": "...))"
+    },
+    "1000": {
+        "occurences": 1,
+        "pdb": [
+            "4Z4C"
+        ],
+        "sequence": "CAAUGUGAC",
+        "struct2d": "))))))))."
+    },
+    "1001": {
+        "occurences": 1,
+        "pdb": [
+            "4Z4D"
+        ],
+        "sequence": "UUCACAUUGCCCAAGUCU&U",
+        "struct2d": ".((((((((.........&."
+    },
+    "1002": {
+        "occurences": 1,
+        "pdb": [
+            "4Z4I"
+        ],
+        "sequence": "CAAUGUGA",
+        "struct2d": "))))))))"
+    },
+    "1003": {
+        "occurences": 1,
+        "pdb": [
+            "4Z4F"
+        ],
+        "sequence": "UUCACAUUGCCCAAGU&U",
+        "struct2d": ".((((((((.......&."
+    },
+    "1004": {
+        "occurences": 1,
+        "pdb": [
+            "4Z7L"
+        ],
+        "sequence": "GCAAAAUAACAAGC",
+        "struct2d": "((..........))"
+    },
+    "1005": {
+        "occurences": 1,
+        "pdb": [
+            "4ZDOB"
+        ],
+        "sequence": "GCCCGGAUGAUCCUCAGUGGUCUGGGGUGCAG&ACCUGU&UGUCU&CGACAGAGUGGUUCAAUUCCACCUUUCGG",
+        "struct2d": "(((((((.(..((((((..[.)))))).((((&..))))&((((.&.))))..((((..]....))))).)))))"
+    },
+    "1006": {
+        "occurences": 1,
+        "pdb": [
+            "4ZDPA"
+        ],
+        "sequence": "GCCCGGAUGAU&CAGUGGUCUGGGGUGCAGG&ACCUGUA&UGUCU&CGACAGAGUGGUUCAAUUCCACCUUUCG",
+        "struct2d": "(((((((.(..&(((..[.)))...((((((&.))))))&((((.&.))))..((((..]....))))).))))"
+    },
+    "1007": {
+        "occurences": 1,
+        "pdb": [
+            "4ZDPB"
+        ],
+        "sequence": "GCCCGGAUGAU&CAGUGGUCUGGGGUGCAGG&ACCUGUA&UGUCU&CGACAGAGUGGUUCAAUUCCACCUUUCG",
+        "struct2d": "(((((((.(..&(((..[.)))...(((((.&..)))))&((((.&.))))..((((..]....))))).))))"
+    },
+    "1008": {
+        "occurences": 1,
+        "pdb": [
+            "4ZLD"
+        ],
+        "sequence": "UAACUUCUGUGAAGUU",
+        "struct2d": ".((((((...))))))"
+    }
+}
