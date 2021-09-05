@@ -10,7 +10,7 @@
 
 using namespace std;
 using json = nlohmann::json;
-
+/*
 vector<string> find_components(string sequence, string delimiter) {
     vector<string> list;
     string seq = sequence;
@@ -77,8 +77,8 @@ string is_include(vector<string>& components, string sequence, vector<string>& c
         return seq_contact;
     } 
     return std::string();
-}
-
+}*/
+/*
 //Concatenate the contact field to the motives of the benchmark (which is obtained from the motives library)
 string add_contact(const string& jsonbm, const string& jsonmotifs) {
     std::ifstream lib(jsonbm);
@@ -149,9 +149,9 @@ string add_contact(const string& jsonbm, const string& jsonmotifs) {
     outfile << new_motif.dump(4) << endl;
     outfile.close(); 
     return bm2;
-}
+}*/
 
-string create_benchmark(const string& jsonmotifs) {
+void create_benchmark(const string& jsonmotifs) {
     std::ifstream lib(jsonmotifs);
     string fasta = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/fasta/";
     string list = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/benchmark.txt";
@@ -159,45 +159,47 @@ string create_benchmark(const string& jsonmotifs) {
     std::ofstream outlist (list);
     std::ofstream outdbn (dbn);
     json js = json::parse(lib);
-    
+    uint count = 0;
+
     for (auto it = js.begin(); it != js.end(); ++it) {    
         string id = it.key();
-        string filename = fasta + id + ".fa";
-        std::ofstream outfasta (filename);
-        string seq, contacts, structure;
-        outfasta << ">test_" << id << endl;
-        outlist << ">test_" << id << endl;
+        string name, seq, contacts, structure;
         for (auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) {      
-            string test = it2.key();
-            if (!test.compare("seq")) {
-                seq = it2.value();
-                outfasta << seq.substr(0,seq.size()) << endl;
-                outfasta.close();
+            string chain = it2.key();
+            if (chain.compare("pfams") != 0) {
+                string name = id + "_" + chain;
+                string filename = fasta + name + ".fa";
+                std::ofstream outfasta (filename);
+                outfasta << ">test_" << name << endl;
+                for (auto it3 = js[id][chain].begin(); it3 != js[id][chain].end(); ++it3) {     
+                    string field = it3.key();
+                    if (!field.compare("sequence")) {
+                        seq = it3.value();
+                        outfasta << seq.substr(0,seq.size()) << endl;
+                        outfasta.close();
 
-            } else if (!test.compare("ctc")) {
-                contacts = it2.value();
+                    } else if (!field.compare("contacts")) {
+                        contacts = it3.value();
 
-            } else if (!test.compare("str")) {
-                structure = it2.value();
+                    } else if (!field.compare("struct2d")) {
+                        structure = it3.value();
+                    }
+                }
+                if(seq.find('&') == string::npos) {
+                    outlist << ">test_" << name << endl;
+                    outdbn << "test_" << name << "." << endl;
+                    outlist << contacts << endl;
+                    outdbn << seq << endl;
+                    outdbn << structure << endl;
+                    outdbn << contacts << endl;
+                    outlist << seq << endl;
+                    outlist << structure << endl;      
+                    count++;       
+                }
             }
         }
-        
-        if(!contacts.empty()) {
-            outdbn << "test_" << id << "." << endl;
-            outlist << contacts << endl;
-            outdbn << seq << endl;
-            outdbn << structure << endl;
-            outdbn << contacts << endl;
-        }
-        else {
-            outlist << endl;
-        }
-        outlist << seq << endl;
-        outlist << structure << endl;
-        
-
     }
-    return fasta;
+    cout << count << " sequences en tout" << endl;
     lib.close();
     outlist.close();
     outdbn.close();
@@ -206,12 +208,12 @@ string create_benchmark(const string& jsonmotifs) {
 int main()
 {
     string path = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/";
-    string jsonmotifs = path + "modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
-    string jsonbm1 = path + "modules/ISAURE/Motifs_version_initiale/benchmark_16-06-2021.json";
+    //string jsonmotifs = path + "modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
+    string jsonbm = path + "modules/ISAURE/Motifs_version_initiale/benchmark_16-07-2021.json";
 
     
-    string jsonbm2 = add_contact(jsonbm1, jsonmotifs);
-    string jsonfasta = create_benchmark(jsonbm2);
+    //string jsonbm2 = add_contact(jsonbm1, jsonmotifs);
+    create_benchmark(jsonbm);
 
     return 0;
 }
