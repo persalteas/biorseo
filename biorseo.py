@@ -887,9 +887,9 @@ class BiorseoInstance:
                 command += [ method_type, csv ]
 
             if self.estimator == 'a':
-                self.finalname = self.temp_dir + instance.header + ext + self.func + " MFE"
+                self.finalname = self.temp_dir + instance.header + ext + self.func + "_MFE"
             else:
-                self.finalname = self.temp_dir + instance.header + ext + self.func + " MEA"
+                self.finalname = self.temp_dir + instance.header + ext + self.func + "_MEA"
             command += ["-o", self.finalname, "--function", self.func]
             command += self.forward_options
             self.joblist.append(Job(command=command, priority=priority, timeout=3600, how_many_in_parallel=3))

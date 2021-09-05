@@ -28,7 +28,7 @@ def create_command(name):
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
-      "--func E  -v " +
+      "--func E --MFE -v " +
       "--biorseo-dir /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo " +
       "--modules-path /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
@@ -113,7 +113,7 @@ def mattews_corr_coeff(tp, tn, fp, fn):
     if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
         print("warning: division by zero! no contact in the prediction")
         #print("tp: " + str(tp) + " fp: " + str(fp) + " tn: " + str(tn) + " fn: " + str(fn))
-        return -10
+        return -1
     elif (tp + fp == 0):
         print("We have an issue : no positives detected ! (linear structure)")
     return (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
@@ -127,8 +127,8 @@ def specificity(tp, tn, fp, fn):
 # ================== Code from Louis Beckey Benchark.py ==============================
 
 def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmE", "r")
-    write = open("results/test_" + sequence_id + ".mcc_E", "w")
+    read_prd = open("results/test_" + sequence_id + ".json_pmE_MFE", "r")
+    write = open("results/test_" + sequence_id + ".mcc_E_MFE", "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -144,7 +144,6 @@ def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
     structure_prd = read_prd.readline()
     sequence_prd = structure_prd
     while structure_prd:
-        print("max_str: " + str(max_mcc_str))
         structure_prd = read_prd.readline()
         if (len(structure_prd) != 0):
             write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
@@ -164,14 +163,15 @@ def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
                 write.write("mcc: " + str(mcc_ctc) + "\n\n")
             else:
                 write.write("mcc: no expected contacts sequence or not same length between expected and predicted\n\n")
-
+    write.write("max mcc 2D:" + str(max_mcc_str))
+    write.write("max mcc ctc:" + str(max_mcc_ctc))
     read_prd.close()
     write.close()
     return [max_mcc_ctc, max_mcc_str]
 
 def write_mcc_in_file_F(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmF", "r")
-    write = open("results/test_" + sequence_id + ".mcc_F", "w")
+    read_prd = open("results/test_" + sequence_id + ".json_pmF_MFE", "r")
+    write = open("results/test_" + sequence_id + ".mcc_F_MFE", "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -311,19 +311,19 @@ while seq:
     """
     cmd3 = create_command(name)
     os.system(cmd3)
-    tabE = write_mcc_in_file_E(name, contacts, structure2d)
+    """tabE = write_mcc_in_file_E(name, contacts, structure2d)
     list_contacts_E.append(tabE[0])
-    list_struct2d_E.append(tabE[1])
+    list_struct2d_E.append(tabE[1])"""
 
-    tabF = write_mcc_in_file_F(name, contacts, structure2d)
+    """tabF = write_mcc_in_file_F(name, contacts, structure2d)
     list_contacts_F.append(tabF[0])
-    list_struct2d_F.append(tabF[1])
+    list_struct2d_F.append(tabF[1])"""
 
     name = myfile.readline()
     contacts = myfile.readline()
     seq = myfile.readline()
     structure2d = myfile.readline()
 
-visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')
-visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')
+"""visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')"""
+"""visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')"""
 myfile.close()
