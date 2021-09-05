@@ -22,15 +22,16 @@ def run_test(cmd, log):
     rc = process.poll()
 
 def create_command(name):
-    cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
-      "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/fasta/" +
+    #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
+    cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
+      "/local/local/BiorseoNath/data/fasta/" +
       name + ".fa  " +
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
       "--func E --MFE -v " +
-      "--biorseo-dir /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo " +
-      "--modules-path /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version ")
+      "--biorseo-dir /local/local/BiorseoNath " +
+      "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
 
 # ================== Code from Louis Beckey Benchark.py ==============================
