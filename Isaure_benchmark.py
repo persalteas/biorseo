@@ -30,7 +30,7 @@ def create_command(name):
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
-      "--func E --MEA -v " +
+      "--func F --MFE -v " +
       "--biorseo-dir /local/local/BiorseoNath " +
       "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
@@ -209,7 +209,8 @@ def write_mcc_in_file_F(sequence_id, true_contacts, true_structure):
                 write.write("mcc: " + str(mcc_ctc) + "\n\n")
             else:
                 write.write("mcc: no expected contacts sequence or not same length between expected and predicted\n\n")
-
+    write.write("max mcc 2D:" + str(max_mcc_str))
+    write.write("max mcc ctc:" + str(max_mcc_ctc))
     read_prd.close()
     write.close()
     return [max_mcc_ctc, max_mcc_str]
@@ -265,6 +266,7 @@ list_struct2d_E = []
 list_contacts_E = []
 list_struct2d_F = []
 list_contacts_F = []
+count = 0
 while seq:
     name = name[6:].strip()
     print(name)
@@ -286,6 +288,7 @@ while seq:
         tabF = write_mcc_in_file_F(name, contacts, structure2d)
         list_contacts_F.append(tabF[0])
         list_struct2d_F.append(tabF[1])
+        count = count + 1
 
     name = myfile.readline()
     contacts = myfile.readline()
@@ -294,4 +297,5 @@ while seq:
 
 """visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')"""
 visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')
+print("count: " + str(count) + "\n")
 myfile.close()
