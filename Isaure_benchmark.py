@@ -30,7 +30,7 @@ def create_command(name):
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
-      "--func E --MFE -v " +
+      "--func E --MEA -v " +
       "--biorseo-dir /local/local/BiorseoNath " +
       "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
@@ -129,8 +129,8 @@ def specificity(tp, tn, fp, fn):
 # ================== Code from Louis Beckey Benchark.py ==============================
 
 def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmE_MFE", "r")
-    write = open("results/test_" + sequence_id + ".mcc_E_MFE", "w")
+    read_prd = open("results/test_" + sequence_id + ".json_pmE_MEA", "r")
+    write = open("results/test_" + sequence_id + ".mcc_E_MEA", "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -272,10 +272,10 @@ while seq:
     run_test(cmd2 + " " + name + ".fa", log)
     print(cmd2 + " " + name + ".fa")
     """
-    """cmd3 = create_command(name)
-    os.system(cmd3)"""
+    cmd3 = create_command(name)
+    os.system(cmd3)
 
-    file_path = "results/test_" + name + ".json_pmE_MFE"
+    file_path = "results/test_" + name + ".json_pmE_MEA"
     if os.path.isfile(file_path):
         tabE = write_mcc_in_file_E(name, contacts, structure2d)
         list_contacts_E.append(tabE[0])
