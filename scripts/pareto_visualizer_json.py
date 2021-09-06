@@ -502,15 +502,15 @@ if extension == "all":
     parse = parse_biorseo
     fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     ax = ax.flatten()
-    process_extension(ax, 0, ".json_pmE_MFE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MFE")
+    process_extension(ax, 0, ".json_pmE_MEA", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
     print("--------------------------------------------------------------------------------------------")
-    process_extension_ctc(ax, 1, ".json_pmE_MFE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MFE")
+    process_extension_ctc(ax, 1, ".json_pmE_MEA", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
     print("--------------------------------------------------------------------------------------------")
 
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizer_json_MFE_functionE.png")
+    plt.savefig("pareto_visualizer_json_MEA_functionE.png")
 else:
     fig, ax = plt.subplots(2,1, figsize=(6,5))
     plt.subplots_adjust(bottom=0.12, top=0.9, left=0.15, right=0.9, hspace=0.4)
