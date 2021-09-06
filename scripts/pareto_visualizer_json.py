@@ -22,7 +22,7 @@
 # typical Biokop usage:
 # python3 pareto_visualizer.py --biokop --folder path/to/your/results/folder --database path/to/the/database_file.dbn
 # typical Biorseo usage:
-# python3 pareto_visualizer.py --folder path/to/your/results/folder (pmE et pmF) --database path/to/the/database_file.dbn (nom, sequence, structure)
+# python3 pareto_visualizer_json.py --folder path/to/your/results/folder (pmE et pmF) --database path/to/the/database_file.dbn (nom, sequence, structure)
 #
 
 from math import sqrt
@@ -502,22 +502,22 @@ if extension == "all":
     parse = parse_biorseo
     fig, ax = plt.subplots(1, 4, figsize=(10, 3), sharey=True)
     ax = ax.flatten()
-    process_extension(ax, 0, ".json_pmE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
+    process_extension(ax, 0, ".json_pmE_MFE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MFE")
     print("--------------------------------------------------------------------------------------------")
-    process_extension(ax, 1, ".json_pmF", xlabel="Normalized $f_{1F}$", ylabel="Normalized MEA")
+    process_extension(ax, 1, ".json_pmE_MEA", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
     print("--------------------------------------------------------------------------------------------")
-    process_extension_ctc(ax, 2, ".json_pmE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
+    process_extension_ctc(ax, 2, ".json_pmE_MFE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MFE")
     print("--------------------------------------------------------------------------------------------")
-    process_extension_ctc(ax, 3, ".json_pmF", xlabel="Normalized $f_{1F}$", ylabel="Normalized MEA")
+    process_extension_ctc(ax, 3, ".json_pmE_MEA", xlabel="Normalized $f_{1E}$", ylabel="Normalized MEA")
     for a in ax:
         a.label_outer()
     plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizer_json.png")
+    plt.savefig("pareto_visualizer_json_MFE_MEA_functionE.png")
 else:
     fig, ax = plt.subplots(2,1, figsize=(6,5))
     plt.subplots_adjust(bottom=0.12, top=0.9, left=0.15, right=0.9, hspace=0.4)
     if extension == ".biok":
-        process_extension(ax, 0, extension, nsolutions=True, xlabel="Normalized MFE", ylabel="Normalized MEA")
+        process_extension(ax, 0, extension, nsolutions=True, xlabel="Normalized MFE", ylabel="Normalized MFE")
     else:
         process_extension(ax, 0, extension, nsolutions=False)
     plt.savefig("pareto_visualizer_ext.png")
