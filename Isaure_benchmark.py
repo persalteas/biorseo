@@ -275,21 +275,23 @@ while seq:
     cmd3 = create_command(name)
     os.system(cmd3)
 
-    file_path = "results/test_" + name + ".json_pmE_MEA"
+    """file_path = "results/test_" + name + ".json_pmE_MEA"
     if os.path.isfile(file_path):
         tabE = write_mcc_in_file_E(name, contacts, structure2d)
         list_contacts_E.append(tabE[0])
-        list_struct2d_E.append(tabE[1])
+        list_struct2d_E.append(tabE[1])"""
 
-    """tabF = write_mcc_in_file_F(name, contacts, structure2d)
-    list_contacts_F.append(tabF[0])
-    list_struct2d_F.append(tabF[1])"""
+    file_path = "results/test_" + name + ".json_pmF_MFE"
+    if os.path.isfile(file_path):
+        tabF = write_mcc_in_file_F(name, contacts, structure2d)
+        list_contacts_F.append(tabF[0])
+        list_struct2d_F.append(tabF[1])
 
     name = myfile.readline()
     contacts = myfile.readline()
     seq = myfile.readline()
     structure2d = myfile.readline()
 
-visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')
-"""visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')"""
+"""visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')"""
+visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')
 myfile.close()
