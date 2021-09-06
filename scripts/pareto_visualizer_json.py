@@ -500,7 +500,7 @@ def process_extension_ctc(ax, pos, ext, nsolutions=False, xlabel="Best solution 
 
 if extension == "all":
     parse = parse_biorseo
-    fig, ax = plt.subplots(1, 2, figsize=(8, 8), sharey=True)
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     ax = ax.flatten()
     process_extension(ax, 0, ".json_pmE_MFE", xlabel="Normalized $f_{1E}$", ylabel="Normalized MFE")
     print("--------------------------------------------------------------------------------------------")
