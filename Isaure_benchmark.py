@@ -270,11 +270,11 @@ while seq:
     run_test(cmd2 + " " + name + ".fa", log)
     print(cmd2 + " " + name + ".fa")
     """
-    cmd3 = create_command(name)
-    os.system(cmd3)
-    """tabE = write_mcc_in_file_E(name, contacts, structure2d)
+    """cmd3 = create_command(name)
+    os.system(cmd3)"""
+    tabE = write_mcc_in_file_E(name, contacts, structure2d)
     list_contacts_E.append(tabE[0])
-    list_struct2d_E.append(tabE[1])"""
+    list_struct2d_E.append(tabE[1])
 
     """tabF = write_mcc_in_file_F(name, contacts, structure2d)
     list_contacts_F.append(tabF[0])
@@ -285,6 +285,6 @@ while seq:
     seq = myfile.readline()
     structure2d = myfile.readline()
 
-"""visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')"""
+visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')
 """visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')"""
 myfile.close()
