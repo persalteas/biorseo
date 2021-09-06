@@ -1,6 +1,7 @@
 import time
 import subprocess
 import os
+import os.path
 from math import sqrt, ceil
 import numpy as np
 import matplotlib.pyplot as plt
@@ -171,6 +172,7 @@ def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
     return [max_mcc_ctc, max_mcc_str]
 
 def write_mcc_in_file_F(sequence_id, true_contacts, true_structure):
+
     read_prd = open("results/test_" + sequence_id + ".json_pmF_MFE", "r")
     write = open("results/test_" + sequence_id + ".mcc_F_MFE", "w")
 
@@ -272,9 +274,12 @@ while seq:
     """
     """cmd3 = create_command(name)
     os.system(cmd3)"""
-    tabE = write_mcc_in_file_E(name, contacts, structure2d)
-    list_contacts_E.append(tabE[0])
-    list_struct2d_E.append(tabE[1])
+
+    file_path = "results/test_" + name + ".json_pmE_MFE"
+    if os.path.isfile(file_path):
+        tabE = write_mcc_in_file_E(name, contacts, structure2d)
+        list_contacts_E.append(tabE[0])
+        list_struct2d_E.append(tabE[1])
 
     """tabF = write_mcc_in_file_F(name, contacts, structure2d)
     list_contacts_F.append(tabF[0])
