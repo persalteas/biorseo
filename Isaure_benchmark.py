@@ -315,7 +315,7 @@ def get_list_structs_contacts(path_benchmark, estimator, function):
     return [list_name, complete_list_struct2d_F, complete_list_contacts_F]
     myfile.close()
 
-def visualization_all_mcc(path_benchmark, estimator, function, color, lines_color):
+def visualization_all_mcc(path_benchmark, estimator, function):
 
     list_name = get_list_structs_contacts(path_benchmark, estimator, function)[0]
     tab_struct2d = get_list_structs_contacts(path_benchmark, estimator, function)[1]
@@ -421,4 +421,4 @@ print("countE: " + str(countE) + "\n")
 print("countF: " + str(countF) + "\n")
 myfile.close()"""
 path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
-visualization_all_mcc(path_benchmark,'MEA', 'F', 'blue', '#0900FF')
+visualization_all_mcc(path_benchmark,'MEA', 'F')
