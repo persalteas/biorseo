@@ -5,6 +5,8 @@ import os.path
 from math import sqrt, ceil
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 
 log_path = "test.log"
@@ -22,7 +24,20 @@ def run_test(cmd, log):
         log.flush()
     rc = process.poll()
 
-def create_command(name):
+def create_command_E(name):
+    #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
+    cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
+      "/local/local/BiorseoNath/data/fasta/" +
+      name + ".fa  " +
+      "-O results/ " +
+      "--contacts " +
+      "--patternmatch " +
+      "--func E --MFE -v " +
+      "--biorseo-dir /local/local/BiorseoNath " +
+      "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
+    return cmd
+
+def create_command_F(name):
     #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
     cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
       "/local/local/BiorseoNath/data/fasta/" +
@@ -129,8 +144,8 @@ def specificity(tp, tn, fp, fn):
 # ================== Code from Louis Beckey Benchark.py ==============================
 
 def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmE_MEA", "r")
-    write = open("results/test_" + sequence_id + ".mcc_E_MEA", "w")
+    read_prd = open("results/test_" + sequence_id + ".json_pmE_MFE", "r")
+    write = open("results/test_" + sequence_id + ".mcc_E_MFE", "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -223,12 +238,16 @@ def set_axis_style(ax, labels):
     ax.set_xlim(0.25, len(labels) + 0.75)
     ax.set_xlabel('Sample name')
 
-def visualization(list_struct2d, list_contacts, function, color, lines_color):
+def visualization_best_mcc(list_struct2d, list_contacts, function, color, lines_color):
 
     np_struct2d = np.array(list_struct2d)
     np_contacts = np.array(list_contacts)
 
     data_to_plot = [np_struct2d, np_contacts]
+    median_2d = np.median(np_struct2d)
+    median_ctc = np.median(np_contacts)
+    print("mediane 2D: " + str(median_2d) + "\n")
+    print("mediane ctc: " + str(median_ctc) + "\n")
 
     fig = plt.figure()
 
@@ -249,14 +268,111 @@ def visualization(list_struct2d, list_contacts, function, color, lines_color):
 
     for v in violins['bodies']:
         v.set_facecolor(color)
-    plt.savefig('visualisation' + function + '.png', bbox_inches='tight')
+    plt.savefig('visualisation_16_06_MFE_' + function + '.png', bbox_inches='tight')
+
+def get_list_structs_contacts(path_benchmark, estimator, function):
+    myfile = open(path_benchmark, "r")
+    list_name = []
+
+    complete_list_struct2d_F = []
+    complete_list_contacts_F = []
+
+    name = myfile.readline()
+    contacts = myfile.readline()
+    seq = myfile.readline()
+    structure2d = myfile.readline()
+    count = 0
+    while seq:
+        name = name[6:].strip()
+        count = count + 1
+        file_path = "results/test_" + name + ".json_pm" + function +"_" + estimator
+        if os.path.isfile(file_path):
+            file_result = open(file_path, "r")
+            list_struct2d_F = []
+            list_contacts_F = []
+            list_name.append(name)
+            title_prd = file_result.readline()
+            structure_prd = file_result.readline()
+            sequence = structure_prd
+            while structure_prd:
+                structure_prd = file_result.readline()
+                if (len(structure_prd) != 0):
+                    mcc_tab = compare_two_structures(structure2d, structure_prd[:len(sequence)])
+                    mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+                    list_struct2d_F.append(mcc_str)
+
+                    contacts_prd = file_result.readline()
+                    if (len(contacts_prd) == len(contacts)):
+                        mcc_tab = compare_two_contacts(contacts, contacts_prd)
+                        mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
+                        list_contacts_F.append(mcc_ctc)
+            complete_list_struct2d_F.append(list_struct2d_F)
+            complete_list_contacts_F.append(list_contacts_F)
+        name = myfile.readline()
+        contacts = myfile.readline()
+        seq = myfile.readline()
+        structure2d = myfile.readline()
+    return [list_name, complete_list_struct2d_F, complete_list_contacts_F]
+    myfile.close()
+
+def visualization_all_mcc(path_benchmark, estimator, function, color, lines_color):
+
+    list_name = get_list_structs_contacts(path_benchmark, estimator, function)[0]
+    tab_struct2d = get_list_structs_contacts(path_benchmark, estimator, function)[1]
+    tab_contacts = get_list_structs_contacts(path_benchmark, estimator, function)[2]
+
+    np_struct2d = np.array(tab_struct2d)
+    size = len(tab_struct2d)
+    list_median_str = []
+    for i in range(size):
+        list_median_str.append(np.median(np_struct2d[i]))
+
+    data = [x for _, x in sorted(zip(list_median_str, tab_struct2d))]
+    boxName = [x for _, x in sorted(zip(list_median_str, list_name))]
+    absciss = len(data)
+
+    plt.figure(figsize=(25,4),dpi=200)
+    plt.xticks(rotation=90)
+    plt.boxplot(data)
+    for i in range(absciss):
+        y =data[i]
+        x = np.random.normal(1 + i, 0.04, size=len(y))
+        plt.scatter(x, y)
+        plt.xticks(np.arange(1, absciss + 1), boxName)
+
+    plt.xlabel('nom de la séquence')
+    plt.ylabel('MCC')
+    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + '.png', bbox_inches='tight')
+
+    np_contacts = np.array(tab_contacts)
+    size = len(tab_contacts)
+    list_median_ctc = []
+    for i in range(size):
+        list_median_ctc.append(np.median(np_contacts[i]))
+
+    data = [x for _, x in sorted(zip(list_median_ctc, tab_contacts))]
+    boxName = [x for _, x in sorted(zip(list_median_ctc, list_name))]
+    absciss = len(data)
+
+    plt.figure(figsize=(25, 4), dpi=200)
+    plt.xticks(rotation=90)
+    plt.boxplot(data)
+    for i in range(absciss):
+        y = data[i]
+        x = np.random.normal(1 + i, 0.04, size=len(y))
+        plt.scatter(x, y)
+        plt.xticks(np.arange(1, absciss + 1), boxName)
+
+    plt.xlabel('nom de la séquence')
+    plt.ylabel('MCC')
+    plt.savefig('visualisation_128arn_contacts_' + estimator + "_" + function + '.png', bbox_inches='tight')
 
 #cmd = ("cppsrc/Scripts/create")
 #cmd0 = ("cppsrc/Scripts/addDelimiter")
 #cmd1 = ("cppsrc/Scripts/countPattern")
 #cmd2 = ("cppsrc/Scripts/deletePdb")
 
-myfile = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
+"""myfile = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
 name = myfile.readline()
 contacts = myfile.readline()
 seq = myfile.readline()
@@ -266,36 +382,43 @@ list_struct2d_E = []
 list_contacts_E = []
 list_struct2d_F = []
 list_contacts_F = []
-count = 0
+countE = 0
+countF = 0
 while seq:
     name = name[6:].strip()
     print(name)
-    """
     run_test(cmd2 + " " + name + ".fa", log)
     print(cmd2 + " " + name + ".fa")
-    """
-    cmd3 = create_command(name)
+    
+    cmd3 = create_command_E(name)
     os.system(cmd3)
 
-    """file_path = "results/test_" + name + ".json_pmE_MEA"
+    file_path = "results/test_" + name + ".json_pmE_MFE"
     if os.path.isfile(file_path):
         tabE = write_mcc_in_file_E(name, contacts, structure2d)
         list_contacts_E.append(tabE[0])
-        list_struct2d_E.append(tabE[1])"""
+        list_struct2d_E.append(tabE[1])
+        countE = countE + 1
+
+    cmd3 = create_command_F(name)
+    os.system(cmd3)
 
     file_path = "results/test_" + name + ".json_pmF_MFE"
     if os.path.isfile(file_path):
         tabF = write_mcc_in_file_F(name, contacts, structure2d)
         list_contacts_F.append(tabF[0])
         list_struct2d_F.append(tabF[1])
-        count = count + 1
+        countF = countF + 1
 
     name = myfile.readline()
     contacts = myfile.readline()
     seq = myfile.readline()
     structure2d = myfile.readline()
 
-"""visualization(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')"""
-visualization(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')
-print("count: " + str(count) + "\n")
-myfile.close()
+visualization_best_mcc(list_struct2d_E, list_contacts_E, 'E', 'red', '#900C3F')
+visualization_best_mcc(list_struct2d_F, list_contacts_F, 'F', 'blue', '#0900FF')
+print("countE: " + str(countE) + "\n")
+print("countF: " + str(countF) + "\n")
+myfile.close()"""
+path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
+visualization_all_mcc(path_benchmark,'MEA', 'F', 'blue', '#0900FF')
