@@ -143,9 +143,9 @@ def specificity(tp, tn, fp, fn):
 
 # ================== Code from Louis Beckey Benchark.py ==============================
 
-def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
-    read_prd = open("results/test_" + sequence_id + ".json_pmE_MFE", "r")
-    write = open("results/test_" + sequence_id + ".mcc_E_MFE", "w")
+def write_mcc_in_file_E(sequence_id, true_contacts, true_structure, estimator):
+    read_prd = open("results/test_" + sequence_id + ".json_pmE_"+ estimator, "r")
+    write = open("results/test_" + sequence_id + ".mcc_E_" + estimator, "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -186,10 +186,10 @@ def write_mcc_in_file_E(sequence_id, true_contacts, true_structure):
     write.close()
     return [max_mcc_ctc, max_mcc_str]
 
-def write_mcc_in_file_F(sequence_id, true_contacts, true_structure):
+def write_mcc_in_file_F(sequence_id, true_contacts, true_structure, estimator):
 
-    read_prd = open("results/test_" + sequence_id + ".json_pmF_MFE", "r")
-    write = open("results/test_" + sequence_id + ".mcc_F_MFE", "w")
+    read_prd = open("results/test_" + sequence_id + ".json_pmF_" + estimator, "r")
+    write = open("results/test_" + sequence_id + ".mcc_F_" + estimator, "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -404,7 +404,7 @@ while seq:
 
     file_path = "results/test_" + name + ".json_pmE_MFE"
     if os.path.isfile(file_path):
-        tabE_MFE = write_mcc_in_file_E(name, contacts, structure2d)
+        tabE_MFE = write_mcc_in_file_E(name, contacts, structure2d, 'MFE')
         list_contacts_E_MFE.append(tabE_MFE[0])
         list_struct2d_E_MFE.append(tabE_MFE[1])
         countE_MFE = countE_MFE + 1
@@ -414,7 +414,7 @@ while seq:
 
     file_path = "results/test_" + name + ".json_pmF_MFE"
     if os.path.isfile(file_path):
-        tabF_MFE = write_mcc_in_file_F(name, contacts, structure2d)
+        tabF_MFE = write_mcc_in_file_F(name, contacts, structure2d, 'MFE')
         list_contacts_F_MFE.append(tabF_MFE[0])
         list_struct2d_F_MFE.append(tabF_MFE[1])
         countF_MFE = countF_MFE + 1
@@ -424,7 +424,7 @@ while seq:
 
     file_path = "results/test_" + name + ".json_pmE_MEA"
     if os.path.isfile(file_path):
-        tabE_MEA = write_mcc_in_file_E(name, contacts, structure2d)
+        tabE_MEA = write_mcc_in_file_E(name, contacts, structure2d, 'MEA')
         list_contacts_E_MEA.append(tabE_MEA[0])
         list_struct2d_E_MEA.append(tabE_MEA[1])
         countE_MEA = countE_MEA + 1
@@ -434,7 +434,7 @@ while seq:
 
     file_path = "results/test_" + name + ".json_pmF_MEA"
     if os.path.isfile(file_path):
-        tabF_MEA = write_mcc_in_file_F(name, contacts, structure2d)
+        tabF_MEA = write_mcc_in_file_F(name, contacts, structure2d, 'MEA')
         list_contacts_F_MEA.append(tabF_MEA[0])
         list_struct2d_F_MEA.append(tabF_MEA[1])
         countF_MEA = countF_MEA + 1
