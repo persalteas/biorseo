@@ -15,10 +15,19 @@ using json = nlohmann::json;
 That script will remove from the library all the pattern that match ONLY with the sequence from which it comes from.
 */
 
-vector<string> get_list_pdb_benchmark(const string& benchmark) {
+struct data { 
+    string pdb;
+    string seq_pdb;
+    string id;
+    string cmp;
+};
+typedef struct data data;
+
+
+vector<data> get_list_pdb_benchmark(const string& benchmark) {
 
     fstream bm(benchmark);
-    vector<string> list_pdb;
+    vector<data> list_pdb_seq;
     if (bm.is_open()) {
         string name;
         string sequence;
@@ -26,17 +35,20 @@ vector<string> get_list_pdb_benchmark(const string& benchmark) {
         string contacts;
 
         while (getline(bm, name)) {
+            data d;
             int size = name.size();
             name = name.substr(5,size-6); 
-            list_pdb.push_back(name);
-
             getline(bm, sequence);
+            d.pdb = name;
+            d.seq_pdb = sequence;
+            list_pdb_seq.push_back(d);
+
             getline(bm, structure);
             getline(bm, contacts);
         }
         bm.close();
     }
-    return list_pdb;
+    return list_pdb_seq;
 }
 
 string trim(string str) {
@@ -45,101 +57,118 @@ string trim(string str) {
     return str;
 }
 
-string find_id_pattern(string& pdb_pattern, const string& benchmark) {
-    vector<string> l = get_list_pdb_benchmark(benchmark);
-    for (string pdb_bm : l) {
-        int size = pdb_bm.size();
-        string cmp = pdb_bm.substr(0, size-2);
+data find_id_pattern(string& pdb_pattern, const string& benchmark) {
+    vector<data> l = get_list_pdb_benchmark(benchmark);
+    int size = l.size();
+
+    for (data d : l) {
+        string cmp = d.pdb;
+        cmp = cmp.substr(0, d.pdb.size()-2);
         if (!cmp.compare(pdb_pattern)) {
-            return pdb_bm;
+            return d;
         }
     }
-    return string();
+    return data();
 }
 
-vector<pair<string, string>> find_id(const string& bibli, const string& benchmark) {
+vector<data> find_id(const string& bibli, const string& benchmark) {
     ifstream lib(bibli);
     json js = json::parse(lib);
 
-    vector<pair<string, string>> association;
+    //nam seq_bm et id seq_id
+    vector<data> association;
     
     for (auto it = js.begin(); it != js.end(); ++it) {  
         string id = it.key();
+        data d;
+
         for (auto it2 = js[id].begin(); it2 != js[id].end(); ++it2) { 
             string field = it2.key();
+            string seq;
             if (!field.compare("pdb")) {
                 int n = js[id][field].size();
                 for (int i = 0; i < n ; i++) {
                     ostringstream stream;
                     stream << js[id][field][i];
                     string pdb = trim(stream.str());
-                    string pdb_complete = find_id_pattern(pdb, benchmark);
-                    if (!(pdb_complete.empty())) {
-                        pair<string, string> p;
-                        p.first = pdb_complete;
-                        p.second = id;
-                        association.push_back(p);
-                    }
+                    
+                    d = find_id_pattern(pdb, benchmark);
+                }
+            }
+
+            if (!field.compare("sequence")) {
+                seq = it2.value();
+
+                if (!(d.pdb.empty())) {                    
+                    d.id = id;
+                    d.cmp = seq;
+                    association.push_back(d);
                 }
             }
         }
     }
     lib.close();
+    cout << association.size() << endl;
     return association;
 }
 
-bool does_it_match(const string& result, const string& id_motif) {
-    ifstream f_res(result);
-    if (f_res.is_open()) {
-        string name;
-        string seq;
-        string struc;
-        string contacts;
-
-        getline(f_res, name);
-        getline(f_res, seq);
-        while (getline(f_res, struc)) {
-            string motif_json = "JSON" + id_motif + " +";
-            if(struc.find(motif_json, 0) != string::npos) {
-                return true;
-            }
-            motif_json = "JSON" + id_motif + "\n";
-            if(struc.find(motif_json, 0) != string::npos) {
-                return true;
-            }
-            getline(f_res,contacts);
+bool does_it_match(const string& seq, const string& seq_motif) {
+    size_t found = seq_motif.find("&");
+    size_t size = seq_motif.size();
+    vector<string> list_cmp;
+    if (found != std::string::npos) {
+        int count = 1;
+        
+        string cmp = seq_motif.substr(0, found);
+        list_cmp.push_back(cmp);
+        while(found != std::string::npos) {
+            size_t begin = found;
+            found = seq_motif.find("&", found + 1);
+            cmp = seq_motif.substr(begin+1, found-begin-1);
+            list_cmp.push_back(cmp);
+            count++;
         }
-        f_res.close();
+
+        found = seq.find(list_cmp[0]);
+        int count2 = 1;
+        while((found != std::string::npos) && (count2 < count)) {
+            size_t begin = found;
+            found = seq.find(list_cmp[count2], found + 1);
+            count2++;
+        }
+
+        if(count == count2) {
+            return true;
+        }
+
+    } else {
+        found = seq.find(seq_motif);
+        if (found != std::string::npos) {
+            return true;
+        }
     }
     return false;
 }
 
 vector<string> select_not_motif(const string& bibli, const string& benchmark) {
     vector<string> selection;
-    vector<pair<string, string>> association = find_id(bibli, benchmark);
-    vector<string> list_bm = get_list_pdb_benchmark(benchmark);
+    vector<data> association = find_id(bibli, benchmark);
 
-    string path_begin = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/results/test_";
-    string path_MFE_F = ".json_pmF_MEA";
-
-    for (pair<string, string> p : association) {
-        string id_motif = p.second;
-        selection.push_back(id_motif);
+    for (data d : association) {
+        selection.push_back(d.id);
     }
-    for (pair<string, string> p : association) {
-        cout << p.first << ", " << p.second << endl;
-    }
-    cout << "size: " << association.size() << endl;
-   
-    for (string pdb : list_bm) {
-        string path_result = path_begin + pdb + path_MFE_F;
-        for (pair<string,string> pair : association) {
-            if (pair.first.substr(0, pair.first.size()-2).compare(pdb.substr(0, pdb.size()-2)) != 0) {
-                bool test = does_it_match(path_result, pair.second);
 
+    for (data d : association) {
+        for (data d2 : association) {
+            string seq = d.seq_pdb;
+            string seq2 = d2.cmp;
+            bool test = false;
+
+            if(d.pdb.substr(0, d.pdb.size()-2) != d2.pdb.substr(0, d2.pdb.size()-2)) {
+                test = does_it_match(seq, seq2);
                 if (test) {
-                    //if (!(pair.second.compare("954"))) { cout << "p1: " << pair.first << "pdb: " << pdb << endl;}
-                    auto position = find(selection.begin(), selection.end(), pair.second);
+                    cout << "pdb: " << d.pdb << " vs " << d2.pdb << " " << d2.cmp << " " << d2.id << endl;
+                    auto position = find(selection.begin(), selection.end(), d.id);
                     if (position != selection.end()) {
                         int index = position - selection.begin();
                         selection.erase(selection.begin() + index);
@@ -161,20 +190,30 @@ int main()
     string bibli = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
     string benchmark = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/benchmark.dbn";
 
-    /*vector<pair<string, string>> association = find_id(bibli, benchmark);
-    for (pair<string,string> p : association) {
-        cout << "<" << p.first << ", " << p.second << ">" << endl;
+    /*vector<data> v = get_list_pdb_benchmark(benchmark);
+    for (data d : v) {
+        cout << d.pdb << ", " << d.seq_pdb << endl;
     }*/
+
+    /*string name = "1U6P_B";
+    data d = find_id_pattern(name, benchmark);
+    cout << "name: " << d.pdb << ", seq: " << d.seq_pdb << endl;*/
+
+    /*vector<data> association = find_id(bibli, benchmark);
+    for (data d : association) {
+        cout << "<" << d.pdb << ", " << d.seq_pdb << ">, " << "<" << d.id << ", " << d.cmp << ">" << endl;
+    }*/
+
+    /*string seq = "UGCGCUUGGCGUUUUAGAGCUAGAAAUAGCAAGUUAAAAUAAGGCUAGUCCGUUAUCAACUUGAAAAAGUGGCACCGAGUCGGUGCUU";
+    string seq_motif = "UGCGCUUGGCGUUUUAGAGC&GCAAGUUAAAAUAAGGCUAGUCCGUUAUCAA&UGGCACCGAGUCG&U";
+    bool test = does_it_match(seq, seq_motif);
+    cout << test << endl;*/
 
     vector<string> selection = select_not_motif(bibli, benchmark);
     for (string str : selection) {
         cout << str << ", ";
     }
     cout << endl;
-
-    /*string result = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/results/test_1U6P_B.json_pmF_MEA";
-    bool test = does_it_match(result, "150");
-    cout << "test : " << test << endl;*/
 
     return 0;
 }
