@@ -315,6 +315,24 @@ def get_list_structs_contacts(path_benchmark, estimator, function):
     return [list_name, complete_list_struct2d_F, complete_list_contacts_F]
     myfile.close()
 
+def get_half(list):
+
+    first_half = []
+    second_half = []
+    if (len(list) % 2 == 0):
+        middle = len(list) / 2
+    else:
+        middle = len(list) / 2 + 0.5
+
+    for i in range (int(middle)):
+        first_half.append(list[i])
+
+    for i in range (int(middle)):
+        if i + int(middle) < len(list):
+         second_half.append(list[i + int(middle)])
+
+    return [first_half, second_half]
+
 def visualization_all_mcc(path_benchmark, estimator, function):
 
     list_name = get_list_structs_contacts(path_benchmark, estimator, function)[0]
@@ -329,20 +347,41 @@ def visualization_all_mcc(path_benchmark, estimator, function):
 
     data = [x for _, x in sorted(zip(list_median_str, tab_struct2d))]
     boxName = [x for _, x in sorted(zip(list_median_str, list_name))]
-    absciss = len(data)
 
-    plt.figure(figsize=(25,4),dpi=200)
+    if (len(data) % 2 == 0):
+        absciss = len(data) / 2
+    else:
+        absciss = len(data) / 2 + 0.5
+
+    divide_tab_name = get_half(boxName)
+    divide_tab_data = get_half(data)
+
+    plt.figure(figsize=(15,4),dpi=200)
     plt.xticks(rotation=90)
-    plt.boxplot(data, medianprops=dict(color='black'))
-    for i in range(absciss):
+    plt.boxplot(divide_tab_data[0], medianprops=dict(color='black'))
+    for i in range(int(absciss)):
         y =data[i]
         x = np.random.normal(1 + i, 0.04, size=len(y))
         plt.scatter(x, y)
-        plt.xticks(np.arange(1, absciss + 1), boxName)
+        plt.xticks(np.arange(1, absciss + 1), divide_tab_name[0])
+
+    plt.xlabel('nom de la séquence')
+    plt.ylabel('MCC (appariements)')
+    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + '.png', bbox_inches='tight')
+
+    plt.figure(figsize=(15, 4), dpi=200)
+    plt.xticks(rotation=90)
+    plt.boxplot(divide_tab_data[1], medianprops=dict(color='black'))
+    for i in range(len(data)):
+        if i + int(absciss) < len(data):
+            y = data[i + int(absciss)]
+            x = np.random.normal(1 + i, 0.04, size=len(y))
+            plt.scatter(x, y)
+            plt.xticks(np.arange(1, absciss + 1), divide_tab_name[1])
 
     plt.xlabel('nom de la séquence')
     plt.ylabel('MCC')
-    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + '.png', bbox_inches='tight')
+    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + '_2.png', bbox_inches='tight')
 
     np_contacts = np.array(tab_contacts)
     size = len(tab_contacts)
@@ -352,20 +391,41 @@ def visualization_all_mcc(path_benchmark, estimator, function):
 
     data = [x for _, x in sorted(zip(list_median_ctc, tab_contacts))]
     boxName = [x for _, x in sorted(zip(list_median_ctc, list_name))]
-    absciss = len(data)
 
-    plt.figure(figsize=(25, 4), dpi=200)
+    if (len(data) % 2 == 0) :
+        absciss = len(data)/2
+    else :
+        absciss = len(data)/2 + 0.5
+
+    divide_tab_name = get_half(boxName)
+    divide_tab_data = get_half(data)
+
+    plt.figure(figsize=(15, 4), dpi=200)
     plt.xticks(rotation=90)
-    plt.boxplot(data, medianprops=dict(color='black'))
-    for i in range(absciss):
+    plt.boxplot(divide_tab_data[0], medianprops=dict(color='black'))
+    for i in range(int(absciss)):
         y = data[i]
         x = np.random.normal(1 + i, 0.04, size=len(y))
         plt.scatter(x, y)
-        plt.xticks(np.arange(1, absciss + 1), boxName)
+        plt.xticks(np.arange(1, absciss + 1), divide_tab_name[0])
+
+    plt.xlabel('nom de la séquence')
+    plt.ylabel('MCC (contacts)')
+    plt.savefig('visualisation_128arn_contacts_' + estimator + "_" + function + '.png', bbox_inches='tight')
+
+    plt.figure(figsize=(15, 4), dpi=200)
+    plt.xticks(rotation=90)
+    plt.boxplot(divide_tab_data[1], medianprops=dict(color='black'))
+    for i in range(len(data)):
+        if i + int(absciss) < len(data) :
+            y = data[i + int(absciss)]
+            x = np.random.normal(1 + i, 0.04, size=len(y))
+            plt.scatter(x, y)
+            plt.xticks(np.arange(1, absciss + 1), divide_tab_name[1])
 
     plt.xlabel('nom de la séquence')
     plt.ylabel('MCC')
-    plt.savefig('visualisation_128arn_contacts_' + estimator + "_" + function + '.png', bbox_inches='tight')
+    plt.savefig('visualisation_128arn_contacts_' + estimator + "_" + function + '_2.png', bbox_inches='tight')
 
 #cmd = ("cppsrc/Scripts/create")
 #cmd0 = ("cppsrc/Scripts/addDelimiter")
@@ -393,6 +453,7 @@ countF_MFE = 0
 
 countE_MEA = 0
 countF_MEA = 0
+"""
 while seq:
     name = name[6:].strip()
     print(name)
@@ -452,10 +513,10 @@ visualization_best_mcc(list_struct2d_F_MEA, list_contacts_F_MEA, 'MEA', 'F', 'bl
 print("countE_MFE: " + str(countE_MFE) + "\n")
 print("countF_MFE: " + str(countF_MFE) + "\n")
 print("countE_MEA: " + str(countE_MEA) + "\n")
-print("countF_MEA: " + str(countF_MEA) + "\n")
+print("countF_MEA: " + str(countF_MEA) + "\n")"""
 myfile.close()
-#path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
-#visualization_all_mcc(path_benchmark,'MEA', 'F')
-#visualization_all_mcc(path_benchmark,'MEA', 'E')
-#visualization_all_mcc(path_benchmark,'MFE', 'E')
-#visualization_all_mcc(path_benchmark,'MFE', 'F')
+path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
+visualization_all_mcc(path_benchmark,'MEA', 'F')
+visualization_all_mcc(path_benchmark,'MEA', 'E')
+visualization_all_mcc(path_benchmark,'MFE', 'E')
+visualization_all_mcc(path_benchmark,'MFE', 'F')
