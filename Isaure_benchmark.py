@@ -25,29 +25,29 @@ def run_test(cmd, log):
     rc = process.poll()
 
 def create_command_E(name, estimator):
-    #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
-    cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
-      "/local/local/BiorseoNath/data/fasta/" +
+    cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
+    #cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
+      "//mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/fasta/" +
       name + ".fa  " +
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
       "--func E --" + estimator + " -v " +
-      "--biorseo-dir /local/local/BiorseoNath " +
-      "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
+      "--biorseo-dir /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo " +
+      "--modules-path /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
 
 def create_command_F(name, estimator):
-    #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
-    cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
-      "/local/local/BiorseoNath/data/fasta/" +
+    cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
+    #cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
+      "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/fasta/" +
       name + ".fa  " +
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
       "--func F --" + estimator + " -v " +
-      "--biorseo-dir /local/local/BiorseoNath " +
-      "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
+      "--biorseo-dir /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo " +
+      "--modules-path /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version ")
     return cmd
 
 # ================== Code from Louis Beckey Benchark.py ==============================
@@ -240,6 +240,7 @@ def set_axis_style(ax, labels):
 
 def visualization_best_mcc(list_struct2d, list_contacts, estimator, function, color, lines_color):
 
+    print(estimator + " + " + function + ": ")
     np_struct2d = np.array(list_struct2d)
     np_contacts = np.array(list_contacts)
 
@@ -453,13 +454,13 @@ countF_MFE = 0
 
 countE_MEA = 0
 countF_MEA = 0
-"""
 while seq:
     name = name[6:].strip()
     print(name)
 
     cmd2 = ("cppsrc/Scripts/deletePdb " + name)
-    
+    os.system(cmd2)
+
     cmd3 = create_command_E(name, 'MFE')
     os.system(cmd3)
 
@@ -513,7 +514,7 @@ visualization_best_mcc(list_struct2d_F_MEA, list_contacts_F_MEA, 'MEA', 'F', 'bl
 print("countE_MFE: " + str(countE_MFE) + "\n")
 print("countF_MFE: " + str(countF_MFE) + "\n")
 print("countE_MEA: " + str(countE_MEA) + "\n")
-print("countF_MEA: " + str(countF_MEA) + "\n")"""
+print("countF_MEA: " + str(countF_MEA) + "\n")
 myfile.close()
 path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
 visualization_all_mcc(path_benchmark,'MEA', 'F')
