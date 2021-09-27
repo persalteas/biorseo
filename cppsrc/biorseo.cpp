@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	"RNA-MoIP (A), light motif size + high number of components (B), site score (C), light motif size + site score + high number of components (D)")
 	
 	("MFE,e", "Use as function for objective 2 MFE (Minimum Free Energy)")
-	("MEA,a", "Use as function for objective 2 MEA (Maximum Expected Accuracy")
+	("MEA,a", "Use as function for objective 2 MEA (Maximum Expected Accuracy) it's also choose by default")
 
 	("disable-pseudoknots,n", "Add constraints forbidding the formation of pseudoknots")
 	("limit,l", po::value<unsigned int>(&MOIP::max_sol_nbr_)->default_value(500), "Intermediate number of solutions in the Pareto set above which we give up the calculation.")
@@ -116,7 +116,6 @@ int main(int argc, char* argv[])
 		if (vm.count("MFE")) mea_or_mfe = 'a';
 		if (vm.count("MEA")) {
 			mea_or_mfe = 'b';
-			cout << "hey" << endl;
 		}
 		if (vm.count("verbose")) verbose = true;
 		if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;

@@ -24,31 +24,57 @@ def run_test(cmd, log):
         log.flush()
     rc = process.poll()
 
-def create_command_E(name, estimator):
-    #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
-    cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
-      "/local/local/BiorseoNath/data/fasta/" +
+def create_command_rin(path, name, function, estimator):
+    cmd = ("python3 " + path + "/biorseo.py -i " +
+      path + "/data/fasta/" +
       name + ".fa  " +
       "-O results/ " +
-      "--contacts " +
+      "--carnaval " +
       "--patternmatch " +
-      "--func E --" + estimator + " -v " +
-      "--biorseo-dir /local/local/BiorseoNath " +
-      "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
+      "--func " + function + " --" + estimator + " -v " +
+      " --biorseo-dir " + path + " " +
+      "--modules-path " + path + "/data/modules/RIN/Subfiles")
     return cmd
 
-def create_command_F(name, estimator):
-    #cmd = ("python3 /mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/biorseo.py -i " +
-    cmd = ("python3 /local/local/BiorseoNath/biorseo.py -i " +
-      "/local/local/BiorseoNath/data/fasta/" +
+def create_command_desc(path, name, function, estimator):
+    cmd = ("python3 " + path + "/biorseo.py -i " +
+      path + "/data/fasta/" +
+      name + ".fa  " +
+      "-O results/ " +
+      "--rna3dmotifs " +
+      "--patternmatch " +
+      "--func " + function + " --" + estimator + " -v " +
+      " --biorseo-dir " + path + " " +
+      "--modules-path " + path + "/data/modules/DESC")
+    return cmd
+
+def create_command_isaure(path, name, function, estimator):
+    cmd = ("python3 " + path + "/biorseo.py -i " +
+      path + "/data/fasta/" +
       name + ".fa  " +
       "-O results/ " +
       "--contacts " +
       "--patternmatch " +
-      "--func F --" + estimator + " -v " +
-      "--biorseo-dir /local/local/BiorseoNath " +
-      "--modules-path /local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version ")
+      "--func " + function + " --" + estimator +
+      " --biorseo-dir " + path + " " +
+      "--modules-path " + path + "/data/modules/ISAURE/Motifs_derniere_version")
     return cmd
+
+def execute_command(path, function, estimator, list_ctc, list_str, modules):
+    if (modules == 'desc'):
+        cmd = create_command_desc(path, name, function, estimator)
+    elif (modules == 'rin'):
+        cmd = create_command_rin(path, name, function, estimator)
+    elif (modules == 'isaure'):
+        cmd = create_command_isaure(path, name, function, estimator)
+
+    os.system(cmd)
+
+    file_path = "results/test_" + name + ".json_pm" + function + "_" + estimator
+    if os.path.isfile(file_path):
+        tab = write_mcc_in_file(name, contacts, structure2d, estimator, function)
+        list_ctc.append(tab[0])
+        list_str.append(tab[1])
 
 # ================== Code from Louis Beckey Benchark.py ==============================
 def dbn_to_basepairs(structure):
@@ -128,7 +154,7 @@ def compare_two_structures(true2d, prediction):
 
 def mattews_corr_coeff(tp, tn, fp, fn):
     if ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn) == 0):
-        print("warning: division by zero! no contact in the prediction")
+        #print("warning: division by zero! no contact in the prediction")
         #print("tp: " + str(tp) + " fp: " + str(fp) + " tn: " + str(tn) + " fn: " + str(fn))
         return -1
     elif (tp + fp == 0):
@@ -143,53 +169,9 @@ def specificity(tp, tn, fp, fn):
 
 # ================== Code from Louis Beckey Benchark.py ==============================
 
-def write_mcc_in_file_E(sequence_id, true_contacts, true_structure, estimator):
-    read_prd = open("results/test_" + sequence_id + ".json_pmE_"+ estimator, "r")
-    write = open("results/test_" + sequence_id + ".mcc_E_" + estimator, "w")
-
-    max_mcc_str = -1;
-    max_mcc_ctc = -1;
-
-    title_exp = ">test_" + sequence_id + ": "
-    write.write(title_exp)
-    contacts_exp = true_contacts
-    structure_exp = true_structure
-    write.write("structure 2d attendue:\n" + structure_exp + "\n")
-    write.write("contacts attendus:\n" + contacts_exp + "\n" + len(structure_exp) * "-")
-
-    title_prd = read_prd.readline()
-    structure_prd = read_prd.readline()
-    sequence_prd = structure_prd
-    while structure_prd:
-        structure_prd = read_prd.readline()
-        if (len(structure_prd) != 0):
-            write.write("\nstructure 2d predite:\n" + structure_prd[:len(sequence_prd)] + "\n")
-            mcc_tab = compare_two_structures(structure_exp, structure_prd[:len(sequence_prd)])
-            mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
-            if (max_mcc_str < mcc_str):
-                max_mcc_str = mcc_str
-            write.write("mcc: " + str(mcc_str) + "\n")
-
-            contacts_prd = read_prd.readline()
-            write.write("\ncontacts predits:\n" + contacts_prd)
-            if (len(contacts_prd) == len(contacts_exp)):
-                mcc_tab = compare_two_contacts(contacts_exp, contacts_prd)
-                mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
-                if (max_mcc_ctc < mcc_ctc):
-                    max_mcc_ctc = mcc_ctc
-                write.write("mcc: " + str(mcc_ctc) + "\n\n")
-            else:
-                write.write("mcc: no expected contacts sequence or not same length between expected and predicted\n\n")
-    write.write("max mcc 2D:" + str(max_mcc_str))
-    write.write("max mcc ctc:" + str(max_mcc_ctc))
-    read_prd.close()
-    write.close()
-    return [max_mcc_ctc, max_mcc_str]
-
-def write_mcc_in_file_F(sequence_id, true_contacts, true_structure, estimator):
-
-    read_prd = open("results/test_" + sequence_id + ".json_pmF_" + estimator, "r")
-    write = open("results/test_" + sequence_id + ".mcc_F_" + estimator, "w")
+def write_mcc_in_file(sequence_id, true_contacts, true_structure, estimator, function):
+    read_prd = open("results/test_" + sequence_id + ".json_pm" + function + "_" + estimator, "r")
+    write = open("results/test_" + sequence_id + ".mcc_" + function + "_" + estimator, "w")
 
     max_mcc_str = -1;
     max_mcc_ctc = -1;
@@ -238,7 +220,7 @@ def set_axis_style(ax, labels):
     ax.set_xlim(0.25, len(labels) + 0.75)
     ax.set_xlabel('Sample name')
 
-def visualization_best_mcc(list_struct2d, list_contacts, estimator, function, color, lines_color):
+def visualization_best_mcc(list_struct2d, list_contacts, estimator, function, modules, color, lines_color):
 
     print(estimator + " + " + function + ": ")
     np_struct2d = np.array(list_struct2d)
@@ -269,7 +251,7 @@ def visualization_best_mcc(list_struct2d, list_contacts, estimator, function, co
 
     for v in violins['bodies']:
         v.set_facecolor(color)
-    plt.savefig('visualisation_16_06_' + estimator + '_' + function + '.png', bbox_inches='tight')
+    plt.savefig('visualisation_16_06_' + estimator + '_' + function + '_' + modules + '.png', bbox_inches='tight')
 
 def get_list_structs_contacts(path_benchmark, estimator, function):
     myfile = open(path_benchmark, "r")
@@ -334,17 +316,39 @@ def get_half(list):
 
     return [first_half, second_half]
 
-def visualization_all_mcc(path_benchmark, estimator, function):
+def visualization_all_mcc(path_benchmark, estimator, function, modules):
 
     list_name = get_list_structs_contacts(path_benchmark, estimator, function)[0]
     tab_struct2d = get_list_structs_contacts(path_benchmark, estimator, function)[1]
     tab_contacts = get_list_structs_contacts(path_benchmark, estimator, function)[2]
+
+    min = 20
+    max = 0
+    max_i = 0
+    min_i = 0
+    for i in range(len(tab_struct2d)):
+        if (len(tab_struct2d[i]) > max):
+            max = len(tab_struct2d[i])
+            max_i = i
+        if (len(tab_struct2d[i]) < min):
+            min = len(tab_struct2d[i])
+            min_i = i
+
+    print("max: " + list_name[max_i] + " " + str(max) + "     min: " + list_name[min_i] + " " + str(min) + "\n")
 
     np_struct2d = np.array(tab_struct2d)
     size = len(tab_struct2d)
     list_median_str = []
     for i in range(size):
         list_median_str.append(np.median(np_struct2d[i]))
+
+    all_str = []
+    for i in range(size):
+        for j in range(len(np_struct2d[i])):
+            all_str.append(np_struct2d[i][j])
+
+    """print("mediane struct" + estimator + " + " + function + " : " + str(np.median(all_str)))
+    print("ecart struct" + estimator + " + " + function + " : " + str(np.std(all_str)) + "\n")"""
 
     data = [x for _, x in sorted(zip(list_median_str, tab_struct2d))]
     boxName = [x for _, x in sorted(zip(list_median_str, list_name))]
@@ -368,7 +372,7 @@ def visualization_all_mcc(path_benchmark, estimator, function):
 
     plt.xlabel('nom de la séquence')
     plt.ylabel('MCC (appariements)')
-    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + '.png', bbox_inches='tight')
+    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + "_" + modules + '.png', bbox_inches='tight')
 
     plt.figure(figsize=(15, 4), dpi=200)
     plt.xticks(rotation=90)
@@ -382,13 +386,21 @@ def visualization_all_mcc(path_benchmark, estimator, function):
 
     plt.xlabel('nom de la séquence')
     plt.ylabel('MCC')
-    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + '_2.png', bbox_inches='tight')
+    plt.savefig('visualisation_128arn_structure2d_' + estimator + "_" + function + "_" + modules + '_2.png', bbox_inches='tight')
 
     np_contacts = np.array(tab_contacts)
     size = len(tab_contacts)
     list_median_ctc = []
     for i in range(size):
         list_median_ctc.append(np.median(np_contacts[i]))
+
+    all_ctc = []
+    for i in range(size):
+        for j in range(len(np_contacts[i])):
+            all_ctc.append(np_contacts[i][j])
+
+    """print("mediane ctc" + estimator + " + " + function + " : " + str(np.median(all_ctc)))
+    print("ecart ctc" + estimator + " + " + function + " : " + str(np.std(all_ctc)) + "\n")"""
 
     data = [x for _, x in sorted(zip(list_median_ctc, tab_contacts))]
     boxName = [x for _, x in sorted(zip(list_median_ctc, list_name))]
@@ -431,7 +443,6 @@ def visualization_all_mcc(path_benchmark, estimator, function):
 #cmd = ("cppsrc/Scripts/create")
 #cmd0 = ("cppsrc/Scripts/addDelimiter")
 #cmd1 = ("cppsrc/Scripts/countPattern")
-#cmd2 = ("cppsrc/Scripts/deletePdb")
 
 myfile = open("data/modules/ISAURE/Motifs_version_initiale/benchmark.txt", "r")
 name = myfile.readline()
@@ -439,21 +450,18 @@ contacts = myfile.readline()
 seq = myfile.readline()
 structure2d = myfile.readline()
 
-list_struct2d_E_MFE = []
-list_contacts_E_MFE = []
-list_struct2d_F_MFE = []
-list_contacts_F_MFE = []
+list_struct2d_A_MFE = []
+list_contacts_A_MFE = []
+list_struct2d_B_MFE = []
+list_contacts_B_MFE = []
 
-list_struct2d_E_MEA = []
-list_contacts_E_MEA = []
-list_struct2d_F_MEA = []
-list_contacts_F_MEA = []
+list_struct2d_A_MEA = []
+list_contacts_A_MEA = []
+list_struct2d_B_MEA = []
+list_contacts_B_MEA = []
 
-countE_MFE = 0
-countF_MFE = 0
-
-countE_MEA = 0
-countF_MEA = 0
+path = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo"
+path2 = "/local/local/BiorseoNath"
 while seq:
     name = name[6:].strip()
     print(name)
@@ -461,63 +469,25 @@ while seq:
     cmd2 = ("cppsrc/Scripts/deletePdb " + name)
     os.system(cmd2)
 
-    cmd3 = create_command_E(name, 'MFE')
-    os.system(cmd3)
-
-    file_path = "results/test_" + name + ".json_pmE_MFE"
-    if os.path.isfile(file_path):
-        tabE_MFE = write_mcc_in_file_E(name, contacts, structure2d, 'MFE')
-        list_contacts_E_MFE.append(tabE_MFE[0])
-        list_struct2d_E_MFE.append(tabE_MFE[1])
-        countE_MFE = countE_MFE + 1
-
-    cmd3 = create_command_F(name, 'MFE')
-    os.system(cmd3)
-
-    file_path = "results/test_" + name + ".json_pmF_MFE"
-    if os.path.isfile(file_path):
-        tabF_MFE = write_mcc_in_file_F(name, contacts, structure2d, 'MFE')
-        list_contacts_F_MFE.append(tabF_MFE[0])
-        list_struct2d_F_MFE.append(tabF_MFE[1])
-        countF_MFE = countF_MFE + 1
-
-    cmd3 = create_command_E(name, 'MEA')
-    os.system(cmd3)
-
-    file_path = "results/test_" + name + ".json_pmE_MEA"
-    if os.path.isfile(file_path):
-        tabE_MEA = write_mcc_in_file_E(name, contacts, structure2d, 'MEA')
-        list_contacts_E_MEA.append(tabE_MEA[0])
-        list_struct2d_E_MEA.append(tabE_MEA[1])
-        countE_MEA = countE_MEA + 1
-
-    cmd3 = create_command_F(name, 'MEA')
-    os.system(cmd3)
-
-    file_path = "results/test_" + name + ".json_pmF_MEA"
-    if os.path.isfile(file_path):
-        tabF_MEA = write_mcc_in_file_F(name, contacts, structure2d, 'MEA')
-        list_contacts_F_MEA.append(tabF_MEA[0])
-        list_struct2d_F_MEA.append(tabF_MEA[1])
-        countF_MEA = countF_MEA + 1
+    execute_command(path2, 'A', 'MEA', list_contacts_A_MEA, list_struct2d_A_MEA, 'desc')
+    execute_command(path2, 'A', 'MFE', list_contacts_A_MFE, list_struct2d_A_MFE, 'desc')
+    execute_command(path2, 'B', 'MEA', list_contacts_B_MEA, list_struct2d_B_MEA, 'desc')
+    execute_command(path2, 'B', 'MFE', list_contacts_B_MFE, list_struct2d_B_MFE, 'desc')
 
     name = myfile.readline()
     contacts = myfile.readline()
     seq = myfile.readline()
     structure2d = myfile.readline()
 
-visualization_best_mcc(list_struct2d_E_MFE, list_contacts_E_MFE, 'MFE', 'E', 'red', '#900C3F')
-visualization_best_mcc(list_struct2d_F_MFE, list_contacts_F_MFE, 'MFE', 'F', 'blue', '#0900FF')
-visualization_best_mcc(list_struct2d_E_MEA, list_contacts_E_MEA, 'MEA', 'E', 'red', '#900C3F')
-visualization_best_mcc(list_struct2d_F_MEA, list_contacts_F_MEA, 'MEA', 'F', 'blue', '#0900FF')
+visualization_best_mcc(list_struct2d_A_MFE, list_contacts_A_MFE, 'MFE', 'A', 'desc', 'red', '#900C3F')
+visualization_best_mcc(list_struct2d_B_MFE, list_contacts_B_MFE, 'MFE', 'B', 'desc', 'blue', '#0900FF')
+visualization_best_mcc(list_struct2d_A_MEA, list_contacts_A_MEA, 'MEA', 'A', 'desc', 'red', '#900C3F')
+visualization_best_mcc(list_struct2d_B_MEA, list_contacts_B_MEA, 'MEA', 'B', 'desc', 'blue', '#0900FF')
 
-print("countE_MFE: " + str(countE_MFE) + "\n")
-print("countF_MFE: " + str(countF_MFE) + "\n")
-print("countE_MEA: " + str(countE_MEA) + "\n")
-print("countF_MEA: " + str(countF_MEA) + "\n")
 myfile.close()
+
 path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
-visualization_all_mcc(path_benchmark,'MEA', 'F')
-visualization_all_mcc(path_benchmark,'MEA', 'E')
-visualization_all_mcc(path_benchmark,'MFE', 'E')
-visualization_all_mcc(path_benchmark,'MFE', 'F')
+visualization_all_mcc(path_benchmark,'MEA', 'B', 'desc')
+visualization_all_mcc(path_benchmark,'MEA', 'A', 'desc')
+visualization_all_mcc(path_benchmark,'MFE', 'A', 'desc')
+visualization_all_mcc(path_benchmark,'MFE', 'B', 'desc')

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/cppsrc/json.hpp"
+#include "/local/local/BiorseoNath/cppsrc/json.hpp"
 #include <typeinfo>
 #include <set>
 #include <algorithm>
@@ -51,8 +51,8 @@ void delete_redundant_pdb(const string& jsonlibrary, const string& name, const s
 
 int main(int argc, char** argv)
 {
-    string jsonlibrary = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_final.json";
-    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
+    string jsonlibrary = "/local/local/BiorseoNath/data/modules/ISAURE/Motifs_version_initiale/motifs_final.json";
+    string out = "/local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
     string name = argv[1];
     delete_redundant_pdb(jsonlibrary, name, out);
     return 0;
