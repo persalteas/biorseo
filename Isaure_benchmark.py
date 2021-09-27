@@ -257,8 +257,8 @@ def get_list_structs_contacts(path_benchmark, estimator, function):
     myfile = open(path_benchmark, "r")
     list_name = []
 
-    complete_list_struct2d_F = []
-    complete_list_contacts_F = []
+    complete_list_struct2d = []
+    complete_list_contacts = []
 
     name = myfile.readline()
     contacts = myfile.readline()
@@ -268,11 +268,11 @@ def get_list_structs_contacts(path_benchmark, estimator, function):
     while seq:
         name = name[6:].strip()
         count = count + 1
-        file_path = "results/test_" + name + ".json_pm" + function +"_" + estimator
+        file_path = "results/test_" + name + ".json_pm" + function + "_" + estimator
         if os.path.isfile(file_path):
             file_result = open(file_path, "r")
-            list_struct2d_F = []
-            list_contacts_F = []
+            list_struct2d = []
+            list_contacts = []
             list_name.append(name)
             title_prd = file_result.readline()
             structure_prd = file_result.readline()
@@ -282,20 +282,20 @@ def get_list_structs_contacts(path_benchmark, estimator, function):
                 if (len(structure_prd) != 0):
                     mcc_tab = compare_two_structures(structure2d, structure_prd[:len(sequence)])
                     mcc_str = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
-                    list_struct2d_F.append(mcc_str)
+                    list_struct2d.append(mcc_str)
 
                     contacts_prd = file_result.readline()
                     if (len(contacts_prd) == len(contacts)):
                         mcc_tab = compare_two_contacts(contacts, contacts_prd)
                         mcc_ctc = mattews_corr_coeff(mcc_tab[0], mcc_tab[1], mcc_tab[2], mcc_tab[3])
-                        list_contacts_F.append(mcc_ctc)
-            complete_list_struct2d_F.append(list_struct2d_F)
-            complete_list_contacts_F.append(list_contacts_F)
+                        list_contacts.append(mcc_ctc)
+            complete_list_struct2d.append(list_struct2d)
+            complete_list_contacts.append(list_contacts)
         name = myfile.readline()
         contacts = myfile.readline()
         seq = myfile.readline()
         structure2d = myfile.readline()
-    return [list_name, complete_list_struct2d_F, complete_list_contacts_F]
+    return [list_name, complete_list_struct2d, complete_list_contacts]
     myfile.close()
 
 def get_half(list):
@@ -469,25 +469,30 @@ while seq:
     cmd2 = ("cppsrc/Scripts/deletePdb " + name)
     os.system(cmd2)
 
-    execute_command(path2, 'A', 'MEA', list_contacts_A_MEA, list_struct2d_A_MEA, 'desc')
+    """execute_command(path2, 'A', 'MEA', list_contacts_A_MEA, list_struct2d_A_MEA, 'desc')
     execute_command(path2, 'A', 'MFE', list_contacts_A_MFE, list_struct2d_A_MFE, 'desc')
     execute_command(path2, 'B', 'MEA', list_contacts_B_MEA, list_struct2d_B_MEA, 'desc')
-    execute_command(path2, 'B', 'MFE', list_contacts_B_MFE, list_struct2d_B_MFE, 'desc')
+    execute_command(path2, 'B', 'MFE', list_contacts_B_MFE, list_struct2d_B_MFE, 'desc')"""
+
+    execute_command(path2, 'A', 'MEA', list_contacts_A_MEA, list_struct2d_A_MEA, 'rin')
+    execute_command(path2, 'A', 'MFE', list_contacts_A_MFE, list_struct2d_A_MFE, 'rin')
+    execute_command(path2, 'B', 'MEA', list_contacts_B_MEA, list_struct2d_B_MEA, 'rin')
+    execute_command(path2, 'B', 'MFE', list_contacts_B_MFE, list_struct2d_B_MFE, 'rin')
 
     name = myfile.readline()
     contacts = myfile.readline()
     seq = myfile.readline()
     structure2d = myfile.readline()
 
-visualization_best_mcc(list_struct2d_A_MFE, list_contacts_A_MFE, 'MFE', 'A', 'desc', 'red', '#900C3F')
-visualization_best_mcc(list_struct2d_B_MFE, list_contacts_B_MFE, 'MFE', 'B', 'desc', 'blue', '#0900FF')
-visualization_best_mcc(list_struct2d_A_MEA, list_contacts_A_MEA, 'MEA', 'A', 'desc', 'red', '#900C3F')
-visualization_best_mcc(list_struct2d_B_MEA, list_contacts_B_MEA, 'MEA', 'B', 'desc', 'blue', '#0900FF')
+visualization_best_mcc(list_struct2d_A_MFE, list_contacts_A_MFE, 'MFE', 'A', 'rin', 'red', '#900C3F')
+visualization_best_mcc(list_struct2d_B_MFE, list_contacts_B_MFE, 'MFE', 'B', 'rin', 'blue', '#0900FF')
+visualization_best_mcc(list_struct2d_A_MEA, list_contacts_A_MEA, 'MEA', 'A', 'rin', 'red', '#900C3F')
+visualization_best_mcc(list_struct2d_B_MEA, list_contacts_B_MEA, 'MEA', 'B', 'rin', 'blue', '#0900FF')
 
 myfile.close()
 
 path_benchmark = "data/modules/ISAURE/Motifs_version_initiale/benchmark.txt"
-visualization_all_mcc(path_benchmark,'MEA', 'B', 'desc')
-visualization_all_mcc(path_benchmark,'MEA', 'A', 'desc')
-visualization_all_mcc(path_benchmark,'MFE', 'A', 'desc')
-visualization_all_mcc(path_benchmark,'MFE', 'B', 'desc')
+visualization_all_mcc(path_benchmark,'MEA', 'B', 'rin')
+visualization_all_mcc(path_benchmark,'MEA', 'A', 'rin')
+visualization_all_mcc(path_benchmark,'MFE', 'A', 'rin')
+visualization_all_mcc(path_benchmark,'MFE', 'B', 'rin')
