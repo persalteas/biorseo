@@ -65,9 +65,9 @@ Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 ```
 Usage:  You must provide:
         1) a FASTA input file with -i,
-        2) a module type with --rna3dmotifs, --carnaval or --3dmotifatlas
+        2) a module type with --rna3dmotifs, --carnaval, --3dmotifatlas or --contacts
         3) one module placement method in { --patternmatch, --jar3d, --bayespairing }
-        4) one scoring function with --func A, B, C or D
+        4) one scoring function with --func A, B, C, D, E ou F
 
         If you are not using the Docker image: 
         5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)
@@ -79,6 +79,7 @@ Options:
 --rna3dmotifs                   Use DESC modules from Djelloul & Denise, 2008
 --carnaval                      Use RIN modules from Reinharz & al, 2018
 --3dmotifatlas                  Use the HL and IL loops from BGSU's 3D Motif Atlas (updated)
+--contacts			Use the library of motifs, created from RNA sequences linked to proteins provided by I. Chauvot de Beauchene of LORIA laboratory
 -p [ --patternmatch ]           Use regular expressions to place modules in the sequence (requires --rna3dmotifs or --carnaval)
 -j [ --jar3d ]                  Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
 -b [ --bayespairing ]           Use BayesPairing2 to place modules in the sequence (requires --rna3dmotifs or --3dmotifatlas)
@@ -123,5 +124,6 @@ The allowed module/placement-method/function combinations are:
 --rna3dmotifs     A. B.           A. B. C. D.
 --3dmotifatlas                    A. B. C. D.     A. B. C. D.
 --carnaval        A. B.
+--contacts 	  E. F.
 
 ```

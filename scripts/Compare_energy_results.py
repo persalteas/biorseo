@@ -6,6 +6,9 @@ import seaborn as sns
 import pandas as pd
 import matplotlib.pylab as plt
 
+# Retrieve for each rna the best value for MEA and compare this energy value with the one obtains with
+# RNAeval and RNAfold from the ViennaRNA Package 2.0 (Ronny Lorentz et al., 2011)
+# After getting those values, it will creates a figure.
 def get_result_MEA(filename):
     ext = "json_pmE"
     file2 = open( "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/results/" + filename + ext, "r")

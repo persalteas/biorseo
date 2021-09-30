@@ -11,6 +11,7 @@
 using namespace std;
 using json = nlohmann::json;
 
+//Count the number of '&' in the motif sequence
 size_t count_delimiter(string& seq) {
     size_t count = 0;
     for(uint i = 0; i < seq.size(); i++) {
@@ -22,6 +23,10 @@ size_t count_delimiter(string& seq) {
     return count;
 }
 
+/*
+If there is a '&' in the motif sequence in the field 'sequence' but not in the field 'contacts', 
+th script put a '&' in the same position in the field 'contacts' than in the field 'sequence'.
+*/
 void add_delimiter(const string& jsonfile, const string& jsonoutfile) {
     std::ifstream lib(jsonfile);
     
@@ -77,13 +82,9 @@ void add_delimiter(const string& jsonfile, const string& jsonoutfile) {
 
 int main()
 {
-    //183
-    //cout << "------------------BEGIN-----------------" << endl;
-    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_06-06-2021.json";
-    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_tmp.json";
+    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/motifs_06-06-2021.json";
+    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/motifs_tmp.json";
     add_delimiter(jsonfile, out);
-
-    //cout << "------------------END-----------------" << endl;
     return 0;
 }
     

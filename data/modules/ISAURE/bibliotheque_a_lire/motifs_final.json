@@ -22341,23 +22341,6 @@
         "sequence": "G&C&GGGUAG&UAGGGGCUA&CAG&CCUUACGUGGGUUCAAAUCCCACCCC&G&CUCCA",
         "struct2d": "(&(&(((..(&(.......)&).(&).....(((((.......))))))))&)&)...."
     },
-    "977": {
-        "contacts": "******************..&****************.**************&*************&*",
-        "occurences": 1,
-        "pdb": [
-            "5XBL"
-        ],
-        "pfam": [
-            [
-                "PF16592",
-                "PF16593",
-                "PF16595",
-                "PF13395"
-            ]
-        ],
-        "sequence": "UGCGCUUGGCGUUUUAGAGC&GCAAGUUAAAAUAAGGCUAGUCCGUUAUCAA&UGGCACCGAGUCG&U",
-        "struct2d": "..........(((((...((&)).....)))))..(.(..)..).......(&).....(.....)&."
-    },
     "978": {
         "contacts": "*****",
         "occurences": 9,

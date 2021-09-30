@@ -12,6 +12,10 @@
 using namespace std;
 using json = nlohmann::json;
 
+/*
+This script is use to create a new motif library without a motif that contains the same pdb as the sequence used in input for prediction
+with BiORSEO.
+*/
 void delete_redundant_pdb(const string& jsonlibrary, const string& name, const string& jsonoutfile) {
     std::ifstream lib(jsonlibrary);
     
@@ -51,8 +55,8 @@ void delete_redundant_pdb(const string& jsonlibrary, const string& name, const s
 
 int main(int argc, char** argv)
 {
-    string jsonlibrary = "/local/local/BiorseoNath/data/modules/ISAURE/Motifs_version_initiale/motifs_final.json";
-    string out = "/local/local/BiorseoNath/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
+    string jsonlibrary = "/local/local/BiorseoNath/data/modules/ISAURE/motifs_final.json";
+    string out = "/local/local/BiorseoNath/data/modules/ISAURE/bibliotheque_a_lire/motifs_final.json";
     string name = argv[1];
     delete_redundant_pdb(jsonlibrary, name, out);
     return 0;

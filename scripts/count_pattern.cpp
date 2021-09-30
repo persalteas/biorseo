@@ -11,6 +11,12 @@
 using namespace std;
 using json = nlohmann::json;
 
+/*
+This script count the number of "occurrences" of the motif.
+So we consider that if the sequence of pattern A is included in pattern B,
+then for each inclusion of B we also have an inclusion of A. And vice versa.
+*/
+
 //Return true if the first sequence seq1 is included in the second sequence seq2
 //if not return false
 int is_contains(string& seq1, string& seq2) {
@@ -38,6 +44,8 @@ int is_contains(string& seq1, string& seq2) {
 
 //If we find the sequence and structure of pattern A in pattern B, we have to concatenate the pfam lists of A and B,
 //remove the duplicates, assign this new list of pfam lists to A, and assign as occurrence to A the size of this list.
+//The pattern A is counted only once in every other pattern, i.e. even if the sequence of A is found several times in B,
+// it will be added only once in the occurrences of A.
 void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
     std::ifstream lib(jsonfile);
     std::ifstream lib2(jsonfile);
@@ -73,14 +81,6 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
             if (!test.compare("pfam")) {
                 vector<vector<string>> tab = it2.value();
                 list_pfams = tab;
-                /*set<set<string>>::iterator iit;
-                set<string>::iterator iit2;
-                for(iit = list_pfams.begin(); iit != list_pfams.end(); iit++) {
-                    for (iit2 = iit->begin(); iit2 != iit->end(); ++iit2) {
-                        cout << *iit2 << endl;
-                    }
-                    cout << endl << endl;
-                }*/
             } else if (!test.compare("sequence")) {
                 //cout << "sequence: " << it2.value() << endl;
                 sequence = it2.value();
@@ -124,7 +124,6 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                 new_id[test] = it2.value();
             }  
         }
-        //cout << "-------begin---------" << endl;
         
         for (auto it3 = js2.begin(); it3 != js2.end(); ++it3) {
             string id2 = it3.key();
@@ -142,22 +141,6 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                     if (!test.compare("pfam")) {
                         vector<vector<string>> tab = it4.value();
                         list_pfams2 = tab;
-                        /*for (uint k = 0; k < tab2.size(); k++) {
-                            for (uint l = 0; l < tab2[k].size(); l++) {
-                                pfams2.insert(tab2[k][l]);
-                            }
-                            list_pfams2.insert(pfams);
-                            pfams2.clear();
-                        }*/
-            
-                        /*set<set<string>>::iterator iit;
-                        set<string>::iterator iit2;
-                        for(iit = list_pfams.begin(); iit != list_pfams.end(); iit++) {
-                            for (iit2 = iit->begin(); iit2 != iit->end(); ++iit2) {
-                                cout << *iit2 << endl;
-                            }
-                            cout << endl << endl;
-                        }*/
                     } else if (!test.compare("occurences")) {
                         occurences2 = it4.value();
                         //cout << "occurences2: "<< occurences2 << endl;
@@ -216,7 +199,6 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                                                 
                                         }    
                                     }
-                                    //cout << "----end----" << endl;
                                 //}
                             }
                             if(flag) {
@@ -227,12 +209,12 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
                         // if number equal to the size of the number of component in the motif, it means that the motif is included.
                         //So we add the intersection of the two pfams list to the motif
                         if(number == composantes.size()) {
-                            //cout << "id: " << id << " / id2: " << id2 << endl;
+                            cout << "id: " << id << " / id2: " << id2 << endl;
                             vector<vector<string>> add_pfams;
                             std::set_difference(list_pfams2.begin(), list_pfams2.end(), list_pfams.begin(), list_pfams.end(),
                             std::inserter(add_pfams, add_pfams.begin()));
                             list_pfams.insert(list_pfams.begin(), add_pfams.begin(), add_pfams.end());
-                            //cout << "size: " << list_pfams.size() << endl;
+                            cout << "size: " << list_pfams.size() << endl;
                             add_pfams.clear();
                             is_change = true;
                         } 
@@ -242,23 +224,12 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
             //cout << endl;*/
         }
     
-       
-        /*for(uint ii = 0; ii < list_pfams.size(); ii++) {
-            for (uint jj = 0; jj < list_pfams[ii].size(); jj++) {
-                cout << "[" << ii << "][" << jj << "]: " << list_pfams[ii][jj] << endl;
-            }
-        }*/
         
         new_id["occurences"] = list_pfams.size();
-        new_id["pfam"] = list_pfams;
-                        
-        //cout << "-------ending---------" << endl;
+        new_id["pfam"] = list_pfams;        
         new_motif[id] = new_id;
         new_id.clear();
-        //cout << "valeur: " << ite << endl;
-        /*for (uint i = 0; i < tab_struc.size() ; i++) {
-        cout << "tab_struc[" << i << "]: " << tab_struc[i] << endl << endl;
-        } */
+
     }
     outfile << new_motif.dump(4) << endl;
     outfile.close();
@@ -267,13 +238,11 @@ void counting_occurences(const string& jsonfile, const string& jsonoutfile) {
 
 int main()
 {
-    //183
-    //cout << "------------------BEGIN-----------------" << endl;
-    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_tmp.json";
-    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/motifs_final.json";
+
+    string jsonfile = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/motifs_06-06-2021.json";
+    string out = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/motifs_final.json";
     counting_occurences(jsonfile, out);
 
-    //cout << "------------------END-----------------" << endl;
     return 0;
 }
     

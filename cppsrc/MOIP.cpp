@@ -381,7 +381,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             break;
 
         case 'E':
-            // Fonction f1E
+            // Fonction f1E 
             for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
             obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * insertion_sites_[i].tx_occurrences_) * insertion_dv_[index_of_first_components[i]] ;
             break;
@@ -395,6 +395,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
         }
     }
+    //Stacking energy parameter matrix
     double energy[7][7] = {
                 {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
                 {0.0, 1.1, 2.1, 2.2, 1.4, 0.9, 0.6},
@@ -408,7 +409,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             obj2 = IloExpr(env_);
     switch (obj_function2_nbr_) {     
         case 'a':
-            // Define the MFE:
+            // Define the MFE (Minimum Free Energy):
             for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
                 for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
                     if (get_xij_index(u, v) != rna_.get_RNA_length() * rna_.get_RNA_length() + 1) {
@@ -429,7 +430,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             }
         break;
     }
-    //std::cout << "\n fin \n";
 }
 
 MOIP::~MOIP() { env_.end(); }
@@ -705,7 +705,6 @@ void MOIP::define_problem_constraints(string& source)
 
 SecondaryStructure MOIP::solve_objective(int o, double min, double max)
 {
-    //cout << endl << "BEGIN" << endl;
     // Solves one of the objectives, under constraint that the other should be in [min, max]
 
     if (min > max) {
@@ -755,17 +754,11 @@ SecondaryStructure MOIP::solve_objective(int o, double min, double max)
         }
 
     // if (verbose_) cout << "\t\t>retrieving basepairs of the result secondary structure..." << endl;
-    //cout << "y(2,80): " << cplex_.getValue(y(u, v)) << endl;
     for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (size_t v = u + 4; v < rna_.get_RNA_length(); v++)
             if (allowed_basepair(u, v))
                 if (cplex_.getValue(y(u, v)) > 0.5) {
                     best_ss.set_basepair(u, v);
-                    /*if (u == 5 && v == 26) {
-                        cout << endl << "(" << u << "," << v << "): " << endl;
-                        cout << best_ss.to_string() << endl;
-                        cout << "(((...((((((((....))))))))(((.....((((((((....)))))))))))...((((((((....)))))))))))" << endl;
-                    }*/
                 }
 
     best_ss.sort();    // order the basepairs in the vector
@@ -1159,7 +1152,6 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     }
 }
 
-//Temporaire--------------------------------------
 
 //Check if the sequence is a rna sequence (ATGC) and replace T by U or remove modified nucleotide if necessary
 string check_motif_sequence(string seq) {
@@ -1184,9 +1176,6 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
     stack<uint> accolades;
     stack<uint> chevrons;
     
-    /*for(uint j = 0; j < v.size(); j++) {
-        cout << "composante: (" << v[j].pos.first << "," << v[j].pos.second << ")" << endl << endl;
-    }*/
     uint count = 0;
     uint debut = v[count].pos.first;
     uint gap = 0;
@@ -1194,12 +1183,10 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
    for (uint i = 0; i < struc.size(); i++) {
        if (struc[i] == '(') {
            parentheses.push(i + debut + gap - count);
-           //cout << "i: " << i << "  pos :" << parentheses.top() << endl;
 
        } else if (struc[i] == ')') {
            Link l;
            l.nts.first = parentheses.top();
-           //cout << "top :" << parentheses.top() << endl;
            l.nts.second = i + debut + gap - count;
            vec.push_back(l);
            parentheses.pop();
@@ -1237,8 +1224,6 @@ vector<Link> search_pairing(string& struc, vector<Component>& v) {
        } else if (struc[i] == '&') {
            count ++;
            gap += v[count].pos.first - v[count - 1].pos.second - 1;
-           //cout << "count: " << count << endl;
-           //cout << "gap : " << gap << endl;
        }
     }
     return vec;
@@ -1311,11 +1296,9 @@ vector<string> find_components(string sequence, string delimiter) {
         subseq = seq.substr(0, fin);
         seq = seq.substr(fin + 1);
         list.push_back(subseq); // new component sequence
-        //std::cout << "subseq: " << subseq << endl;
     } 
     if (!seq.empty()) {
         list.push_back(seq);
-        //std::cout << "subseq: " << seq << endl;
     }
     return list;
 }
@@ -1324,23 +1307,17 @@ vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
     vector<uint> positions;
     string delimiter = "*";
     uint debut;
-    /*cout << "vsize: " << v.size() << endl;
-    cout << "struc2dsize: " << struc2d.size() << endl;*/
     for (uint i = 0; i < v.size(); i++) {
-        //cout << "[" << i << "]:" << endl;
         debut = v[i].pos.first;
         uint pos = struc2d[i].find(delimiter, 0);
         while(pos != string::npos && pos <= struc2d[i].size())
         {   
-            //cout << "position: " << pos + debut << endl;
             positions.push_back(pos + debut);
             pos = struc2d[i].find(delimiter, pos+1);
         } 
     }
     return positions;
 }
-
-//Temporaire--------------------------------------
 
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
 {
@@ -1373,8 +1350,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     string keys[5] = {"contacts", "occurences", "pdb", "sequence", "struct2d"};
     uint it_errors = 0;
     uint comp;
-    //uint max_occ = 0;
-    //uint max_n = 0;
     uint occ = 0;
     
     for(auto it = js.begin(); it != js.end(); ++it) {
@@ -1385,10 +1360,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
         // Check for known errors to ignore corresponding motifs
         if (comp == errors_id[it_errors].first) {    
             while (comp == errors_id[it_errors].first) {
-                //cout << "id erreur: " << errors_id[it_errors].first << " " << errors_id[it_errors].second << endl;
-                /*if (contacts_id.compare("974") == 0) {
-                    cout << "id erreur: " << errors_id[it_errors].second << endl;
-                }*/
                 it_errors ++;
             }
             continue;
@@ -1396,7 +1367,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
         for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
             field = it2.key(); 
-            //cout << "field: " << field << endl;
             if (!field.compare(keys[0]))  // This is the contacts field
             {  
                 contacts = it2.value();
@@ -1406,25 +1376,17 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             else if (!field.compare(keys[1]))    // This is the occurences field
             {
                 occ = it2.value();
-                //max_occ = find_max_occurrences(filepath);
                 tx_occurrences = (double)occ; // / (double)max_occ;
-                //cout << "occ: " << tx_occurrences << endl;
 
             } 
             else if (!field.compare(keys[2]))    // This is the pdb field
             {
                 vector<string> tab = it2.value();
                 pdbs = tab;
-                /*for (uint i = 0; i < pdbs.size(); i++) {
-                    cout << "pdbs[" << i << "]: " << pdbs[i] << endl;
-                }*/
-
             } 
             else if (!field.compare(keys[3]))    // This is the sequence field
             { 
                 seq = check_motif_sequence(it2.value());
-                /*max_n = find_max_sequence(filepath);
-                tx_occurrences = (double)occ / (double)max_n - seq.size() + 1 ;*/
                 component_sequences = find_components(seq, "&");
             } 
             else if (!field.compare(keys[4]))       // This is the struct2D field
@@ -1440,9 +1402,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             
             Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
             temp_motif.links_ = search_pairing(struct2d, v);
-            //cout << "test" << endl;
             temp_motif.pos_contacts = find_contacts(component_contacts, v);
-            //cout << "test2" << endl;
 
             // Check if the motif can be inserted, checking the basepairs probabilities and theta
             bool unprobable = false;

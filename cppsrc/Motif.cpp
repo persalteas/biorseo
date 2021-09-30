@@ -275,8 +275,7 @@ char Motif::is_valid_RIN(const string& rinfile)
     return (char) 0;
 }
 
-//temporaire---------------------------------------------------
-
+//check that there are as many opening parentheses as closing ones
 bool checkSecondaryStructure(string struc)
 { 
     stack<uint> parentheses;
@@ -332,6 +331,7 @@ bool checkSecondaryStructure(string struc)
     return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
 
+//count the number of nucleotide in the motif sequence
 size_t count_nucleotide(string& seq) {
     size_t count = 0;
     for(uint i = 0; i < seq.size(); i++) {
@@ -343,6 +343,7 @@ size_t count_nucleotide(string& seq) {
     return count;
 }
 
+//count the numbre of '&' in the motif sequence
 size_t count_delimiter(string& seq) {
     size_t count = 0;
     for(uint i = 0; i < seq.size(); i++) {
@@ -354,7 +355,6 @@ size_t count_delimiter(string& seq) {
     return count;
 }
 
-//--------------------------------------------------------------
 vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
 {
     // /!\ returns 0 if no errors
@@ -458,7 +458,6 @@ vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
             }
             j++;
         }
-    //std::cout << "no error!\n" << endl;
     }
     return errors_id;
 }
@@ -524,17 +523,9 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
         if (regex_search(rna, c)) {
             if (vc.size() > 2) {
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
-                /*for (uint i = 0; i < next_seqs.size(); i++) {
-                    std::cout << "next seq: " << next_seqs[i] << endl;
-                }
-                std::cout << endl;*/
             }
             else {
                 next_seqs = vector<string>(1, vc.back());
-                /*for (uint i = 0; i < next_seqs.size(); i++) {
-                    std::cout << "next seq: " << next_seqs[i] << endl;
-                }
-                std::cout << endl;*/
             }
             uint j = 0;
             // For every regexp match
@@ -606,17 +597,9 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
         if (regex_search(rna, c)) {
             if (vc.size() > 2) {
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
-                /*for (uint i = 0; i < next_seqs.size(); i++) {
-                    std::cout << "next seq: " << next_seqs[i] << endl;
-                }
-                std::cout << endl;*/
             }
             else {
                 next_seqs = vector<string>(1, vc.back());
-                /*for (uint i = 0; i < next_seqs.size(); i++) {
-                    std::cout << "next seq: " << next_seqs[i] << endl;
-                }
-                std::cout << endl;*/
             }
             uint j = 0;
             // For every regexp match

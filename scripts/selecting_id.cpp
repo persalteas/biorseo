@@ -12,18 +12,23 @@ using namespace std;
 using json = nlohmann::json;
 
 /*
-That script will remove from the library all the pattern that match ONLY with the sequence from which it comes from.
+That script will remove from the library all the pattern that match ONLY with the sequence from which it comes from (with the same pdb).
 */
 
+//To store the pdb and the sequence in the benchmark file. Also stor the corresponding motif id and components based on this sequence.
 struct data { 
+    //the pdb code (in the name of the sequence)
     string pdb;
+    //the complete sequence with this pdb code
     string seq_pdb;
+    //the id of the motif corresponding to this pdb in the library
     string id;
+    //the module sequence with the components of this motif with the above id
     string cmp;
 };
 typedef struct data data;
 
-
+//returns the list of pdb codes and the corresponding information from the benchmark file.
 vector<data> get_list_pdb_benchmark(const string& benchmark) {
 
     fstream bm(benchmark);
@@ -57,6 +62,7 @@ string trim(string str) {
     return str;
 }
 
+//store the corresponding id and motif to the sequence from the benchmark file
 data find_id_pattern(string& pdb_pattern, const string& benchmark) {
     vector<data> l = get_list_pdb_benchmark(benchmark);
     int size = l.size();
@@ -71,6 +77,8 @@ data find_id_pattern(string& pdb_pattern, const string& benchmark) {
     return data();
 }
 
+//Create an array of data ('association'), which consists of each pdb of the benchmark file
+// with the associated pattern from this sequence.
 vector<data> find_id(const string& bibli, const string& benchmark) {
     ifstream lib(bibli);
     json js = json::parse(lib);
@@ -112,6 +120,7 @@ vector<data> find_id(const string& bibli, const string& benchmark) {
     return association;
 }
 
+//check if the motif is found matching with a complete sequence from a benchmark file.
 bool does_it_match(const string& seq, const string& seq_motif) {
     size_t found = seq_motif.find("&");
     size_t size = seq_motif.size();
@@ -150,6 +159,7 @@ bool does_it_match(const string& seq, const string& seq_motif) {
     return false;
 }
 
+//return the list of motif id that didn't match with any other complete sequence than the one which it came from.
 vector<string> select_not_motif(const string& bibli, const string& benchmark) {
     vector<string> selection;
     vector<data> association = find_id(bibli, benchmark);
@@ -187,8 +197,8 @@ vector<string> select_not_motif(const string& bibli, const string& benchmark) {
 
 int main()
 {
-    string bibli = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_derniere_version/motifs_final.json";
-    string benchmark = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/Motifs_version_initiale/benchmark.dbn";
+    string bibli = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/ISAURE/motifs_final.json";
+    string benchmark = "/mnt/c/Users/natha/Documents/IBISC/biorseo2/biorseo/data/modules/benchmark.dbn";
 
     /*vector<data> v = get_list_pdb_benchmark(benchmark);
     for (data d : v) {
