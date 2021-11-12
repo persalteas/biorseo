@@ -32,4 +32,4 @@ data/modules/RIN
 data/modules/ISAURE
 data/sec_structs/bpRNA-1m_90.dbn
 data/sec_structs/pseudobase++.dbn
-
+data/fasta/contacts
