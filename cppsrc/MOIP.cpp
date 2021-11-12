@@ -87,11 +87,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_yuv_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
-    /*for (u = 0; u < index_of_yuv_.size(); u++) {
-        for (v = 0; v < index_of_yuv_[u].size(); v++) {
-            cout << "["<< u << "]["<< v <<"]: " << index_of_yuv_[u][v] << endl;
-        }   
-    }*/
     if (verbose_) cout << endl;
 
     // Add the x_i,j decision variables
@@ -100,7 +95,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     index_of_xij_ = vector<vector<size_t>>(rna_.get_RNA_length() - 6, vector<size_t>(0));
     for (u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible if v > u+3
-            if (rna_.get_pij(u, v) > theta and rna_.get_pij(u + 1, v - 1) > theta) { // ou u-1 v+1 ??
+            if (rna_.get_pij(u, v) > theta and rna_.get_pij(u + 1, v - 1) > theta) { // or u-1 v+1 ??
                 if (verbose_) cout << u << '-' << v << " ";
                 index_of_xij_[u].push_back(c);
                 c++;
@@ -110,11 +105,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             } else {
                 index_of_xij_[u].push_back(rna_.get_RNA_length() * rna_.get_RNA_length() + 1);
             }
-    /*for (u = 0; u < index_of_xij_.size(); u++) {
-        for (v = 0; v < index_of_xij_[u].size(); v++) {
-            cout << "["<< u << "]["<< v <<"]: " << index_of_xij_[u][v] << endl;
-        }   
-    }*/
     if (verbose_) cout << endl;
 
     // Look for insertions sites, then create the appropriate Cxip variables
@@ -221,25 +211,25 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
 
         // Read every RIN file and add it to the queue (iff valid)
-		char error;
+        char error;
         for (auto it : recursive_directory_range(source_path))
         {
-			if ((error = Motif::is_valid_RIN(it.path().string()))) // Returns error if RIN file is incorrect
-			{
-				if (verbose)
+            if ((error = Motif::is_valid_RIN(it.path().string()))) // Returns error if RIN file is incorrect
+            {
+                if (verbose)
                 {
                     cerr << "\t> Ignoring RIN " << it.path().stem();
                     switch (error)
                     {
                         case 'l': cerr << ", too short to be considered."; break;
                         case 'x': cerr << ", because not constraining the secondary structure."; break;
-						default: cerr << ", unknown reason";
+                        default: cerr << ", unknown reason";
                     }
                     cerr << endl;
                 }
-				errors++;
+                errors++;
                 continue;
-			}
+            }
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
@@ -264,12 +254,12 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         size_t        errors   = 0;
 
         // Read every JSON files
-		vector<pair<uint,char>> errors_id;
+        vector<pair<uint,char>> errors_id;
         for (auto it : recursive_directory_range(source_path))
         {
             errors_id = Motif::is_valid_JSON(it.path().string());
-			if (!(errors_id.empty())) // Returns error if JSON file is incorrect
-			{ 
+            if (!(errors_id.empty())) // Returns error if JSON file is incorrect
+            { 
                 for(uint j = 0; j < errors_id.size(); j++)
                 {
                     if(verbose) {
@@ -293,7 +283,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                     }
                 }
                 errors++;
-			}
+            }
             accepted++;
             args_of_parallel_func args(it.path(), posInsertionSites_access);
             inserted++;
@@ -306,7 +296,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     }
     else
     {
-        cout << "!!! Unknown module source" << endl;
+        cout << "Err: Unknown module source." << endl;
     }
 
     // Add the Cx,i,p decision variables
@@ -1103,7 +1093,7 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
     std::ifstream                 motif;
-	string 	                      filepath = rinfile.string();
+    string                           filepath = rinfile.string();
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
     uint                          carnaval_id;
@@ -1112,7 +1102,7 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     string                        reversed_rna = rna_.get_seq();
 
     std::reverse(reversed_rna.begin(), reversed_rna.end());
-	filenumber = filepath.substr(filepath.find("Subfiles/")+9, filepath.find(".txt"));
+    filenumber = filepath.substr(filepath.find("Subfiles/")+9, filepath.find(".txt"));
     carnaval_id = 1 + stoi(filenumber); // Start counting at 1 to be consistant with the website numbering
 
     motif = std::ifstream(rinfile.string());
@@ -1137,13 +1127,13 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     {
         Motif temp_motif = Motif(v, rinfile, carnaval_id, false);
 
-		bool unprobable = false;
-		for (const Link& l : temp_motif.links_)
-		{
-			if (!allowed_basepair(l.nts.first,l.nts.second))
-				unprobable = true;
-		}
-		if (unprobable) continue;
+        bool unprobable = false;
+        for (const Link& l : temp_motif.links_)
+        {
+            if (!allowed_basepair(l.nts.first,l.nts.second))
+                unprobable = true;
+        }
+        if (unprobable) continue;
 
         // Add it to the results vector
         unique_lock<mutex> lock(posInsertionSites_access);
@@ -1328,7 +1318,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
     std::ifstream                 motif;
-	string 	                      filepath = jsonfile.string();
+    string                           filepath = jsonfile.string();
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
     vector<string>                component_contacts;

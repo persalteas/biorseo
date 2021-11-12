@@ -9,7 +9,7 @@ CC	   = g++
 CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(CPLEX)/concert/include -I$(CPLEX)/cplex/include -g -O3
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-deprecated-copy -Wno-ignored-attributes
 LINKER   = g++
-LDFLAGS  = -L$(CPLEX)/concert/lib/x86-64_linux/static_pic/ -L$(CPLEX)/cplex/lib/x86-64_linux/static_pic/ -lboost_system -lboost_filesystem -lboost_program_options -lgomp -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm
+LDFLAGS  = -Wno-free-nonheap-object -L$(CPLEX)/concert/lib/x86-64_linux/static_pic/ -L$(CPLEX)/cplex/lib/x86-64_linux/static_pic/ -lboost_system -lboost_filesystem -lboost_program_options -lgomp -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc
@@ -32,7 +32,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 	@echo -e "\033[00;32mCompiled "$<".\033[00m"
 
 .PHONY: all
-all: $(BINDIR)/$(TARGET) doc
+all: $(BINDIR)/$(TARGET)
 
 .PHONY: re
 re: remove clean all

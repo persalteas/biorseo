@@ -6,8 +6,6 @@ from math import sqrt, ceil
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
 log_path = "test.log"
 log = open(log_path, 'a')
 
@@ -112,7 +110,7 @@ def get_list_str_by_seq(name, estimator, function, list_str, true_str, modules):
         max_mcc = get_mcc_structs_max(path_benchmark, name, estimator, function, extension, modules, true_str)
         list_str.append(max_mcc)
 
-# ================== Code from Louis Beckey Benchark.py ==============================
+# ================== Code from Louis Becquey Benchark.py ==============================
 def dbn_to_basepairs(structure):
     parenthesis = []
     brackets = []
@@ -199,7 +197,7 @@ def f1_score(tp, tn, fp, fn):
 def specificity(tp, tn, fp, fn):
     return tn / (tn + fp)
 
-# ================== Code from Louis Beckey Benchark.py ==============================
+# ================== Code from Louis Becquey Benchark.py ==============================
 
 #Get the best MCC value for all prediction of the results file of the sequence in argument
 def get_mcc_structs_max(path_benchmark, sequence_id, estimator, function, extension, modules, true_structure):
