@@ -1,15 +1,4 @@
-.vscode/*
 .vscode
-
-# LaTeX temporary files
-doc/*.toc
-doc/*.bbl
-doc/*.gz
-doc/*.log
-doc/*.aux
-doc/*.blg
-doc/*.fls
-doc/*.fdb_latexmk
 
 # Docker installation temporary files
 eigen-eigen-323c052e1731
@@ -20,7 +9,6 @@ ViennaRNA-2.4.13
 
 # Compiled Object files
 obj/*
-doc/*.pdf
 data/modules/RIN/__pycache__
 
 # Executables
