@@ -11,16 +11,6 @@ using namespace boost::filesystem;
 using namespace std;
 using json = nlohmann::json;
 
-struct recursive_directory_range {
-    typedef recursive_directory_iterator iterator;
-    recursive_directory_range(path p) : p_(p) {}
-
-    iterator begin() { return recursive_directory_iterator(p_); }
-    iterator end() { return recursive_directory_iterator(); }
-
-    path p_;
-};
-
 Motif::Motif(void) {}
 
 Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
@@ -275,6 +265,161 @@ char Motif::is_valid_RIN(const string& rinfile)
     return (char) 0;
 }
 
+vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
+{
+    // returns 0 if no errors
+    std::ifstream  motif;
+    motif = std::ifstream(jsonfile);
+    json js = json::parse(motif);
+    vector<pair<uint,char>> errors_id;
+    vector<string> components;
+    uint fin = 0;
+
+    std::string keys[6] = {"contacts", "occurences", "pdb", "pfam", "sequence", "struct2d"};
+
+    // Iterating over Motifs
+    for (auto i = js.begin(); i != js.end(); ++i) {
+        int j = 0;
+        string id = i.key();
+        size_t size;
+        string complete_seq;
+        string contacts;
+
+        // Iterating over json keys
+        for (auto it = js[id].begin(); it != js[id].end(); ++it) {
+            // it.key() contains the key, and it.value() the field's value.
+            string curr_key = it.key();
+            
+            if (curr_key.compare(keys[j]))
+            { 
+                //std::cout << "error header : keys[" << j << "]: " << keys[j] << " vs curr_key: " << curr_key << endl;
+                errors_id.push_back(make_pair(stoi(id), 'd')); 
+                //return 'd'; 
+            } 
+            else if(!curr_key.compare(keys[5])) // This is the secondary structure field
+            {
+                string ss = it.value();
+                if (ss.empty()) {
+                    errors_id.push_back(make_pair(stoi(id), 'f'));
+                    break;
+                } else if (!checkSecondaryStructure(ss)) {
+                    errors_id.push_back(make_pair(stoi(id), 'n'));
+                    break;
+                } else if (ss.size() != complete_seq.size()) {
+                    errors_id.push_back(make_pair(stoi(id), 'x'));
+                    break;
+                }
+            } 
+            else if(!curr_key.compare(keys[0])) // This is the contacts field
+            {
+                contacts = it.value();
+            } 
+            else if (!curr_key.compare(keys[4])) // This is the sequence field
+            {
+                string seq = it.value();
+                size = count_nucleotide(seq);
+                complete_seq = seq;
+                if (seq.empty()) {
+                    errors_id.push_back(make_pair(stoi(id), 'e'));
+                    break;
+                } 
+                if (size < 4) {
+                    errors_id.push_back(make_pair(stoi(id), 'l'));
+                    break;
+                }
+                size_t count_contact = count_delimiter(contacts);
+                size_t count_seq = count_delimiter(seq);
+                if (count_contact != count_seq) {
+                    errors_id.push_back(make_pair(stoi(id), 'a'));
+                    break;
+                }
+                if (contacts.size() != seq.size()) {
+                    errors_id.push_back(make_pair(stoi(id), 'b'));
+                    break;
+                }
+
+                // Iterate on components to check their length
+                string subseq;
+                while((seq.find('&') != string::npos)) {
+                    fin = seq.find('&');  
+                    subseq = seq.substr(0, fin);
+                    seq = seq.substr(fin + 1);
+                    if (subseq.size() >= 2) {
+                        components.push_back(subseq); 
+                    } else {
+                        //errors_id.push_back(make_pair(stoi(id), 'k'));
+                    }
+                }
+                if (seq.size() >= 2) { // Last component after the last &
+                    components.push_back(seq); 
+                } else {
+                    //errors_id.push_back(make_pair(stoi(id), 'k'));
+                }
+
+                size_t n = 0;
+                for (uint ii = 0; ii < components.size(); ii++) {
+                    n += components[ii].size();
+                }
+                if(n <= 3) {
+                    errors_id.push_back(make_pair(stoi(id), 'l'));
+                }
+            }
+            j++;
+        }
+    }
+    return errors_id;
+}
+
+//count the number of nucleotide in the motif sequence
+size_t count_nucleotide(string& seq) {
+    size_t count = 0;
+    for(uint i = 0; i < seq.size(); i++) {
+        char c = seq.at(i);
+        if (c != '&') {
+            count++;
+        }
+    }
+    return count;
+}
+
+//count the number of '&' in the motif sequence
+size_t count_delimiter(string& seq) {
+    size_t count = 0;
+    for(uint i = 0; i < seq.size(); i++) {
+        char c = seq.at(i);
+        if (c == '&') {
+            count++;
+        }
+    }
+    return count;
+}
+
+//count the number of '*' in the motif
+size_t count_contacts(string& contacts) {
+    
+    size_t count = 0;
+    for (uint i = 0; i < contacts.size(); i++) {
+        if (contacts[i] == '*') {
+            count++;
+        }
+    }
+    return count;
+}
+
+//Check if the sequence is a rna sequence (ATGC) and replace T by U or remove modified nucleotide if necessary
+string check_motif_sequence(string seq) {
+    std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+    for (int i = seq.size(); i >= 0; i--) {
+        if(seq[i] == 'T') {
+            seq[i] = 'U';
+        } else if (!(seq [i] == 'A' || seq [i] == 'U' || seq [i] == '&'
+        || seq [i] == 'G' || seq [i] == 'C')) {
+            seq = seq.erase(i,1);
+        }
+    }
+    return seq;
+}
+
 //check that there are as many opening parentheses as closing ones
 bool checkSecondaryStructure(string struc)
 { 
@@ -331,135 +476,137 @@ bool checkSecondaryStructure(string struc)
     return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
 }
 
-//count the number of nucleotide in the motif sequence
-size_t count_nucleotide(string& seq) {
-    size_t count = 0;
-    for(uint i = 0; i < seq.size(); i++) {
-        char c = seq.at(i);
-        if (c != '&') {
-            count++;
-        }
+// Converts a dot-bracket motif secondary structure to vector of Link
+vector<Link> build_motif_pairs(string& struc, vector<Component>& v) {
+    
+    vector<Link> vec; 
+    stack<uint> parentheses;
+    stack<uint> crochets;
+    stack<uint> accolades;
+    stack<uint> chevrons;
+    
+    uint count = 0;
+    uint debut = v[count].pos.first;
+    uint gap = 0;
+
+    for (uint i = 0; i < struc.size(); i++) {
+        if (struc[i] == '(') {
+            parentheses.push(i + debut + gap - count);
+        } else if (struc[i] == ')') {
+            Link l;
+            l.nts.first = parentheses.top();
+            l.nts.second = i + debut + gap - count;
+            vec.push_back(l);
+            parentheses.pop();
+        } else if (struc[i] == '[') {
+            crochets.push(i + debut + gap - count);
+        } else if (struc[i] == ']') {
+            Link l;
+            l.nts.first = crochets.top();
+            l.nts.second = i + debut + gap - count;
+            vec.push_back(l);
+            crochets.pop();
+        } else if (struc[i] == '{') {
+            accolades.push(i + debut + gap - count);
+        } else if (struc[i] == '}') {
+            Link l;
+            l.nts.first = accolades.top();
+            l.nts.second = i + debut + gap - count;
+            vec.push_back(l);
+            accolades.pop();
+        } else if (struc[i] == '<') {
+            chevrons.push(i + debut + gap - count);
+        } else if (struc[i] == '>') {
+            Link l;
+            l.nts.first = chevrons.top();
+            l.nts.second = i + debut + gap - count;
+            vec.push_back(l);
+            chevrons.pop();
+        } else if (struc[i] == '&') {
+            count ++;
+            gap += v[count].pos.first - v[count - 1].pos.second - 1;
+       }
     }
-    return count;
+    return vec;
 }
 
-//count the numbre of '&' in the motif sequence
-size_t count_delimiter(string& seq) {
-    size_t count = 0;
-    for(uint i = 0; i < seq.size(); i++) {
-        char c = seq.at(i);
-        if (c == '&') {
-            count++;
+uint find_max_occurrences(string& filepath) {
+    uint max = 0;
+    std::ifstream in = std::ifstream(filepath);
+    json js = json::parse(in);
+    string contacts_id;
+
+    for(auto it = js.begin(); it != js.end(); ++it) {
+        contacts_id = it.key();
+        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
+            string test = it2.key(); 
+             if (!test.compare("occurences")) {
+                uint occ = it2.value();
+                if (occ > max) {
+                    max = occ;
+                }
+             }
         }
-    }
-    return count;
+     }
+    return max;
 }
 
-vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
-{
-    // /!\ returns 0 if no errors
-    std::ifstream  motif;
-    motif = std::ifstream(jsonfile);
-    json js = json::parse(motif);
-    vector<pair<uint,char>> errors_id;
-    vector<string> components;
-    uint fin = 0;
+uint find_max_sequence(string& filepath) {
+    uint max = 0;
+    std::ifstream in = std::ifstream(filepath);
+    json js = json::parse(in);
+    string contacts_id;
+    string seq;
 
-    std::string keys[6] = {"contacts", "occurences", "pdb", "pfam", "sequence", "struct2d"};
-    // Iterating over Motifs
-    for (auto i = js.begin(); i != js.end(); ++i) {
-        int j = 0;
-        string id = i.key();
-        size_t size;
-        string complete_seq;
-        string contacts;
-        //cout << id << ": " << endl;
-
-        // Iterating over json keys
-        for (auto it = js[id].begin(); it != js[id].end(); ++it) {
-            string test = it.key();
-            //std::cout << "test: " << test << endl;
-            if (test.compare(keys[j]))
-            { 
-                //std::cout << "error header : keys[" << j << "]: " << keys[j] << " vs test: " << test << endl;
-                errors_id.push_back(make_pair(stoi(id), 'd')); 
-                //return 'd'; 
-            } 
-            else if(!test.compare(keys[5])) // This is the secondary structure field
-            {
-                //std::cout << "struct2d: " << it.value() << endl;
-                string ss = it.value();
-                if (ss.empty()) {
-                    errors_id.push_back(make_pair(stoi(id), 'f'));
-                    break;
-                } else if (!checkSecondaryStructure(ss)) {
-                    errors_id.push_back(make_pair(stoi(id), 'n'));
-                    break;
-                } else if (ss.size() != complete_seq.size()) {
-                    errors_id.push_back(make_pair(stoi(id), 'x'));
-                    break;
-                }
-            } 
-            else if(!test.compare(keys[0])) // This is the contacts field
-            {
-                //std::cout << "struct2d: " << it.value() << endl;
-                contacts = it.value();
-            } 
-            else if (!test.compare(keys[4])) // This is the sequence field
-            {
-                //std::cout << "sequence: " << it.value() << "\n";
-                string seq = it.value();
-                size = count_nucleotide(seq);
-                complete_seq = seq;
-                if (seq.empty()) {
-                    errors_id.push_back(make_pair(stoi(id), 'e'));
-                    break;
-                } 
-                if (size < 4) {
-                    errors_id.push_back(make_pair(stoi(id), 'l'));
-                    break;
-                }
-                size_t count_contact = count_delimiter(contacts);
-                size_t count_seq = count_delimiter(seq);
-                if (count_contact != count_seq) {
-                    errors_id.push_back(make_pair(stoi(id), 'a'));
-                    break;
-                }
-                if (contacts.size() != seq.size()) {
-                    errors_id.push_back(make_pair(stoi(id), 'b'));
-                    break;
-                }
-
-                // Iterate on components to check their length
-                string subseq;
-                while((seq.find('&') != string::npos)) {
-                    fin = seq.find('&');  
-                    subseq = seq.substr(0, fin);
-                    seq = seq.substr(fin + 1);
-                    if (subseq.size() >= 2) {
-                        components.push_back(subseq); 
-                    } else {
-                        //errors_id.push_back(make_pair(stoi(id), 'k'));
-                    }
-                }
-                if (seq.size() >= 2) { // Last component after the last &
-                    components.push_back(seq); 
-                } else {
-                    //errors_id.push_back(make_pair(stoi(id), 'k'));
-                }
-
-                size_t n = 0;
-                for (uint ii = 0; ii < components.size(); ii++) {
-                    n += components[ii].size();
-                }
-                if(n <= 3) {
-                    errors_id.push_back(make_pair(stoi(id), 'l'));
+    for(auto it = js.begin(); it != js.end(); ++it) {
+        contacts_id = it.key();
+        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
+            string test = it2.key(); 
+            if (!test.compare("sequence")) {
+                seq = it2.value();
+                uint size = seq.size();
+                if (size > max) {
+                    max = size;
                 }
             }
-            j++;
         }
+     }
+    return max;
+}
+
+vector<string> find_components(string& sequence, string delimiter) {
+    vector<string> list;
+    string seq = sequence;
+    string subseq;
+    uint fin = 0;
+
+    while(seq.find(delimiter) != string::npos) {
+        fin = seq.find(delimiter);
+        
+        subseq = seq.substr(0, fin);
+        seq = seq.substr(fin + 1);
+        list.push_back(subseq); // new component sequence
+    } 
+    if (!seq.empty()) {
+        list.push_back(seq);
     }
-    return errors_id;
+    return list;
+}
+
+vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
+    vector<uint> positions;
+    string delimiter = "*";
+    uint debut;
+    for (uint i = 0; i < v.size(); i++) {
+        debut = v[i].pos.first;
+        uint pos = struc2d[i].find(delimiter, 0);
+        while(pos != string::npos && pos <= struc2d[i].size())
+        {   
+            positions.push_back(pos + debut);
+            pos = struc2d[i].find(delimiter, pos+1);
+        } 
+    }
+    return positions;
 }
 
 bool is_desc_insertible(const string& descfile, const string& rna)

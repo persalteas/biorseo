@@ -86,6 +86,18 @@ vector<Motif>               load_json_folder(const string& path, const string& r
 vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string>& vc);
 vector<vector<Component>>   json_find_next_ones_in(string rna, uint offset, vector<string>& vc);
 
+// utilities for Json motifs
+size_t count_nucleotide(string&);
+size_t count_delimiter(string&);
+size_t count_contacts(string&);
+string check_motif_sequence(string);
+bool checkSecondaryStructure(string);
+vector<Link> build_motif_pairs(string&, vector<Component>&);
+uint find_max_occurrences(string&);
+uint find_max_sequence(string&);
+vector<string> find_components(string&, string);
+vector<uint> find_contacts(vector<string>&, vector<Component>&);
+
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);
 bool operator!=(const Motif& m1, const Motif& m2);

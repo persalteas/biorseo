@@ -74,67 +74,57 @@ int main(int argc, char* argv[])
     ("help,h", "Print the help message")
     ("version", "Print the program version")
     ("seq,s", po::value<string>(&inputName)->required(), "Fasta file containing the RNA sequence")
-    ("descfolder,d", po::value<string>(&motifs_path_name), "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program")
-    ("rinfolder,x", po::value<string>(&motifs_path_name), "A folder containing CaRNAval's RINs in .txt format, as produced by script transform_caRNAval_pickle.py")
-    ("jsonfolder,a", po::value<string>(&motifs_path_name), "A folder containing a custom motif library in .json format")
-    
-    ("jar3dcsv,j",          po::value<string>(&motifs_path_name), "A file containing the output of JAR3D's search for motifs in the sequence, as produced by biorseo.py")
-    ("bayespaircsv,b",      po::value<string>(&motifs_path_name), "A file containing the output of BayesPairing's search for motifs in the sequence, as produced by biorseo.py")
-    ("first-objective,c",   po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(2), "Objective to solve in the mono-objective portions of the algorithm")
+    ("descfolder,d", po::value<string>(&motifs_path_name), "A folder containing modules in .desc format, as produced by Djelloul & Denise's catalog program (deprecated)")
+    ("rinfolder,r", po::value<string>(&motifs_path_name), "A folder containing CaRNAval's RINs in .txt format, as produced by script transform_caRNAval_pickle.py")
+    ("jsonfolder,j", po::value<string>(&motifs_path_name), "A folder containing a custom motif library in .json format")
+    ("pre-placed,x", po::value<string>(&motifs_path_name), "A CSV file providing motif insertion sites obtained with another tool.")
+    ("function,f", po::value<char>(&obj_function_nbr)->default_value('B'), 
+                    "(A, B, C, D, E or F) Objective function to score module insertions:\n"
+                    "  (A) insert big modules\n  (B) light, high-order modules\n"
+                    "  (C) well-scored modules\n  (D) light, high-order, well-scored\n    modules\n"
+                    "  (E, F) insert big modules with many\n   contacts with proteins, different\n   ponderations.\n"
+                    "  C and D require position scores\n  provided by --pre-placed.\n"
+                    "  E and F require protein-contact\n  information and should be\n  used only with --jsonfolder.")    
+    ("mfe,E", "Minimize stacking energies\n  (leads to MFE extimator)")
+    ("mea,A", "(default) Maximize expected accuracy\n  (leads to MEA estimator)")
+    ("first-objective,c",   po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(2), 
+                    "(1 or 2) Objective to solve in the mono-objective portions of the algorithm.\n"
+                    "  (1) is the module objective,\n  given by --function\n"
+                    "  (2) is energy-based objective,\n  either MFE or MEA")
     ("output,o",            po::value<string>(&outputName), "A file to summarize the computation results")
     ("theta,t",             po::value<float>(&theta_p_threshold)->default_value(1e-3, "0.001"), "Pairing probability threshold to consider or not the possibility of pairing")
-    ("function,f",          po::value<char>(&obj_function_nbr)->default_value('B'), "What objective function to use to include motifs: square of motif size in nucleotides like "
-    "RNA-MoIP (A), light motif size + high number of components (B), site score (C), light motif size + site score + high number of components (D)")
-    
-    ("mfe,E", "Minimize stacking energies as second criteria (should lead to MFE structure)")
-    ("mea,A", "(default) Maximize expected accuracy as second criteria (should lead to MEA structure)")
-
     ("disable-pseudoknots,n", "Add constraints forbidding the formation of pseudoknots")
     ("limit,l", po::value<unsigned int>(&MOIP::max_sol_nbr_)->default_value(500), "Intermediate number of solutions in the Pareto set above which we give up the calculation.")
-    ("verbose,v", "Print what is happening to stdout");
+    ("verbose,v", "Print what is happening to console");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     basename = remove_ext(inputName.c_str(), '.', '/');
 
     try {
         po::store(po::parse_command_line(argc, argv, desc), vm);    // can throw
-        po::notify(vm);
 
         if (vm.count("help") or vm.count("-h")) {
-            cout << "Biorseo, bio-objective integer linear programming framework to predict RNA secondary "
-                    "structures by including known RNA modules."
-                 << endl
-                 << "developped by Louis Becquey, 2018-2021" << endl
-                 << "Lénaïc Durand, 2019" << endl
-                 << "Nathalie Bernard, 2021" << endl
-                 << endl
-                 << desc << endl;
+            cout << "Biorseo, Bi-Objective RNA Structure Efficient Optimizer" << endl
+                << "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules." << endl
+                << "Developped by Louis Becquey, 2018-2021\nLénaïc Durand, 2019\nNathalie Bernard, 2021" << endl << endl
+                << "Usage:\tYou must provide:\n\t1) a FASTA input file with -s," << endl
+                << "\t2) a module type with --rna3dmotifs, --carnaval, --contacts or --pre-placed," << endl
+                << "\t3) one module-based scoring function with --func A, B, C, D, E or F," << endl
+                << "\t4) one energy-based scoring function with --mfe or --mea," << endl
+                << "\t5) how to display results: in console (-v), or in a result file (-o)." << endl
+                << endl
+                << desc << endl;
             return EXIT_SUCCESS;
         }
         if (vm.count("version")) {
             cout << "Biorseo v2.1, dockerized, November 2021" << endl;
             return EXIT_SUCCESS;
         }
+        po::notify(vm);    // throws on error, so do after help in case there are any problems
         if (vm.count("mfe")) mea_or_mfe = 'a';
         if (vm.count("mea")) mea_or_mfe = 'b';
         if (vm.count("verbose")) verbose = true;
         if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
-
-        if (!vm.count("jar3dcsv") and !vm.count("bayespaircsv") and !vm.count("descfolder") and !vm.count("rinfolder") and !vm.count("jsonfolder")) {
-            cerr << "\033[31mYou must provide at least one of --descfolder, --rinfolder, --jsonfolder, --jar3dcsv or --bayespaircsv.\033[0m See --help "
-                    "for more information."
-                 << endl;
-            return EXIT_FAILURE;
-        }
-
-        if ((vm.count("descfolder") or vm.count("jsonfolder") or vm.count("rinfolder")) and (obj_function_nbr == 'C' or obj_function_nbr == 'D')) {
-            cerr << "\033[31mYou must provide --jar3dcsv or --bayespaircsv to use --function C or --function D.\033[0m See "
-                    "--help for more information."
-                 << endl;
-            return EXIT_FAILURE;
-        }
-
-        po::notify(vm);    // throws on error, so do after help in case there are any problems
     } catch (po::error& e) {
         cerr << "ERROR: \033[31m" << e.what() << "\033[0m" << endl;
         cerr << desc << endl;
@@ -158,7 +148,7 @@ int main(int argc, char* argv[])
     myRNA = RNA(fa->name(), fa->seq(), verbose);
     if (verbose) cout << "\t> " << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
-    // load CSV file
+    // check motif folder exists
     if (access(motifs_path_name.c_str(), F_OK) == -1) {
         cerr << "\033[31m" << motifs_path_name << " not found\033[0m" << endl;
         return EXIT_FAILURE;
@@ -167,16 +157,14 @@ int main(int argc, char* argv[])
 
     /*  FIND PARETO SET  */
     string source;
-    if (vm.count("jar3dcsv"))
-        source = "jar3dcsv";
-    else if (vm.count("bayespaircsv"))
-        source = "bayespaircsv";
-    else if (vm.count("rinfolder"))
+    if (vm.count("rinfolder"))
         source = "rinfolder";
     else if (vm.count("descfolder"))
         source = "descfolder";
     else if (vm.count("jsonfolder"))
         source = "jsonfolder";
+    else if (vm.count("pre-placed"))
+        source = "csvfile";
     else
         cerr << "ERR: no source of modules provided !" << endl;
     
@@ -254,22 +242,12 @@ int main(int argc, char* argv[])
         if (verbose) cout << "Saving structures to " << outputName << "..." << endl;
         outfile.open(outputName);
         outfile << fa->name() << endl << fa->seq() << endl;
+    
         for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
             outfile << myMOIP.solution(i).to_string() << endl << structure_with_contacts(myMOIP.solution(i)) << endl;
             string str1 = myMOIP.solution(i).to_string();
 
-            // Check if the best score for obj2 is actually included in the results
-            // string delimiter = "\t";
-            // string obj2 = str1.substr(str1.find(delimiter) + delimiter.size());
-            // obj2 = obj2.substr(0, obj2.find(delimiter));
-            // if (obj2.compare(best_score) == 0)
-            //    flag = true;*/
         }
-        // if (!flag)
-        //     cout << "\033[1m\033[31mBest score not found for " << outputName << " !\033[0m" << endl;
-        // else
-        //     cout << "OK for "<< outputName << "!" << endl;
-
         outfile.close();
     }
 
