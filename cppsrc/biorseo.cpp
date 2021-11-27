@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
     string             inputName, outputName, motifs_path_name, basename;
     bool               verbose = false;
     float              theta_p_threshold;
-    int                obj_function_nbr, mychar;
+    char               obj_function_nbr;
     char               mea_or_mfe = 'b'; // a for MFE, b for MEA
     list<Fasta>        f;
     ofstream           outfile;
@@ -83,9 +83,8 @@ int main(int argc, char* argv[])
     ("first-objective,c",   po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(2), "Objective to solve in the mono-objective portions of the algorithm")
     ("output,o",            po::value<string>(&outputName), "A file to summarize the computation results")
     ("theta,t",             po::value<float>(&theta_p_threshold)->default_value(1e-3, "0.001"), "Pairing probability threshold to consider or not the possibility of pairing")
-    ("function,f",          po::value<int>(&obj_function_nbr)->default_value('B'), "What objective function to use to include motifs: square of motif size in nucleotides like "
+    ("function,f",          po::value<char>(&obj_function_nbr)->default_value('B'), "What objective function to use to include motifs: square of motif size in nucleotides like "
     "RNA-MoIP (A), light motif size + high number of components (B), site score (C), light motif size + site score + high number of components (D)")
-    ("plop,p",              po::value<int>(&mychar), "Just a test")
     
     ("mfe,E", "Minimize stacking energies as second criteria (should lead to MFE structure)")
     ("mea,A", "(default) Maximize expected accuracy as second criteria (should lead to MEA structure)")
@@ -99,6 +98,7 @@ int main(int argc, char* argv[])
 
     try {
         po::store(po::parse_command_line(argc, argv, desc), vm);    // can throw
+        po::notify(vm);
 
         if (vm.count("help") or vm.count("-h")) {
             cout << "Biorseo, bio-objective integer linear programming framework to predict RNA secondary "
@@ -132,8 +132,6 @@ int main(int argc, char* argv[])
                     "--help for more information."
                  << endl;
             return EXIT_FAILURE;
-        } else {
-            cout << "char: " << char(obj_function_nbr)  << " defaulted: " << vm["function"].defaulted() << " plop: " << vm.count("plop") << " " << char(mychar) << endl;
         }
 
         po::notify(vm);    // throws on error, so do after help in case there are any problems
@@ -182,8 +180,6 @@ int main(int argc, char* argv[])
     else
         cerr << "ERR: no source of modules provided !" << endl;
     
-    return 0;
-
     MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), theta_p_threshold, verbose);
     double             min, max;
     IloConstraintArray F(myMOIP.get_env());
