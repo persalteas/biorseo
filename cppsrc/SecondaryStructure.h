@@ -30,7 +30,6 @@ class SecondaryStructure
     string to_DBN() const;
     string to_string() const;
 
-
     vector<double> objective_scores_;       // values of the different objective functions for that SecondaryStructure
     vector<pair<uint, uint>> basepairs_;    // values of the decision variable of the integer program
     vector<Motif> motif_info_;    // information about known motives in this secondary structure and their positions
@@ -57,6 +56,8 @@ inline double SecondaryStructure::get_objective_score(int i) const { return obje
 inline void   SecondaryStructure::set_objective_score(int i, double s) { objective_scores_[i - 1] = s; }
 inline uint   SecondaryStructure::get_n_motifs(void) const { return motif_info_.size(); }
 inline uint   SecondaryStructure::get_n_bp(void) const { return nBP_; }
+
+string structure_with_contacts(const SecondaryStructure& ss);
 
 
 #endif    //  SECONDARY_STRUCTURE_

@@ -9,7 +9,7 @@ CC	   = g++
 CFLAGS   = -Icppsrc/ -I/usr/local/include -I$(CPLEX)/concert/include -I$(CPLEX)/cplex/include -g -O3
 CXXFLAGS = --std=c++17 -Wall -Wpedantic -Wextra -Wno-deprecated-copy -Wno-ignored-attributes
 LINKER   = g++
-LDFLAGS  = -L$(CPLEX)/concert/lib/x86-64_linux/static_pic/ -L$(CPLEX)/cplex/lib/x86-64_linux/static_pic/ -lboost_system -lboost_filesystem -lboost_program_options -lgomp -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm
+LDFLAGS  = -Wno-free-nonheap-object -L$(CPLEX)/concert/lib/x86-64_linux/static_pic/ -L$(CPLEX)/cplex/lib/x86-64_linux/static_pic/ -lboost_system -lboost_filesystem -lboost_program_options -lgomp -lconcert -lilocplex -lcplex -lpthread -ldl -lRNA -lm
 
 # change these to proper directories where each file should be
 SRCDIR   = cppsrc
@@ -31,20 +31,8 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(INCLUDES)
 	$(CC) -c $(CFLAGS) $(CXXFLAGS) $< -o $@
 	@echo -e "\033[00;32mCompiled "$<".\033[00m"
 
-doc: mainpdf supppdf
-	@echo -e "\033[00;32mLaTeX documentation rendered.\033[00m"
-
-mainpdf: doc/main_bioinformatics.tex doc/references.bib doc/bioinfo.cls doc/natbib.bst
-	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
-	cd doc; bibtex main_bioinformatics
-	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
-	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error main_bioinformatics
-
-supppdf: doc/supplementary_material.tex
-	cd doc; pdflatex -synctex=1 -interaction=nonstopmode -file-line-error supplementary_material
-
 .PHONY: all
-all: $(BINDIR)/$(TARGET) doc
+all: $(BINDIR)/$(TARGET)
 
 .PHONY: re
 re: remove clean all

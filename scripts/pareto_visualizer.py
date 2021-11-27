@@ -28,17 +28,18 @@
 from math import sqrt
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm 
+from matplotlib import cm
 import scipy.stats as st
 import sys
 import os
 import subprocess
 import getopt
 
+
 class SecStruct:
     def __init__(self, dot_bracket, obj1_value, obj2_value):
         self.dbn = dot_bracket
-        self.objectives = [ obj1_value, obj2_value ]
+        self.objectives = [obj1_value, obj2_value]
         self.basepair_list = self.get_basepairs()
         self.length = len(dot_bracket)
 
@@ -96,9 +97,9 @@ class SecStruct:
         tn = reference_structure.length * (reference_structure.length - 1) * 0.5 - fp - fn - tp
 
         # Compute MCC
-        if (tp+fp == 0):
+        if (tp + fp == 0):
             print("We have an issue : no positives detected ! (linear structure)")
-        return (tp*tn-fp*fn) / sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn))
+        return (tp * tn - fp * fn) / sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
 
 
 class Pareto:
@@ -106,16 +107,16 @@ class Pareto:
         self.predictions = list_of_structs
         self.true_structure = reference
         self.n_pred = len(list_of_structs)
-        self.max_obj1 = max([ s.objectives[0] for s in self.predictions ])
-        self.max_obj2 = max([ s.objectives[1] for s in self.predictions ])
+        self.max_obj1 = max([s.objectives[0] for s in self.predictions])
+        self.max_obj2 = max([s.objectives[1] for s in self.predictions])
         self.index_of_best = self.find_best_solution()
-        
+
     def find_best_solution(self):
         # returns the index of the solution of the Pareto set which is the closest
         # to the real 2D structure (the one with the max MCC)
         max_i = -1
         max_mcc = -1
-        for i,s in enumerate(self.predictions):
+        for i, s in enumerate(self.predictions):
             mcc = s.get_MCC_with(self.true_structure)
             if mcc > max_mcc:
                 max_mcc = mcc
@@ -125,15 +126,15 @@ class Pareto:
     def get_normalized_coords(self):
         # retrieves the objective values of the best solution and normlizes them
         coords = self.predictions[self.index_of_best].objectives
-        if self.max_obj1: # avoid divide by zero if all solutions are 0
-            x = coords[0]/self.max_obj1
+        if self.max_obj1:  # avoid divide by zero if all solutions are 0
+            x = coords[0] / self.max_obj1
         else:
             x = 0.5
-        if self.max_obj2: # avoid divide by zero if all solutions are 0
-            y = coords[1]/self.max_obj2
+        if self.max_obj2:  # avoid divide by zero if all solutions are 0
+            y = coords[1] / self.max_obj2
         else:
             y = 0.5
-        return ( x, y )
+        return (x, y)
 
 
 class RNA:
@@ -145,6 +146,8 @@ class RNA:
 
 
 ignored_nt_dict = {}
+
+
 def is_canonical_nts(seq):
     for c in seq[:-1]:
         if c not in "ACGU":
@@ -154,6 +157,7 @@ def is_canonical_nts(seq):
                 ignored_nt_dict[c] = 1
             return False
     return True
+
 
 def is_canonical_bps(struct):
     if "()" in struct:
@@ -203,6 +207,7 @@ def load_from_dbn(file, header_style=3):
     db.close()
     return container, pkcounter
 
+
 def parse_biokop(folder, basename, ext=".biok"):
     solutions = []
     err = 0
@@ -243,6 +248,7 @@ def parse_biokop(folder, basename, ext=".biok"):
             err = 1
     return None, err
 
+
 def parse_biorseo(folder, basename, ext):
     solutions = []
     err = 0
@@ -265,6 +271,7 @@ def parse_biorseo(folder, basename, ext):
             print("[%s] \033[36mWARNING: ignoring this RNA, only one 2D solution is found.\033[0m" % (basename))
             err = 1
     return None, err
+
 
 def prettify_biorseo(code):
     name = ""
@@ -301,8 +308,8 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
         print("[%s] Loaded %d solutions in a Pareto set, max(obj1)=%f, max(obj2)=%f" % (rna.basename_, pset.n_pred, pset.max_obj1, pset.max_obj2))
     print("Loaded %d points on %d." % (len(points), len(RNAcontainer)-skipped))
 
-    x = np.array([ p[0] for p in points ])
-    y = np.array([ p[1] for p in points ])
+    x = np.array([p[0] for p in points])
+    y = np.array([p[1] for p in points])
     xmin, xmax = 0, 1
     ymin, ymax = 0, 1
     xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
@@ -316,19 +323,21 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
     ax[pos].axvline(x=1, alpha=0.2, color='black')
     ax[pos].contourf(xx, yy, f, cmap=cm.Blues, alpha=0.5)
     ax[pos].scatter(x, y, s=25, alpha=0.1)
-    ax[pos].set_xlim((-0.1,1.1))
-    ax[pos].set_ylim((-0.1,1.1))
-    ax[pos].annotate("("+str(len(points))+'/'+str(len(RNAcontainer)-skipped)+" RNAs)", (0.08,0.15))
+    ax[pos].set_xlim((-0.1, 1.1))
+    ax[pos].set_ylim((-0.1, 1.1))
+    ax[pos].set_title(prettify_biorseo(ext[1:]), fontsize=10)
+    ax[pos].annotate("(" + str(len(points)) + '/' + str(len(RNAcontainer)-skipped) + " RNAs)", (0.08, 0.15))
     ax[pos].set_xlabel(xlabel)
     ax[pos].set_ylabel(ylabel)
 
     if nsolutions:
-        ax[pos+1].hist(sizes, bins=range(0, max(sizes)+1, 2), histtype='bar')
-        ax[pos+1].set_xlim((0,max(sizes)+2))
-        ax[pos+1].set_xticks(range(0, max(sizes), 10))
-        ax[pos+1].set_xticklabels(range(0, max(sizes), 10), rotation=90)
-        ax[pos+1].set_xlabel("# solutions")
-        ax[pos+1].set_ylabel("# RNAs")
+        ax[pos + 1].hist(sizes, bins=range(0, max(sizes) + 1, 2), histtype='bar')
+        ax[pos + 1].set_xlim((0, max(sizes) + 2))
+        ax[pos + 1].set_xticks(range(0, max(sizes), 10))
+        ax[pos + 1].set_xticklabels(range(0, max(sizes), 10), rotation=90)
+        ax[pos + 1].set_xlabel("# solutions")
+        ax[pos + 1].set_ylabel("# RNAs")
+
 
 if __name__ == "__main__":
     try:

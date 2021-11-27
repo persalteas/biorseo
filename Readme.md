@@ -19,6 +19,7 @@ THEN
 OUTPUT:
 - A set of secondary structures from the Pareto front,
 - The list of known modules inserted inplace in the corresponding structures
+- A set of positions of the nucleotides in contact with the protein represented by asterisks (only if the motifs_28-05-2021.json library is used!)
 
 2/ The different models
 ==================================
@@ -28,7 +29,8 @@ Biorseo can be used with two modules datasets (yet):
 * Rna3Dmotifs (from the work of *Djelloul & Denise, 2008*)
 * The RNA 3D Motif Atlas of BGSU's RNA lab (*Petrov et al, 2013*, see http://rna.bgsu.edu/rna3dhub/motifs/)
 * CaRNAval 1.0 (*Reinhartz et al, 2018*)
-* RNA-Bricks 2, RNAMC, CaRNAval 2.0, and others could theoretically be used, but are not supported (yet). You might write your own API.
+* /data/modules/ISAURE/motifs_28-05-2021.json a library of motifs from RNA linked to a protein from Isaure Chauvot de Beauchêne of LORIA laboratory
+ (contact:isaure.chauvot-de-beauchene@loria.fr)
 
 PATTERN MATCHING STEP
 - Use **simple pattern matching**. Rna3Dmotifs modules are available with sequence information. We use regular expressions to find those known loops in your query. This is the approach of RNA-MoIP (*Reinharz et al, 2012*), we deal the same way with short components and wildcards.
@@ -43,6 +45,8 @@ OBJECTIVE FUNCTIONS FOR THE MODULE INSERTION CRITERIA
 * **Function B** : weights a module by its number of components (strands) and penalizes it by the log^(_2) of its nucleotide size.
 * **Function C** : weights a module by its insertion site score (JAR3D or BayesPairing score).
 * **Function D** : weights a module by its number of components (strands) and insertion site score (JAR3D or BayesPairing score), and penalizes it by the log^(_2) of its nucleotide size.
+* **Function E** : weights a module by its nucleotides in contact with a protein, number of occurences and number of nucleotides in the module.
+* **Function F** : weights a module by its nucleotides in contact with a protein, number of occurences and number of nucleotides along the entire length of the RNA.
 
 3/ Installation
 ==================================
@@ -55,22 +59,22 @@ Check the file [INSTALL.md](INSTALL.md) for installation instructions.
 
 - If you **might expect a pseudoknot, or don't know**:
     * The most promising method is the use of direct pattern matching with Rna3Dmotifs and function A. But this method is sometimes subject to combinatorial explosion issues. If you have a long RNA or a large number of loops, don't use it. Example:
-    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --rna3dmotifs --patternmatch --func A`
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --rna3dmotifs --patternmatch --func A --MEA`
     
     * The use of the RNA 3D Motif Atlas placed by JAR3D and scored with function A is not subject to combinatorial issues, but performs a bit worse. It also returns less solutions. Example:
-    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func A
+    `./biorseo.py -i PDB_00304.fa -O resultsFolder/ --3dmotifatlas --jar3d --func A --MEA
 
 5/ List of Options
 ==================================
 ```
 Usage:  You must provide:
         1) a FASTA input file with -i,
-        2) a module type with --rna3dmotifs, --carnaval or --3dmotifatlas
+        2) a module type with --rna3dmotifs, --carnaval, --3dmotifatlas or --contacts
         3) one module placement method in { --patternmatch, --jar3d, --bayespairing }
-        4) one scoring function with --func A, B, C or D
-
+        4) one scoring function with --func A, B, C, D, E ou F
+	5) one estimator betwenn --MEA or --MFE
         If you are not using the Docker image: 
-        5) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)
+        6) --modules-path, --biorseo-dir and (--jar3d-exec or --bypdir)
 
 Options:
 -h [ --help ]                   Print this help message
@@ -79,16 +83,21 @@ Options:
 --rna3dmotifs                   Use DESC modules from Djelloul & Denise, 2008
 --carnaval                      Use RIN modules from Reinharz & al, 2018
 --3dmotifatlas                  Use the HL and IL loops from BGSU's 3D Motif Atlas (updated)
+--contacts			Use the library of motifs, created from RNA sequences linked to proteins provided by I. Chauvot de Beauchene of LORIA laboratory
 -p [ --patternmatch ]           Use regular expressions to place modules in the sequence (requires --rna3dmotifs or --carnaval)
 -j [ --jar3d ]                  Use JAR3D to place modules in the sequence (requires --3dmotifatlas)
 -b [ --bayespairing ]           Use BayesPairing2 to place modules in the sequence (requires --rna3dmotifs or --3dmotifatlas)
 -o [ --output=… ]               File to summarize the results
 -O [ --outputf=… ]              Folder where to output result and temp files
--f [ --func=… ]                 (A, B, C or D, default is B) Objective function to score module insertions:
+-f [ --func=… ]                 (A, B, C, D, E or F default is B) Objective function to score module insertions:
                                   (A) insert big modules (B) insert light, high-order modules
-                                  (c) insert modules which score well with the sequence
+                                  (C) insert modules which score well with the sequence
                                   (D) insert light, high-order modules which score well with the sequence.
-                                  C and D require cannot be used with --patternmatch.
+                                  C and D cannot be used with --patternmatch.
+				  (E) and (F) insert modules with a lot of nucleotides and a lot of nucleotides in contact with a proteine, and a huge number of occurences. 
+				  (E) maximize the number of contact nucleotide inside the module, while (F) maximize the number of contact nucleotide along the entire length of the RNA.
+--MEA				Use Maximum Expected Accuracy for the second objective
+--MFE				Use Minimum Free Energy based on the formula of (*Legendre et al., 2018*) for the second objective
 -c [ --first-objective=… ]      (default 1) Objective to solve in the mono-objective portions of the algorithm.
                                   (1) is the module objective given by --func, (2) is the expected accuracy of the structure.
 -l [ --limit=… ]                (default 500) Number of solutions in the Pareto set from which
@@ -113,9 +122,9 @@ Options:
                                   BiORSEO from outside the docker image. Use the FULL path.
 
 Examples:
-biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B
-biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800
-biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D
+biorseo.py -i myRNA.fa -O myResultsFolder/ --rna3dmotifs --patternmatch --func B --MEA
+biorseo.py -i myRNA.fa -O myResultsFolder/ --3dmotifatlas --jar3d --func B -l 800 --MEA
+biorseo.py -i myRNA.fa -v --3dmotifatlas --bayespairing --func D --MEA
 
 The allowed module/placement-method/function combinations are:
 
@@ -123,5 +132,6 @@ The allowed module/placement-method/function combinations are:
 --rna3dmotifs     A. B.           A. B. C. D.
 --3dmotifatlas                    A. B. C. D.     A. B. C. D.
 --carnaval        A. B.
+--contacts 	  E. F.
 
 ```

@@ -20,13 +20,7 @@ typedef struct Comp_ {
     pair<uint, uint> pos;
     size_t           k;
     string           seq_;
-    uint             nb_pairing;         
     Comp_(pair<int, int> p) : pos(p) { k = 1 + pos.second - pos.first; }
-    Comp_(pair<int, int> p, uint nb_pair) : pos(p) 
-    { 
-        k = 1 + pos.second - pos.first; 
-        nb_pairing = nb_pair;
-    }
     Comp_(uint start, uint length) : k(length)
     {
         pos.first  = start;
@@ -64,6 +58,7 @@ class Motif
     string            get_identifier(void) const;
     vector<Component> comp;
     vector<Link>      links_;
+    vector<uint>      pos_contacts;
 
     size_t            contact_;
     double            tx_occurrences_;
@@ -89,7 +84,19 @@ vector<Motif>               load_csv(const string& path);
 vector<Motif>               load_json_folder(const string& path, const string& rna, bool verbose);
 
 vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string>& vc);
-vector<vector<Component>>   json_find_next_ones_in(string rna, uint offset, vector<string>& vc, vector<string>& vs);
+vector<vector<Component>>   json_find_next_ones_in(string rna, uint offset, vector<string>& vc);
+
+// utilities for Json motifs
+size_t count_nucleotide(string&);
+size_t count_delimiter(string&);
+size_t count_contacts(string&);
+string check_motif_sequence(string);
+bool checkSecondaryStructure(string);
+vector<Link> build_motif_pairs(string&, vector<Component>&);
+uint find_max_occurrences(string&);
+uint find_max_sequence(string&);
+vector<string> find_components(string&, string);
+vector<uint> find_contacts(vector<string>&, vector<Component>&);
 
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);
