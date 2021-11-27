@@ -235,7 +235,7 @@ class BiorseoInstance:
                 print("--rna3dmotifs     A. B.           A. B. C. D.")
                 print("--3dmotifatlas                    A. B. C. D.     A. B. C. D.")
                 print("--carnaval        A. B.")
-                print("--contacts        A. B. E. D.\n")
+                print("--contacts        A. B. E. F.\n")
                 sys.exit()
             elif opt == "-i" or opt == "--seq":
                 self.inputfile = arg

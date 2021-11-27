@@ -166,7 +166,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             {
                 if (verbose)
                 {
-                    cerr << "\t>Ignoring motif " << it.path().stem();
+                    cerr << "\t> Ignoring motif " << it.path().stem();
                     switch (error)
                     {
                         case '-': cerr << ", some nucleotides have a negative number..."; break;
@@ -1312,13 +1312,13 @@ vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
 void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
 {
     /*
-        Searches where to place some JSONs in the RNA
+        Searches where to place some JSON motifs in the RNA
     */
     path           jsonfile                 = arg_struct.motif_file;
     mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
     std::ifstream                 motif;
-    string                           filepath = jsonfile.string();
+    string                        filepath = jsonfile.string();
     vector<vector<Component>>     vresults, r_vresults;
     vector<string>                component_sequences;
     vector<string>                component_contacts;
@@ -1331,7 +1331,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
     size_t                        nb_contacts = 0;
     double                        tx_occurrences = 0;
 
-    // cout << filepath << endl;
     std::reverse(reversed_rna.begin(), reversed_rna.end());
     
     motif = std::ifstream(filepath);
@@ -1346,7 +1345,6 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
         contacts_id = it.key();
         comp = stoi(contacts_id);
 
-        //cout << "id: " << contacts_id << endl;
         // Check for known errors to ignore corresponding motifs
         if (comp == errors_id[it_errors].first) {    
             while (comp == errors_id[it_errors].first) {
@@ -1366,7 +1364,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
             else if (!field.compare(keys[1]))    // This is the occurences field
             {
                 occ = it2.value();
-                tx_occurrences = (double)occ; // / (double)max_occ;
+                tx_occurrences = (double)occ;    // (double)max_occ;
 
             } 
             else if (!field.compare(keys[2]))    // This is the pdb field
@@ -1379,7 +1377,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
                 seq = check_motif_sequence(it2.value());
                 component_sequences = find_components(seq, "&");
             } 
-            else if (!field.compare(keys[4]))       // This is the struct2D field
+            else if (!field.compare(keys[4]))    // This is the struct2D field
             {
                 struct2d = it2.value();      
             }     
@@ -1388,7 +1386,7 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
         for (vector<Component>& v : vresults)
         {
-            if (verbose_) cout << "\t> Considering motif JSON " << contacts_id << "\t" << seq << ", " << struct2d << ", " << endl;
+            if (verbose_) cout << "\t> Considering motif JSON " << contacts_id << "\t" << seq << ", " << struct2d << " ";
             
             Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
             temp_motif.links_ = search_pairing(struct2d, v);
@@ -1396,16 +1394,21 @@ void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pai
 
             // Check if the motif can be inserted, checking the basepairs probabilities and theta
             bool unprobable = false;
+            if (!temp_motif.links_.size()) {
+                if (verbose_) cout << "discarded, no constraints on the secondary structure, it is a useless motif." << endl;
+                continue;
+            }
+            if (verbose_) cout << "at position ";
             for (const Link& l : temp_motif.links_)
             {
                 if (verbose_) cout << l.nts.first << ',' << l.nts.second << ' '; 
-                if (!allowed_basepair(l.nts.first,l.nts.second)) {
+                if (!allowed_basepair(l.nts.first, l.nts.second)) {
                     if (verbose_) cout << "(unlikely) ";
                     unprobable = true;
                 }
             }
             if (unprobable) {
-                if (verbose_) cout << "discarded because of unlikely or impossible basepairs" << endl;
+                if (verbose_) cout << ", discarded because of unlikely or impossible basepairs" << endl;
                 continue;
             }
             if (verbose_) cout << endl;
