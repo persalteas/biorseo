@@ -174,10 +174,9 @@ def is_canonical_bps(struct):
         return False
     return True
 
-
-def load_from_dbn(file, header_style=1):
+def load_from_dbn(file, header_style=3):
     container = []
-    counter = 0
+    pkcounter = 0
 
     db = open(file, "r")
     c = 0
@@ -200,18 +199,18 @@ def load_from_dbn(file, header_style=1):
 
             if n < 10 or n > 100:
                 continue  # ignore too short and too long RNAs
-            if is_canonical_nts(seq) and is_canonical_bps(struct):
-                if header_style == 1: container.append(
-                    RNA(header.replace('/', '_').split('(')[-1][:-1], header, seq, struct))
-                if header_style == 2: container.append(
-                    RNA(header.replace('/', '_').split('[')[-1][:-41], header, seq, struct))
-                if '[' in struct: counter += 1
+            if is_canonical_nts(seq) and is_canonical_bps(struct) and '(' in struct:
+                if header_style == 1: container.append(RNA(header.replace('/', '_').split('(')[-1][:-1], header, seq, struct))
+                if header_style == 2: container.append(RNA(header.replace('/', '_').split('[')[-1][:-41], header, seq, struct))
+                if header_style == 3: container.append(RNA(header[1:], header, seq, struct))
+                if '[' in struct: pkcounter += 1
     db.close()
-    return container, counter
+    return container, pkcounter
 
 
 def parse_biokop(folder, basename, ext=".biok"):
     solutions = []
+    err = 0
     if os.path.isfile(os.path.join(folder, basename + ext)):
         rna = open(os.path.join(folder, basename + ext), "r")
         lines = rna.readlines()
@@ -226,13 +225,13 @@ def parse_biokop(folder, basename, ext=".biok"):
                 different_2ds.append(db2d)
             # here is a negative sign because Biokop actually minimizes -MEA instead
             # of maximizing MEA : we switch back to MEA
-            solutions.append(SecStruct(db2d, -float(splitted[1]), -float(splitted[2][:-1])))
+            solutions.append(SecStruct(db2d, -float(splitted[2][:-1]), -float(splitted[1]))) # MEA first, MFE second
 
         # check the range of MEA in this pareto set
-        min_mea = solutions[0].objectives[1]
+        min_mea = solutions[0].objectives[0]
         max_mea = min_mea
         for s in solutions:
-            mea = s.objectives[1]
+            mea = s.objectives[0]
             if mea < min_mea:
                 min_mea = mea
             if mea > max_mea:
@@ -240,18 +239,19 @@ def parse_biokop(folder, basename, ext=".biok"):
 
         # normalize so the minimum MEA of the set is 0
         for i in range(len(solutions)):
-            solutions[i].objectives[1] -= min_mea
+            solutions[i].objectives[0] -= min_mea
 
         if len(different_2ds) > 1:
-            return solutions
+            return solutions, err
         else:
             print("[%s] \033[36mWARNING: ignoring this RNA, only one 2D solution is found.\033[0m" % (basename))
-    else:
-        print("[%s] \033[36mWARNING: file not found !\033[0m" % (basename))
+            err = 1
+    return None, err
 
 
 def parse_biorseo(folder, basename, ext):
     solutions = []
+    err = 0
     if os.path.isfile(os.path.join(folder, basename + ext)):
         rna = open(os.path.join(folder, basename + ext), "r")
         lines = rna.readlines()
@@ -264,20 +264,21 @@ def parse_biorseo(folder, basename, ext):
             db2d = splitted[0].split(' ')[0]
             if db2d not in different_2ds:
                 different_2ds.append(db2d)
-            solutions.append(SecStruct(db2d, float(splitted[1]), float(splitted[2][:-1])))
+            solutions.append(SecStruct(db2d, float(splitted[2][:-1]), float(splitted[1]))) # put MEA first, modules in 2nd (y axis)
         if len(different_2ds) > 1:
-            return solutions
+            return solutions, err
         else:
             print("[%s] \033[36mWARNING: ignoring this RNA, only one 2D solution is found.\033[0m" % (basename))
-    else:
-        print("[%s] \033[36mWARNING: file not found !\033[0m" % (basename))
-    return None
+            err = 1
+    return None, err
 
 
 def prettify_biorseo(code):
     name = ""
     if "bgsu" in code:
         name += "RNA 3D Motif Atlas + "
+    elif "rin" in code:
+        name += "CaRNAval + "
     else:
         name += "Rna3Dmotifs + "
     if "raw" in code:
@@ -289,77 +290,23 @@ def prettify_biorseo(code):
     # name += " + $f_{1" + code[-1] + "}$"
     return name
 
-
-# Parse options
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "",
-                               ["biorseo_desc_byp_A",
-                                "biorseo_desc_byp_B",
-                                "biorseo_desc_byp_C",
-                                "biorseo_desc_byp_D",
-                                "biorseo_bgsu_byp_A",
-                                "biorseo_bgsu_byp_B",
-                                "biorseo_bgsu_byp_C",
-                                "biorseo_bgsu_byp_D",
-                                "biorseo_desc_raw_A",
-                                "biorseo_desc_raw_B",
-                                "biorseo_bgsu_jar3d_A",
-                                "biorseo_bgsu_jar3d_B",
-                                "biorseo_bgsu_jar3d_C",
-                                "biorseo_bgsu_jar3d_D",
-                                "biorseo_rin_raw_A",
-                                "biorseo_rin_raw_B",
-                                "folder=",
-                                "database=",
-                                "output="
-                                ])
-except getopt.GetoptError as err:
-    print(err)
-    sys.exit(2)
-
-results_folder = "."
-extension = "all"
-outputf = ""
-for opt, arg in opts:
-    if opt == "--biokop":
-        extension = ".biok"
-        parse = parse_biokop
-    elif opt == "--folder":
-        results_folder = arg
-    elif opt == "--database":
-        database = arg
-    elif opt == "--output":
-        outputf = arg
-    else:
-        extension = '.' + opt[2:]
-        parse = parse_biorseo
-
-RNAcontainer, _ = load_from_dbn(database)
-
-if results_folder[-1] != '/':
-    results_folder = results_folder + '/'
-if outputf == "":
-    outputf = results_folder
-if outputf[-1] != '/':
-    outputf = outputf + '/'
-
-
-def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution performs\nwell on obj1",
-                      ylabel="Best solution performs\n well on obj2"):
+def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution performs\nwell on obj1", ylabel="Best solution performs\n well on obj2"):
     points = []
     sizes = []
+    skipped = 0
     for rna in RNAcontainer:
         # Extracting the predictions from the results file
-        solutions = parse(results_folder, rna.basename_, ext)
-        reference = SecStruct(rna.struct_, float("inf"), float("inf"))
+        solutions, err = parse(results_folder, rna.basename_, ext)
         if solutions is None:
+            if err == 0:
+                skipped += 1
             continue
+        reference = SecStruct(rna.struct_, float("inf"), float("inf"))
         pset = Pareto(solutions, reference)
         points.append(pset.get_normalized_coords())
         sizes.append(pset.n_pred)
-        print("[%s] Loaded %d solutions in a Pareto set, max(obj1)=%f, max(obj2)=%f" % (
-        rna.basename_, pset.n_pred, pset.max_obj1, pset.max_obj2))
-    print("Loaded %d points on %d." % (len(points), len(RNAcontainer)))
+        print("[%s] Loaded %d solutions in a Pareto set, max(obj1)=%f, max(obj2)=%f" % (rna.basename_, pset.n_pred, pset.max_obj1, pset.max_obj2))
+    print("Loaded %d points on %d." % (len(points), len(RNAcontainer)-skipped))
 
     x = np.array([p[0] for p in points])
     y = np.array([p[1] for p in points])
@@ -379,7 +326,7 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
     ax[pos].set_xlim((-0.1, 1.1))
     ax[pos].set_ylim((-0.1, 1.1))
     ax[pos].set_title(prettify_biorseo(ext[1:]), fontsize=10)
-    ax[pos].annotate("(" + str(len(points)) + '/' + str(len(RNAcontainer)) + " RNAs)", (0.08, 0.15))
+    ax[pos].annotate("(" + str(len(points)) + '/' + str(len(RNAcontainer)-skipped) + " RNAs)", (0.08, 0.15))
     ax[pos].set_xlabel(xlabel)
     ax[pos].set_ylabel(ylabel)
 
@@ -392,56 +339,90 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
         ax[pos + 1].set_ylabel("# RNAs")
 
 
-if extension == "all":
-    parse = parse_biorseo
-    fig, ax = plt.subplots(1, 4, figsize=(10, 3), sharey=True)
-    ax = ax.flatten()
-    process_extension(ax, 0, ".biorseo_desc_raw_A", xlabel="Normalized $f_{1A}$", ylabel="Normalized MEA")
-    process_extension(ax, 1, ".biorseo_desc_byp_A", xlabel="Normalized $f_{1A}$", ylabel="Normalized MEA")
-    process_extension(ax, 2, ".biorseo_bgsu_byp_A", xlabel="Normalized $f_{1A}$", ylabel="Normalized MEA")
-    process_extension(ax, 3, ".biorseo_bgsu_jar3d_A", xlabel="Normalized $f_{1A}$", ylabel="Normalized MEA")
-    for a in ax:
-        a.label_outer()
-    plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizerA.png")
+if __name__ == "__main__":
+    try:
+        opts, args = getopt.getopt( sys.argv[1:], "", 
+                                [  "biorseo_desc_byp_A", "biorseo_desc_byp_B",
+                                    "biorseo_desc_byp_C", "biorseo_desc_byp_D",
+                                    "biorseo_bgsu_byp_A", "biorseo_bgsu_byp_B",
+                                    "biorseo_bgsu_byp_C", "biorseo_bgsu_byp_D",
+                                    "biorseo_desc_raw_A", "biorseo_desc_raw_B",
+                                    "biorseo_bgsu_jar3d_A", "biorseo_bgsu_jar3d_B",
+                                    "biorseo_bgsu_jar3d_C", "biorseo_bgsu_jar3d_D",
+                                    "biorseo_rin_raw_A", "biorseo_rin_raw_B",
+                                    "biokop", "folder=", "database=", "output="
+                                ])
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(2)
 
-    fig, ax = plt.subplots(1, 4, figsize=(10, 3), sharey=True)
-    ax = ax.flatten()
-    process_extension(ax, 0, ".biorseo_desc_raw_B", xlabel="Normalized $f_{1B}$", ylabel="Normalized MEA")
-    process_extension(ax, 1, ".biorseo_desc_byp_B", xlabel="Normalized $f_{1B}$", ylabel="Normalized MEA")
-    process_extension(ax, 2, ".biorseo_bgsu_byp_B", xlabel="Normalized $f_{1B}$", ylabel="Normalized MEA")
-    process_extension(ax, 3, ".biorseo_bgsu_jar3d_B", xlabel="Normalized $f_{1B}$", ylabel="Normalized MEA")
-    for a in ax:
-        a.label_outer()
-    plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizerB.png")
+    results_folder = "."
+    extension = "all"
+    outputf = ""
+    for opt, arg in opts:
+        if opt == "--biokop":
+            extension = ".biok"
+            parse = parse_biokop
+        elif opt == "--folder":
+            results_folder = arg
+        elif opt == "--database":
+            database = arg
+        elif opt == "--output":
+            outputf = arg
+        else:
+            extension = '.' + opt[2:]
+            parse = parse_biorseo
 
-    fig, ax = plt.subplots(1, 4, figsize=(10, 3), sharey=True)
-    ax = ax.flatten()
-    process_extension(ax, 1, ".biorseo_desc_byp_C", xlabel="Normalized $f_{1C}$", ylabel="Normalized MEA")
-    process_extension(ax, 2, ".biorseo_bgsu_byp_C", xlabel="Normalized $f_{1C}$", ylabel="Normalized MEA")
-    process_extension(ax, 3, ".biorseo_bgsu_jar3d_C", xlabel="Normalized $f_{1C}$", ylabel="Normalized MEA")
-    ax[0].axis("off")
-    for a in ax:
-        a.label_outer()
-    plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizerC.png")
+    RNAcontainer, _ = load_from_dbn(database)
 
-    fig, ax = plt.subplots(1, 4, figsize=(10, 3), sharey=True)
-    ax = ax.flatten()
-    process_extension(ax, 1, ".biorseo_desc_byp_D", xlabel="Normalized $f_{1D}$", ylabel="Normalized MEA")
-    process_extension(ax, 2, ".biorseo_bgsu_byp_D", xlabel="Normalized $f_{1D}$", ylabel="Normalized MEA")
-    process_extension(ax, 3, ".biorseo_bgsu_jar3d_D", xlabel="Normalized $f_{1D}$", ylabel="Normalized MEA")
-    ax[0].axis("off")
-    for a in ax:
-        a.label_outer()
-    plt.subplots_adjust(bottom=0.2, top=0.9, left=0.07, right=0.98, hspace=0.05, wspace=0.05)
-    plt.savefig("pareto_visualizerD.png")
-else:
-    fig, ax = plt.subplots(2, 1, figsize=(6, 5))
-    plt.subplots_adjust(bottom=0.12, top=0.9, left=0.15, right=0.9, hspace=0.4)
-    if extension == ".biok":
-        process_extension(ax, 0, extension, nsolutions=True, xlabel="Normalized MFE", ylabel="Normalized MEA")
+    if results_folder[-1] != '/':
+        results_folder = results_folder + '/'
+    if outputf == "":
+        outputf = results_folder
+    if outputf[-1] != '/':
+        outputf = outputf + '/'
+
+    if extension == "all":
+        parse = parse_biorseo
+        fig, ax = plt.subplots(4,5,figsize=(12,10), sharex=True, sharey=True)
+        ax = ax.flatten()
+        process_extension(ax, 0, ".biorseo_desc_raw_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        process_extension(ax, 1, ".biorseo_rin_raw_A",      ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        process_extension(ax, 2, ".biorseo_desc_byp_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        process_extension(ax, 3, ".biorseo_bgsu_byp_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        process_extension(ax, 4, ".biorseo_bgsu_jar3d_A",   ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        ax[0].set_title(prettify_biorseo("biorseo_desc_raw_A"), fontsize=10)
+        ax[1].set_title(prettify_biorseo("biorseo_rin_raw_A"), fontsize=10)
+        ax[2].set_title(prettify_biorseo("biorseo_desc_byp_A"), fontsize=10)
+        ax[3].set_title(prettify_biorseo("biorseo_bgsu_byp_A"), fontsize=10)
+        ax[4].set_title(prettify_biorseo("biorseo_bgsu_jar3d_A"), fontsize=10)
+
+        process_extension(ax, 5, ".biorseo_desc_raw_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 6, ".biorseo_rin_raw_B",      ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 7, ".biorseo_desc_byp_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 8, ".biorseo_bgsu_byp_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 9, ".biorseo_bgsu_jar3d_B",   ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+
+        process_extension(ax, 12, ".biorseo_desc_byp_C",   ylabel="Normalized $f_{1C}$", xlabel="Normalized MEA")
+        process_extension(ax, 13, ".biorseo_bgsu_byp_C",   ylabel="Normalized $f_{1C}$", xlabel="Normalized MEA")
+        process_extension(ax, 14, ".biorseo_bgsu_jar3d_C", ylabel="Normalized $f_{1C}$", xlabel="Normalized MEA")
+        ax[10].axis("off")
+        ax[11].axis("off")
+
+        process_extension(ax, 17, ".biorseo_desc_byp_D",   ylabel="Normalized $f_{1D}$", xlabel="Normalized MEA")
+        process_extension(ax, 18, ".biorseo_bgsu_byp_D",   ylabel="Normalized $f_{1D}$", xlabel="Normalized MEA")
+        process_extension(ax, 19, ".biorseo_bgsu_jar3d_D", ylabel="Normalized $f_{1D}$", xlabel="Normalized MEA")
+        ax[15].axis("off")
+        ax[16].axis("off")
+        for a in ax:
+            a.label_outer()
+        plt.subplots_adjust(bottom=0.05, top=0.95, left=0.07, right=0.98, hspace=0.1, wspace = 0.05)
+        plt.savefig("pareto_visualizer.png")  
     else:
-        process_extension(ax, 0, extension, nsolutions=False)
-    plt.savefig("pareto_visualizer_ext.png")
+        fig, ax = plt.subplots(2,1, figsize=(6,10))
+        plt.subplots_adjust(bottom=0.12, top=0.9, left=0.15, right=0.9, hspace=0.4)
+        if extension == ".biok":
+            process_extension(ax, 0, extension, nsolutions=True, ylabel="Normalized MFE", xlabel="Normalized MEA")
+        else:
+            process_extension(ax, 0, extension, nsolutions=False)
+        plt.savefig("pareto_visualizer_ext.png")
