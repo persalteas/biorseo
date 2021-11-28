@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     bool               verbose = false;
     float              theta_p_threshold;
     char               obj_function_nbr;
-    char               mea_or_mfe = 'b'; // a for MFE, b for MEA
+    char               mea_or_mfe = 'b'; // a for MFE, b for MEA, c for both and no motifs
     list<Fasta>        f;
     ofstream           outfile;
     SecondaryStructure bestSSO1, bestSSO2;
@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
         po::notify(vm);    // throws on error, so do after help in case there are any problems
         if (vm.count("mfe")) mea_or_mfe = 'a';
         if (vm.count("mea")) mea_or_mfe = 'b';
+        if (vm.count("mea") and vm.count("mfe")) mea_or_mfe = 'c';
         if (vm.count("verbose")) verbose = true;
         if (vm.count("disable-pseudoknots")) MOIP::allow_pk_ = false;
     } catch (po::error& e) {
@@ -146,12 +147,6 @@ int main(int argc, char* argv[])
     myRNA = RNA(fa->name(), fa->seq(), verbose);
     if (verbose) cout << "\t> " << inputName << " successfuly loaded (" << myRNA.get_RNA_length() << " nt)" << endl;
 
-    // check motif folder exists
-    if (access(motifs_path_name.c_str(), F_OK) == -1) {
-        cerr << "\033[31m" << motifs_path_name << " not found\033[0m" << endl;
-        return EXIT_FAILURE;
-    }
-
     string source;
     Motif::delay = 1;
     if (vm.count("rinfolder"))
@@ -164,8 +159,16 @@ int main(int argc, char* argv[])
         source = "jsonfolder";
     else if (vm.count("pre-placed"))
         source = "csvfile";
-    else
+    else if (mea_or_mfe != 'c') {
         cerr << "ERR: no source of modules provided !" << endl;
+        return EXIT_FAILURE;
+    }
+    
+    // check motif folder exists
+    if (mea_or_mfe != 'c' and access(motifs_path_name.c_str(), F_OK) == -1) {
+        cerr << "\033[31m" << motifs_path_name << " not found\033[0m" << endl;
+        return EXIT_FAILURE;
+    }
 
     /*  FIND PARETO SET  */
     

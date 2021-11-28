@@ -100,7 +100,6 @@ RNA::RNA(string name, string seq, bool verbose)
 		// Free memory allocated by ViennaRNA
 		free(save);
 	}
-
 	else cerr << "NULL result returned by vrna_pfl_fold" << endl;
 }
 

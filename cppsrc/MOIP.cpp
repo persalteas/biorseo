@@ -57,7 +57,7 @@ MOIP::MOIP() {}
 
 MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool verbose) : verbose_{verbose}, rna_(rna) 
 {
-    if (!exists(source_path))
+    if (obj_function2_nbr_ != 'c' and !exists(source_path))
     {
         cerr << "ERR: Hmh, i can't find this: " << source_path << endl;
         exit(EXIT_FAILURE);
@@ -73,14 +73,14 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
     // Add the y^u_v decision variables
     if (verbose_) cout << "\t> Legal basepairs : ";
-    uint u, v, c = 0;
+    uint u, v, cy = 0;
     index_of_yuv_ = vector<vector<size_t>>(rna_.get_RNA_length() - 6, vector<size_t>(0));
     for (u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible if v > u+3
             if (rna_.get_pij(u, v) > theta) {
                 if (verbose_) cout << u << '-' << v << " ";
-                index_of_yuv_[u].push_back(c);
-                c++;
+                index_of_yuv_[u].push_back(cy);
+                cy++;
                 char name[15];
                 sprintf(name, "y%d,%d", u, v);
                 basepair_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether u and v are paired
@@ -91,14 +91,14 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
     // Add the x_i,j decision variables
     if (verbose_) cout << "\t> The possible stacks of two base pairs (i,j) and (i+1,j-1) : ";
-    c = 0;
+    uint cx = 0;
     index_of_xij_ = vector<vector<size_t>>(rna_.get_RNA_length() - 6, vector<size_t>(0));
     for (u = 0; u < rna_.get_RNA_length() - 6; u++)
         for (v = u + 4; v < rna_.get_RNA_length(); v++)    // A basepair is possible if v > u+3
             if (rna_.get_pij(u, v) > theta and rna_.get_pij(u + 1, v - 1) > theta) { // or u-1 v+1 ??
                 if (verbose_) cout << u << '-' << v << " ";
-                index_of_xij_[u].push_back(c);
-                c++;
+                index_of_xij_[u].push_back(cx);
+                cx++;
                 char name[15];
                 sprintf(name, "x%d,%d", u, v);
                 stacks_dv_.add(IloNumVar(env_, 0, 1, IloNumVar::Bool, name));    // A boolean whether (u,v) and (u+1,v-1) are a stack
@@ -109,7 +109,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
     // Look for insertions sites, then create the appropriate Cxip variables
     insertion_sites_ = vector<Motif>();
-
     if (verbose_) cout << "\t> Looking for insertion sites..." << endl;
 
     if (source == "csvfile")
@@ -295,7 +294,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
         if (verbose_) cout << "\t> " <<  insertion_sites_.size() << " candidate motifs on " << accepted + errors << " (" << errors << " ignored motifs), after applying probability threshold of " << theta << endl;
     }
-    else
+    else if (obj_function2_nbr_ != 'c')
     {
         cout << "Err: Unknown module source." << endl;
     }
@@ -328,7 +327,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
         }
     }
 
-    if (verbose_) cout << "\t> " << c << " + " << i << " (yuv + Cpxi) decision variables are used." << endl;
+    if (verbose_) cout << "\t> " << cy << " + " << cx << " + " << i << " (yuv + xuv + Cpxi) decision variables are used." << endl;
 
     // Adding the problem's constraints
     model_ = IloModel(env_);
@@ -340,36 +339,50 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     //     exit(1);
     // }
 
-    // Define the motif objective function:
+
+    // Define the objective functions
     obj1 = IloExpr(env_);
-    for (uint i = 0; i < insertion_sites_.size(); i++) {
-        IloNum sum_k = 0;
+    if (obj_function2_nbr_ != 'c') {
+        // Define the motif objective function:
+        for (uint i = 0; i < insertion_sites_.size(); i++) {
+            IloNum sum_k = 0;
 
-        switch (obj_function_nbr_) {
-        case 'A':
-            // RNA MoIP style
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
-            break;
-            
-        case 'B':
-            // everything but the Jar3D/Bayespairing score
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
-            break;   
+            switch (obj_function_nbr_) {
+            case 'A':
+                // RNA MoIP style
+                for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+                obj1 += IloNum(sum_k * sum_k) * insertion_dv_[index_of_first_components[i]];
+                break;
+                
+            case 'B':
+                // everything but the Jar3D/Bayespairing score
+                for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+                obj1 += IloNum(insertion_sites_[i].comp.size() / log2(sum_k)) * insertion_dv_[index_of_first_components[i]];
+                break;   
 
-        case 'C':
-            // Weighted by the JAR3D or BayesPairing score only:
-            obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
-            break;
+            case 'C':
+                // Weighted by the JAR3D or BayesPairing score only:
+                obj1 += IloNum(insertion_sites_[i].score_) * insertion_dv_[index_of_first_components[i]];
+                break;
 
-        case 'D':
-            // everything
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].score_ / log2(sum_k)) *
-                    insertion_dv_[index_of_first_components[i]];
-            break;
+            case 'D':
+                // everything
+                for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
+                obj1 += IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].score_ / log2(sum_k)) *
+                        insertion_dv_[index_of_first_components[i]];
+                break;
+            }
         }
+    } else {
+        // user passed both --mea and --mfe, this is Biokop mode, obj1 will be MEA
+        if (verbose_) cout << "Running in Biokop mode: MEA versus MFE, ignoring motifs." << endl;
+        for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
+            for (size_t v = u + 4; v < rna_.get_RNA_length(); v++) {
+                if (allowed_basepair(u, v)) obj1 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
+            }
+        }
+        // set obj_function2_nbr_ to a so that obj2 is set to MFE just here after.
+        obj_function2_nbr_ = 'a';
     }
     
     //Stacking energy parameter matrix
@@ -446,7 +459,7 @@ void MOIP::define_problem_constraints(string& source)
     }
 
     // Ensure that the stacking of (i,j) and (i+1,j-1) exists if and only if the pairing (i,j) and (i+1, j-1) exist
-    if (verbose_) cout << "\t> ensuring that the stacks are possible..." << endl;
+    if (verbose_) cout << "\t> ensuring that the stacks are correct..." << endl;
     for (u = 0; u < n - 5; u++) {
         for (v = u + 4; v < n; v++) {
             if (allowed_basepair(u, v) and allowed_basepair(u + 1, v - 1)) {
@@ -459,7 +472,7 @@ void MOIP::define_problem_constraints(string& source)
                 model_.add(IloNum(2) * x(u, v) <= c7_1);
                 if (verbose_) cout << "\t\t" << (2 * x(u,v) <= c7_1) << endl;
                 model_.add(x(u, v) >= c7_2);
-                if (verbose_) cout << "\t\t" << (x(u, v) >= c7_2) << endl << endl;
+                if (verbose_) cout << "\t\t" << (x(u, v) >= c7_2) << endl;
             }
         }
     }
