@@ -3,9 +3,6 @@
 # Docker installation temporary files
 eigen-eigen-323c052e1731
 cplex_installer_12.8_Student.bin
-BayesPairing/
-BayesPairing2/
-ViennaRNA-2.4.13
 
 # Compiled Object files
 obj/*
@@ -22,8 +19,9 @@ log_of_the_run.sh
 logBadDesc.txt
 gurobi.log
 temp/*
-biorseo_results/*
 nohup.out
+*.gz
+*.pickle
 
 # data 
 data/modules/BGSU
@@ -32,4 +30,4 @@ data/modules/RIN
 data/modules/ISAURE
 data/sec_structs/bpRNA-1m_90.dbn
 data/sec_structs/pseudobase++.dbn
-data/fasta/contacts
+data/fasta/contacts/
