@@ -5,71 +5,36 @@
 #include <regex>
 #include <sstream>
 #include <thread>
-#include <json.hpp>
 
 using namespace boost::filesystem;
 using namespace std;
 using json = nlohmann::json;
 
+uint Motif::delay = 1;
+
 Motif::Motif(void) {}
-
-Motif::Motif(const vector<Component>& v, string PDB) : comp(v), PDBID(PDB)
-{
-    is_model_ = false;
-    reversed_ = false;
-    source_   = RNA3DMOTIF;
-}
-
-Motif::Motif(const vector<Component>& v, string id, size_t nb_contacts, double tx_occurrences) : comp(v)
-{
-    contacts_id = id;
-    is_model_ = false;
-    reversed_ = false;
-    source_   = CONTACTS;
-    contact_ = nb_contacts;
-    tx_occurrences_ = tx_occurrences;
-}
 
 Motif::Motif(string csv_line)
 {
     vector<string> tokens;
     split(tokens, csv_line, boost::is_any_of(","));
 
-    if (csv_line.find(string("True")) != std::string::npos or csv_line.find(string("False")) != std::string::npos) // This has been created by jar3d
+    id_ = tokens[0];
+    score_  = stoi(tokens[1]);
+    source_ = CSV;
+    reversed_ = false; // default value
+
+    if (csv_line.find(string("True")) != std::string::npos or csv_line.find(string("False")) != std::string::npos) 
     {
-        atlas_id = tokens[0];
+        // This has been created by jar3d
         score_   = stoi(tokens[2]);
         comp.push_back(Component(make_pair<int, int>(stoi(tokens[3]), stoi(tokens[4]))));
         if (tokens[5] != "-") comp.push_back(Component(make_pair<int, int>(stoi(tokens[5]), stoi(tokens[6]))));
         reversed_ = (tokens[1] == "True");
-        is_model_ = true;
-        PDBID     = "";
-        source_   = RNAMOTIFATLAS;
     }
-
     else // this has been created by BayesPairing
     {
-        score_ = stoi(tokens[1]);
-
-        // identify source:
-        if (tokens[0].find(string("rna3dmotif")) == std::string::npos)
-        {
-            is_model_ = true;
-            PDBID     = "";
-            source_   = RNAMOTIFATLAS;
-            atlas_id  = tokens[0];
-        }
-
-        else
-        {
-            is_model_ = false;
-            PDBID     = tokens[0];
-            source_   = RNA3DMOTIF;
-            atlas_id  = "";
-        }
-
         uint i = 2;
-        //while (i < tokens.size())
         while (i < tokens.size()-1)
         {
             if (stoi(tokens[i]) < stoi(tokens[i + 1]))
@@ -81,12 +46,71 @@ Motif::Motif(string csv_line)
     }
 }
 
+Motif::Motif(const vector<Component>& v, string name) : comp(v), id_(name)
+{
+    source_ = RNA3DMOTIF;
+    reversed_ = false;
+}
+
+Motif::Motif(const vector<Component>& v, string name, string& struc) : comp(v), id_(name)
+{
+    source_ = JSON;
+    reversed_ = false;
+    
+    stack<uint> rbrackets;
+    stack<uint> sbrackets;
+    stack<uint> cbrackets;
+    stack<uint> chevrons;
+    
+    uint count = 0;
+    uint debut = v[count].pos.first;
+    uint gap = 0;
+
+    for (uint i = 0; i < struc.size(); i++) {
+        if (struc[i] == '(') {
+            rbrackets.push(i + debut + gap - count);
+        } else if (struc[i] == ')') {
+            Link l;
+            l.nts.first = rbrackets.top();
+            l.nts.second = i + debut + gap - count;
+            links_.push_back(l);
+            rbrackets.pop();
+        } else if (struc[i] == '[') {
+            sbrackets.push(i + debut + gap - count);
+        } else if (struc[i] == ']') {
+            Link l;
+            l.nts.first = sbrackets.top();
+            l.nts.second = i + debut + gap - count;
+            links_.push_back(l);
+            sbrackets.pop();
+        } else if (struc[i] == '{') {
+            cbrackets.push(i + debut + gap - count);
+        } else if (struc[i] == '}') {
+            Link l;
+            l.nts.first = cbrackets.top();
+            l.nts.second = i + debut + gap - count;
+            links_.push_back(l);
+            cbrackets.pop();
+        } else if (struc[i] == '<') {
+            chevrons.push(i + debut + gap - count);
+        } else if (struc[i] == '>') {
+            Link l;
+            l.nts.first = chevrons.top();
+            l.nts.second = i + debut + gap - count;
+            links_.push_back(l);
+            chevrons.pop();
+        } else if (struc[i] == '&') {
+            count ++;
+            gap += v[count].pos.first - v[count - 1].pos.second - 1;
+       }
+    }
+}
+
 Motif::Motif(const vector<Component>& v, path rinfile, uint id, bool reversed) : comp(v), reversed_(reversed)
 {
     // Loads a motif from the RIN file of Carnaval
-    carnaval_id = to_string(id);
-    source_     = CARNAVAL;
-    is_model_     = false;
+    id_     = to_string(id);
+    source_ = CARNAVAL;
 
     std::ifstream file(rinfile);
 
@@ -158,7 +182,7 @@ Motif::Motif(const vector<Component>& v, path rinfile, uint id, bool reversed) :
 string Motif::pos_string(void) const
 {
     stringstream s;
-    s << atlas_id << " ( ";
+    s << id_ << " ( ";
     for (auto c : comp) s << c.pos.first << '-' << c.pos.second << ' ';
     s << ')';
     return s.str();
@@ -185,10 +209,9 @@ string Motif::sec_struct(void) const
 string Motif::get_identifier(void) const
 {
     switch (source_) {
-    case RNAMOTIFATLAS: return atlas_id; break;
-    case CARNAVAL: return string("RIN") + carnaval_id; break;
-    case CONTACTS: return string("JSON") + contacts_id; break;
-    default: return PDBID;
+    case CARNAVAL: return string("RIN") + id_; break;
+    case JSON: return string("JSON") + id_; break;
+    default: return id_;
     }
 }
 
@@ -265,167 +288,52 @@ char Motif::is_valid_RIN(const string& rinfile)
     return (char) 0;
 }
 
-vector<pair<uint,char>> Motif::is_valid_JSON(const string& jsonfile)
+char Motif::is_valid_JSON(const json_elem& i)
 {
-    // returns 0 if no errors
-    std::ifstream  motif;
-    motif = std::ifstream(jsonfile);
-    json js = json::parse(motif);
-    vector<pair<uint,char>> errors_id;
-    vector<string> components;
-    uint fin = 0;
+    string seq = i.value()["sequence"];
+    string ss = i.value()["struct2d"];
 
-    std::string keys[6] = {"contacts", "occurences", "pdb", "pfam", "sequence", "struct2d"};
-
-    // Iterating over Motifs
-    for (auto i = js.begin(); i != js.end(); ++i) {
-        int j = 0;
-        string id = i.key();
-        size_t size;
-        string complete_seq;
-        string contacts;
-
-        // Iterating over json keys
-        for (auto it = js[id].begin(); it != js[id].end(); ++it) {
-            // it.key() contains the key, and it.value() the field's value.
-            string curr_key = it.key();
-            
-            if (curr_key.compare(keys[j]))
-            { 
-                //std::cout << "error header : keys[" << j << "]: " << keys[j] << " vs curr_key: " << curr_key << endl;
-                errors_id.push_back(make_pair(stoi(id), 'd')); 
-                //return 'd'; 
-            } 
-            else if(!curr_key.compare(keys[5])) // This is the secondary structure field
-            {
-                string ss = it.value();
-                if (ss.empty()) {
-                    errors_id.push_back(make_pair(stoi(id), 'f'));
-                    break;
-                } else if (!checkSecondaryStructure(ss)) {
-                    errors_id.push_back(make_pair(stoi(id), 'n'));
-                    break;
-                } else if (ss.size() != complete_seq.size()) {
-                    errors_id.push_back(make_pair(stoi(id), 'x'));
-                    break;
-                }
-            } 
-            else if(!curr_key.compare(keys[0])) // This is the contacts field
-            {
-                contacts = it.value();
-            } 
-            else if (!curr_key.compare(keys[4])) // This is the sequence field
-            {
-                string seq = it.value();
-                size = count_nucleotide(seq);
-                complete_seq = seq;
-                if (seq.empty()) {
-                    errors_id.push_back(make_pair(stoi(id), 'e'));
-                    break;
-                } 
-                if (size < 4) {
-                    errors_id.push_back(make_pair(stoi(id), 'l'));
-                    break;
-                }
-                size_t count_contact = count_delimiter(contacts);
-                size_t count_seq = count_delimiter(seq);
-                if (count_contact != count_seq) {
-                    errors_id.push_back(make_pair(stoi(id), 'a'));
-                    break;
-                }
-                if (contacts.size() != seq.size()) {
-                    errors_id.push_back(make_pair(stoi(id), 'b'));
-                    break;
-                }
-
-                // Iterate on components to check their length
-                string subseq;
-                while((seq.find('&') != string::npos)) {
-                    fin = seq.find('&');  
-                    subseq = seq.substr(0, fin);
-                    seq = seq.substr(fin + 1);
-                    if (subseq.size() >= 2) {
-                        components.push_back(subseq); 
-                    } else {
-                        //errors_id.push_back(make_pair(stoi(id), 'k'));
-                    }
-                }
-                if (seq.size() >= 2) { // Last component after the last &
-                    components.push_back(seq); 
-                } else {
-                    //errors_id.push_back(make_pair(stoi(id), 'k'));
-                }
-
-                size_t n = 0;
-                for (uint ii = 0; ii < components.size(); ii++) {
-                    n += components[ii].size();
-                }
-                if(n <= 3) {
-                    errors_id.push_back(make_pair(stoi(id), 'l'));
-                }
-            }
-            j++;
-        }
-    }
-    return errors_id;
-}
-
-//count the number of nucleotide in the motif sequence
-size_t count_nucleotide(string& seq) {
-    size_t count = 0;
-    for(uint i = 0; i < seq.size(); i++) {
-        char c = seq.at(i);
-        if (c != '&') {
-            count++;
-        }
-    }
-    return count;
-}
-
-//count the number of '&' in the motif sequence
-size_t count_delimiter(string& seq) {
-    size_t count = 0;
-    for(uint i = 0; i < seq.size(); i++) {
-        char c = seq.at(i);
-        if (c == '&') {
-            count++;
-        }
-    }
-    return count;
-}
-
-//count the number of '*' in the motif
-size_t count_contacts(string& contacts) {
+    if (ss.size() != seq.size()) return 'x';
+    if (!check_motif_sequence(seq)) return 'r';
+    if (!check_motif_ss(ss)) return 'n';
+    if (seq.empty()) return 'e';
+    if (seq.size() - count(seq.begin(),seq.end(), '&') < 4) return 'l';
     
-    size_t count = 0;
-    for (uint i = 0; i < contacts.size(); i++) {
-        if (contacts[i] == '*') {
-            count++;
-        }
+    // Iterate on components to check their length
+    string subseq;
+    vector<string> components;
+    uint end, n=0;
+    while((seq.find('&') != string::npos)) {
+        end = seq.find('&');  
+        subseq = seq.substr(0, end);
+        seq = seq.substr(end + 1);
+        if (subseq.size() >= 2) components.push_back(subseq); 
     }
-    return count;
+    if (seq.size() >= 2) // Last component after the last &
+        components.push_back(seq); 
+    for (auto comp : components)
+        n += comp.size();
+    if(n <= 3) return 'l';
+
+    return char(0);
 }
 
-//Check if the sequence is a rna sequence (ATGC) and replace T by U or remove modified nucleotide if necessary
-string check_motif_sequence(string seq) {
-    std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
-    for (int i = seq.size(); i >= 0; i--) {
-        if(seq[i] == 'T') {
-            seq[i] = 'U';
-        } else if (!(seq [i] == 'A' || seq [i] == 'U' || seq [i] == '&'
-        || seq [i] == 'G' || seq [i] == 'C')) {
-            seq = seq.erase(i,1);
+//Check if the sequence is a rna sequence (ATUGC-only)
+bool check_motif_sequence(string seq) {
+    transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+    for (char c : seq)
+        if (!(c == 'A' || c == 'U' || c == 'T' || c == '&' || c == 'G' || c == 'C')) {
+            return false;
         }
-    }
-    return seq;
+    return true;
 }
 
-//check that there are as many opening parentheses as closing ones
-bool checkSecondaryStructure(string struc)
+// Check that there are as many opening brackets as closing ones
+bool check_motif_ss(string struc)
 { 
-    stack<uint> parentheses;
-    stack<uint> crochets;
-    stack<uint> accolades;
+    stack<uint> rbrackets;
+    stack<uint> sbrackets;
+    stack<uint> cbrackets;
     stack<uint> chevrons;
     for (uint i = 0; i < struc.length(); i++)
     {
@@ -439,27 +347,27 @@ bool checkSecondaryStructure(string struc)
         } else {
             for (uint i = 0; i < struc.size(); i++) {
                 if (struc[i] == '(') {
-                    parentheses.push(i);
+                    rbrackets.push(i);
 
                 } else if (struc[i] == ')') {
-                    if (!parentheses.empty())
-                        parentheses.pop();
+                    if (!rbrackets.empty())
+                        rbrackets.pop();
                     else return false;
 
                 } else if (struc[i] == '[') {
-                    crochets.push(i);
+                    sbrackets.push(i);
 
                 } else if (struc[i] == ']') {
-                    if (!crochets.empty())
-                        crochets.pop();
+                    if (!sbrackets.empty())
+                        sbrackets.pop();
                     else return false;
 
                 } else if (struc[i] == '{') {
-                    accolades.push(i);
+                    cbrackets.push(i);
 
                 } else if (struc[i] == '}') {
-                    if (!accolades.empty())
-                        accolades.pop();
+                    if (!cbrackets.empty())
+                        cbrackets.pop();
                     else return false;
 
                 } else if (struc[i] == '<') {
@@ -473,140 +381,7 @@ bool checkSecondaryStructure(string struc)
             }
         }
     }
-    return (parentheses.empty() && crochets.empty() && accolades.empty() && chevrons.empty());
-}
-
-// Converts a dot-bracket motif secondary structure to vector of Link
-vector<Link> build_motif_pairs(string& struc, vector<Component>& v) {
-    
-    vector<Link> vec; 
-    stack<uint> parentheses;
-    stack<uint> crochets;
-    stack<uint> accolades;
-    stack<uint> chevrons;
-    
-    uint count = 0;
-    uint debut = v[count].pos.first;
-    uint gap = 0;
-
-    for (uint i = 0; i < struc.size(); i++) {
-        if (struc[i] == '(') {
-            parentheses.push(i + debut + gap - count);
-        } else if (struc[i] == ')') {
-            Link l;
-            l.nts.first = parentheses.top();
-            l.nts.second = i + debut + gap - count;
-            vec.push_back(l);
-            parentheses.pop();
-        } else if (struc[i] == '[') {
-            crochets.push(i + debut + gap - count);
-        } else if (struc[i] == ']') {
-            Link l;
-            l.nts.first = crochets.top();
-            l.nts.second = i + debut + gap - count;
-            vec.push_back(l);
-            crochets.pop();
-        } else if (struc[i] == '{') {
-            accolades.push(i + debut + gap - count);
-        } else if (struc[i] == '}') {
-            Link l;
-            l.nts.first = accolades.top();
-            l.nts.second = i + debut + gap - count;
-            vec.push_back(l);
-            accolades.pop();
-        } else if (struc[i] == '<') {
-            chevrons.push(i + debut + gap - count);
-        } else if (struc[i] == '>') {
-            Link l;
-            l.nts.first = chevrons.top();
-            l.nts.second = i + debut + gap - count;
-            vec.push_back(l);
-            chevrons.pop();
-        } else if (struc[i] == '&') {
-            count ++;
-            gap += v[count].pos.first - v[count - 1].pos.second - 1;
-       }
-    }
-    return vec;
-}
-
-uint find_max_occurrences(string& filepath) {
-    uint max = 0;
-    std::ifstream in = std::ifstream(filepath);
-    json js = json::parse(in);
-    string contacts_id;
-
-    for(auto it = js.begin(); it != js.end(); ++it) {
-        contacts_id = it.key();
-        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-            string test = it2.key(); 
-             if (!test.compare("occurences")) {
-                uint occ = it2.value();
-                if (occ > max) {
-                    max = occ;
-                }
-             }
-        }
-     }
-    return max;
-}
-
-uint find_max_sequence(string& filepath) {
-    uint max = 0;
-    std::ifstream in = std::ifstream(filepath);
-    json js = json::parse(in);
-    string contacts_id;
-    string seq;
-
-    for(auto it = js.begin(); it != js.end(); ++it) {
-        contacts_id = it.key();
-        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-            string test = it2.key(); 
-            if (!test.compare("sequence")) {
-                seq = it2.value();
-                uint size = seq.size();
-                if (size > max) {
-                    max = size;
-                }
-            }
-        }
-     }
-    return max;
-}
-
-vector<string> find_components(string& sequence, string delimiter) {
-    vector<string> list;
-    string seq = sequence;
-    string subseq;
-    uint fin = 0;
-
-    while(seq.find(delimiter) != string::npos) {
-        fin = seq.find(delimiter);
-        
-        subseq = seq.substr(0, fin);
-        seq = seq.substr(fin + 1);
-        list.push_back(subseq); // new component sequence
-    } 
-    if (!seq.empty()) {
-        list.push_back(seq);
-    }
-    return list;
-}
-
-vector<uint> find_contacts(vector<string>& struc2d, vector<Component>& v) {
-    vector<uint> positions;
-    string delimiter = "*";
-    uint debut;
-    for (uint i = 0; i < v.size(); i++) {
-        debut = v[i].pos.first;
-        uint pos = struc2d[i].find(delimiter, 0);
-        while(pos != string::npos && pos <= struc2d[i].size())
-        {   
-            positions.push_back(pos + debut);
-            pos = struc2d[i].find(delimiter, pos+1);
-        } 
-    }
-    return positions;
+    return (rbrackets.empty() && sbrackets.empty() && cbrackets.empty() && chevrons.empty());
 }
 
 bool is_desc_insertible(const string& descfile, const string& rna)
@@ -652,10 +427,9 @@ bool is_desc_insertible(const string& descfile, const string& rna)
     regex  e(seq);
 
     return regex_search(rna, m, e);
-
 }
 
-vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string>& vc)
+vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<string> vc)
 {
     pair<uint, uint>          pos;
     vector<vector<Component>> results;
@@ -663,122 +437,41 @@ vector<vector<Component>> find_next_ones_in(string rna, uint offset, vector<stri
     vector<string>            next_seqs;
     regex                     c(vc[0]);
 
-    //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
-
     if (vc.size() > 1) {
-        //cout << "size vc: " << vc.sizef() << endl; 
         if (regex_search(rna, c)) {
+
+            // Define a vector with the remaining components to insert behind vc[0]
             if (vc.size() > 2) {
                 next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
             }
             else {
                 next_seqs = vector<string>(1, vc.back());
             }
-            uint j = 0;
+
             // For every regexp match
             for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
+                //retrieve the hit position
                 smatch match = *i;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
 
-                //cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
+                // Check if we can insert the next components after this hit for vc[0]
                 // +5 because HL < 3 pbs but not for CaRNAval or Contacts
                 // if CaRNAval or Contacts +2 is better
-                if (pos.second - offset + 5 >= rna.length()) {
-                     //cout << "\t\t... but we cannot place the next components : Ignored." << endl;
-                    continue;
-                }
-                
-                next_ones = find_next_ones_in(rna.substr(pos.second - offset + 5), pos.second + 5, next_seqs);
-                if (!next_ones.size()) {
-                    // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
-                    continue;
-                }
-                //cout  << endl;
-                for (vector<Component> v : next_ones)    // For every combination of the next components
+                if (pos.second - offset + Motif::delay >= rna.length()) break; // no room for the next components. give up.
+                next_ones = find_next_ones_in(rna.substr(pos.second - offset + Motif::delay), pos.second + Motif::delay, next_seqs);
+                if (!next_ones.size()) break; // no matches for the next components. give up.
+
+                 // For every solution for the next components, combine this solution for vc[0] (pos) with the one for the following vc[i] (v)
+                for (vector<Component> v : next_ones)
                 {
                     // Combine the match for this component pos with the combination
                     // of next_ones as a whole solution
                     vector<Component> r;
-                    r.push_back(Component(pos));
-                    for (Component& c : v) r.push_back(c);
+                    r.push_back(Component(pos));    // solution for vc[0]
+                    for (Component& c : v) r.push_back(c); // solutions for the following vc[i]
                     results.push_back(r);
                 }
-                j++;
-            }
-        }
-    } else {
-        // Only one more component to find
-
-        if (regex_search(rna, c)) {
-            // For each regexp match
-            for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
-                smatch match = *i;
-                pos.first    = match.position() + offset;
-                pos.second   = pos.first + match.length() - 1;
-
-                //cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-
-                // Create a vector of component with one component for that match
-                vector<Component> r;
-                r.push_back(Component(pos));
-                results.push_back(r);
-            }
-        }
-    }
-    return results;
-}
-
-vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector<string>& vc)
-{
-    pair<uint, uint>          pos;
-    vector<vector<Component>> results;
-    vector<vector<Component>> next_ones;
-    vector<string>            next_seqs;
-    regex                     c(vc[0]);
-
-    //cout << "\t\t>Searching " << vc[0] << " in " << rna << endl;
-
-    if (vc.size() > 1) {
-        //cout << "size vc: " << vc.size() << endl; 
-        if (regex_search(rna, c)) {
-            if (vc.size() > 2) {
-                next_seqs = vector<string>(&vc[1], &vc[vc.size()]);
-            }
-            else {
-                next_seqs = vector<string>(1, vc.back());
-            }
-            uint j = 0;
-            // For every regexp match
-            for (sregex_iterator i = sregex_iterator(rna.begin(), rna.end(), c); i != sregex_iterator(); ++i) {
-                smatch match = *i;
-                pos.first    = match.position() + offset;
-                pos.second   = pos.first + match.length() - 1;
-
-                //cout << "\t\t>Inserting " << vc[j] << " in [" << pos.first << ',' << pos.second << "]" << endl;
-                // +5 because HL < 3 pbs but not for CaRNAval or Contacts
-                // if CaRNAval or Contacts +2 is better
-                if (pos.second - offset + 2 >= rna.length()) {
-                     //cout << "\t\t... but we cannot place the next components : Ignored." << endl;
-                    continue;
-                }
-                
-                next_ones = json_find_next_ones_in(rna.substr(pos.second - offset + 2), pos.second + 2, next_seqs);
-                if (!next_ones.size()) {
-                    // cout << "\t\t... but we cannot place the next components : Ignored.2" << endl;
-                    continue;
-                }
-                //cout  << endl;
-                for (vector<Component> v : next_ones)    // For every combination of the next components
-                {
-                    // Combine the match for this component pos with the combination
-                    // of next_ones as a whole solution
-                    vector<Component> r;
-                    r.push_back(Component(pos));
-                    for (Component& c : v) r.push_back(c);
-                    results.push_back(r);
-                }
-                j++;
             }
         }
     } else {
@@ -789,8 +482,6 @@ vector<vector<Component>> json_find_next_ones_in(string rna, uint offset, vector
                 smatch match = *i;
                 pos.first    = match.position() + offset;
                 pos.second   = pos.first + match.length() - 1;
-
-                //cout << "\t\t>Inserting " << vc[0] << " in [" << pos.first << ',' << pos.second << "]" << endl;
 
                 // Create a vector of component with one component for that match
                 vector<Component> r;

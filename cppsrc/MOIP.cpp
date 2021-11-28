@@ -59,7 +59,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 {
     if (!exists(source_path))
     {
-        cerr << "!!! Hmh, i can't find that folder: " << source_path << endl;
+        cerr << "ERR: Hmh, i can't find this: " << source_path << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -112,7 +112,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
 
     if (verbose_) cout << "\t> Looking for insertion sites..." << endl;
 
-    if (source == "jar3dcsv" or source == "bayespaircsv")
+    if (source == "csvfile")
     {
         std::ifstream motifs;
         string        line;
@@ -182,7 +182,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             accepted++;
             if (is_desc_insertible(it.path().string(), rna_.get_seq()))
             {
-                args_of_parallel_func args(it.path(), posInsertionSites_access);
+                file_and_mutex args(it.path(), posInsertionSites_access);
                 inserted++;
                 pool.push(bind(&MOIP::allowed_motifs_from_desc, this, args)); // & is necessary to get the pointer to a member function
             }
@@ -201,7 +201,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     {
         mutex         posInsertionSites_access;
         Pool          pool;
-        size_t        inserted = 0;
         size_t        accepted = 0;
         size_t        errors   = 0;
         int           num_threads = thread::hardware_concurrency() - 1;
@@ -231,8 +230,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                 continue;
             }
             accepted++;
-            args_of_parallel_func args(it.path(), posInsertionSites_access);
-            inserted++;
+            file_and_mutex args(it.path(), posInsertionSites_access);
             pool.push(bind(&MOIP::allowed_motifs_from_rin, this, args)); // & is necessary to get the pointer to a member function
         }
         pool.done();
@@ -241,58 +239,61 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             thread_pool.at(i).join();
 
         if (verbose){
-            cout << "\t> " << inserted << " candidate RINs on " << accepted + errors << " (" << errors << " ignored motifs), " << endl;
-            cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
+            cout << "\t> " <<  insertion_sites_.size() << " candidate RINs on " << accepted + errors << " (" << errors << " ignored motifs), after applying probability threshold of " << theta << endl;
         }
     }
     else if (source == "jsonfolder")
     {
-        mutex         posInsertionSites_access;
-        Pool          pool;
-        size_t        inserted = 0;
-        size_t        accepted = 0;
-        size_t        errors   = 0;
+        mutex   posInsertionSites_access;
+        Pool    pool;
+        size_t  accepted = 0;
+        size_t  errors   = 0;
+        int     num_threads = thread::hardware_concurrency() - 1;
+        vector<thread> thread_pool;
+        std::ifstream  motif;
 
-        // Read every JSON files
-        vector<pair<uint,char>> errors_id;
-        for (auto it : recursive_directory_range(source_path))
-        {
-            errors_id = Motif::is_valid_JSON(it.path().string());
-            if (!(errors_id.empty())) // Returns error if JSON file is incorrect
-            { 
-                for(uint j = 0; j < errors_id.size(); j++)
+        // prepare a pool of threads to process motifs in parallel
+        for (int i = 0; i < num_threads; i++) 
+            thread_pool.push_back(thread(&Pool::infinite_loop_func, &pool));
+
+        // Read every JSON entry and add it to the queue (iff valid)
+        motif = std::ifstream(source_path);
+        json js = json::parse(motif);
+        char error;
+        for(auto it = js.begin(); it != js.end(); ++it) {
+            if ((error = Motif::is_valid_JSON(it))) // Returns error if JSON entry is incorrect
+            {
+                if (verbose)
                 {
-                    if(verbose) {
-                        cerr << "\t> Ignoring JSON " << errors_id[j].first;
-                        uint error = errors_id[j].second;
-                        switch (error)
-                        {
-                            case 'l': cerr << ", too short to be considered."; break;
-                            case 'x': cerr << ", sequence and secondary structure are of different size."; break;
-                            case 'd' : cerr << ", missing header."; break;
-                            case 'e' : cerr << ", sequence is empty."; break;
-                            case 'f' : cerr << ", 2D is empty."; break;
-                            case 'n' : cerr << ", brackets are not balanced."; break;
-                            case 'k' : cerr << ", a component is too small and got removed."; break;
-                            case 'a' : cerr << ", the number of components is different between contacts and sequence"; break;
-                            case 'b' : cerr << ", the number of nucleotides is different between contacts and sequence"; break;
-                            default: cerr << ", unknown reason";
-                            
-                        }
-                        cerr << endl;
+                    cerr << "\t> Ignoring motif " << it.key(); // field key, i.e. motif identifier
+                    switch (error)
+                    {
+                        case 'l': cerr << ", too short to be considered."; break;
+                        case 'x': cerr << ", sequence and secondary structure are of different size."; break;
+                        case 'e' : cerr << ", sequence is empty."; break;
+                        case 'f' : cerr << ", 2D is empty."; break;
+                        case 'r' : cerr << ", RNA sequence not recognized, only use ACGTU."; break;
+                        case 'n' : cerr << ", brackets are not balanced."; break;
+                        default: cerr << ", unknown reason";
                     }
+                    cerr << endl;
                 }
                 errors++;
+                continue;
             }
             accepted++;
-            args_of_parallel_func args(it.path(), posInsertionSites_access);
-            inserted++;
-            allowed_motifs_from_json(args, errors_id);
-        }
 
-        if (verbose_){
-            cout << "\t  " << insertion_sites_.size() << " insertion sites kept after applying probability threshold of " << theta << endl;
+            // add a new job to the pool, to run allowed_motifs_from_json(args)
+            motif_and_mutex args(it, posInsertionSites_access);
+            pool.push(bind(&MOIP::allowed_motifs_from_json, this, args)); // & is necessary to get the pointer to a member function
         }
+        pool.done(); // we won't add new jobs
+
+        // Wait for jobs to complete
+        for (unsigned int i = 0; i < thread_pool.size(); i++)
+            thread_pool.at(i).join();
+
+        if (verbose_) cout << "\t> " <<  insertion_sites_.size() << " candidate motifs on " << accepted + errors << " (" << errors << " ignored motifs), after applying probability threshold of " << theta << endl;
     }
     else
     {
@@ -343,7 +344,6 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
     obj1 = IloExpr(env_);
     for (uint i = 0; i < insertion_sites_.size(); i++) {
         IloNum sum_k = 0;
-        IloNum kx2_wx_ax = 0;
 
         switch (obj_function_nbr_) {
         case 'A':
@@ -369,22 +369,9 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
             obj1 += IloNum(insertion_sites_[i].comp.size() * insertion_sites_[i].score_ / log2(sum_k)) *
                     insertion_dv_[index_of_first_components[i]];
             break;
-
-        case 'E':
-            // Fonction f1E 
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            obj1 += IloNum(sum_k * insertion_sites_[i].contact_ * insertion_sites_[i].tx_occurrences_) * insertion_dv_[index_of_first_components[i]] ;
-            break;
-
-        case 'F':
-            // Fonction f1F
-            for (const Component& c : insertion_sites_[i].comp) sum_k += c.k;
-            kx2_wx_ax += IloNum((sum_k * sum_k * insertion_sites_[i].tx_occurrences_) + insertion_sites_[i].contact_);
-            obj1 += insertion_dv_[index_of_first_components[i]] * IloNum(kx2_wx_ax);
-            break;
-
         }
     }
+    
     //Stacking energy parameter matrix
     double energy[7][7] = {
                 {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -396,8 +383,8 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                 {0.0, 0.6, 1.4, 1.5, 0.5, 1.0, 0.3}
             }; 
 
-            obj2 = IloExpr(env_);
-    switch (obj_function2_nbr_) {     
+    obj2 = IloExpr(env_);
+    switch (obj_function2_nbr_) { 
         case 'a':
             // Define the MFE (Minimum Free Energy):
             for (size_t u = 0; u < rna_.get_RNA_length() - 6; u++) {
@@ -409,7 +396,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                     }
                 }
             }
-        break;
+            break;
         case 'b':
             // Define the expected accuracy objective function:
             //MEA:
@@ -418,7 +405,7 @@ MOIP::MOIP(const RNA& rna, string source, string source_path, float theta, bool 
                     if (allowed_basepair(u, v)) obj2 += (IloNum(rna_.get_pij(u, v)) * y(u, v));
                 }
             }
-        break;
+            break;
     }
 }
 
@@ -909,7 +896,7 @@ bool MOIP::allowed_basepair(size_t u, size_t v) const
     return true;
 }
 
-void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
+void MOIP::allowed_motifs_from_desc(file_and_mutex arg_struct)
 {
     /*
         Searches where to place some DESC module in the RNA
@@ -1085,7 +1072,7 @@ void MOIP::allowed_motifs_from_desc(args_of_parallel_func arg_struct)
     }
 }
 
-void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
+void MOIP::allowed_motifs_from_rin(file_and_mutex arg_struct)
 {
     // Searches where to place some RINs in the RNA
 
@@ -1125,6 +1112,7 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
 
     for (vector<Component>& v : vresults)
     {
+        // Now create an actual Motif with the class
         Motif temp_motif = Motif(v, rinfile, carnaval_id, false);
 
         bool unprobable = false;
@@ -1142,114 +1130,71 @@ void MOIP::allowed_motifs_from_rin(args_of_parallel_func arg_struct)
     }
 }
 
-void MOIP::allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id)
+void MOIP::allowed_motifs_from_json(motif_and_mutex arg_struct)
 {
     // Searches where to place some JSON motifs in the RNA
-    path           jsonfile                 = arg_struct.motif_file;
-    mutex&         posInsertionSites_access = arg_struct.posInsertionSites_mutex;
 
-    std::ifstream                 motif;
-    string                        filepath = jsonfile.string();
-    vector<vector<Component>>     vresults, r_vresults;
-    vector<string>                component_sequences;
-    vector<string>                component_contacts;
-    vector<string>                pdbs;
-    string                        contacts, field, seq, struct2d;
-    string                        contacts_id;
-    string                        line, filenumber;
-    string                        rna = rna_.get_seq();
-    string                        reversed_rna = rna_.get_seq();
-    size_t                        nb_contacts = 0;
-    double                        tx_occurrences = 0;
+    mutex&                    posInsertionSites_access = arg_struct.posInsertionSites_mutex;
+    json_elem                 it = arg_struct.motif;
+    vector<vector<Component>> vresults;
+    vector<string>            component_sequences;
+    string                    subseq, seq, fullseq, struct2d;
+    size_t                    end;
 
-    std::reverse(reversed_rna.begin(), reversed_rna.end());
-    
-    motif = std::ifstream(filepath);
-    json js = json::parse(motif);
+    // Retrieve sequenc eand structure
+    seq = it.value()["sequence"];
+    fullseq = string(seq);
+    struct2d = it.value()["struct2d"];
+    transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
 
-    string keys[5] = {"contacts", "occurences", "pdb", "sequence", "struct2d"};
-    uint it_errors = 0;
-    uint comp;
-    uint occ = 0;
-    
-    for(auto it = js.begin(); it != js.end(); ++it) {
-        contacts_id = it.key();
-        comp = stoi(contacts_id);
-
-        // Check for known errors to ignore corresponding motifs
-        if (comp == errors_id[it_errors].first) {    
-            while (comp == errors_id[it_errors].first) {
-                it_errors ++;
-            }
-            continue;
-        } 
-
-        for(auto it2 = js[contacts_id].begin(); it2 != js[contacts_id].end(); ++it2) {
-            field = it2.key(); 
-            if (!field.compare(keys[0]))  // This is the contacts field
-            {  
-                contacts = it2.value();
-                nb_contacts = count_contacts(contacts);
-                component_contacts = find_components(contacts, "&");
-            } 
-            else if (!field.compare(keys[1]))    // This is the occurences field
-            {
-                occ = it2.value();
-                tx_occurrences = (double)occ;    // (double)max_occ;
-
-            } 
-            else if (!field.compare(keys[2]))    // This is the pdb field
-            {
-                vector<string> tab = it2.value();
-                pdbs = tab;
-            } 
-            else if (!field.compare(keys[3]))    // This is the sequence field
-            { 
-                seq = check_motif_sequence(it2.value());
-                component_sequences = find_components(seq, "&");
-            } 
-            else if (!field.compare(keys[4]))    // This is the struct2D field
-            {
-                struct2d = it2.value();      
-            }     
-        }
-        vresults     = json_find_next_ones_in(rna, 0, component_sequences);
-
-        for (vector<Component>& v : vresults)
-        {
-            if (verbose_) cout << "\t> Considering motif JSON " << contacts_id << "\t" << seq << ", " << struct2d << " ";
-            
-            Motif temp_motif = Motif(v, contacts_id, nb_contacts, tx_occurrences);
-            temp_motif.links_ = build_motif_pairs(struct2d, v);
-            temp_motif.pos_contacts = find_contacts(component_contacts, v);
-
-            // Check if the motif can be inserted, checking the basepairs probabilities and theta
-            bool unprobable = false;
-            if (!temp_motif.links_.size()) {
-                if (verbose_) cout << "discarded, no constraints on the secondary structure, it is a useless motif." << endl;
-                continue;
-            }
-            if (verbose_) cout << "at position ";
-            for (const Link& l : temp_motif.links_)
-            {
-                if (verbose_) cout << l.nts.first << ',' << l.nts.second << ' '; 
-                if (!allowed_basepair(l.nts.first, l.nts.second)) {
-                    if (verbose_) cout << "(unlikely) ";
-                    unprobable = true;
-                }
-            }
-            if (unprobable) {
-                if (verbose_) cout << ", discarded because of unlikely or impossible basepairs" << endl;
-                continue;
-            }
-            if (verbose_) cout << endl;
-
-            // Add it to the results vector
-            unique_lock<mutex> lock(posInsertionSites_access);
-            insertion_sites_.push_back(temp_motif);
-            lock.unlock();
-        }
-        component_sequences.clear();
+    // Now split the sequence into components
+    while(seq.find("&") != string::npos) {
+        end = seq.find("&");
+        subseq = seq.substr(0, end);
+        seq = seq.substr(end + 1);
+        component_sequences.push_back(subseq); // new component sequence
+    } 
+    if (!seq.empty()) {
+        component_sequences.push_back(seq);
     }
 
+    // Place the components by pattern-matching
+    vresults = find_next_ones_in(rna_.get_seq(), 0, component_sequences);
+    
+    // Check if the results are possible (likeliness)
+    for (vector<Component>& v : vresults)
+    {
+        
+        // Now create proper Motifs with Motif class
+        Motif temp_motif = Motif(v, it.key(), struct2d);
+
+        if (verbose_) cout << "\t> Considering motif JSON " << temp_motif.pos_string() << "\t" 
+                           << fullseq << ", " << struct2d << " ";
+
+        // Check if the motif can be inserted, checking the basepairs probabilities and theta
+        bool unprobable = false;
+        if (!temp_motif.links_.size()) {
+            if (verbose_) cout << "discarded, no constraints on the secondary structure, it is a useless motif." << endl;
+            continue;
+        }
+        if (verbose_) cout << " + links at positions ";
+        for (const Link& l : temp_motif.links_)
+        {
+            if (verbose_) cout << l.nts.first << ',' << l.nts.second << ' '; 
+            if (!allowed_basepair(l.nts.first, l.nts.second)) {
+                if (verbose_) cout << "(unlikely) ";
+                unprobable = true;
+            }
+        }
+        if (unprobable) {
+            if (verbose_) cout << ", discarded because of unlikely or impossible basepairs" << endl;
+            continue;
+        }
+        if (verbose_) cout << endl;
+
+        // Add it to the results vector
+        unique_lock<mutex> lock(posInsertionSites_access);
+        insertion_sites_.push_back(temp_motif);
+        lock.unlock();
+    }
 }

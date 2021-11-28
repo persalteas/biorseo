@@ -12,12 +12,19 @@
 
 using std::vector;
 
-typedef struct args_ {
+typedef struct argsf_ {
 						path           motif_file;
 						std::mutex&    posInsertionSites_mutex;
-						args_(path motif_file_, mutex& mutex_) : motif_file(motif_file_), posInsertionSites_mutex(mutex_) {}
-					  } args_of_parallel_func;
+						argsf_(path motif_file_, mutex& mutex_) 
+							: motif_file(motif_file_), posInsertionSites_mutex(mutex_) {}
+					  } file_and_mutex;
 
+typedef struct argsm_ {
+						json_elem      motif;
+						std::mutex&    posInsertionSites_mutex;
+						argsm_(json_elem& motif_, mutex& mutex_) 
+							: motif(motif_), posInsertionSites_mutex(mutex_) {}
+					  } motif_and_mutex;
 
 class MOIP
 {
@@ -56,9 +63,9 @@ class MOIP
 
 	bool   						exists_vertical_outdated_labels(const SecondaryStructure& s) const;
 	bool   						exists_horizontal_outdated_labels(const SecondaryStructure& s) const;
-	void   						allowed_motifs_from_desc(args_of_parallel_func arg_struct);
-	void   						allowed_motifs_from_rin(args_of_parallel_func arg_struct);
-	void						allowed_motifs_from_json(args_of_parallel_func arg_struct, vector<pair<uint, char>> errors_id);
+	void   						allowed_motifs_from_desc(file_and_mutex arg_struct);
+	void   						allowed_motifs_from_rin(file_and_mutex arg_struct);
+	void						allowed_motifs_from_json(motif_and_mutex arg_struct);
 	
 	bool verbose_;    // Should we print things ?
 
@@ -79,8 +86,7 @@ class MOIP
 	vector<vector<size_t>> index_of_Cxip_;               // Stores the indexes of the Cxip in insertion_dv_
 	vector<size_t>         index_of_first_components;    // Stores the indexes of Cx1p in insertion_dv_
 	vector<vector<size_t>> index_of_yuv_;                // Stores the indexes of the y^u_v in basepair_dv_
-
-	vector<vector<size_t>>   index_of_xij_;		         //Stores the indexes of the xij variables (BioKop) in stacks_dv_
+	vector<vector<size_t>> index_of_xij_;		         //Stores the indexes of the xij variables (BioKop) in stacks_dv_
 };
 
 inline uint                      MOIP::get_n_solutions(void) const { return pareto_.size(); }

@@ -57,7 +57,4 @@ inline void   SecondaryStructure::set_objective_score(int i, double s) { objecti
 inline uint   SecondaryStructure::get_n_motifs(void) const { return motif_info_.size(); }
 inline uint   SecondaryStructure::get_n_bp(void) const { return nBP_; }
 
-string structure_with_contacts(const SecondaryStructure& ss);
-
-
 #endif    //  SECONDARY_STRUCTURE_

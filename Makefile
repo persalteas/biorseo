@@ -40,12 +40,9 @@ re: remove clean all
 .PHONY: clean
 clean:
 	$(rm) $(OBJECTS)
-	$(rm) doc/supplementary_material.bbl doc/supplementary_material.blg doc/supplementary_material.synctex.gz doc/supplementary_material.log doc/supplementary_material.aux
-	$(rm) doc/main_bioinformatics.bbl doc/main_bioinformatics.blg doc/main_bioinformatics.synctex.gz doc/main_bioinformatics.log doc/main_bioinformatics.aux doc/OUP_First_SBk_Bot_8401-eps-converted-to.pdf
 	@echo -e "\033[00;32mCleanup completed.\033[00m"
 
 .PHONY: remove
 remove:
 	@$(rm) $(BINDIR)/$(TARGET)
-	@$(rm) doc/main_bioinformatics.pdf doc/supplementary_material.pdf
 	@echo -e "\033[00;32mExecutable and docs removed!\033[00m"

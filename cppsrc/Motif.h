@@ -7,6 +7,7 @@
 #include <vector>
 #include <filesystem>
 #include "rna.h"
+#include "json.hpp"
 
 using boost::filesystem::path;
 using std::pair;
@@ -14,6 +15,8 @@ using std::string;
 using std::vector;
 using std::mutex;
 
+typedef enum { RNA3DMOTIF = 1, CSV = 2, CARNAVAL = 3, JSON = 4 } source_type;
+typedef nlohmann::detail::iter_impl<nlohmann::basic_json<> > json_elem;
 
 
 typedef struct Comp_ {
@@ -39,18 +42,17 @@ typedef struct Link
 
 class Motif
 {
-    public:
+  public:
     Motif(void);
     Motif(string csv_line);
-    Motif(const vector<Component>& v, string PDB);
-    Motif(const vector<Component>& v, string id, size_t contacts, double tx_occurrences);
+    Motif(const vector<Component>& v, string name);
+    Motif(const vector<Component>& v, string name, string& struc);
     Motif(const vector<Component>& v, path rinfile, uint id, bool reversed);
+    // Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
     
-
-    Motif(string path, int id); //full path to biorseo/data/modules/RIN/Subfiles/
-    static char                             is_valid_RIN(const string& rinfile);
-    static char                             is_valid_DESC(const string& descfile);
-    static vector<pair<uint,char>>          is_valid_JSON(const string& jsonfile);
+    static char       is_valid_RIN(const string& rinfile);
+    static char       is_valid_DESC(const string& descfile);
+    static char       is_valid_JSON(const json_elem& i);
 
     string            pos_string(void) const;
     string            sec_struct(void) const;
@@ -64,39 +66,27 @@ class Motif
     double            tx_occurrences_;
     double            score_;
     bool              reversed_;
+    static uint       delay;
+    // delay is the minimal shift between end of a component and begining of the next.
+    // For regular loop motifs, it should be at least 5 (because hairpins cannot be of size smaller than 5).
+    // For the general case, it could be zero, but solutions will look dirty...
+    // Higher values reduce combinatorial explosion of potential insertion sites.
 
-    private:
-    string carnaval_id;  // if source = CARNAVAL
-    string atlas_id;     // if source = RNAMOTIFATLAS
-    string PDBID;        // if source = RNA3DMOTIF
-    string contacts_id;  // if source = CONTACTS
-    bool   is_model_;    // Whether the motif is a model or an extracted module from a 3D structure
-    enum { RNA3DMOTIF = 1, RNAMOTIFATLAS = 2, CARNAVAL = 3, CONTACTS = 4 } source_;
+  private:
+    string id_;
+    source_type source_;
 };
 
 bool                        is_desc_insertible(const string& descfile, const string& rna);
-bool                        is_rin_insertible(const string& rinfile, const string& rna);
-bool                        is_json_insertible(const string& jsonfile, const string& rna);
+bool                        check_motif_ss(string);
+bool                        check_motif_sequence(string);
 
 vector<Motif>               load_txt_folder(const string& path, const string& rna, bool verbose);
 vector<Motif>               load_desc_folder(const string& path, const string& rna, bool verbose);
 vector<Motif>               load_csv(const string& path);
 vector<Motif>               load_json_folder(const string& path, const string& rna, bool verbose);
 
-vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string>& vc);
-vector<vector<Component>>   json_find_next_ones_in(string rna, uint offset, vector<string>& vc);
-
-// utilities for Json motifs
-size_t count_nucleotide(string&);
-size_t count_delimiter(string&);
-size_t count_contacts(string&);
-string check_motif_sequence(string);
-bool checkSecondaryStructure(string);
-vector<Link> build_motif_pairs(string&, vector<Component>&);
-uint find_max_occurrences(string&);
-uint find_max_sequence(string&);
-vector<string> find_components(string&, string);
-vector<uint> find_contacts(vector<string>&, vector<Component>&);
+vector<vector<Component>>   find_next_ones_in(string rna, uint offset, vector<string> vc);
 
 // utilities to compare secondary structures:
 bool operator==(const Motif& m1, const Motif& m2);

@@ -50,6 +50,7 @@ RNA::RNA(string name, string seq, bool verbose)
 	int max_bp_span = 100;
 	float cutoff = 1e-6;
 	vrna_ep_t* results = vrna_pfl_fold(cseq, window_size, max_bp_span, cutoff);
+	vrna_ep_t* save = results; // keep the pointer to free it later
 
 	if (results != NULL)
 	{
@@ -95,7 +96,9 @@ RNA::RNA(string name, string seq, bool verbose)
 				}
 			}
 		}
-
+		
+		// Free memory allocated by ViennaRNA
+		free(save);
 	}
 
 	else cerr << "NULL result returned by vrna_pfl_fold" << endl;

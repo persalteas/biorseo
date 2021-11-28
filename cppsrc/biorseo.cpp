@@ -79,12 +79,10 @@ int main(int argc, char* argv[])
     ("jsonfolder,j", po::value<string>(&motifs_path_name), "A folder containing a custom motif library in .json format")
     ("pre-placed,x", po::value<string>(&motifs_path_name), "A CSV file providing motif insertion sites obtained with another tool.")
     ("function,f", po::value<char>(&obj_function_nbr)->default_value('B'), 
-                    "(A, B, C, D, E or F) Objective function to score module insertions:\n"
+                    "(A, B, C, or D) Objective function to score module insertions:\n"
                     "  (A) insert big modules\n  (B) light, high-order modules\n"
                     "  (C) well-scored modules\n  (D) light, high-order, well-scored\n    modules\n"
-                    "  (E, F) insert big modules with many\n   contacts with proteins, different\n   ponderations.\n"
-                    "  C and D require position scores\n  provided by --pre-placed.\n"
-                    "  E and F require protein-contact\n  information and should be\n  used only with --jsonfolder.")    
+                    "  C and D require position scores\n  provided by --pre-placed.\n")    
     ("mfe,E", "Minimize stacking energies\n  (leads to MFE extimator)")
     ("mea,A", "(default) Maximize expected accuracy\n  (leads to MEA estimator)")
     ("first-objective,c",   po::value<unsigned int>(&MOIP::obj_to_solve_)->default_value(2), 
@@ -108,8 +106,8 @@ int main(int argc, char* argv[])
                 << "Bio-objective integer linear programming framework to predict RNA secondary structures by including known RNA modules." << endl
                 << "Developped by Louis Becquey, 2018-2021\nLénaïc Durand, 2019\nNathalie Bernard, 2021" << endl << endl
                 << "Usage:\tYou must provide:\n\t1) a FASTA input file with -s," << endl
-                << "\t2) a module type with --rna3dmotifs, --carnaval, --contacts or --pre-placed," << endl
-                << "\t3) one module-based scoring function with --func A, B, C, D, E or F," << endl
+                << "\t2) a module type with --rna3dmotifs, --carnaval, --json or --pre-placed," << endl
+                << "\t3) one module-based scoring function with --func A, B, C, or D" << endl
                 << "\t4) one energy-based scoring function with --mfe or --mea," << endl
                 << "\t5) how to display results: in console (-v), or in a result file (-o)." << endl
                 << endl
@@ -154,19 +152,22 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-
-    /*  FIND PARETO SET  */
     string source;
+    Motif::delay = 1;
     if (vm.count("rinfolder"))
         source = "rinfolder";
-    else if (vm.count("descfolder"))
+    else if (vm.count("descfolder")) {
         source = "descfolder";
+        Motif::delay = 5;
+    }
     else if (vm.count("jsonfolder"))
         source = "jsonfolder";
     else if (vm.count("pre-placed"))
         source = "csvfile";
     else
         cerr << "ERR: no source of modules provided !" << endl;
+
+    /*  FIND PARETO SET  */
     
     MOIP               myMOIP = MOIP(myRNA, source, motifs_path_name.c_str(), theta_p_threshold, verbose);
     double             min, max;
@@ -243,11 +244,8 @@ int main(int argc, char* argv[])
         outfile.open(outputName);
         outfile << fa->name() << endl << fa->seq() << endl;
     
-        for (uint i = 0; i < myMOIP.get_n_solutions(); i++) {
-            outfile << myMOIP.solution(i).to_string() << endl << structure_with_contacts(myMOIP.solution(i)) << endl;
-            string str1 = myMOIP.solution(i).to_string();
-
-        }
+        for (uint i = 0; i < myMOIP.get_n_solutions(); i++)
+            outfile << myMOIP.solution(i).to_string() << endl;
         outfile.close();
     }
 

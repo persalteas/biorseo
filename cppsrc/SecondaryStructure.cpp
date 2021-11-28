@@ -3,15 +3,11 @@
 #include <algorithm>
 #include <boost/format.hpp>
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"      /* Red */
-
 using std::abs;
 using std::cout;
 using std::endl;
 
 SecondaryStructure::SecondaryStructure() {}
-
 
 SecondaryStructure::SecondaryStructure(const RNA& rna)
 : objective_scores_(vector<double>(2)), n_(rna.get_RNA_length()), nBP_(0), rna_(rna)
@@ -20,8 +16,6 @@ SecondaryStructure::SecondaryStructure(const RNA& rna)
 }
 
 SecondaryStructure::SecondaryStructure(bool empty) : rna_(RNA()) { is_empty_structure = empty; }
-
-
 
 string SecondaryStructure::to_DBN(void) const
 {
@@ -100,26 +94,6 @@ string SecondaryStructure::to_DBN(void) const
     return res;
 }
 
-string structure_with_contacts(const SecondaryStructure& ss) {
-    string sequence = ss.rna_.get_seq();
-    string construct = "";
-    bool flag;
-    for (uint i = 0; i < sequence.size(); i++) {
-        flag = false;
-        for (const Motif& m : ss.motif_info_) {
-            for (uint j = 0; j < m.pos_contacts.size(); j++) {
-                if (m.pos_contacts[j] == i) flag = true;
-            }
-        }
-        if (flag) {   
-            construct += "*";
-        } else {
-            construct += ".";
-        }
-    }
-    return construct;
-}
-
 string SecondaryStructure::to_string(void) const
 {
     string s;
@@ -141,35 +115,11 @@ void SecondaryStructure::set_basepair(uint i, uint j)
 
 void SecondaryStructure::insert_motif(const Motif& m) { motif_info_.push_back(m); }
 
-void colored_contacts(string sequence, vector<Motif> motif_info_) {
-    bool flag;
-    for (uint i = 0; i < sequence.size(); i++) {
-        flag = false;
-        for (const Motif& m : motif_info_) {
-            for (uint j = 0; j < m.pos_contacts.size(); j++) {
-                if (m.pos_contacts[j] == i) flag = true;
-            }
-        }
-        if (flag) {   
-            cout << RED << sequence[i] << RESET;
-        } else {
-            cout << sequence[i];
-        }
-    }
-}
-
 void SecondaryStructure::print(void) const
 {
-    cout << endl;
-    cout << '\t';
-    colored_contacts(rna_.get_seq(), motif_info_);
-    //rna_.get_seq() 
-    cout << endl;
+    cout << endl << '\t' << rna_.get_seq() << endl;
     string ss = to_string();
-    cout << '\t';
-    colored_contacts(ss, motif_info_);
-    //cout << ss;
-    cout << endl;
+    cout << '\t' << ss << endl;
     for (const Motif& m : motif_info_) {
         uint i = 0;
         cout << '\t';
@@ -323,7 +273,6 @@ bool operator<=(const SecondaryStructure& s1, const SecondaryStructure& s2)
     }
     return false;
 }
-
 
 bool operator==(const SecondaryStructure& s1, const SecondaryStructure& s2)
 {
