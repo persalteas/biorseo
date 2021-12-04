@@ -1,24 +1,19 @@
-FROM ubuntu:bionic
-
-# installing dependencies
-RUN apt-get update -yq && \
-    apt-get upgrade -y && \
-    apt-get install -y python3-dev python3-pip openjdk-11-jre libgsl23 libgslcblas0 libboost-program-options-dev libboost-filesystem-dev && \
-    rm -rf /var/lib/apt/lists/*
+# You can pick the Ubuntu version that suits you instead, according to the version of the boost libraries
+# that you are using to compile biorseo.
+#
+# Typically, on the machine where you typed 'make', check :
+# ls /usr/lib/libboost_filesystem.so.*
+# this will give you the file name of your boost library, including the version number.
+# Use the docker basis image of the Ubuntu which has this version of boost in the apt sources.
+FROM ubuntu:focal
 
 # compiled biorseo
-COPY . /biorseo 
-# ViennaRNA installer
-ADD "https://www.tbi.univie.ac.at/RNA/download/ubuntu/ubuntu_18_04/viennarna_2.4.14-1_amd64.deb" /
-# jar3d archive
-ADD http://rna.bgsu.edu/data/jar3d/models/jar3d_2014-12-11.jar /
+COPY . /biorseo/
 
-# install codes
-RUN dpkg -i /viennarna_2.4.14-1_amd64.deb && \
-    apt-get install -f          && \
-    \
-    pip3 install networkx numpy regex wrapt biopython /biorseo/BayesPairing && \
-    \
-    cd / && \
-    rm -rf /biorseo/BayesPairing /ViennaRNA-2.4.13 /ViennaRNA-2.4.13.tar.gz
+# Install runtime dependencies
+RUN apt-get update -yq && \
+    apt-get upgrade -y && \
+    apt-get install -y libboost-program-options-dev libboost-filesystem-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /biorseo

@@ -14,9 +14,8 @@ sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io
 ```
 
 ### Download and install the RNA motifs data files:
+* Move your JSON-formatted or CSV-formatted files containing motifs in the folder.
 * If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Put all the .desc from the `Non_Redundant_DESC` folder into `./data/modules/DESC`. Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)). You also need to move the final DESC files into `./data/modules/DESC`.
-
-* Get the latest version of the HL and IL module models from the [BGSU website](http://rna.bgsu.edu/data/jar3d/models/) and extract the Zip files. Put the HL and IL folders from inside the Zip files into `./data/modules/BGSU`. Note that only the latest Zip is required.
 
 ### Download the docker image from Docker Hub
 `docker pull persalteas/biorseo:latest`
@@ -31,9 +30,9 @@ $ docker run
 persalteas/biorseo 
 yourexamplejobcommandhere
 ```
-You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 4 volumes : A first to give BiORSEO access to the module files, a second to give it access to your input file(s), a third for your trained BayesPairing, and a last for it to output the result files of your job. Considering you place your input file 'MyFastaFile.fa' into the `data/fasta` folder, an example job command can be ` ./biorseo.py -i /biorseo/data/fasta/myFastaFile.fa  --rna3dmotifs --patternmatch --func B`, so the full run command would be 
+You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 4 volumes : A first to give BiORSEO access to the module files, a second to give it access to your input file(s), a third for your trained BayesPairing, and a last for it to output the result files of your job. Considering you place your input file 'MyFastaFile.fa' into the `data/fasta` folder, an example job command can be ` ./biorseo.py -i /biorseo/data/fasta/myFastaFile.fa  --rna3dmotifs --func B`, so the full run command would be 
 ```
-$ docker run -v `pwd`/data/modules:/modules -v `pwd`/data/fasta:/biorseo/data/fasta -v `pwd`/results:/biorseo/results persalteas/biorseo ./biorseo.py -i /biorseo/data/fasta/applications.fa --rna3dmotifs --patternmatch --func B
+$ docker run -v `pwd`/data/modules:/modules -v `pwd`/data/fasta:/biorseo/data/fasta -v `pwd`/results:/biorseo/results persalteas/biorseo ./bin/biorseo -s /biorseo/data/fasta/applications.fa --descfolder /biorseo/data/modules/DESC --func B -v
 ```
 
 Note that the paths to the input and output files are paths *inside the Docker container*, and those paths are mounted to folders of the host machine with -v options.
@@ -83,12 +82,11 @@ If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it fr
 * Check if the executable file exists: `./bin/biorseo --version`.
 
 ### RUN BIORSEO
-Now you can run biorseo.py, but, as you are not into the Docker environment, you MUST provide the options to tell it the jar3d or BayesPairing locations, for example:
+Now you can run biorseo, but, as you are not into the Docker environment, you MUST provide the options to tell it the jar3d or BayesPairing locations, for example:
 ```
-$ ./biorseo.py 
--i ./data/fasta/applications.fa 
--O ./results/
---rna3dmotifs --patternmatch --func B 
---biorseo-dir /FULL/path/to/the/root/biorseo/dir
---modules-path=./data/modules/DESC 
+$ ./bin/biorseo
+-s ./data/fasta/applications.fa 
+-o result.bi
+--func B 
+--descfolder=./data/modules/DESC 
 ```

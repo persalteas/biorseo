@@ -273,15 +273,15 @@ class RNA:
 		#     print(filename, "not found !")
 
 	def load_biokop_results(self):
-		filename = outputDir+"PK/"+basename+".biok"
+		filename = outputDir+"PK/"+self.basename+".biok"
 		if path.isfile(filename):
 			rna = open(filename, "r")
 			lines = rna.readlines()
 			rna.close()
 			for i in range(2, len(lines)):
-				ss = lines[i].split(' ')[0].split('\t')[0]
-				method.predictions.append(ss)
-				method.ninsertions.append(lines[i].count('+'))
+				ss = lines[i].split('\t')[0]
+				self.get_method("Biokop-mode").predictions.append(ss)
+				self.get_method("Biokop-mode").ninsertions.append(0)
 
 	def load_results(self, include_noPK=False):
 		if "Biokop-mode" in self.meth_idx.keys():
@@ -905,28 +905,24 @@ if __name__ == '__main__':
 	colors = [
 		'#911eb4', #purple
 		'#000075', #navy
-		'#ffe119', '#ffe119', # yellow
 		'#e6194B', '#e6194B', #red
-		'#3cb44b', '#3cb44b', #green
 		'#4363d8', '#4363d8', #blue
+		'#3cb44b', '#3cb44b', #green
 	]
 
 	def plot_best_MCCs(x_noPK_fully, x_PK_fully, x_pseudobase_fully):
 
 		print("Best MCCs...")
 		labels = [
-			"Biokop-mode\n", "RNAsubopt",
-			"$f_{1A}$", "$f_{1B}$",
-			"$f_{1A}$", "$f_{1B}$",
+			"Biokop\nmode", "RNA\nsubopt",
 			"$f_{1A}$", "$f_{1B}$",
 			"$f_{1A}$", "$f_{1B}$",
 			"$f_{1A}$", "$f_{1B}$",
 		]
 
-		fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10,5), dpi=150)
+		fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(7,5), dpi=150)
 		fig.suptitle(" \n ")
-		fig.subplots_adjust(left=0.1, right=0.97, top=0.83, bottom=0.05)
-
+		fig.subplots_adjust(left=0.18, right=0.97, top=0.83, bottom=0.05)
 
 
 		# Line 1 : no Pseudoknots
@@ -949,10 +945,10 @@ if __name__ == '__main__':
 		axes[0].set_ylabel("(A)\nmax MCC\n(%d RNAs)" % (len(x_noPK_fully[0])), fontsize=12)
 
 		# Line 2 : Pseudoknots supported
-		xpos = [ 0 ] + [ i for i in range(4,20) ]
+		xpos = [ 0 ] + [ 1+i for i in range(1, len(x_PK_fully)) ]
 		vplot = axes[1].violinplot(x_PK_fully, showmeans=False, showmedians=False, showextrema=False,
 								   points=len(x_PK_fully[0]), positions=xpos)
-		for patch, color in zip(vplot['bodies'], colors[:1] + colors[4:]):
+		for patch, color in zip(vplot['bodies'], [colors[0]] + colors[2:]):
 			patch.set_facecolor(color)
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
@@ -986,13 +982,13 @@ if __name__ == '__main__':
 
 		for ax in axes:
 			ax.set_ylim((0.0, 1.01))
-			ax.set_xlim((-1, 20))
+			ax.set_xlim((-1, 8))
 			yticks = [ i/10 for i in range(0, 11, 2) ]
 			ax.set_yticks(yticks)
 			for y in yticks:
 				ax.axhline(y=y, color="grey", linestyle="--", linewidth=1)
 			ax.tick_params(top=False, bottom=False, labeltop=False, labelbottom=False)
-			ax.set_xticks([i for i in range(20)])
+			ax.set_xticks([i for i in range(8)])
 		axes[0].tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
 		axes[0].set_xticklabels(labels)
 		for i, tick in enumerate(axes[0].xaxis.get_major_ticks()):
@@ -1006,9 +1002,9 @@ if __name__ == '__main__':
 
 		# Figure : number of solutions
 		print("Number of solutions...")
-		plt.figure(figsize=(9,2.5), dpi=80)
+		plt.figure(figsize=(5,3), dpi=80)
 		plt.suptitle(" \n ")
-		plt.subplots_adjust(left=0.05, right=0.97, top=0.6, bottom=0.05)
+		plt.subplots_adjust(left=0.1, right=0.97, top=0.72, bottom=0.05)
 		xpos = [ x for x in range(len(n)) ]
 		for y in [ 10*x for x in range(8) ]:
 			plt.axhline(y=y, color="grey", linestyle="-", linewidth=0.5)
@@ -1019,24 +1015,15 @@ if __name__ == '__main__':
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
 		labels = [
-			"Biokop",
-			"RNAsubopt","RNA-MoIP\n1by1", "RNA-MoIP\nchunk",
+			"Biokop\nmode", "RNA\nsubopt",
 			"$f_{1A}$", "$f_{1B}$",
-			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
-			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
-			"$f_{1A}$", "$f_{1B}$", "$f_{1C}$", "$f_{1D}$",
+			"$f_{1A}$", "$f_{1B}$", 
 			"$f_{1A}$", "$f_{1B}$"
 		]
-		plt.xlim((-1,20))
+		plt.xlim((-1,8))
 		plt.tick_params(top=False, bottom=False, labeltop=False, labelbottom=False)
 		plt.xticks([ i for i in range(len(labels))], labels)
 		plt.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
-		for i, tick in enumerate(plt.gca().xaxis.get_major_ticks()):
-			if i<4: # Reduce size of RNA-MoIP labels to stay readable
-				# tick.label2.set_fontsize(8)
-				tick.label2.set_rotation(90)
-			else:
-				tick.label2.set_fontsize(12)
 		plt.yticks([ 20*x for x in range(3) ])
 		plt.ylim((0,40))
 		plt.savefig("number_of_solutions.png")
@@ -1044,11 +1031,11 @@ if __name__ == '__main__':
 		# Figure : max number of insertions and ratio
 		fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(10,4), dpi=80)
 		fig.suptitle(" \n ")
-		fig.subplots_adjust(left=0.09, right=0.99, top=0.7, bottom=0.05)
+		fig.subplots_adjust(left=0.09, right=0.99, top=0.85, bottom=0.05)
 		
 		# Figure : max inserted
 		print("Max inserted...")
-		xpos = [ x for x in range(18) ]
+		xpos = [ x for x in range(len(max_i)) ]
 		axes[0].set_yticks([ 5*x for x in range(3) ])
 		for y in [ 2*x for x in range(7) ]:
 			axes[0].axhline(y=y, color="grey", linestyle="-", linewidth=0.5)
@@ -1061,14 +1048,13 @@ if __name__ == '__main__':
 
 		# Figure : insertion ratio
 		print("Ratio of insertions...")
-		xpos = [ 0 ] + [ x for x in range(2, 1+len(r)) ]
 		axes[1].set_ylim((-0.01, 1.01))
 		yticks = [ 0, 0.5, 1.0 ]
 		axes[1].set_yticks(yticks)
 		for y in yticks:
 			axes[1].axhline(y=y, color="grey", linestyle="-", linewidth=0.5)
 		vplot = axes[1].violinplot(r, showmeans=False, showmedians=False, showextrema=False, points=len(r[0]), positions=xpos)
-		for patch, color in zip(vplot['bodies'], [colors[2]] + colors[4:]):
+		for patch, color in zip(vplot['bodies'], colors[2:]):
 			patch.set_facecolor(color)
 			patch.set_edgecolor(color)
 			patch.set_alpha(0.5)
@@ -1078,21 +1064,15 @@ if __name__ == '__main__':
 
 		labels = labels[2:]
 		for ax in axes:
-			ax.set_xlim((-1,18))
+			ax.set_xlim((-1,6))
 			ax.tick_params(top=False, bottom=False, labeltop=False, labelbottom=False)
-			ax.set_xticks([ i for i in range(18)])
+			ax.set_xticks([ i for i in range(6)])
 		axes[0].tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
 		axes[0].set_xticklabels(labels)
 		for i, tick in enumerate(axes[0].xaxis.get_major_ticks()):
-			if i<2: # Reduce size of RNA-MoIP labels to stay readable
-				# tick.label2.set_fontsize(9)
-				tick.label2.set_rotation(90)
-			else:
-				tick.label2.set_fontsize(12)
+			tick.label2.set_fontsize(12)
 
 	plot_best_MCCs(x_noPK_fully, x_PK_fully, x_pseudobase_fully)
 	plt.savefig("best_MCCs.png")
 	plot_more_info()
 	plt.savefig("detailed_stats.png")
-	compare_subopt_MoIP()
-	plt.savefig("compare_subopt_MOIP.png")
