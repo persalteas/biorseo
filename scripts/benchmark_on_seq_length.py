@@ -22,7 +22,7 @@ while step < len(seq)+50:
 	fasta.close()
 
 	# run biorseo on it, with default options
-	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "./ZDFS33.fa", "-v"]
+	cmd = ["./bin/biorseo", "-d", "./data/modules/DESC", "-s", "data/fasta/ZDFS33.fa", "-v"]
 	old_time = time.time()
 	output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8").split("\n")[-5:]
 	run_time = time.time() - old_time

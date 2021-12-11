@@ -1,7 +1,5 @@
 Option 1 : Installation using docker image (Windows, Mac, Linux)
 ==================================
-* Clone this git repository : `git clone https://github.com/persalteas/biorseo.git` , or download the .zip archive from a BiORSEO release and extract it.
-* Move into the repository ( `cd biorseo` )
 
 ### Install Docker:
 * See the officiel instructions depending on your OS here : https://docs.docker.com/install/
@@ -13,60 +11,40 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io
 ```
 
+### Create a separated folder
+You will need a folder that is mounted in the Docker container (shared between your filesystem and the container's one). For example, create a `data` folder. It should be the place where you place your FASTA input, your modules, and where Biorseo should place the output.
+```
+mkdir data 
+```
+
 ### Download and install the RNA motifs data files:
-* Move your JSON-formatted or CSV-formatted files containing motifs in the folder.
-* If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Put all the .desc from the `Non_Redundant_DESC` folder into `./data/modules/DESC`. Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)). You also need to move the final DESC files into `./data/modules/DESC`.
+* Move your JSON-formatted or CSV-formatted files containing motifs in a `./data/JSON` or `./data/CSV` folder.
+* If you use Rna3Dmotifs (easy, but outdated), you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Put all the .desc from the `Non_Redundant_DESC` folder into `./data/DESC`. Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)). You also need to move the final DESC files into `./data/DESC`.
+* If you use CaRNAval (which is supposed to be a long-distance contact module dataset, not a SSE module dataset), use the script [scripts/Install_CaRNAval_RINs.py](scripts/Install_CaRNAval_RINs.py) : 
+`python3 Install_CaRNAval_RINs.py`. This will create a `/../data/modules/RIN/` folder (because the script is supposed to be run from the repo's `scripts` subfolder)
 
 ### Download the docker image from Docker Hub
-`docker pull persalteas/biorseo:latest`
+```
+docker pull persalteas/biorseo:latest
+```
 
 ### Run the docker image
 Use the following command to run the docker image:
 ```
-$ docker run 
--v `pwd`/data/modules:/modules 
--v `pwd`/data/fasta:/biorseo/data/fasta
--v `pwd`/results:/biorseo/results 
-persalteas/biorseo 
-yourexamplejobcommandhere
+$ docker run -v `pwd`/data:/workdir/data persalteas/biorseo [optionshere]
 ```
-You can replace \`pwd\` by the full path of the biorseo/ root folder. Here we launch the biorseo image with 4 volumes : A first to give BiORSEO access to the module files, a second to give it access to your input file(s), a third for your trained BayesPairing, and a last for it to output the result files of your job. Considering you place your input file 'MyFastaFile.fa' into the `data/fasta` folder, an example job command can be ` ./biorseo.py -i /biorseo/data/fasta/myFastaFile.fa  --rna3dmotifs --func B`, so the full run command would be 
+You can replace \`pwd\`/data by the full path to your data folder. Assuming you place your input file 'MyFastaFile.fa' into the `data/fasta` folder, an example job command can be :
 ```
-$ docker run -v `pwd`/data/modules:/modules -v `pwd`/data/fasta:/biorseo/data/fasta -v `pwd`/results:/biorseo/results persalteas/biorseo ./bin/biorseo -s /biorseo/data/fasta/applications.fa --descfolder /biorseo/data/modules/DESC --func B -v
+$ docker run -v `pwd`/data:/workdir/data persalteas/biorseo -s data/fasta/MyFastaFile.fa --descfolder data/DESC --func B -v -o data/MyOutput.biorseo
 ```
 
-Note that the paths to the input and output files are paths *inside the Docker container*, and those paths are mounted to folders of the host machine with -v options.
+Note that the paths to the input and output files are paths *inside the Docker container*, and those paths are mounted to the data folder of the host machine with the -v option.
 
 Option 2 : Compile and Install from source (without docker, Linux only)
 ==================================
 
 ### CLONING
-* Clone this git repository : `git clone https://forge.ibisc.univ-evry.fr/lbecquey/biorseo.git` (from the IBISC forge) or `git clone https://github.com/persalteas/biorseo.git` (from my personal GitHub, only while i am the current developer !) and `cd biorseo`.
-
-* Create folders for the modules you will use: `mkdir -p data/modules/`. If you plan to use several module sources, add subdirectories :
-```bash
-mkdir -p data/modules/BGSU
-mkdir -p data/modules/RIN
-mkdir -p data/modules/DESC
-mkdir -p data/modules/JSON
-```
-
-### THE RNA 3D MOTIF ATLAS DATA
-
-Get the latest version of the HL and IL module models from the [BGSU website](http://rna.bgsu.edu/data/jar3d/models/) and extract the Zip files. Put the HL and IL folders from inside the Zip files into `./data/modules/BGSU`. Note that only the latest Zip is required.
-
-### CARNAVAL DATA
-
-You first need to have the `unzip` command installed on your machine and the `networkx` package installed for Python 3. Then just run the script `Install_CaRNAval_RINs.py`, this will create files into `./data/modules/RIN/Subfiles` :
-```bash
-cd scripts
-python3 Install_CaRNAval_RINs.py
-```
-If you do not have the unzip command, download and extract manually the [CaRNAval dataset](http://carnaval.lri.fr/carnaval_dataset.zip) and place the files `RIN.py` and `CaRNAval_1_as_dictionnary.nxpickled` in the folder `data/modules/RIN/`, and run the python script.
-
-### RNA3DMOTIFS DATA (DEPRECATED)
-
-If you use Rna3Dmotifs, you need to get RNA-MoIP's .DESC dataset: download it from [GitHub](https://github.com/McGill-CSB/RNAMoIP/blob/master/CATALOGUE.tgz). Put all the .desc from the `Non_Redundant_DESC` folder into `./data/modules/DESC`. Otherwise, you also can run Rna3Dmotifs' `catalog` program to get your own DESC modules collection from updated 3D data (download [Rna3Dmotifs](https://rna3dmotif.lri.fr/Rna3Dmotif.tgz)). You also need to move the final DESC files into `./data/modules/DESC`.
+* Clone this git repository : `git clone https://forge.ibisc.univ-evry.fr/lbecquey/biorseo.git` (from the IBISC forge) or `git clone https://github.com/persalteas/biorseo.git` (from my personal GitHub, only while i (Louis Becquey) am the current developer !) and `cd biorseo`.
 
 ### DEPENDENCIES
 - Make sure you have Python 3.7+ and a C++ compiler (tested with GCC and clang) installed on your distribution. Use a recent one, we use the 2017 C++ standard. The compilation will not work with Ubuntu 16's GCC 5.4 for example.

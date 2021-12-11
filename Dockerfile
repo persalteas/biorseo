@@ -8,7 +8,7 @@
 FROM ubuntu:focal
 
 # compiled biorseo
-COPY . /biorseo/
+COPY ./bin /workdir/
 
 # Install runtime dependencies
 RUN apt-get update -yq && \
@@ -16,4 +16,5 @@ RUN apt-get update -yq && \
     apt-get install -y libboost-program-options-dev libboost-filesystem-dev && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /biorseo
+WORKDIR /workdir
+ENTRYPOINT ["/workdir/biorseo"]
