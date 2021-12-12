@@ -158,7 +158,6 @@ def is_canonical_nts(seq):
             return False
     return True
 
-
 def is_canonical_bps(struct):
     if "()" in struct:
         return False
@@ -207,7 +206,6 @@ def load_from_dbn(file, header_style=3):
     db.close()
     return container, pkcounter
 
-
 def parse_biokop(folder, basename, ext=".biok"):
     solutions = []
     err = 0
@@ -248,7 +246,6 @@ def parse_biokop(folder, basename, ext=".biok"):
             err = 1
     return None, err
 
-
 def parse_biorseo(folder, basename, ext):
     solutions = []
     err = 0
@@ -272,21 +269,14 @@ def parse_biorseo(folder, basename, ext):
             err = 1
     return None, err
 
-
 def prettify_biorseo(code):
     name = ""
-    if "bgsu" in code:
-        name += "RNA 3D Motif Atlas + "
+    if "json" in code:
+        name += "JSON motifs + "
     elif "rin" in code:
         name += "CaRNAval + "
     else:
         name += "Rna3Dmotifs + "
-    if "raw" in code:
-        name += "Direct P.M."
-    if "byp" in code:
-        name += "BPairing"
-    if "jar3d" in code:
-        name += "Jar3d"
     # name += " + $f_{1" + code[-1] + "}$"
     return name
 
@@ -342,14 +332,9 @@ def process_extension(ax, pos, ext, nsolutions=False, xlabel="Best solution perf
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt( sys.argv[1:], "", 
-                                [  "biorseo_desc_byp_A", "biorseo_desc_byp_B",
-                                    "biorseo_desc_byp_C", "biorseo_desc_byp_D",
-                                    "biorseo_bgsu_byp_A", "biorseo_bgsu_byp_B",
-                                    "biorseo_bgsu_byp_C", "biorseo_bgsu_byp_D",
-                                    "biorseo_desc_raw_A", "biorseo_desc_raw_B",
-                                    "biorseo_bgsu_jar3d_A", "biorseo_bgsu_jar3d_B",
-                                    "biorseo_bgsu_jar3d_C", "biorseo_bgsu_jar3d_D",
-                                    "biorseo_rin_raw_A", "biorseo_rin_raw_B",
+                                [  "biorseo_desc_A", "biorseo_desc_B",
+                                    "biorseo_rin_A", "biorseo_rin_B",
+                                    "biorseo_json_A", "biorseo_json_B",
                                     "biokop", "folder=", "database=", "output="
                                 ])
     except getopt.GetoptError as err:
@@ -384,36 +369,19 @@ if __name__ == "__main__":
 
     if extension == "all":
         parse = parse_biorseo
-        fig, ax = plt.subplots(4,5,figsize=(12,10), sharex=True, sharey=True)
+        fig, ax = plt.subplots(2,3,figsize=(8,10), sharex=True, sharey=True)
         ax = ax.flatten()
-        process_extension(ax, 0, ".biorseo_desc_raw_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
-        process_extension(ax, 1, ".biorseo_rin_raw_A",      ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
-        process_extension(ax, 2, ".biorseo_desc_byp_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
-        process_extension(ax, 3, ".biorseo_bgsu_byp_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
-        process_extension(ax, 4, ".biorseo_bgsu_jar3d_A",   ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
-        ax[0].set_title(prettify_biorseo("biorseo_desc_raw_A"), fontsize=10)
-        ax[1].set_title(prettify_biorseo("biorseo_rin_raw_A"), fontsize=10)
-        ax[2].set_title(prettify_biorseo("biorseo_desc_byp_A"), fontsize=10)
-        ax[3].set_title(prettify_biorseo("biorseo_bgsu_byp_A"), fontsize=10)
-        ax[4].set_title(prettify_biorseo("biorseo_bgsu_jar3d_A"), fontsize=10)
+        process_extension(ax, 0, ".biorseo_desc_A",     ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        process_extension(ax, 1, ".biorseo_rin_A",      ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        process_extension(ax, 2, ".biorseo_json_A",      ylabel="Normalized $f_{1A}$", xlabel="Normalized MEA")
+        ax[0].set_title(prettify_biorseo("biorseo_desc_A"), fontsize=10)
+        ax[1].set_title(prettify_biorseo("biorseo_rin_A"), fontsize=10)
+        ax[2].set_title(prettify_biorseo("biorseo_json_A"), fontsize=10)
 
-        process_extension(ax, 5, ".biorseo_desc_raw_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
-        process_extension(ax, 6, ".biorseo_rin_raw_B",      ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
-        process_extension(ax, 7, ".biorseo_desc_byp_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
-        process_extension(ax, 8, ".biorseo_bgsu_byp_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
-        process_extension(ax, 9, ".biorseo_bgsu_jar3d_B",   ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 3, ".biorseo_desc_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 4, ".biorseo_rin_B",      ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
+        process_extension(ax, 5, ".biorseo_json_B",     ylabel="Normalized $f_{1B}$", xlabel="Normalized MEA")
 
-        process_extension(ax, 12, ".biorseo_desc_byp_C",   ylabel="Normalized $f_{1C}$", xlabel="Normalized MEA")
-        process_extension(ax, 13, ".biorseo_bgsu_byp_C",   ylabel="Normalized $f_{1C}$", xlabel="Normalized MEA")
-        process_extension(ax, 14, ".biorseo_bgsu_jar3d_C", ylabel="Normalized $f_{1C}$", xlabel="Normalized MEA")
-        ax[10].axis("off")
-        ax[11].axis("off")
-
-        process_extension(ax, 17, ".biorseo_desc_byp_D",   ylabel="Normalized $f_{1D}$", xlabel="Normalized MEA")
-        process_extension(ax, 18, ".biorseo_bgsu_byp_D",   ylabel="Normalized $f_{1D}$", xlabel="Normalized MEA")
-        process_extension(ax, 19, ".biorseo_bgsu_jar3d_D", ylabel="Normalized $f_{1D}$", xlabel="Normalized MEA")
-        ax[15].axis("off")
-        ax[16].axis("off")
         for a in ax:
             a.label_outer()
         plt.subplots_adjust(bottom=0.05, top=0.95, left=0.07, right=0.98, hspace=0.1, wspace = 0.05)
